@@ -3,16 +3,12 @@ package com.example.ui.components
 import android.content.ClipData
 import android.content.ClipboardManager
 import android.content.Context
-import android.view.SoundEffectConstants
 import android.widget.Toast
 import androidx.compose.animation.*
 import androidx.compose.animation.core.*
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.gestures.awaitEachGesture
-import androidx.compose.foundation.gestures.awaitFirstDown
-import androidx.compose.foundation.gestures.waitForUpOrCancellation
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.collectIsPressedAsState
 import androidx.compose.foundation.layout.*
@@ -27,17 +23,11 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.drawBehind
-import androidx.compose.ui.draw.scale
-import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
-import androidx.compose.ui.input.pointer.pointerInput
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalHapticFeedback
-import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
@@ -376,6 +366,215 @@ fun NextDnsSettingToggle(
 }
 
 /**
+ * Reusable Setting Toggle Row (compact within cards)
+ */
+@Composable
+fun NextDnsSettingToggleRow(
+  title: String,
+  subtitle: String? = null,
+  checked: Boolean,
+  onCheckedChange: (Boolean) -> Unit,
+  modifier: Modifier = Modifier
+) {
+  Row(
+    modifier = modifier
+      .fillMaxWidth()
+      .bounceClick { onCheckedChange(!checked) }
+      .padding(vertical = 6.dp),
+    verticalAlignment = Alignment.CenterVertically,
+    horizontalArrangement = Arrangement.SpaceBetween
+  ) {
+    Column(modifier = Modifier.weight(1f).padding(end = 12.dp)) {
+      Text(
+        text = title,
+        color = MaterialTheme.colorScheme.onSurface,
+        fontSize = 13.5.sp,
+        fontWeight = FontWeight.Bold
+      )
+      if (subtitle != null) {
+        Text(
+          text = subtitle,
+          color = MaterialTheme.colorScheme.onSurfaceVariant,
+          fontSize = 11.5.sp,
+          lineHeight = 16.sp
+        )
+      }
+    }
+    NextDnsSwitch(
+      checked = checked,
+      onCheckedChange = onCheckedChange
+    )
+  }
+}
+
+/**
+ * Reusable Checkbox Row with label and explanation
+ */
+@Composable
+fun NextDnsCheckboxRow(
+  title: String,
+  subtitle: String? = null,
+  checked: Boolean,
+  onCheckedChange: (Boolean) -> Unit,
+  modifier: Modifier = Modifier
+) {
+  Row(
+    modifier = modifier
+      .fillMaxWidth()
+      .bounceClick { onCheckedChange(!checked) }
+      .padding(vertical = 4.dp),
+    verticalAlignment = Alignment.CenterVertically,
+    horizontalArrangement = Arrangement.spacedBy(8.dp)
+  ) {
+    Checkbox(
+      checked = checked,
+      onCheckedChange = onCheckedChange,
+      colors = CheckboxDefaults.colors(
+        checkedColor = MaterialTheme.colorScheme.primary,
+        uncheckedColor = MaterialTheme.colorScheme.onSurfaceVariant
+      )
+    )
+    Column {
+      Text(
+        text = title,
+        color = MaterialTheme.colorScheme.onSurface,
+        fontSize = 12.sp,
+        fontWeight = FontWeight.Medium
+      )
+      if (subtitle != null) {
+        Text(
+          text = subtitle,
+          color = MaterialTheme.colorScheme.onSurfaceVariant,
+          fontSize = 10.5.sp
+        )
+      }
+    }
+  }
+}
+
+/**
+ * Reusable Dropdown Selector Component
+ */
+@Composable
+fun NextDnsDropdownSelector(
+  label: String,
+  selectedValue: String,
+  options: List<String>,
+  onOptionSelected: (String) -> Unit,
+  modifier: Modifier = Modifier
+) {
+  var expanded by remember { mutableStateOf(false) }
+
+  Column(
+    modifier = modifier,
+    verticalArrangement = Arrangement.spacedBy(4.dp)
+  ) {
+    Text(
+      text = label,
+      color = MaterialTheme.colorScheme.onSurfaceVariant,
+      fontSize = 11.sp,
+      fontWeight = FontWeight.Medium
+    )
+    Box {
+      Surface(
+        modifier = Modifier
+          .fillMaxWidth()
+          .border(1.dp, MaterialTheme.colorScheme.outline, RoundedCornerShape(10.dp))
+          .bounceClick { expanded = true },
+        color = MaterialTheme.colorScheme.surfaceVariant,
+        shape = RoundedCornerShape(10.dp)
+      ) {
+        Row(
+          modifier = Modifier.padding(horizontal = 10.dp, vertical = 9.dp),
+          horizontalArrangement = Arrangement.SpaceBetween,
+          verticalAlignment = Alignment.CenterVertically
+        ) {
+          Text(
+            text = selectedValue,
+            color = MaterialTheme.colorScheme.onSurface,
+            fontSize = 12.sp,
+            maxLines = 1,
+            overflow = TextOverflow.Ellipsis,
+            fontWeight = FontWeight.Medium
+          )
+          Icon(
+            imageVector = Icons.Default.ArrowDropDown,
+            contentDescription = null,
+            tint = MaterialTheme.colorScheme.onSurfaceVariant,
+            modifier = Modifier.size(16.dp)
+          )
+        }
+      }
+      DropdownMenu(
+        expanded = expanded,
+        onDismissRequest = { expanded = false },
+        modifier = Modifier
+          .background(MaterialTheme.colorScheme.surface)
+          .border(1.dp, MaterialTheme.colorScheme.outline, RoundedCornerShape(12.dp))
+      ) {
+        options.forEach { option ->
+          DropdownMenuItem(
+            text = { Text(option, color = MaterialTheme.colorScheme.onSurface, fontSize = 12.sp) },
+            onClick = {
+              onOptionSelected(option)
+              expanded = false
+            }
+          )
+        }
+      }
+    }
+  }
+}
+
+/**
+ * Reusable Action/Alert Card with styled button and description (e.g. Danger or Copy)
+ */
+@Composable
+fun NextDnsActionCard(
+  buttonText: String,
+  description: String,
+  onButtonClick: () -> Unit,
+  modifier: Modifier = Modifier,
+  isDanger: Boolean = false
+) {
+  val btnColor = if (isDanger) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.primary
+  val onBtnColor = if (isDanger) MaterialTheme.colorScheme.onError else MaterialTheme.colorScheme.onPrimary
+  val borderColor = if (isDanger) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.outline
+
+  Surface(
+    color = MaterialTheme.colorScheme.surface,
+    shape = RoundedCornerShape(14.dp),
+    border = androidx.compose.foundation.BorderStroke(1.dp, borderColor),
+    modifier = modifier.fillMaxWidth()
+  ) {
+    Column(
+      modifier = Modifier.fillMaxWidth().padding(16.dp),
+      verticalArrangement = Arrangement.spacedBy(8.dp)
+    ) {
+      Button(
+        onClick = onButtonClick,
+        colors = ButtonDefaults.buttonColors(containerColor = btnColor),
+        shape = RoundedCornerShape(8.dp),
+        contentPadding = PaddingValues(horizontal = 12.dp, vertical = 6.dp),
+        modifier = Modifier.height(32.dp)
+      ) {
+        Text(
+          text = buttonText,
+          fontSize = 12.sp,
+          fontWeight = FontWeight.Bold,
+          color = onBtnColor
+        )
+      }
+      Text(
+        text = description,
+        color = MaterialTheme.colorScheme.onSurfaceVariant,
+        fontSize = 12.sp
+      )
+    }
+  }
+}
+
+/**
  * Android 16 Expressive Custom Switch with fluid spring response
  */
 @Composable
@@ -643,4 +842,3 @@ fun CyberSectionCard(
     content = content
   )
 }
-
