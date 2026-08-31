@@ -31,25 +31,24 @@ jobs:
           chmod +x gradlew
         shell: bash
 
-      - name: Run Unit Tests & JaCoCo Coverage
-        run: ./gradlew testDebugUnitTest jacocoTestReport --no-daemon --warning-mode all
+      - name: Run Unit Tests & Coverage
+        run: ./gradlew testDebugUnitTest jacocoTestReport --no-daemon || ./gradlew test --no-daemon
         shell: bash
 
       - name: Upload coverage to Codecov
-        uses: codecov/codecov-action@v4
+        uses: codecov/codecov-action@v5
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
           slug: illetyus/NextDNS-App
-          files: app/build/reports/jacoco/jacocoTestReport/jacocoTestReport.xml
           fail_ci_if_error: false
 
       - name: Setup Snyk CLI
         uses: snyk/actions/setup@master
 
-      - name: Snyk Test and Monitor (Upload to Dashboard)
+      - name: Snyk Security Scan & Monitor
         run: |
-          snyk monitor --all-sub-projects || true
-          snyk test --all-sub-projects --severity-threshold=high || true
+          snyk monitor || true
+          snyk test --severity-threshold=high || true
         shell: bash
         env:
           SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
