@@ -699,11 +699,7 @@ class NextDnsRepository(
 
     repoScope.launch {
       safeApiCall("toggleBlocklist") {
-        if (target.active) {
-          NextDnsNetworkClient.api.addBlocklist(key, pid, IdRequest(id = blocklistId))
-        } else {
-          NextDnsNetworkClient.api.removeBlocklist(key, pid, blocklistId)
-        }
+        syncBlocklistRemote(key, pid, blocklistId, target.active)
       }
     }
   }
@@ -723,11 +719,7 @@ class NextDnsRepository(
 
     repoScope.launch {
       safeApiCall("toggleNativeTracking") {
-        if (target.active) {
-          NextDnsNetworkClient.api.addNativeTracking(key, pid, IdRequest(id = nativeId))
-        } else {
-          NextDnsNetworkClient.api.removeNativeTracking(key, pid, nativeId)
-        }
+        syncNativeTrackingRemote(key, pid, nativeId, target.active)
       }
     }
   }
@@ -776,17 +768,7 @@ class NextDnsRepository(
 
     repoScope.launch {
       safeApiCall("toggleParentalService") {
-        if (target.active) {
-          val patchResp = NextDnsNetworkClient.api.updateParentalService(key, pid, serviceId, ParentalActiveRequest(active = true))
-          if (!patchResp.isSuccessful) {
-            NextDnsNetworkClient.api.addParentalService(key, pid, ParentalItemRequest(id = serviceId, active = true))
-          }
-        } else {
-          val patchResp = NextDnsNetworkClient.api.updateParentalService(key, pid, serviceId, ParentalActiveRequest(active = false))
-          if (!patchResp.isSuccessful) {
-            NextDnsNetworkClient.api.removeParentalService(key, pid, serviceId)
-          }
-        }
+        syncParentalServiceRemote(key, pid, serviceId, target.active)
       }
     }
   }
@@ -806,17 +788,7 @@ class NextDnsRepository(
 
     repoScope.launch {
       safeApiCall("toggleParentalCategory") {
-        if (target.active) {
-          val patchResp = NextDnsNetworkClient.api.updateParentalCategory(key, pid, categoryId, ParentalActiveRequest(active = true))
-          if (!patchResp.isSuccessful) {
-            NextDnsNetworkClient.api.addParentalCategory(key, pid, ParentalItemRequest(id = categoryId, active = true))
-          }
-        } else {
-          val patchResp = NextDnsNetworkClient.api.updateParentalCategory(key, pid, categoryId, ParentalActiveRequest(active = false))
-          if (!patchResp.isSuccessful) {
-            NextDnsNetworkClient.api.removeParentalCategory(key, pid, categoryId)
-          }
-        }
+        syncParentalCategoryRemote(key, pid, categoryId, target.active)
       }
     }
   }
@@ -826,103 +798,148 @@ class NextDnsRepository(
   // =========================================================================
 
   fun addToDenylist(domain: String) {
-    val current = _denylist.value.filter { it.domain != domain && it.id != domain }
-    val updated = listOf(AllowDenyItem(id = domain, domain = domain, active = true)) + current
-    _denylist.value = updated
-    preferences.saveDenylist(_activeProfileId.value, updated)
-
-    val key = _apiKey.value
-    val pid = _activeProfileId.value
-    if (key.isBlank() || pid.isBlank()) return
-
-    repoScope.launch {
-      safeApiCall("addToDenylist") {
-        NextDnsNetworkClient.api.addDenylist(key, pid, AllowDenyItemRequest(id = domain, active = true))
-      }
+    addAllowDenyItem(
+      flow = _denylist,
+      saveLocal = { pid, list -> preferences.saveDenylist(pid, list) },
+      domain = domain,
+      callName = "addToDenylist"
+    ) { key, pid ->
+      NextDnsNetworkClient.api.addDenylist(key, pid, AllowDenyItemRequest(id = domain, active = true))
     }
   }
 
   fun removeFromDenylist(id: String) {
-    val updated = _denylist.value.filter { it.id != id && it.domain != id }
-    _denylist.value = updated
-    preferences.saveDenylist(_activeProfileId.value, updated)
-
-    val key = _apiKey.value
-    val pid = _activeProfileId.value
-    if (key.isBlank() || pid.isBlank()) return
-
-    repoScope.launch {
-      safeApiCall("removeFromDenylist") {
-        NextDnsNetworkClient.api.removeDenylist(key, pid, id)
-      }
+    removeAllowDenyItem(
+      flow = _denylist,
+      saveLocal = { pid, list -> preferences.saveDenylist(pid, list) },
+      id = id,
+      callName = "removeFromDenylist"
+    ) { key, pid ->
+      NextDnsNetworkClient.api.removeDenylist(key, pid, id)
     }
   }
 
   fun toggleDenylistItem(id: String) {
-    val targetItem = _denylist.value.find { it.id == id || it.domain == id }
-    val newActive = !(targetItem?.active ?: true)
-    val updated = _denylist.value.map {
-      if (it.id == id || it.domain == id) it.copy(active = newActive) else it
-    }
-    _denylist.value = updated
-    preferences.saveDenylist(_activeProfileId.value, updated)
-
-    val key = _apiKey.value
-    val pid = _activeProfileId.value
-    val domain = targetItem?.domain ?: id
-    if (key.isBlank() || pid.isBlank()) return
-
-    repoScope.launch {
-      safeApiCall("toggleDenylistItem") {
-        val patchResp = NextDnsNetworkClient.api.toggleDenylist(key, pid, domain, AllowDenyActiveRequest(active = newActive))
-        if (!patchResp.isSuccessful) {
-          NextDnsNetworkClient.api.addDenylist(key, pid, AllowDenyItemRequest(id = domain, active = newActive))
-        }
-      }
+    toggleAllowDenyItemState(
+      flow = _denylist,
+      saveLocal = { pid, list -> preferences.saveDenylist(pid, list) },
+      id = id,
+      callName = "toggleDenylistItem"
+    ) { key, pid, domain, active ->
+      syncAllowDenyToggleRemote(
+        key = key,
+        pid = pid,
+        domain = domain,
+        active = active,
+        toggleCall = { k, p, d, req -> NextDnsNetworkClient.api.toggleDenylist(k, p, d, req) },
+        addCall = { k, p, req -> NextDnsNetworkClient.api.addDenylist(k, p, req) }
+      )
     }
   }
 
   fun addToAllowlist(domain: String) {
-    val current = _allowlist.value.filter { it.domain != domain && it.id != domain }
-    val updated = listOf(AllowDenyItem(id = domain, domain = domain, active = true)) + current
-    _allowlist.value = updated
-    preferences.saveAllowlist(_activeProfileId.value, updated)
-
-    val key = _apiKey.value
-    val pid = _activeProfileId.value
-    if (key.isBlank() || pid.isBlank()) return
-
-    repoScope.launch {
-      safeApiCall("addToAllowlist") {
-        NextDnsNetworkClient.api.addAllowlist(key, pid, AllowDenyItemRequest(id = domain, active = true))
-      }
+    addAllowDenyItem(
+      flow = _allowlist,
+      saveLocal = { pid, list -> preferences.saveAllowlist(pid, list) },
+      domain = domain,
+      callName = "addToAllowlist"
+    ) { key, pid ->
+      NextDnsNetworkClient.api.addAllowlist(key, pid, AllowDenyItemRequest(id = domain, active = true))
     }
   }
 
   fun removeFromAllowlist(id: String) {
-    val updated = _allowlist.value.filter { it.id != id && it.domain != id }
-    _allowlist.value = updated
-    preferences.saveAllowlist(_activeProfileId.value, updated)
+    removeAllowDenyItem(
+      flow = _allowlist,
+      saveLocal = { pid, list -> preferences.saveAllowlist(pid, list) },
+      id = id,
+      callName = "removeFromAllowlist"
+    ) { key, pid ->
+      NextDnsNetworkClient.api.removeAllowlist(key, pid, id)
+    }
+  }
+
+  fun toggleAllowlistItem(id: String) {
+    toggleAllowDenyItemState(
+      flow = _allowlist,
+      saveLocal = { pid, list -> preferences.saveAllowlist(pid, list) },
+      id = id,
+      callName = "toggleAllowlistItem"
+    ) { key, pid, domain, active ->
+      syncAllowDenyToggleRemote(
+        key = key,
+        pid = pid,
+        domain = domain,
+        active = active,
+        toggleCall = { k, p, d, req -> NextDnsNetworkClient.api.toggleAllowlist(k, p, d, req) },
+        addCall = { k, p, req -> NextDnsNetworkClient.api.addAllowlist(k, p, req) }
+      )
+    }
+  }
+
+  // =========================================================================
+  // Generic List & Item Operations (De-duplicated)
+  // =========================================================================
+
+  private fun addAllowDenyItem(
+    flow: MutableStateFlow<List<AllowDenyItem>>,
+    saveLocal: (String, List<AllowDenyItem>) -> Unit,
+    domain: String,
+    callName: String,
+    apiAction: suspend (key: String, pid: String) -> Unit
+  ) {
+    val current = flow.value.filter { it.domain != domain && it.id != domain }
+    val updated = listOf(AllowDenyItem(id = domain, domain = domain, active = true)) + current
+    flow.value = updated
+    saveLocal(_activeProfileId.value, updated)
 
     val key = _apiKey.value
     val pid = _activeProfileId.value
     if (key.isBlank() || pid.isBlank()) return
 
     repoScope.launch {
-      safeApiCall("removeFromAllowlist") {
-        NextDnsNetworkClient.api.removeAllowlist(key, pid, id)
+      safeApiCall(callName) {
+        apiAction(key, pid)
       }
     }
   }
 
-  fun toggleAllowlistItem(id: String) {
-    val targetItem = _allowlist.value.find { it.id == id || it.domain == id }
+  private fun removeAllowDenyItem(
+    flow: MutableStateFlow<List<AllowDenyItem>>,
+    saveLocal: (String, List<AllowDenyItem>) -> Unit,
+    id: String,
+    callName: String,
+    apiAction: suspend (key: String, pid: String) -> Unit
+  ) {
+    val updated = flow.value.filter { it.id != id && it.domain != id }
+    flow.value = updated
+    saveLocal(_activeProfileId.value, updated)
+
+    val key = _apiKey.value
+    val pid = _activeProfileId.value
+    if (key.isBlank() || pid.isBlank()) return
+
+    repoScope.launch {
+      safeApiCall(callName) {
+        apiAction(key, pid)
+      }
+    }
+  }
+
+  private fun toggleAllowDenyItemState(
+    flow: MutableStateFlow<List<AllowDenyItem>>,
+    saveLocal: (String, List<AllowDenyItem>) -> Unit,
+    id: String,
+    callName: String,
+    apiToggleAction: suspend (key: String, pid: String, domain: String, active: Boolean) -> Unit
+  ) {
+    val targetItem = flow.value.find { it.id == id || it.domain == id }
     val newActive = !(targetItem?.active ?: true)
-    val updated = _allowlist.value.map {
+    val updated = flow.value.map {
       if (it.id == id || it.domain == id) it.copy(active = newActive) else it
     }
-    _allowlist.value = updated
-    preferences.saveAllowlist(_activeProfileId.value, updated)
+    flow.value = updated
+    saveLocal(_activeProfileId.value, updated)
 
     val key = _apiKey.value
     val pid = _activeProfileId.value
@@ -930,12 +947,61 @@ class NextDnsRepository(
     if (key.isBlank() || pid.isBlank()) return
 
     repoScope.launch {
-      safeApiCall("toggleAllowlistItem") {
-        val patchResp = NextDnsNetworkClient.api.toggleAllowlist(key, pid, domain, AllowDenyActiveRequest(active = newActive))
-        if (!patchResp.isSuccessful) {
-          NextDnsNetworkClient.api.addAllowlist(key, pid, AllowDenyItemRequest(id = domain, active = newActive))
-        }
+      safeApiCall(callName) {
+        apiToggleAction(key, pid, domain, newActive)
       }
+    }
+  }
+
+  private suspend fun syncBlocklistRemote(key: String, pid: String, blocklistId: String, active: Boolean) {
+    if (active) {
+      NextDnsNetworkClient.api.addBlocklist(key, pid, IdRequest(id = blocklistId))
+    } else {
+      NextDnsNetworkClient.api.removeBlocklist(key, pid, blocklistId)
+    }
+  }
+
+  private suspend fun syncNativeTrackingRemote(key: String, pid: String, nativeId: String, active: Boolean) {
+    if (active) {
+      NextDnsNetworkClient.api.addNativeTracking(key, pid, IdRequest(id = nativeId))
+    } else {
+      NextDnsNetworkClient.api.removeNativeTracking(key, pid, nativeId)
+    }
+  }
+
+  private suspend fun syncParentalServiceRemote(key: String, pid: String, serviceId: String, active: Boolean) {
+    val patchResp = NextDnsNetworkClient.api.updateParentalService(key, pid, serviceId, ParentalActiveRequest(active = active))
+    if (!patchResp.isSuccessful) {
+      if (active) {
+        NextDnsNetworkClient.api.addParentalService(key, pid, ParentalItemRequest(id = serviceId, active = true))
+      } else {
+        NextDnsNetworkClient.api.removeParentalService(key, pid, serviceId)
+      }
+    }
+  }
+
+  private suspend fun syncParentalCategoryRemote(key: String, pid: String, categoryId: String, active: Boolean) {
+    val patchResp = NextDnsNetworkClient.api.updateParentalCategory(key, pid, categoryId, ParentalActiveRequest(active = active))
+    if (!patchResp.isSuccessful) {
+      if (active) {
+        NextDnsNetworkClient.api.addParentalCategory(key, pid, ParentalItemRequest(id = categoryId, active = true))
+      } else {
+        NextDnsNetworkClient.api.removeParentalCategory(key, pid, categoryId)
+      }
+    }
+  }
+
+  private suspend fun syncAllowDenyToggleRemote(
+    key: String,
+    pid: String,
+    domain: String,
+    active: Boolean,
+    toggleCall: suspend (String, String, String, AllowDenyActiveRequest) -> Response<*>,
+    addCall: suspend (String, String, AllowDenyItemRequest) -> Response<*>
+  ) {
+    val patchResp = toggleCall(key, pid, domain, AllowDenyActiveRequest(active = active))
+    if (!patchResp.isSuccessful) {
+      addCall(key, pid, AllowDenyItemRequest(id = domain, active = active))
     }
   }
 
@@ -1085,51 +1151,12 @@ class NextDnsRepository(
       var lastId: String? = null
       while (isActive) {
         try {
-          var url = "https://api.nextdns.io/profiles/$pid/logs/stream"
-          if (lastId != null) {
-            url += "?id=$lastId"
-          }
-
-          val req = Request.Builder()
-            .url(url)
-            .header("X-Api-Key", key)
-            .header("Accept", "text/event-stream")
-            .build()
-
+          val req = buildLogsStreamRequest(pid, key, lastId)
           NextDnsNetworkClient.client.newCall(req).execute().use { response ->
             if (!response.isSuccessful) return@use
-
-            val source = response.body?.source() ?: return@use
-
-            while (isActive && !source.exhausted()) {
-              val line = source.readUtf8Line() ?: break
-
-              if (line.startsWith("id: ")) {
-                lastId = line.substring(4)
-              } else if (line.startsWith("data: ")) {
-                val jsonStr = line.substring(6)
-                if (jsonStr.isNotBlank()) {
-                  val logDto = safeApiCall("sseJsonParse") {
-                    NextDnsNetworkClient.moshi.adapter(DnsLogDto::class.java).fromJson(jsonStr)
-                  }
-                  if (logDto != null) {
-                    val entry = DnsLogEntry(
-                      id = UUID.randomUUID().toString(),
-                      timestamp = logDto.timestamp?.toString() ?: "",
-                      domain = logDto.domain ?: "unknown.com",
-                      clientIp = logDto.clientIp,
-                      deviceName = logDto.device?.name ?: logDto.deviceName ?: "Bilinmeyen Cihaz",
-                      blocked = logDto.status == "blocked",
-                      blockReason = logDto.reasons?.firstOrNull()?.name,
-                      protocol = logDto.protocol ?: "DoH",
-                      responseTimeMs = null
-                    )
-                    withContext(Dispatchers.Main) {
-                      _logs.value = listOf(entry) + _logs.value.take(199)
-                    }
-                  }
-                }
-              }
+            val body = response.body ?: return@use
+            consumeSseStream(body) { newId ->
+              lastId = newId
             }
           }
         } catch (e: CancellationException) {
@@ -1139,6 +1166,63 @@ class NextDnsRepository(
           delay(2000)
         }
       }
+    }
+  }
+
+  private fun buildLogsStreamRequest(pid: String, key: String, lastId: String?): Request {
+    var url = "https://api.nextdns.io/profiles/$pid/logs/stream"
+    if (lastId != null) {
+      url += "?id=$lastId"
+    }
+    return Request.Builder()
+      .url(url)
+      .header("X-Api-Key", key)
+      .header("Accept", "text/event-stream")
+      .build()
+  }
+
+  private suspend fun consumeSseStream(responseBody: okhttp3.ResponseBody, onNewId: (String) -> Unit) {
+    val source = responseBody.source()
+    while (currentCoroutineContext().isActive && !source.exhausted()) {
+      val line = source.readUtf8Line() ?: break
+      processSseLine(line, onNewId)
+    }
+  }
+
+  private suspend fun processSseLine(line: String, onNewId: (String) -> Unit) {
+    if (line.startsWith("id: ")) {
+      onNewId(line.substring(4))
+      return
+    }
+    if (!line.startsWith("data: ")) return
+
+    val jsonStr = line.substring(6)
+    val entry = parseSseLogEntry(jsonStr) ?: return
+    emitLogEntry(entry)
+  }
+
+  private suspend fun parseSseLogEntry(jsonStr: String): DnsLogEntry? {
+    if (jsonStr.isBlank()) return null
+    val logDto = safeApiCall("sseJsonParse") {
+      NextDnsNetworkClient.moshi.adapter(DnsLogDto::class.java).fromJson(jsonStr)
+    } ?: return null
+
+    return DnsLogEntry(
+      id = UUID.randomUUID().toString(),
+      timestamp = logDto.timestamp?.toString() ?: "",
+      domain = logDto.domain ?: "unknown.com",
+      clientIp = logDto.clientIp,
+      deviceName = logDto.device?.name ?: logDto.deviceName ?: "Bilinmeyen Cihaz",
+      blocked = logDto.status == "blocked",
+      blockReason = logDto.reasons?.firstOrNull()?.name,
+      protocol = logDto.protocol ?: "DoH",
+      responseTimeMs = null
+    )
+  }
+
+  private suspend fun emitLogEntry(entry: DnsLogEntry) {
+    withContext(Dispatchers.Main) {
+      _logs.value = listOf(entry) + _logs.value.take(199)
     }
   }
 

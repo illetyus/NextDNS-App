@@ -613,6 +613,38 @@ fun NextDnsSwitch(
   )
 }
 
+@Immutable
+data class NextDnsButtonColors(
+  val containerColor: Color,
+  val contentColor: Color
+)
+
+@Immutable
+data class NextDnsOutlineButtonColors(
+  val borderColor: Color,
+  val contentColor: Color
+)
+
+object NextDnsButtonDefaults {
+  @Composable
+  fun buttonColors(
+    containerColor: Color = MaterialTheme.colorScheme.primary,
+    contentColor: Color = Color.White
+  ): NextDnsButtonColors = NextDnsButtonColors(
+    containerColor = containerColor,
+    contentColor = contentColor
+  )
+
+  @Composable
+  fun outlineButtonColors(
+    borderColor: Color = MaterialTheme.colorScheme.primary,
+    contentColor: Color = MaterialTheme.colorScheme.primary
+  ): NextDnsOutlineButtonColors = NextDnsOutlineButtonColors(
+    borderColor = borderColor,
+    contentColor = contentColor
+  )
+}
+
 /**
  * Android 16 Expressive Primary Solid Button with Spring Bounce & Ripple
  */
@@ -622,8 +654,7 @@ fun NextDnsButton(
   onClick: () -> Unit,
   modifier: Modifier = Modifier,
   icon: ImageVector? = null,
-  containerColor: Color = MaterialTheme.colorScheme.primary,
-  contentColor: Color = Color.White,
+  colors: NextDnsButtonColors = NextDnsButtonDefaults.buttonColors(),
   enabled: Boolean = true
 ) {
   val haptic = LocalHapticFeedback.current
@@ -638,8 +669,8 @@ fun NextDnsButton(
       .bounceClick(scaleDown = 0.95f, enabled = enabled, onClick = onClick),
     shape = RoundedCornerShape(12.dp),
     colors = ButtonDefaults.buttonColors(
-      containerColor = containerColor,
-      contentColor = contentColor,
+      containerColor = colors.containerColor,
+      contentColor = colors.contentColor,
       disabledContainerColor = MaterialTheme.colorScheme.outline,
       disabledContentColor = MaterialTheme.colorScheme.onSurfaceVariant
     ),
@@ -665,6 +696,8 @@ fun NextDnsButton(
   }
 }
 
+
+
 /**
  * Android 16 Expressive Outline Button with Spring Bounce
  */
@@ -673,8 +706,7 @@ fun NextDnsOutlineButton(
   text: String,
   onClick: () -> Unit,
   modifier: Modifier = Modifier,
-  borderColor: Color = MaterialTheme.colorScheme.primary,
-  contentColor: Color = MaterialTheme.colorScheme.primary,
+  colors: NextDnsOutlineButtonColors = NextDnsButtonDefaults.outlineButtonColors(),
   icon: ImageVector? = null
 ) {
   val haptic = LocalHapticFeedback.current
@@ -688,9 +720,9 @@ fun NextDnsOutlineButton(
       .height(38.dp)
       .bounceClick(scaleDown = 0.95f, onClick = onClick),
     shape = RoundedCornerShape(12.dp),
-    border = androidx.compose.foundation.BorderStroke(1.dp, borderColor.copy(alpha = 0.7f)),
+    border = androidx.compose.foundation.BorderStroke(1.dp, colors.borderColor.copy(alpha = 0.7f)),
     colors = ButtonDefaults.outlinedButtonColors(
-      contentColor = contentColor
+      contentColor = colors.contentColor
     ),
     contentPadding = PaddingValues(horizontal = 14.dp, vertical = 0.dp)
   ) {
@@ -712,50 +744,88 @@ fun NextDnsOutlineButton(
   }
 }
 
+
+
+enum class BadgeStyle {
+  BETA,
+  RECOMMENDED
+}
+
 /**
- * BETA Pill Badge
+ * Unified Pill Badge
  */
 @Composable
-fun NextDnsBetaBadge(modifier: Modifier = Modifier) {
+fun NextDnsBadge(
+  text: String,
+  style: BadgeStyle,
+  modifier: Modifier = Modifier
+) {
+  val (bgColor, textColor, fontWeight, padH, padV) = when (style) {
+    BadgeStyle.BETA -> BadgeConfig(
+      containerColor = MaterialTheme.colorScheme.tertiary,
+      contentColor = MaterialTheme.colorScheme.onTertiary,
+      fontWeight = FontWeight.Black,
+      horizontalPadding = 6.dp,
+      verticalPadding = 2.dp
+    )
+    BadgeStyle.RECOMMENDED -> BadgeConfig(
+      containerColor = MaterialTheme.colorScheme.primary,
+      contentColor = MaterialTheme.colorScheme.onPrimary,
+      fontWeight = FontWeight.Bold,
+      horizontalPadding = 7.dp,
+      verticalPadding = 2.5.dp
+    )
+  }
+
   Surface(
     shape = RoundedCornerShape(6.dp),
-    color = MaterialTheme.colorScheme.tertiary,
+    color = bgColor,
     modifier = modifier
   ) {
     Text(
-      text = "BETA",
+      text = text,
       style = MaterialTheme.typography.labelSmall.copy(
-        fontWeight = FontWeight.Black,
-        color = MaterialTheme.colorScheme.onTertiary,
+        fontWeight = fontWeight,
+        color = textColor,
         fontSize = 9.sp,
         letterSpacing = 0.4.sp
       ),
-      modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp)
+      modifier = Modifier.padding(horizontal = padH, vertical = padV)
     )
   }
 }
 
+@Immutable
+private data class BadgeConfig(
+  val containerColor: Color,
+  val contentColor: Color,
+  val fontWeight: FontWeight,
+  val horizontalPadding: Dp,
+  val verticalPadding: Dp
+)
+
 /**
- * Recommended Pill Badge
+ * BETA Pill Badge (Wrapper for backwards compatibility)
+ */
+@Composable
+fun NextDnsBetaBadge(modifier: Modifier = Modifier) {
+  NextDnsBadge(
+    text = "BETA",
+    style = BadgeStyle.BETA,
+    modifier = modifier
+  )
+}
+
+/**
+ * Recommended Pill Badge (Wrapper for backwards compatibility)
  */
 @Composable
 fun NextDnsRecommendedBadge(modifier: Modifier = Modifier) {
-  Surface(
-    shape = RoundedCornerShape(6.dp),
-    color = MaterialTheme.colorScheme.primary,
+  NextDnsBadge(
+    text = "ÖNERİLEN",
+    style = BadgeStyle.RECOMMENDED,
     modifier = modifier
-  ) {
-    Text(
-      text = "ÖNERİLEN",
-      style = MaterialTheme.typography.labelSmall.copy(
-        fontWeight = FontWeight.Bold,
-        color = MaterialTheme.colorScheme.onPrimary,
-        fontSize = 9.sp,
-        letterSpacing = 0.4.sp
-      ),
-      modifier = Modifier.padding(horizontal = 7.dp, vertical = 2.5.dp)
-    )
-  }
+  )
 }
 
 /**

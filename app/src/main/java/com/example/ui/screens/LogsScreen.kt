@@ -557,17 +557,24 @@ private fun LogExpandedDetails(
       NextDnsOutlineButton(
         text = "İzin Verilenlere Ekle",
         onClick = onAddToAllowlist,
-        borderColor = MaterialTheme.colorScheme.tertiary,
-        contentColor = MaterialTheme.colorScheme.tertiary,
+        colors = NextDnsOutlineButtonColors(
+          borderColor = MaterialTheme.colorScheme.tertiary,
+          contentColor = MaterialTheme.colorScheme.tertiary
+        ),
         icon = Icons.Default.Check
       )
       NextDnsOutlineButton(
         text = "Engellenenlere Ekle",
         onClick = onAddToDenylist,
-        borderColor = MaterialTheme.colorScheme.error,
-        contentColor = MaterialTheme.colorScheme.error,
+        colors = NextDnsOutlineButtonColors(
+          borderColor = MaterialTheme.colorScheme.error,
+          contentColor = MaterialTheme.colorScheme.error
+        ),
         icon = Icons.Default.Block
       )
     }
   }
 }
+
+
+

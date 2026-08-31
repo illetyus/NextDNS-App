@@ -241,18 +241,31 @@ fun ProfileNameSection(
 }
 
 /**
+ * 3. Günlükler ve Gizlilik Ayarları Bölümü State Modeli
+ */
+@Immutable
+data class LogsAndPrivacySectionState(
+  val configSettings: ConfigSettings,
+  val onToggleLogsEnabled: (Boolean) -> Unit,
+  val onToggleLogClientIps: (Boolean) -> Unit,
+  val onToggleLogDomains: (Boolean) -> Unit,
+  val onSetLogRetention: (String) -> Unit,
+  val onSetLogStorageLocation: (String) -> Unit,
+  val onExportClick: () -> Unit,
+  val onClearLogsClick: () -> Unit
+)
+
+/**
  * 3. Günlükler ve Gizlilik Ayarları Bölümü
  */
 @Composable
 fun LogsAndPrivacySection(
-  configSettings: ConfigSettings,
-  viewModel: NextDnsViewModel,
-  onExportClick: () -> Unit,
-  onClearLogsClick: () -> Unit,
+  state: LogsAndPrivacySectionState,
   modifier: Modifier = Modifier
 ) {
   val retentionOptions = listOf("6 saat", "1 gün", "1 hafta", "1 ay", "3 ay", "6 ay", "1 yıl", "2 yıl")
   val locationOptions = listOf("İsviçre (CH)", "Avrupa Birliği (AB)", "Amerika Birleşik Devletleri (ABD)")
+  val configSettings = state.configSettings
 
   NextDnsCard(
     title = "Günlükler & Gizlilik Ayarları",
@@ -264,7 +277,7 @@ fun LogsAndPrivacySection(
       title = "Günlükleri etkinleştir",
       subtitle = "DNS sorgularının analiz ve inceleme için kaydedilmesini sağlar.",
       checked = configSettings.logsEnabled,
-      onCheckedChange = { viewModel.toggleLogsEnabled(it) }
+      onCheckedChange = state.onToggleLogsEnabled
     )
 
     if (configSettings.logsEnabled) {
@@ -277,14 +290,14 @@ fun LogsAndPrivacySection(
         title = "İstemci IP adreslerini kaydet",
         subtitle = "Kapatılırsa günlüklerde cihaz IP adresleri anonimleştirilir.",
         checked = configSettings.logClientIps,
-        onCheckedChange = { viewModel.toggleLogClientIps(it) }
+        onCheckedChange = state.onToggleLogClientIps
       )
 
       NextDnsCheckboxRow(
         title = "Ziyaret edilen alan adlarını kaydet",
         subtitle = "Kapatılırsa sadece engellenen/izin verilen sorgu sayıları tutulur.",
         checked = configSettings.logDomains,
-        onCheckedChange = { viewModel.toggleLogDomains(it) }
+        onCheckedChange = state.onToggleLogDomains
       )
 
       Spacer(modifier = Modifier.height(10.dp))
@@ -298,7 +311,7 @@ fun LogsAndPrivacySection(
           label = "Saklama süresi",
           selectedValue = configSettings.logRetention,
           options = retentionOptions,
-          onOptionSelected = { viewModel.setLogRetention(it) },
+          onOptionSelected = state.onSetLogRetention,
           modifier = Modifier.weight(1f)
         )
 
@@ -306,7 +319,7 @@ fun LogsAndPrivacySection(
           label = "Depolama konumu",
           selectedValue = configSettings.logStorageLocation,
           options = locationOptions,
-          onOptionSelected = { viewModel.setLogStorageLocation(it) },
+          onOptionSelected = state.onSetLogStorageLocation,
           modifier = Modifier.weight(1f)
         )
       }
@@ -320,24 +333,54 @@ fun LogsAndPrivacySection(
       ) {
         NextDnsOutlineButton(
           text = "Günlükleri indir",
-          onClick = onExportClick,
-          borderColor = MaterialTheme.colorScheme.primary,
-          contentColor = MaterialTheme.colorScheme.primary,
+          onClick = state.onExportClick,
+          colors = NextDnsOutlineButtonColors(
+            borderColor = MaterialTheme.colorScheme.primary,
+            contentColor = MaterialTheme.colorScheme.primary
+          ),
           icon = Icons.Default.Download,
           modifier = Modifier.weight(1f)
         )
 
         NextDnsOutlineButton(
           text = "Günlükleri temizle",
-          onClick = onClearLogsClick,
-          borderColor = MaterialTheme.colorScheme.error,
-          contentColor = MaterialTheme.colorScheme.error,
+          onClick = state.onClearLogsClick,
+          colors = NextDnsOutlineButtonColors(
+            borderColor = MaterialTheme.colorScheme.error,
+            contentColor = MaterialTheme.colorScheme.error
+          ),
           icon = Icons.Default.Delete,
           modifier = Modifier.weight(1f)
         )
       }
     }
   }
+}
+
+/**
+ * Geriye dönük uyumluluk için LogsAndPrivacySection aşırı yüklemesi
+ */
+@Composable
+fun LogsAndPrivacySection(
+  configSettings: ConfigSettings,
+  viewModel: NextDnsViewModel,
+  onExportClick: () -> Unit,
+  onClearLogsClick: () -> Unit,
+  modifier: Modifier = Modifier
+) {
+  LogsAndPrivacySection(
+    state = LogsAndPrivacySectionState(
+      configSettings = configSettings,
+      onToggleLogsEnabled = { viewModel.toggleLogsEnabled(it) },
+      onToggleLogClientIps = { viewModel.toggleLogClientIps(it) },
+      onToggleLogDomains = { viewModel.toggleLogDomains(it) },
+      onSetLogRetention = { viewModel.setLogRetention(it) },
+      onSetLogStorageLocation = { viewModel.setLogStorageLocation(it) },
+      onExportClick = onExportClick,
+      onClearLogsClick = onClearLogsClick
+    ),
+    modifier = modifier
+  )
 }
 
 /**
@@ -436,111 +479,144 @@ fun PerformanceSection(
     modifier = modifier
   ) {
     Column {
-      // EDNS
-      Column(
-        modifier = Modifier
-          .fillMaxWidth()
-          .padding(vertical = 12.dp),
-        verticalArrangement = Arrangement.spacedBy(8.dp)
-      ) {
-        Text(
-          text = "Anonimize EDNS İstemci Alt Ağı",
-          color = MaterialTheme.colorScheme.onSurface,
-          fontWeight = FontWeight.Bold,
-          fontSize = 13.5.sp
-        )
-        Text(
-          text = "IP adresinizi ifşa etmeden içerik dağıtım ağlarından veri dağıtımını hızlandırın.",
-          color = MaterialTheme.colorScheme.onSurfaceVariant,
-          fontSize = 12.sp
-        )
-        Row(
-          verticalAlignment = Alignment.CenterVertically,
-          horizontalArrangement = Arrangement.spacedBy(12.dp)
-        ) {
-          NextDnsSwitch(
-            checked = configSettings.ednsClientSubnet,
-            onCheckedChange = { viewModel.toggleEdns(it) }
-          )
-          Text(
-            text = "Anonimize EDNS İstemci Alt Ağı'nı etkinleştir",
-            color = MaterialTheme.colorScheme.onSurface,
-            fontSize = 12.sp
-          )
-        }
-      }
+      EdnsSubnetBlock(
+        enabled = configSettings.ednsClientSubnet,
+        onToggle = { viewModel.toggleEdns(it) }
+      )
 
       HorizontalDivider(color = MaterialTheme.colorScheme.outline)
 
-      // Cache Boost
-      Column(
-        modifier = Modifier
-          .fillMaxWidth()
-          .padding(vertical = 12.dp),
-        verticalArrangement = Arrangement.spacedBy(8.dp)
-      ) {
-        Text(
-          text = "Önbellek Arttırma",
-          color = MaterialTheme.colorScheme.onSurface,
-          fontWeight = FontWeight.Bold,
-          fontSize = 13.5.sp
-        )
-        Text(
-          text = "Minimum TTL (Time to live) uygulayarak DNS sorgularını en aza indirin.",
-          color = MaterialTheme.colorScheme.onSurfaceVariant,
-          fontSize = 12.sp
-        )
-        Row(
-          verticalAlignment = Alignment.CenterVertically,
-          horizontalArrangement = Arrangement.spacedBy(12.dp)
-        ) {
-          NextDnsSwitch(
-            checked = configSettings.cacheBoost,
-            onCheckedChange = { viewModel.toggleCacheBoost(it) }
-          )
-          Text(
-            text = "Önbellek arttırmayı etkinleştir",
-            color = MaterialTheme.colorScheme.onSurface,
-            fontSize = 12.sp
-          )
-        }
-      }
+      CacheBoostBlock(
+        enabled = configSettings.cacheBoost,
+        onToggle = { viewModel.toggleCacheBoost(it) }
+      )
 
       HorizontalDivider(color = MaterialTheme.colorScheme.outline)
 
-      // CNAME
-      Column(
-        modifier = Modifier
-          .fillMaxWidth()
-          .padding(vertical = 12.dp),
-        verticalArrangement = Arrangement.spacedBy(8.dp)
-      ) {
-        Text(
-          text = "CNAME Düzleştirme",
-          color = MaterialTheme.colorScheme.onSurface,
-          fontWeight = FontWeight.Bold,
-          fontSize = 13.5.sp
-        )
-        Text(
-          text = "CNAME izleyen çözümleyicilerin gereksiz sorgular yapmasını önleyin ve günlükleri ara alan adlarıyla doldurun.",
-          color = MaterialTheme.colorScheme.onSurfaceVariant,
-          fontSize = 12.sp
-        )
-        Row(
-          verticalAlignment = Alignment.CenterVertically,
-          horizontalArrangement = Arrangement.spacedBy(12.dp)
-        ) {
-          NextDnsSwitch(
-            checked = configSettings.cnameFlattening,
-            onCheckedChange = { viewModel.toggleCnameFlattening(it) }
-          )
-          Text(
-            text = "CNAME düzleştirmeyi etkinleştir",
-            color = MaterialTheme.colorScheme.onSurface,
-            fontSize = 12.sp
-          )
-        }
-      }
+      CnameFlatteningBlock(
+        enabled = configSettings.cnameFlattening,
+        onToggle = { viewModel.toggleCnameFlattening(it) }
+      )
+    }
+  }
+}
+
+@Composable
+private fun EdnsSubnetBlock(
+  enabled: Boolean,
+  onToggle: (Boolean) -> Unit,
+  modifier: Modifier = Modifier
+) {
+  Column(
+    modifier = modifier
+      .fillMaxWidth()
+      .padding(vertical = 12.dp),
+    verticalArrangement = Arrangement.spacedBy(8.dp)
+  ) {
+    Text(
+      text = "Anonimize EDNS İstemci Alt Ağı",
+      color = MaterialTheme.colorScheme.onSurface,
+      fontWeight = FontWeight.Bold,
+      fontSize = 13.5.sp
+    )
+    Text(
+      text = "IP adresinizi ifşa etmeden içerik dağıtım ağlarından veri dağıtımını hızlandırın.",
+      color = MaterialTheme.colorScheme.onSurfaceVariant,
+      fontSize = 12.sp
+    )
+    Row(
+      verticalAlignment = Alignment.CenterVertically,
+      horizontalArrangement = Arrangement.spacedBy(12.dp)
+    ) {
+      NextDnsSwitch(
+        checked = enabled,
+        onCheckedChange = onToggle
+      )
+      Text(
+        text = "Anonimize EDNS İstemci Alt Ağı'nı etkinleştir",
+        color = MaterialTheme.colorScheme.onSurface,
+        fontSize = 12.sp
+      )
+    }
+  }
+}
+
+@Composable
+private fun CacheBoostBlock(
+  enabled: Boolean,
+  onToggle: (Boolean) -> Unit,
+  modifier: Modifier = Modifier
+) {
+  Column(
+    modifier = modifier
+      .fillMaxWidth()
+      .padding(vertical = 12.dp),
+    verticalArrangement = Arrangement.spacedBy(8.dp)
+  ) {
+    Text(
+      text = "Önbellek Arttırma",
+      color = MaterialTheme.colorScheme.onSurface,
+      fontWeight = FontWeight.Bold,
+      fontSize = 13.5.sp
+    )
+    Text(
+      text = "Minimum TTL (Time to live) uygulayarak DNS sorgularını en aza indirin.",
+      color = MaterialTheme.colorScheme.onSurfaceVariant,
+      fontSize = 12.sp
+    )
+    Row(
+      verticalAlignment = Alignment.CenterVertically,
+      horizontalArrangement = Arrangement.spacedBy(12.dp)
+    ) {
+      NextDnsSwitch(
+        checked = enabled,
+        onCheckedChange = onToggle
+      )
+      Text(
+        text = "Önbellek arttırmayı etkinleştir",
+        color = MaterialTheme.colorScheme.onSurface,
+        fontSize = 12.sp
+      )
+    }
+  }
+}
+
+@Composable
+private fun CnameFlatteningBlock(
+  enabled: Boolean,
+  onToggle: (Boolean) -> Unit,
+  modifier: Modifier = Modifier
+) {
+  Column(
+    modifier = modifier
+      .fillMaxWidth()
+      .padding(vertical = 12.dp),
+    verticalArrangement = Arrangement.spacedBy(8.dp)
+  ) {
+    Text(
+      text = "CNAME Düzleştirme",
+      color = MaterialTheme.colorScheme.onSurface,
+      fontWeight = FontWeight.Bold,
+      fontSize = 13.5.sp
+    )
+    Text(
+      text = "CNAME izleyen çözümleyicilerin gereksiz sorgular yapmasını önleyin ve günlükleri ara alan adlarıyla doldurun.",
+      color = MaterialTheme.colorScheme.onSurfaceVariant,
+      fontSize = 12.sp
+    )
+    Row(
+      verticalAlignment = Alignment.CenterVertically,
+      horizontalArrangement = Arrangement.spacedBy(12.dp)
+    ) {
+      NextDnsSwitch(
+        checked = enabled,
+        onCheckedChange = onToggle
+      )
+      Text(
+        text = "CNAME düzleştirmeyi etkinleştir",
+        color = MaterialTheme.colorScheme.onSurface,
+        fontSize = 12.sp
+      )
     }
   }
 }
