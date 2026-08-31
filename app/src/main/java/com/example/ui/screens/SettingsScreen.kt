@@ -90,15 +90,17 @@ fun SettingsScreen(
             val scope = rememberCoroutineScope()
             
             SingleChoiceSegmentedButtonRow(
-                modifier = Modifier.fillMaxWidth().padding(8.dp)
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(top = 4.dp)
             ) {
-                ThemeMode.values().forEachIndexed { index, mode ->
+                ThemeMode.entries.forEachIndexed { index, mode ->
                     SegmentedButton(
                         selected = (themeMode == mode),
                         onClick = { scope.launch { themePrefs.setThemeMode(mode) } },
                         shape = SegmentedButtonDefaults.itemShape(
                             index = index,
-                            count = ThemeMode.values().size
+                            count = ThemeMode.entries.size
                         ),
                         label = {
                             Text(
@@ -106,9 +108,8 @@ fun SettingsScreen(
                                     ThemeMode.LIGHT -> "Açık"
                                     ThemeMode.DARK -> "Koyu"
                                     ThemeMode.SYSTEM -> "Otomatik"
-                                    ThemeMode.SCHEDULED -> "Programlı"
-                                    ThemeMode.BATTERY_SAVER -> "Pil Tasarrufu"
-                                }
+                                },
+                                maxLines = 1
                             )
                         }
                     )

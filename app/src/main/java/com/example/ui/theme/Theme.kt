@@ -11,7 +11,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalView
 import androidx.core.view.WindowCompat
 
-enum class ThemeMode { LIGHT, DARK, SYSTEM, SCHEDULED, BATTERY_SAVER }
+enum class ThemeMode { LIGHT, DARK, SYSTEM }
 
 private val LightColors = lightColorScheme(
     primary = md_theme_light_primary,
@@ -61,8 +61,6 @@ fun AppTheme(
         ThemeMode.LIGHT -> false
         ThemeMode.DARK -> true
         ThemeMode.SYSTEM -> systemDark
-        ThemeMode.SCHEDULED -> systemDark // Simplified
-        ThemeMode.BATTERY_SAVER -> true // Simplified
     }
 
     val context = LocalContext.current

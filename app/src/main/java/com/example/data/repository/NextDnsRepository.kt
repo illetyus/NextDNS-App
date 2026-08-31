@@ -1112,7 +1112,6 @@ class NextDnsRepository(
       analyticsPollingJob = null
   }
 
-
   private var streamJob: kotlinx.coroutines.Job? = null
 
   fun startLogsStream() {
@@ -1195,105 +1194,151 @@ class NextDnsRepository(
       streamJob = null
   }
 
+  // =========================================================================
+  // Analytics Parsing Helper Functions
+  // =========================================================================
+
+  private fun parseStatusMetrics(
+    response: retrofit2.Response<NextDnsApiResponse<List<AnalyticsStatusItem>>>,
+    fallbackTotal: Long = 0L,
+    fallbackBlocked: Long = 0L
+  ): Pair<Long, Long> {
+    if (!response.isSuccessful) return Pair(fallbackTotal, fallbackBlocked)
+    val statuses = response.body()?.data ?: emptyList()
+    val blockedQueries = statuses.find { it.status == "blocked" }?.queries ?: 0L
+    val allQueries = statuses.map { it.queries ?: 0L }.sum()
+    val totalQueries = if (allQueries > 0) allQueries else 100L
+    return Pair(totalQueries, blockedQueries)
+  }
+
+  private fun parseTopDevices(
+    response: retrofit2.Response<NextDnsApiResponse<List<AnalyticsDeviceItem>>>
+  ): List<DeviceMetric> {
+    if (!response.isSuccessful) return _analytics.value.topDevices
+    return response.body()?.data?.map {
+      DeviceMetric(name = it.name ?: it.id ?: "Bilinmeyen", queries = it.queries ?: 0)
+    } ?: _analytics.value.topDevices
+  }
+
+  private fun parseTopDomains(
+    response: retrofit2.Response<NextDnsApiResponse<List<AnalyticsDomainItem>>>,
+    fallback: List<DomainMetric> = emptyList()
+  ): List<DomainMetric> {
+    if (!response.isSuccessful) return fallback
+    return response.body()?.data?.map {
+      DomainMetric(domain = it.domain ?: "Bilinmeyen", queries = it.queries ?: 0)
+    } ?: fallback
+  }
+
+  private fun parseBlockedReasons(
+    response: retrofit2.Response<NextDnsApiResponse<List<AnalyticsReasonItem>>>
+  ): Map<String, Long> {
+    if (!response.isSuccessful) return _analytics.value.topBlockedReasons
+    val rMap = mutableMapOf<String, Long>()
+    response.body()?.data?.forEach { item ->
+      rMap[item.id ?: item.name ?: "Diğer"] = item.queries ?: 0L
+    }
+    return rMap
+  }
+
+  private fun parseGafamMetrics(
+    response: retrofit2.Response<NextDnsApiResponse<List<AnalyticsItemDto>>>,
+    totalQueries: Long
+  ): Map<String, Pair<Double, Long>> {
+    val gafamMetrics = mutableMapOf<String, Pair<Double, Long>>()
+    if (response.isSuccessful) {
+      val data = response.body()?.data ?: emptyList()
+      Log.d("NextDnsRepo", "GAFAM data: $data")
+      data.forEach { item ->
+        val count = item.queries ?: 0L
+        val pct = if (totalQueries > 0) (count.toDouble() / totalQueries) * 100.0 else 0.0
+        val companyName = item.company ?: item.name ?: item.id ?: "Diğer"
+        gafamMetrics[companyName] = Pair(pct, count)
+      }
+    }
+    return if (gafamMetrics.isNotEmpty()) gafamMetrics else _analytics.value.gafamMetrics
+  }
+
+  private fun parseCountryMetrics(
+    response: retrofit2.Response<NextDnsApiResponse<List<AnalyticsItemDto>>>,
+    totalQueries: Long
+  ): List<Pair<String, Double>> {
+    val topCountries = mutableListOf<Pair<String, Double>>()
+    if (response.isSuccessful) {
+      response.body()?.data?.forEach { item ->
+        val count = item.queries ?: 0L
+        val pct = if (totalQueries > 0) (count.toDouble() / totalQueries) * 100.0 else 0.0
+        val code = item.code ?: ""
+        Log.d("TRAFFIC_DEBUG", "Parsed code value: '$code'")
+        val name = if (code.length == 2) {
+          java.util.Locale("", code).getDisplayName(java.util.Locale("tr"))
+        } else {
+          Log.d("TRAFFIC_DEBUG", "Bilinmeyen ülke kodu: '$code'")
+          "Bilinmeyen"
+        }
+        topCountries.add(Pair(name, pct))
+      }
+    }
+    return if (topCountries.isNotEmpty()) topCountries else _analytics.value.topCountries
+  }
+
+  private fun parseDnssecPercentage(
+    response: retrofit2.Response<NextDnsApiResponse<List<AnalyticsItemDto>>>,
+    totalQueries: Long
+  ): Double {
+    if (!response.isSuccessful) return _analytics.value.dnssecPercentage.toDouble()
+    val items = response.body()?.data ?: emptyList()
+    val validated = items.find { it.validated == true || it.id == "validated" || it.id == "true" }?.queries ?: 0L
+    return if (totalQueries > 0) (validated.toDouble() / totalQueries) * 100.0 else 0.0
+  }
+
+  private fun parseEncryptionPercentage(
+    response: retrofit2.Response<NextDnsApiResponse<List<AnalyticsItemDto>>>,
+    totalQueries: Long
+  ): Double {
+    if (!response.isSuccessful) return _analytics.value.encryptedDnsPercentage.toDouble()
+    val items = response.body()?.data ?: emptyList()
+    val encrypted = items.find { it.encrypted == true || it.id == "encrypted" || it.id == "true" }?.queries ?: 0L
+    return if (totalQueries > 0) (encrypted.toDouble() / totalQueries) * 100.0 else 0.0
+  }
+
+  // =========================================================================
+  // Main Analytics Fetching Function
+  // =========================================================================
+
   suspend fun fetchAnalytics(key: String, profileId: String, device: String? = null, from: String? = null) {
     try {
       val devParam = if (device == "Tüm cihazlar" || device.isNullOrBlank()) null else device
       val fromParam = when(from) {
-          "Son 1 Saat" -> "-1h"
-          "Son 24 Saat" -> "-24h"
-          "Son 7 Gün" -> "-7d"
-          "Son 30 Gün" -> "-30d"
-          "Son 90 Gün" -> "-90d"
-          else -> "-30d" // Default
+        "Son 1 Saat" -> "-1h"
+        "Son 24 Saat" -> "-24h"
+        "Son 7 Gün" -> "-7d"
+        "Son 30 Gün" -> "-30d"
+        "Son 90 Gün" -> "-90d"
+        else -> "-30d" // Default
       }
       
       val statusResp = NextDnsNetworkClient.api.getAnalyticsStatus(key, profileId, devParam, fromParam)
       val devicesResp = NextDnsNetworkClient.api.getAnalyticsDevices(key, profileId, devParam, fromParam)
       val allowedDomainsResp = NextDnsNetworkClient.api.getAnalyticsDomains(key, profileId, devParam, fromParam, status = "default")
       val blockedDomainsResp = NextDnsNetworkClient.api.getAnalyticsDomains(key, profileId, devParam, fromParam, status = "blocked")
-      val rootDomainsResp = NextDnsNetworkClient.api.getAnalyticsDomains(key, profileId, devParam, fromParam) // topDomains without status
+      val rootDomainsResp = NextDnsNetworkClient.api.getAnalyticsDomains(key, profileId, devParam, fromParam)
       val reasonsResp = NextDnsNetworkClient.api.getAnalyticsReasons(key, profileId, devParam, fromParam)
       val companiesResp = NextDnsNetworkClient.api.getAnalyticsDestinations(key, profileId, devParam, fromParam, type = "gafam")
       val destinationsResp = NextDnsNetworkClient.api.getAnalyticsDestinations(key, profileId, devParam, fromParam, type = "countries")
       val dnssecResp = NextDnsNetworkClient.api.getAnalyticsDnssec(key, profileId, devParam, fromParam)
       val encryptionResp = NextDnsNetworkClient.api.getAnalyticsEncryption(key, profileId, devParam, fromParam)
 
-      var totalQueries = 0L
-      var blockedQueries = 0L
-      
-      if (statusResp.isSuccessful) {
-        val statuses = statusResp.body()?.data ?: emptyList()
-        blockedQueries = statuses.find { it.status == "blocked" }?.queries ?: 0L
-        val allQueries = statuses.map { it.queries ?: 0L }.sum()
-        totalQueries = if (allQueries > 0) allQueries else 100L
-      }
-
-      val topDevices = if (devicesResp.isSuccessful) {
-        devicesResp.body()?.data?.map { DeviceMetric(name = it.name ?: it.id ?: "Bilinmeyen", queries = it.queries ?: 0) } ?: _analytics.value.topDevices
-      } else _analytics.value.topDevices
-
-      val topAllowedDomains = if (allowedDomainsResp.isSuccessful) {
-        allowedDomainsResp.body()?.data?.map { DomainMetric(domain = it.domain ?: "Bilinmeyen", queries = it.queries ?: 0) } ?: _analytics.value.topAllowedDomains
-      } else _analytics.value.topAllowedDomains
-
-      val topBlockedDomains = if (blockedDomainsResp.isSuccessful) {
-        blockedDomainsResp.body()?.data?.map { DomainMetric(domain = it.domain ?: "Bilinmeyen", queries = it.queries ?: 0) } ?: _analytics.value.topBlockedDomains
-      } else _analytics.value.topBlockedDomains
-      
-      val topDomains = if (rootDomainsResp.isSuccessful) {
-        rootDomainsResp.body()?.data?.map { DomainMetric(domain = it.domain ?: "Bilinmeyen", queries = it.queries ?: 0) } ?: _analytics.value.topDomains
-      } else _analytics.value.topDomains
-
-      val topBlockedReasons = if (reasonsResp.isSuccessful) {
-        val rMap = mutableMapOf<String, Long>()
-        reasonsResp.body()?.data?.forEach { item ->
-            rMap[item.id ?: item.name ?: "Diğer"] = item.queries ?: 0L
-        }
-        rMap
-      } else _analytics.value.topBlockedReasons
-      
-      val gafamMetrics = mutableMapOf<String, Pair<Double, Long>>()
-      if (companiesResp.isSuccessful) {
-        val data = companiesResp.body()?.data ?: emptyList()
-        Log.d("NextDnsRepo", "GAFAM data: $data")
-        data.forEach { item ->
-            val count = item.queries ?: 0L
-            val pct = if (totalQueries > 0) (count.toDouble() / totalQueries) * 100.0 else 0.0
-            val companyName = item.company ?: item.name ?: item.id ?: "Diğer"
-            gafamMetrics[companyName] = Pair(pct, count)
-        }
-      }
-      
-      val topCountries = mutableListOf<Pair<String, Double>>()
-      if (destinationsResp.isSuccessful) {
-        destinationsResp.body()?.data?.forEach { item ->
-            val count = item.queries ?: 0L
-            val pct = if (totalQueries > 0) (count.toDouble() / totalQueries) * 100.0 else 0.0
-            val code = item.code ?: ""
-            Log.d("TRAFFIC_DEBUG", "Parsed code value: '$code'")
-            val name = if (code.length == 2) {
-                java.util.Locale("", code).getDisplayName(java.util.Locale("tr"))
-            } else {
-                Log.d("TRAFFIC_DEBUG", "Bilinmeyen ülke kodu: '$code'")
-                "Bilinmeyen"
-            }
-            topCountries.add(Pair(name, pct))
-        }
-      }
-      
-      var dnssecPct = 0.0
-      if (dnssecResp.isSuccessful) {
-        val items = dnssecResp.body()?.data ?: emptyList()
-        val validated = items.find { it.validated == true || it.id == "validated" || it.id == "true" }?.queries ?: 0L
-        dnssecPct = if (totalQueries > 0) (validated.toDouble() / totalQueries) * 100.0 else 0.0
-      }
-      
-      var encPct = 0.0
-      if (encryptionResp.isSuccessful) {
-        val items = encryptionResp.body()?.data ?: emptyList()
-        val encrypted = items.find { it.encrypted == true || it.id == "encrypted" || it.id == "true" }?.queries ?: 0L
-        encPct = if (totalQueries > 0) (encrypted.toDouble() / totalQueries) * 100.0 else 0.0
-      }
+      val (totalQueries, blockedQueries) = parseStatusMetrics(statusResp)
+      val topDevices = parseTopDevices(devicesResp)
+      val topAllowedDomains = parseTopDomains(allowedDomainsResp, _analytics.value.topAllowedDomains)
+      val topBlockedDomains = parseTopDomains(blockedDomainsResp, _analytics.value.topBlockedDomains)
+      val topDomains = parseTopDomains(rootDomainsResp, _analytics.value.topDomains)
+      val topBlockedReasons = parseBlockedReasons(reasonsResp)
+      val gafamMetrics = parseGafamMetrics(companiesResp, totalQueries)
+      val topCountries = parseCountryMetrics(destinationsResp, totalQueries)
+      val dnssecPct = parseDnssecPercentage(dnssecResp, totalQueries)
+      val encPct = parseEncryptionPercentage(encryptionResp, totalQueries)
 
       val blockRate = if (totalQueries > 0) (blockedQueries.toDouble() / totalQueries) * 100 else 0.0
 
@@ -1307,10 +1352,10 @@ class NextDnsRepository(
         topBlockedReasons = topBlockedReasons,
         topDevices = topDevices,
         topDomains = topDomains,
-        gafamMetrics = if (gafamMetrics.isNotEmpty()) gafamMetrics else _analytics.value.gafamMetrics,
+        gafamMetrics = gafamMetrics,
         encryptedDnsPercentage = if (encryptionResp.isSuccessful) encPct.toFloat() else _analytics.value.encryptedDnsPercentage,
         dnssecPercentage = if (dnssecResp.isSuccessful) dnssecPct.toFloat() else _analytics.value.dnssecPercentage,
-        topCountries = if (topCountries.isNotEmpty()) topCountries else _analytics.value.topCountries
+        topCountries = topCountries
       )
       
       _analytics.value = updatedAnalytics
@@ -1319,6 +1364,4 @@ class NextDnsRepository(
       Log.e("NextDnsRepository", "Error fetching analytics: ${e.message}")
     }
   }
-
-
 }
