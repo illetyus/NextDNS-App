@@ -31,8 +31,8 @@ jobs:
           chmod +x gradlew
         shell: bash
 
-      - name: Run Unit Tests
-        run: ./gradlew testDebugUnitTest --no-daemon --warning-mode all || ./gradlew test --no-daemon --warning-mode all
+      - name: Run Unit Tests & JaCoCo Coverage
+        run: ./gradlew testDebugUnitTest jacocoTestReport --no-daemon --warning-mode all || ./gradlew test --no-daemon
         shell: bash
         continue-on-error: true
 
@@ -43,8 +43,11 @@ jobs:
           slug: illetyus/NextDNS-App
           fail_ci_if_error: false
 
-      - name: Run Snyk to check for vulnerabilities
-        uses: snyk/actions/gradle@master
-        continue-on-error: true
+      - name: Setup Snyk CLI
+        uses: snyk/actions/setup@master
+
+      - name: Run Snyk Security Scan
+        run: snyk test --severity-threshold=high || true
+        shell: bash
         env:
           SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
