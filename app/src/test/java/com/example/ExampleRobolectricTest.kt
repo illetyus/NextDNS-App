@@ -13,7 +13,7 @@ import org.robolectric.annotation.Config
 class ExampleRobolectricTest {
 
   @Test
-  fun ead string from context() {
+  fun testReadStringFromContext() {
     val context = ApplicationProvider.getApplicationContext<Context>()
     val appName = context.getString(R.string.app_name)
     assertEquals("NextDNS", appName)
