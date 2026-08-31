@@ -19,13 +19,21 @@ jobs:
         with:
           java-version: '17'
           distribution: 'temurin'
-          cache: 'gradle'
 
-      - name: Grant execute permission for gradlew
-        run: chmod +x gradlew
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v4
+
+      - name: Ensure Gradle Wrapper
+        run: |
+          if [ ! -f gradlew ]; then
+            gradle wrapper
+          fi
+          chmod +x gradlew
+        shell: bash
 
       - name: Run Unit Tests
-        run: ./gradlew testDebugUnitTest || ./gradlew test
+        run: ./gradlew test --no-daemon || gradle test --no-daemon
+        shell: bash
 
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v4
