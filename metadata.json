@@ -1,0 +1,6 @@
+{
+  "name": "NextDNS",
+  "description": "NextDNS modern mobil kontrol paneli: Güvenlik, Gizlilik, Ebeveyn Denetimi, İzin/Engelleme Listeleri, Canlı DNS Logları ve Analizler",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
