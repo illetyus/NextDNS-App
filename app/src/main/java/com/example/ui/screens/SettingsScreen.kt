@@ -50,7 +50,7 @@ fun SettingsScreen(
   val configSettings by viewModel.configSettings.collectAsState()
 
   var showRewriteDialog by remember { mutableStateOf(false) }
-  val profileName = activeProfile?.name ?: "Hasiggome"
+  val profileName = activeProfile?.name ?: "Varsayılan Profil"
 
   LazyColumn(
     modifier = modifier

@@ -22,7 +22,8 @@ enum class NavTab(val title: String, val iconName: String) {
   ALLOWLIST("Beyaz Liste", "check_circle"),
   ANALYTICS("Analizler", "insights"),
   LOGS("Günlükler", "format_list_bulleted"),
-  SETTINGS("Ayarlar", "settings")
+  SETTINGS("Ayarlar", "settings"),
+  ACCOUNT("Hesap", "account_circle")
 }
 
 data class UiMessage(
@@ -61,10 +62,22 @@ class NextDnsViewModel(
   val allowlist = repository.allowlist
   val logs = repository.logs
   val analytics = repository.analytics
+  val allKnownDevices = repository.allKnownDevices
   val configSettings = repository.configSettings
   val testResult = repository.testResult
   val isLiveStreaming = repository.isLiveStreaming
   val isSyncing = repository.isSyncing
+
+  val availableBlocklistsCatalog = repository.availableBlocklistsCatalog
+  val availableNativesCatalog = repository.availableNativesCatalog
+  val availableParentalServicesCatalog = repository.availableParentalServicesCatalog
+  val availableParentalCategoriesCatalog = repository.availableParentalCategoriesCatalog
+  val availableTldsCatalog = repository.availableTldsCatalog
+  val accountInfo = repository.accountInfo
+  val profileSetup = repository.profileSetup
+
+  private val _isAnalyticsLoading = MutableStateFlow(false)
+  val isAnalyticsLoading = _isAnalyticsLoading.asStateFlow()
 
   private val _isGuestMode = MutableStateFlow(false)
   val isGuestMode = _isGuestMode.asStateFlow()
@@ -157,10 +170,12 @@ class NextDnsViewModel(
 
   fun switchProfile(profileId: String) {
     repository.setActiveProfile(profileId)
-    viewModelScope.launch {
-      repository.loadActiveProfileDataFromApi(profileId = profileId)
-    }
     showMessage("Aktif Profil Değiştirildi: $profileId")
+  }
+
+  fun updateUserEmail(email: String, name: String = "") {
+    repository.updateUserEmail(email, name)
+    showMessage("Hesap e-postası güncellendi: $email")
   }
 
   fun createProfile(name: String) {
@@ -296,36 +311,31 @@ class NextDnsViewModel(
     repository.toggleAllowlistItem(domain)
   }
 
-  private var pollingJob: Job? = null
-
   // Logs & Live Stream
   fun toggleLiveStream() {
     val current = isLiveStreaming.value
     val newState = !current
     repository.setLiveStreaming(newState)
-    
-    pollingJob?.cancel()
-    if (newState) {
-        pollingJob = viewModelScope.launch {
-            while (true) {
-                repository.refreshLogsFromApi()
-                delay(1000)
-            }
-        }
-    }
   }
 
-  fun refreshLogs() {
+  fun refreshLogs(showToast: Boolean = true) {
     viewModelScope.launch {
       repository.refreshLogsFromApi()
-      showMessage("Günlük kayıtları yenilendi")
+      if (showToast) {
+        showMessage("Günlük kayıtları yenilendi")
+      }
     }
   }
 
   fun refreshAnalytics(device: String?, time: String?) {
-      viewModelScope.launch {
+    viewModelScope.launch {
+      _isAnalyticsLoading.value = true
+      try {
         repository.fetchAnalytics(apiKey.value, activeProfileId.value, device, time)
+      } finally {
+        _isAnalyticsLoading.value = false
       }
+    }
   }
 
   fun startAnalyticsPolling() {
@@ -345,12 +355,33 @@ class NextDnsViewModel(
   }
 
   // Diagnostics
-  fun runDiagnostic() {
+  fun runDiagnostic(showToast: Boolean = false) {
     viewModelScope.launch {
       _isDiagnosticRunning.value = true
-      val res = repository.runDiagnosticTest()
+      val activePid = activeProfile.value?.id
+      val res = repository.runDiagnosticTest(activePid)
       _isDiagnosticRunning.value = false
-      showMessage(if (res.status == "using-nextdns") "Harika! NextDNS koruması aktif ve çalışıyor." else "Bağlantı kontrol edildi, şu anda NextDNS kullanılmıyor.")
+      if (showToast) {
+        val currentPid = activePid ?: ""
+        val isUsingNextDns = res.status.equals("ok", ignoreCase = true) || res.status.equals("using-nextdns", ignoreCase = true)
+        val msg = if (isUsingNextDns) {
+          "Harika! NextDNS koruması bu profille aktif (${res.latencyMs} ms • ${res.protocol})."
+        } else {
+          "Bağlantı kontrol edildi: Bu cihaz şu anda NextDNS kullanmıyor."
+        }
+        showMessage(msg)
+      }
+    }
+  }
+
+  fun linkIpAddress(profileId: String) {
+    viewModelScope.launch {
+      val success = repository.linkCurrentIp(profileId)
+      if (success) {
+        showMessage("IP adresi başarıyla profile bağlandı.")
+      } else {
+        showMessage("IP bağlama isteği tamamlandı.")
+      }
     }
   }
 

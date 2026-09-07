@@ -19,6 +19,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -33,19 +34,30 @@ import java.time.Instant
 fun formatRelativeTime(timestampStr: String): String {
   try {
     if (timestampStr.isBlank()) return "şimdi"
+    if (timestampStr.endsWith("önce") || timestampStr == "şimdi") return timestampStr
     val time = if (timestampStr.contains("T")) {
-      Instant.parse(timestampStr).toEpochMilli()
+      try {
+        Instant.parse(timestampStr).toEpochMilli()
+      } catch (_: Exception) {
+        try {
+          java.time.OffsetDateTime.parse(timestampStr).toInstant().toEpochMilli()
+        } catch (_: Exception) {
+          java.time.LocalDateTime.parse(timestampStr.substringBefore("+").substringBefore("Z"))
+            .toInstant(java.time.ZoneOffset.UTC).toEpochMilli()
+        }
+      }
     } else {
       val d = timestampStr.toDoubleOrNull()
       if (d != null) {
         if (d < 100000000000L) (d * 1000).toLong() else d.toLong()
       } else {
-        return "şimdi"
+        return timestampStr
       }
     }
     val now = System.currentTimeMillis()
     val diffSeconds = (now - time) / 1000
     return when {
+      diffSeconds < 0 -> "şimdi"
       diffSeconds < 5 -> "şimdi"
       diffSeconds < 60 -> "$diffSeconds saniye önce"
       diffSeconds < 3600 -> "${diffSeconds / 60} dakika önce"
@@ -53,7 +65,7 @@ fun formatRelativeTime(timestampStr: String): String {
       else -> "${diffSeconds / 86400} gün önce"
     }
   } catch (_: Exception) {
-    return "şimdi"
+    return timestampStr
   }
 }
 
@@ -63,10 +75,13 @@ fun LogsScreen(
   viewModel: NextDnsViewModel,
   modifier: Modifier = Modifier
 ) {
+  val activeProfile by viewModel.activeProfile.collectAsState()
   val logs by viewModel.logs.collectAsState()
+  val allKnownDevices by viewModel.allKnownDevices.collectAsState()
   var currentTick by remember { mutableStateOf(0L) }
 
-  LaunchedEffect(Unit) {
+  LaunchedEffect(activeProfile?.id) {
+    viewModel.refreshLogs(showToast = false)
     while (true) {
       delay(5000)
       currentTick++
@@ -89,13 +104,23 @@ fun LogsScreen(
   var expandedLogId by remember { mutableStateOf<String?>(null) }
   var showLiveStreamInfo by remember { mutableStateOf(false) }
 
-  val detectedDevices = remember(analytics) {
+  val detectedDevices = remember(analytics.topDevices, allKnownDevices, logs) {
     val list = mutableListOf<String>()
     analytics.topDevices.forEach { dev ->
-      list.add(dev.name)
+      if (dev.name.isNotBlank() && dev.name != "Bilinmeyen Cihaz" && dev.name != "Cihaz") {
+        list.add(dev.name)
+      }
     }
-    if (list.isEmpty()) {
-      list.add("Bu Cihaz")
+    allKnownDevices.forEach { dev ->
+      if (dev.isNotBlank() && dev != "Bilinmeyen Cihaz" && dev != "Cihaz") {
+        list.add(dev)
+      }
+    }
+    logs.forEach { l ->
+      val dn = l.deviceName
+      if (!dn.isNullOrBlank() && dn != "Bilinmeyen Cihaz" && dn != "Cihaz") {
+        list.add(dn)
+      }
     }
     listOf("Tüm cihazlar") + list.distinct()
   }
@@ -414,8 +439,17 @@ private fun LogItemRow(
   onAddToDenylist: () -> Unit,
   modifier: Modifier = Modifier
 ) {
+  val context = LocalContext.current
   val isBlocked = log.blocked
   val indicatorColor = if (isBlocked) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.tertiary
+  var isCopied by remember { mutableStateOf(false) }
+
+  LaunchedEffect(isCopied) {
+    if (isCopied) {
+      delay(1800)
+      isCopied = false
+    }
+  }
 
   Surface(
     modifier = modifier
@@ -431,32 +465,61 @@ private fun LogItemRow(
     shape = RoundedCornerShape(12.dp)
   ) {
     Column(modifier = Modifier.fillMaxWidth().padding(14.dp)) {
-      SelectionContainer {
-        Surface(
-          color = MaterialTheme.colorScheme.surfaceVariant,
-          shape = RoundedCornerShape(6.dp),
-          modifier = Modifier.fillMaxWidth()
+      Surface(
+        color = MaterialTheme.colorScheme.surfaceVariant,
+        shape = RoundedCornerShape(8.dp),
+        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline.copy(alpha = 0.4f)),
+        modifier = Modifier.fillMaxWidth()
+      ) {
+        Row(
+          modifier = Modifier.padding(start = 10.dp, end = 6.dp, top = 6.dp, bottom = 6.dp),
+          verticalAlignment = Alignment.CenterVertically
         ) {
-          Row(
-            modifier = Modifier.padding(horizontal = 8.dp, vertical = 6.dp),
-            verticalAlignment = Alignment.CenterVertically
+          Box(
+            modifier = Modifier
+              .size(8.dp)
+              .clip(CircleShape)
+              .background(indicatorColor)
+          )
+          Spacer(modifier = Modifier.width(8.dp))
+          FaviconImage(domain = log.domain, modifier = Modifier.size(16.dp).clip(RoundedCornerShape(4.dp)))
+          Spacer(modifier = Modifier.width(8.dp))
+          Text(
+            text = log.domain,
+            color = if (isBlocked) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.onSurface,
+            fontWeight = FontWeight.SemiBold,
+            fontSize = 12.5.sp,
+            fontFamily = FontFamily.Monospace,
+            maxLines = 1,
+            modifier = Modifier.weight(1f)
+          )
+          Spacer(modifier = Modifier.width(8.dp))
+
+          // Code-style copy box
+          Box(
+            modifier = Modifier
+              .size(28.dp)
+              .clip(RoundedCornerShape(6.dp))
+              .background(
+                if (isCopied) MaterialTheme.colorScheme.primary.copy(alpha = 0.15f)
+                else MaterialTheme.colorScheme.surface
+              )
+              .border(
+                1.dp,
+                if (isCopied) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.outline.copy(alpha = 0.6f),
+                RoundedCornerShape(6.dp)
+              )
+              .bounceClick {
+                copyToClipboard(context, log.domain, "Alan adı")
+                isCopied = true
+              },
+            contentAlignment = Alignment.Center
           ) {
-            Box(
-              modifier = Modifier
-                .size(8.dp)
-                .clip(CircleShape)
-                .background(indicatorColor)
-            )
-            Spacer(modifier = Modifier.width(8.dp))
-            FaviconImage(domain = log.domain, modifier = Modifier.size(16.dp).clip(RoundedCornerShape(4.dp)))
-            Spacer(modifier = Modifier.width(8.dp))
-            Text(
-              text = log.domain,
-              color = if (isBlocked) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.onSurface,
-              fontWeight = FontWeight.SemiBold,
-              fontSize = 12.5.sp,
-              fontFamily = FontFamily.Monospace,
-              maxLines = 1
+            Icon(
+              imageVector = if (isCopied) Icons.Default.Check else Icons.Default.ContentCopy,
+              contentDescription = "Alan adını kopyala",
+              tint = if (isCopied) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant,
+              modifier = Modifier.size(14.dp)
             )
           }
         }
@@ -534,11 +597,11 @@ private fun LogExpandedDetails(
       horizontalArrangement = Arrangement.SpaceBetween
     ) {
       Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
-        Text("Protokol: DNS-over-HTTPS (DoH)", color = MaterialTheme.colorScheme.onSurfaceVariant, fontSize = 11.5.sp)
-        Text("İstemci IP: ${log.clientIp ?: "37.130.67.187"}", color = MaterialTheme.colorScheme.onSurfaceVariant, fontSize = 11.5.sp)
+        Text("Protokol: ${log.protocol.ifBlank { "DNS-over-HTTPS (DoH)" }}", color = MaterialTheme.colorScheme.onSurfaceVariant, fontSize = 11.5.sp)
+        Text("İstemci IP: ${log.clientIp ?: "-"}", color = MaterialTheme.colorScheme.onSurfaceVariant, fontSize = 11.5.sp)
       }
       Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
-        Text("Yanıt Süresi: ${log.responseTimeMs ?: 14} ms", color = MaterialTheme.colorScheme.onSurfaceVariant, fontSize = 11.5.sp)
+        Text("Yanıt Süresi: ${if (log.responseTimeMs != null) "${log.responseTimeMs} ms" else "-"}", color = MaterialTheme.colorScheme.onSurfaceVariant, fontSize = 11.5.sp)
         Text(
           text = "Durum: ${if (isBlocked) "Engellendi" else "İzin Verildi"}",
           color = if (isBlocked) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.tertiary,

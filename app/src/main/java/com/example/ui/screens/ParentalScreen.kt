@@ -417,14 +417,27 @@ private fun AddParentalServiceDialog(
   onToggleService: (String) -> Unit,
   onDismiss: () -> Unit
 ) {
-  val inactiveServices = services.filter { !it.active }
+  var searchQuery by remember { mutableStateOf("") }
+  val inactiveServices = services
+    .filter { !it.active }
+    .filter { searchQuery.isBlank() || it.name.contains(searchQuery.trim(), ignoreCase = true) || it.id.contains(searchQuery.trim(), ignoreCase = true) }
 
   AlertDialog(
     onDismissRequest = onDismiss,
     containerColor = MaterialTheme.colorScheme.surface,
     shape = RoundedCornerShape(18.dp),
     title = {
-      Text("Uygulama / Oyun Engelle", color = MaterialTheme.colorScheme.onSurface, fontWeight = FontWeight.Bold, fontSize = 16.sp)
+      Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+        Text("Uygulama / Oyun Engelle (Canlı Katalog)", color = MaterialTheme.colorScheme.onSurface, fontWeight = FontWeight.Bold, fontSize = 16.sp)
+        OutlinedTextField(
+          value = searchQuery,
+          onValueChange = { searchQuery = it },
+          placeholder = { Text("Uygulama ara (Discord, TikTok, Steam...)", fontSize = 12.sp) },
+          singleLine = true,
+          modifier = Modifier.fillMaxWidth(),
+          shape = RoundedCornerShape(8.dp)
+        )
+      }
     },
     text = {
       LazyColumn(
@@ -481,14 +494,27 @@ private fun AddParentalCategoryDialog(
   onToggleCategory: (String) -> Unit,
   onDismiss: () -> Unit
 ) {
-  val inactiveCats = categories.filter { !it.active }
+  var searchQuery by remember { mutableStateOf("") }
+  val inactiveCats = categories
+    .filter { !it.active }
+    .filter { searchQuery.isBlank() || it.name.contains(searchQuery.trim(), ignoreCase = true) || it.description.contains(searchQuery.trim(), ignoreCase = true) }
 
   AlertDialog(
     onDismissRequest = onDismiss,
     containerColor = MaterialTheme.colorScheme.surface,
     shape = RoundedCornerShape(18.dp),
     title = {
-      Text("Kategori Engelle", color = MaterialTheme.colorScheme.onSurface, fontWeight = FontWeight.Bold, fontSize = 16.sp)
+      Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+        Text("Kategori Engelle (Canlı Katalog)", color = MaterialTheme.colorScheme.onSurface, fontWeight = FontWeight.Bold, fontSize = 16.sp)
+        OutlinedTextField(
+          value = searchQuery,
+          onValueChange = { searchQuery = it },
+          placeholder = { Text("Kategori ara...", fontSize = 12.sp) },
+          singleLine = true,
+          modifier = Modifier.fillMaxWidth(),
+          shape = RoundedCornerShape(8.dp)
+        )
+      }
     },
     text = {
       Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {

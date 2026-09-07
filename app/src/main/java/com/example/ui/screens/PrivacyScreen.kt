@@ -212,8 +212,14 @@ private fun BlocklistItemCard(
               fontSize = 11.sp
             )
           }
+          val updateInfo = if (item.updatedTime.isNotBlank()) "Son güncelleme: ${item.updatedTime}" else "Gerçek zamanlı senkronize"
+          val formattedEntries = try {
+            java.text.NumberFormat.getInstance(java.util.Locale("tr", "TR")).format(item.entriesCount)
+          } catch (_: Exception) {
+            item.entriesCount.toString()
+          }
           Text(
-            text = "${item.entriesCount} kural • Gerçek zamanlı senkronize",
+            text = "$formattedEntries kural • $updateInfo",
             color = MaterialTheme.colorScheme.outline,
             fontSize = 10.5.sp
           )
@@ -548,17 +554,24 @@ private fun AddBlocklistCatalogDialog(
                   maxLines = 2,
                   modifier = Modifier.padding(top = 4.dp, bottom = 4.dp)
                 )
+                val formattedEntries = try {
+                  java.text.NumberFormat.getInstance(java.util.Locale("tr", "TR")).format(catItem.entriesCount)
+                } catch (_: Exception) {
+                  catItem.entriesCount.toString()
+                }
                 Row(verticalAlignment = Alignment.CenterVertically) {
                   Text(
-                    text = "${catItem.entriesCount} girdi",
+                    text = "$formattedEntries girdi",
                     color = MaterialTheme.colorScheme.outline,
                     fontSize = 10.sp
                   )
-                  Text(
-                    text = " • Son güncellenme: ${catItem.updatedTime}",
-                    color = MaterialTheme.colorScheme.outline,
-                    fontSize = 10.sp
-                  )
+                  if (catItem.updatedTime.isNotBlank()) {
+                    Text(
+                      text = " • Son güncelleme: ${catItem.updatedTime}",
+                      color = MaterialTheme.colorScheme.outline,
+                      fontSize = 10.sp
+                    )
+                  }
                 }
               }
 

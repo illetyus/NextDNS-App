@@ -221,28 +221,49 @@ fun SecurityScreen(
 
   // TLD Ekle Dialog
   if (showAddTldDialog) {
-    val spamhausTlds = listOf(".work", ".fit", ".surf", ".review", ".asia", ".tokyo", ".cn", ".monster", ".info", ".机构")
-    val allTlds = listOf(".aaa", ".aarp", ".abarth", ".abb", ".abbott", ".abbvie", ".abc", ".able", ".about", ".abogado", ".academy", ".xyz", ".top", ".ru", ".zip")
-    
-    // Filtreleme - ekli olanlari gosterme
-    val availableSpamhaus = spamhausTlds.filter { tld -> !settings.blockedTlds.any { added -> added.equals(tld.removePrefix("."), ignoreCase = true) } }
-    val availableAll = allTlds.filter { tld -> !settings.blockedTlds.any { added -> added.equals(tld.removePrefix("."), ignoreCase = true) } }
+    val liveTldCatalog by viewModel.availableTldsCatalog.collectAsState()
+    var tldSearchQuery by remember { mutableStateOf("") }
+
+    val rawTldList = if (liveTldCatalog.isNotEmpty()) {
+      liveTldCatalog.map { it.id }
+    } else {
+      listOf("work", "fit", "surf", "review", "asia", "tokyo", "cn", "monster", "info", "机构", "xyz", "top", "ru", "zip", "mov", "app", "dev")
+    }
+
+    val availableTlds = rawTldList
+      .map { if (it.startsWith(".")) it else ".$it" }
+      .filter { tld ->
+        !settings.blockedTlds.any { added -> added.equals(tld.removePrefix("."), ignoreCase = true) }
+      }
+      .filter { tld ->
+        tldSearchQuery.isBlank() || tld.contains(tldSearchQuery.trim().removePrefix("."), ignoreCase = true)
+      }
 
     AlertDialog(
       onDismissRequest = { showAddTldDialog = false },
       containerColor = MaterialTheme.colorScheme.surface,
-      shape = RoundedCornerShape(12.dp),
+      shape = RoundedCornerShape(16.dp),
       modifier = Modifier.fillMaxWidth().height(600.dp),
       title = {
-        Row(
-          modifier = Modifier.fillMaxWidth(),
-          horizontalArrangement = Arrangement.SpaceBetween,
-          verticalAlignment = Alignment.CenterVertically
-        ) {
-          Text("TLD ekle", color = MaterialTheme.colorScheme.onSurface, fontWeight = FontWeight.Bold, fontSize = 18.sp)
-          IconButton(onClick = { showAddTldDialog = false }, modifier = Modifier.size(24.dp)) {
-            Icon(Icons.Default.Close, contentDescription = "Kapat", tint = MaterialTheme.colorScheme.onSurfaceVariant)
+        Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+          Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+          ) {
+            Text("TLD Ekle (Canlı Liste)", color = MaterialTheme.colorScheme.onSurface, fontWeight = FontWeight.Bold, fontSize = 17.sp)
+            IconButton(onClick = { showAddTldDialog = false }, modifier = Modifier.size(24.dp)) {
+              Icon(Icons.Default.Close, contentDescription = "Kapat", tint = MaterialTheme.colorScheme.onSurfaceVariant)
+            }
           }
+          OutlinedTextField(
+            value = tldSearchQuery,
+            onValueChange = { tldSearchQuery = it },
+            placeholder = { Text("TLD ara... (.xyz, .top, .ru)", fontSize = 12.sp) },
+            singleLine = true,
+            modifier = Modifier.fillMaxWidth(),
+            shape = RoundedCornerShape(8.dp)
+          )
         }
       },
       text = {
@@ -250,72 +271,27 @@ fun SecurityScreen(
           modifier = Modifier.fillMaxSize(),
           verticalArrangement = Arrangement.spacedBy(0.dp)
         ) {
-          if (availableSpamhaus.isNotEmpty()) {
-            item {
-              Text(
-                "SPAMHAUS EN ÇOK KÖTÜYE KULLANILAN TLD'LER",
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                fontSize = 10.sp,
-                fontWeight = FontWeight.Bold,
-                modifier = Modifier.padding(horizontal = 8.dp, vertical = 12.dp)
-              )
-            }
-            items(availableSpamhaus) { tld ->
-              Row(
-                modifier = Modifier
-                  .fillMaxWidth()
-                  .background(MaterialTheme.colorScheme.surfaceVariant)
-                  .padding(horizontal = 16.dp, vertical = 12.dp),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
+          items(availableTlds) { tld ->
+            Row(
+              modifier = Modifier
+                .fillMaxWidth()
+                .background(MaterialTheme.colorScheme.surfaceVariant)
+                .padding(horizontal = 16.dp, vertical = 10.dp),
+              horizontalArrangement = Arrangement.SpaceBetween,
+              verticalAlignment = Alignment.CenterVertically
+            ) {
+              Text(tld, color = MaterialTheme.colorScheme.onSurface, fontSize = 14.sp, fontWeight = FontWeight.Medium)
+              Button(
+                onClick = { viewModel.addBlockedTld(tld.removePrefix(".")) },
+                colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary),
+                shape = RoundedCornerShape(6.dp),
+                contentPadding = PaddingValues(horizontal = 12.dp, vertical = 4.dp),
+                modifier = Modifier.height(28.dp)
               ) {
-                Text(tld, color = MaterialTheme.colorScheme.onSurface, fontSize = 14.sp, fontWeight = FontWeight.Medium)
-                Button(
-                  onClick = { viewModel.addBlockedTld(tld.removePrefix(".")) },
-                  colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary),
-                  shape = RoundedCornerShape(6.dp),
-                  contentPadding = PaddingValues(horizontal = 12.dp, vertical = 4.dp),
-                  modifier = Modifier.height(28.dp)
-                ) {
-                  Text("EKLE", fontSize = 11.sp, fontWeight = FontWeight.Bold)
-                }
+                Text("EKLE", fontSize = 11.sp, fontWeight = FontWeight.Bold)
               }
-              HorizontalDivider(color = MaterialTheme.colorScheme.outline, modifier = Modifier.padding(horizontal = 16.dp))
             }
-          }
-
-          if (availableAll.isNotEmpty()) {
-            item {
-              Text(
-                "TÜM TLD'LER",
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                fontSize = 10.sp,
-                fontWeight = FontWeight.Bold,
-                modifier = Modifier.padding(horizontal = 8.dp, vertical = 16.dp)
-              )
-            }
-            items(availableAll) { tld ->
-              Row(
-                modifier = Modifier
-                  .fillMaxWidth()
-                  .background(MaterialTheme.colorScheme.surfaceVariant)
-                  .padding(horizontal = 16.dp, vertical = 12.dp),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
-              ) {
-                Text(tld, color = MaterialTheme.colorScheme.onSurface, fontSize = 14.sp, fontWeight = FontWeight.Medium)
-                Button(
-                  onClick = { viewModel.addBlockedTld(tld.removePrefix(".")) },
-                  colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary),
-                  shape = RoundedCornerShape(6.dp),
-                  contentPadding = PaddingValues(horizontal = 12.dp, vertical = 4.dp),
-                  modifier = Modifier.height(28.dp)
-                ) {
-                  Text("EKLE", fontSize = 11.sp, fontWeight = FontWeight.Bold)
-                }
-              }
-              HorizontalDivider(color = MaterialTheme.colorScheme.outline, modifier = Modifier.padding(horizontal = 16.dp))
-            }
+            HorizontalDivider(color = MaterialTheme.colorScheme.outline, modifier = Modifier.padding(horizontal = 16.dp))
           }
         }
       },

@@ -424,6 +424,7 @@ fun HomeScreen(
           NavTab.ANALYTICS -> AnalyticsScreen(viewModel)
           NavTab.LOGS -> LogsScreen(viewModel)
           NavTab.SETTINGS -> SettingsScreen(viewModel)
+          NavTab.ACCOUNT -> AccountScreen(viewModel)
         }
       }
     }
@@ -497,6 +498,7 @@ private fun getTabIcon(tab: NavTab): ImageVector {
     NavTab.ANALYTICS -> Icons.Default.BarChart
     NavTab.LOGS -> Icons.Default.Article
     NavTab.SETTINGS -> Icons.Default.Settings
+    NavTab.ACCOUNT -> Icons.Default.AccountCircle
   }
 }
 

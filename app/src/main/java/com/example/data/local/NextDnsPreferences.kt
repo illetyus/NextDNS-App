@@ -20,6 +20,8 @@ class NextDnsPreferences(context: Context) {
     private const val KEY_GUEST_MODE = "saved_guest_mode"
     private const val KEY_AUTO_SYNC_INTERVAL = "saved_auto_sync_interval"
     private const val KEY_PROFILES = "saved_profiles_json"
+    private const val KEY_USER_EMAIL = "saved_user_email"
+    private const val KEY_USER_NAME = "saved_user_name"
 
     @Volatile
     private var INSTANCE: NextDnsPreferences? = null
@@ -46,6 +48,14 @@ class NextDnsPreferences(context: Context) {
   var autoSyncIntervalSec: Int
     get() = prefs.getInt(KEY_AUTO_SYNC_INTERVAL, 15)
     set(value) = prefs.edit().putInt(KEY_AUTO_SYNC_INTERVAL, value).apply()
+
+  var userEmail: String
+    get() = prefs.getString(KEY_USER_EMAIL, "") ?: ""
+    set(value) = prefs.edit().putString(KEY_USER_EMAIL, value).apply()
+
+  var userName: String
+    get() = prefs.getString(KEY_USER_NAME, "") ?: ""
+    set(value) = prefs.edit().putString(KEY_USER_NAME, value).apply()
 
   fun saveProfiles(profiles: List<NextDnsProfile>) {
     try {

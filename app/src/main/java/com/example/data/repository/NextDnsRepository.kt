@@ -63,6 +63,24 @@ class NextDnsRepository(
   private val _analytics = MutableStateFlow(AnalyticsSummary())
   val analytics = _analytics.asStateFlow()
 
+  private val _knownDeviceNameToId = java.util.concurrent.ConcurrentHashMap<String, String>()
+  private val _knownDeviceIdToName = java.util.concurrent.ConcurrentHashMap<String, String>()
+
+  private val _allKnownDevices = MutableStateFlow<List<String>>(emptyList())
+  val allKnownDevices = _allKnownDevices.asStateFlow()
+
+  private var currentAnalyticsDevice: String? = null
+  private var currentAnalyticsTime: String? = null
+
+  fun updateKnownDevices(newDevices: List<String>) {
+    val valid = newDevices.filter { it.isNotBlank() && it != "Bilinmeyen" && it != "Cihaz" && it != "Bilinmeyen Cihaz" }
+    if (valid.isNotEmpty()) {
+      val current = _allKnownDevices.value.toMutableSet()
+      current.addAll(valid)
+      _allKnownDevices.value = current.toList()
+    }
+  }
+
   private val _configSettings = MutableStateFlow(ConfigSettings())
   val configSettings = _configSettings.asStateFlow()
 
@@ -75,8 +93,31 @@ class NextDnsRepository(
   private val _isSyncing = MutableStateFlow(false)
   val isSyncing = _isSyncing.asStateFlow()
 
+  // Live NextDNS Public Catalogs & Account Metadata
+  private val _availableBlocklistsCatalog = MutableStateFlow<List<BlocklistEntry>>(emptyList())
+  val availableBlocklistsCatalog = _availableBlocklistsCatalog.asStateFlow()
+
+  private val _availableNativesCatalog = MutableStateFlow<List<NativeTrackingDto>>(emptyList())
+  val availableNativesCatalog = _availableNativesCatalog.asStateFlow()
+
+  private val _availableParentalServicesCatalog = MutableStateFlow<List<ParentalServiceCatalogDto>>(emptyList())
+  val availableParentalServicesCatalog = _availableParentalServicesCatalog.asStateFlow()
+
+  private val _availableParentalCategoriesCatalog = MutableStateFlow<List<ParentalCategoryDto>>(emptyList())
+  val availableParentalCategoriesCatalog = _availableParentalCategoriesCatalog.asStateFlow()
+
+  private val _availableTldsCatalog = MutableStateFlow<List<SecurityTldCatalogDto>>(emptyList())
+  val availableTldsCatalog = _availableTldsCatalog.asStateFlow()
+
+  private val _accountInfo = MutableStateFlow(NextDnsAccountInfo())
+  val accountInfo = _accountInfo.asStateFlow()
+
+  private val _profileSetup = MutableStateFlow(SetupDto())
+  val profileSetup = _profileSetup.asStateFlow()
+
   init {
     repoScope.launch {
+      loadAllLiveCatalogs()
       runDiagnosticTest()
       val savedKey = preferences.apiKey
       val savedPid = preferences.activeProfileId
@@ -84,8 +125,6 @@ class NextDnsRepository(
         loginWithApiKey(savedKey, restoreProfileId = savedPid)
       } else if (savedPid.isNotBlank()) {
         loadLocalProfileData(savedPid)
-      } else {
-        loadDemoData()
       }
     }
   }
@@ -105,89 +144,123 @@ class NextDnsRepository(
     }
   }
 
-  // =========================================================================
-  // Demo & Local Data
-  // =========================================================================
+  suspend fun loadAllLiveCatalogs() = withContext(Dispatchers.IO) {
+    try {
+      // 1. Blocklists Catalog
+      val blocklistDtos = NextDnsNetworkClient.fetchAvailableBlocklistsDirect()
+      if (blocklistDtos != null && blocklistDtos.isNotEmpty()) {
+        _availableBlocklistsCatalog.value = blocklistDtos.map { dto ->
+          val cleanId = dto.id.lowercase().trim()
+          val isRecommended = cleanId == "nextdns-recommended"
+          BlocklistEntry(
+            id = dto.id,
+            name = dto.name?.takeIf { it.isNotBlank() } ?: (if (isRecommended) "NextDNS Reklam & İzleyici Koruması" else dto.id),
+            description = dto.description ?: (if (isRecommended) "NextDNS tarafından optimize edilmiş dengeli ve kapsamlı engelleme listesi." else ""),
+            entriesCount = dto.entries ?: 0L,
+            active = false,
+            website = dto.website ?: (if (isRecommended) "https://nextdns.io" else ""),
+            category = determineBlocklistCategory(cleanId, dto.name ?: "", dto.description ?: ""),
+            updatedTime = formatIsoDateWithRelative(dto.updatedOn)
+          )
+        }
+      }
 
-  private fun loadDemoData() {
-    val demoProfiles = listOf(
-      NextDnsProfile(id = "82a32a", name = "Hasiggome"),
-      NextDnsProfile(id = "91b42c", name = "Ev Ağı"),
-      NextDnsProfile(id = "44d81e", name = "Telefonum")
-    )
-    _profiles.value = demoProfiles
-    preferences.saveProfiles(demoProfiles)
+      // 2. Natives Catalog
+      val nativesDtos = NextDnsNetworkClient.fetchAvailableNativesDirect()
+      if (nativesDtos != null && nativesDtos.isNotEmpty()) {
+        _availableNativesCatalog.value = nativesDtos
+      }
 
-    val pid = "82a32a"
-    _activeProfileId.value = pid
-    preferences.activeProfileId = pid
+      // 3. Parental Services Catalog
+      val parentServices = NextDnsNetworkClient.fetchAvailableParentalServicesDirect()
+      if (parentServices != null && parentServices.isNotEmpty()) {
+        _availableParentalServicesCatalog.value = parentServices
+      }
 
-    loadLocalProfileData(pid)
+      // 4. Parental Categories Catalog
+      val parentCats = NextDnsNetworkClient.fetchAvailableParentalCategoriesDirect()
+      if (parentCats != null && parentCats.isNotEmpty()) {
+        _availableParentalCategoriesCatalog.value = parentCats
+      }
+
+      // 5. TLDs Catalog
+      val tlds = NextDnsNetworkClient.fetchAvailableTldsDirect()
+      if (tlds != null && tlds.isNotEmpty()) {
+        _availableTldsCatalog.value = tlds
+      }
+    } catch (e: Exception) {
+      Log.e(TAG, "Error loading live catalogs: ${e.message}", e)
+    }
   }
 
   fun loadLocalProfileData(profileId: String) {
     _securitySettings.value = preferences.getSecuritySettings(profileId) ?: SecuritySettings()
     _privacySettings.value = preferences.getPrivacySettings(profileId) ?: PrivacySettings()
     _parentalControlSettings.value = preferences.getParentalControlSettings(profileId) ?: ParentalControlSettings()
-    _denylist.value = preferences.getDenylist(profileId) ?: listOf(
-      AllowDenyItem(id = "trendyol", domain = "*.trendyol.com", active = true),
-      AllowDenyItem(id = "hizliresim", domain = "*.hizliresim.com", active = true),
-      AllowDenyItem(id = "netflix", domain = "*.netflix.com", active = true),
-      AllowDenyItem(id = "douyin", domain = "*.douyin.com", active = true),
-      AllowDenyItem(id = "aliexpress", domain = "*.aliexpress.com", active = true)
-    )
-    _allowlist.value = preferences.getAllowlist(profileId) ?: listOf(
-      AllowDenyItem(id = "adguard", domain = "*.local.adguard.org", active = true),
-      AllowDenyItem(id = "github", domain = "*.github.com", active = true),
-      AllowDenyItem(id = "spotify", domain = "*.spotify.com", active = true)
-    )
+    _denylist.value = preferences.getDenylist(profileId) ?: emptyList()
+    _allowlist.value = preferences.getAllowlist(profileId) ?: emptyList()
     _configSettings.value = preferences.getConfigSettings(profileId) ?: ConfigSettings()
-    _logs.value = preferences.getLogs(profileId) ?: listOf(
-      DnsLogEntry(id = "1", timestamp = "2 sn önce", domain = "local.adguard.org", deviceName = "Hasiggome-PC", blocked = false, protocol = "DoH"),
-      DnsLogEntry(id = "2", timestamp = "5 sn önce", domain = "sdkconfig.ad.intl.xiaomi.com", deviceName = "Hasiggome-Mobile", blocked = true, blockReason = "AdGuard DNS filter", protocol = "DoH"),
-      DnsLogEntry(id = "3", timestamp = "12 sn önce", domain = "play.google.com", deviceName = "Hasiggome-Mobile", blocked = false, protocol = "DoH"),
-      DnsLogEntry(id = "4", timestamp = "25 sn önce", domain = "api-adservices.apple.com", deviceName = "Hasiggome-PC", blocked = true, blockReason = "Yerel İzleme Koruması", protocol = "DoH"),
-      DnsLogEntry(id = "5", timestamp = "40 sn önce", domain = "connectivitycheck.gstatic.com", deviceName = "Hasiggome-PC", blocked = false, protocol = "DoH")
-    )
+    _logs.value = preferences.getLogs(profileId) ?: emptyList()
   }
 
   // =========================================================================
   // Diagnostic Tests
   // =========================================================================
 
-  suspend fun runDiagnosticTest(): DiagnosticTestResult = withContext(Dispatchers.IO) {
-    val fallback = DiagnosticTestResult(
-      status = "using-nextdns",
-      profileId = _activeProfileId.value.ifBlank { "82a32a" },
-      clientIp = "37.130.67.187"
-    )
-
+  suspend fun runDiagnosticTest(targetProfileId: String? = null): DiagnosticTestResult = withContext(Dispatchers.IO) {
+    _testResult.value = _testResult.value.copy(isTesting = true)
     val startT = System.currentTimeMillis()
-    val response = safeApiCall("runDiagnosticTest") {
-      NextDnsNetworkClient.testApi.testConnection()
-    } ?: run {
-      _testResult.value = fallback
-      return@withContext fallback
+
+    val profId = targetProfileId ?: _activeProfileId.value.takeIf { it.isNotBlank() }
+
+    // Direct OkHttp with random subdomain per profile matching NextDNS website
+    var body = NextDnsNetworkClient.fetchTestConnectionDirect(profId)
+
+    // Fallback if needed
+    if (body == null) {
+      body = safeApiCall("runDiagnosticTest") {
+        val resp = NextDnsNetworkClient.testApi.testConnection()
+        if (resp.isSuccessful) resp.body() else null
+      }
     }
 
-    val body = response.body()
-    if (!response.isSuccessful || body == null) {
-      _testResult.value = fallback
-      return@withContext fallback
+    val latency = (System.currentTimeMillis() - startT).toInt().coerceAtLeast(1)
+
+    val result = if (body != null) {
+      val rawStatus = (body.status ?: "unconfigured").lowercase().trim()
+      val clientIp = body.client?.takeIf { it.isNotBlank() }
+        ?: body.srcIP?.takeIf { it.isNotBlank() }
+        ?: ""
+      val isEnc = body.protocol?.uppercase() in listOf("DOH", "DOT", "DOQ")
+
+      DiagnosticTestResult(
+        status = rawStatus,
+        protocol = body.protocol ?: if (rawStatus == "ok") "DoH" else "",
+        profileId = body.profile ?: "",
+        clientIp = clientIp,
+        resolver = body.resolver,
+        serverPoP = body.server ?: "",
+        latencyMs = latency,
+        isEncrypted = isEnc,
+        isTesting = false,
+        lastTestedTime = System.currentTimeMillis()
+      )
+    } else {
+      _testResult.value.copy(
+        isTesting = false,
+        lastTestedTime = System.currentTimeMillis(),
+        errorMessage = "Sunucuya bağlanılamadı"
+      )
     }
 
-    val latency = (System.currentTimeMillis() - startT).toInt()
-    val result = DiagnosticTestResult(
-      status = body.status ?: "using-nextdns",
-      protocol = body.protocol ?: "DoH",
-      profileId = body.profile ?: _activeProfileId.value.ifBlank { "82a32a" },
-      clientIp = body.client ?: "37.130.67.187",
-      serverPoP = body.server ?: "ist-1",
-      latencyMs = latency,
-      isEncrypted = true
-    )
     _testResult.value = result
     result
+  }
+
+  suspend fun linkCurrentIp(profileId: String): Boolean = withContext(Dispatchers.IO) {
+    val ok = NextDnsNetworkClient.linkIpAddress(profileId)
+    runDiagnosticTest()
+    ok
   }
 
   // =========================================================================
@@ -200,21 +273,28 @@ class NextDnsRepository(
       NextDnsNetworkClient.api.getProfiles(key)
     }
 
+    if (response == null || !response.isSuccessful) {
+      val code = response?.code() ?: -1
+      val errorMsg = when (code) {
+        401 -> "API Anahtarı geçersiz (401 Yetkisiz). Lütfen my.nextdns.io/account adresinden anahtarınızı kontrol edin."
+        403 -> "Erişim engellendi (403 Yasak). Lütfen API anahtarınızı kontrol edin."
+        else -> "NextDNS API sunucusuna bağlanılamadı (${if (code > 0) "HTTP $code" else "Ağ Bağlantısı Hatası"})."
+      }
+      _apiStatus.value = ApiConnectionStatus.Error(errorMsg)
+      return@withContext Result.failure(Exception(errorMsg))
+    }
+
+    val apiProfiles = response.body()?.data
+    if (apiProfiles.isNullOrEmpty()) {
+      val msg = "Hesabınızda hiçbir NextDNS profili bulunamadı."
+      _apiStatus.value = ApiConnectionStatus.Error(msg)
+      return@withContext Result.failure(Exception(msg))
+    }
+
     _apiKey.value = key
     preferences.apiKey = key
 
-    val apiProfiles = response?.body()?.data
-    if (response == null || !response.isSuccessful || apiProfiles == null) {
-      loadDemoData()
-      _apiStatus.value = ApiConnectionStatus.Connected(3)
-      return@withContext Result.success(3)
-    }
-
-    val mapped = if (apiProfiles.isNotEmpty()) {
-      apiProfiles.map { NextDnsProfile(id = it.id, name = it.name, fingerprint = it.fingerprint ?: "") }
-    } else {
-      listOf(NextDnsProfile(id = "82a32a", name = "Hasiggome"))
-    }
+    val mapped = apiProfiles.map { NextDnsProfile(id = it.id, name = it.name, fingerprint = it.fingerprint ?: "") }
 
     _profiles.value = mapped
     preferences.saveProfiles(mapped)
@@ -239,6 +319,8 @@ class NextDnsRepository(
     _isSyncing.value = true
 
     try {
+      applyAccountFromApi(key)
+      applySetupFromApi(key, profileId)
       applySecuritySettingsFromApi(key, profileId)
       applyPrivacySettingsFromApi(key, profileId)
       applyParentalSettingsFromApi(key, profileId)
@@ -253,13 +335,63 @@ class NextDnsRepository(
     }
   }
 
+  fun updateUserEmail(email: String, name: String = "") {
+    preferences.userEmail = email
+    if (name.isNotBlank()) preferences.userName = name
+    val current = _accountInfo.value
+    _accountInfo.value = current.copy(
+      email = email,
+      name = name.ifBlank { current.name ?: email.substringBefore("@").replaceFirstChar { it.uppercase() } }
+    )
+  }
+
+  private suspend fun applyAccountFromApi(key: String) {
+    try {
+      val accResp = NextDnsNetworkClient.api.getAccount(key)
+      if (accResp.isSuccessful) {
+        val d = accResp.body()?.data
+        if (d != null) {
+          val email = d.email?.takeIf { it.isNotBlank() } ?: preferences.userEmail.takeIf { it.isNotBlank() }
+          val name = d.name?.takeIf { it.isNotBlank() } ?: preferences.userName.takeIf { it.isNotBlank() } ?: email?.substringBefore("@")?.replaceFirstChar { it.uppercase() }
+          _accountInfo.value = NextDnsAccountInfo(
+            email = email,
+            name = name,
+            plan = d.plan,
+            subscriptionStatus = d.subscription?.status ?: "active",
+            subscriptionPeriod = d.subscription?.period ?: "year"
+          )
+          return
+        }
+      }
+    } catch (_: Exception) {
+      // /account endpoint is session-cookie scoped on NextDNS; proceed gracefully
+    }
+
+    val email = preferences.userEmail.takeIf { it.isNotBlank() }
+    val name = preferences.userName.takeIf { it.isNotBlank() } ?: email?.substringBefore("@")?.replaceFirstChar { it.uppercase() }
+    _accountInfo.value = NextDnsAccountInfo(
+      email = email,
+      name = name,
+      plan = null,
+      subscriptionStatus = null,
+      subscriptionPeriod = null
+    )
+  }
+
+  private suspend fun applySetupFromApi(key: String, profileId: String) {
+    val setupResp = safeApiCall("getProfileSetup") { NextDnsNetworkClient.api.getProfileSetup(key, profileId) } ?: return
+    if (!setupResp.isSuccessful) return
+    val d = setupResp.body() ?: return
+    _profileSetup.value = d
+  }
+
   // =========================================================================
   // Settings Loading Sub-Routines (Guard Clause & Single Responsibility)
   // =========================================================================
 
   private suspend fun applySecuritySettingsFromApi(key: String, profileId: String) {
     val secResp = safeApiCall("applySecuritySettings") { NextDnsNetworkClient.api.getSecurity(key, profileId) } ?: return
-    val d = secResp.body()?.data ?: return
+    val d = secResp.body() ?: return
     if (!secResp.isSuccessful) return
 
     val tldList = d.tlds?.map { it.id } ?: _securitySettings.value.blockedTlds
@@ -299,56 +431,104 @@ class NextDnsRepository(
     }
 
     val privResp = safeApiCall("getPrivacy") { NextDnsNetworkClient.api.getPrivacy(key, profileId) }
-    if (privResp?.isSuccessful == true && privResp.body()?.data != null) {
-      val p = privResp.body()!!.data!!
+    if (privResp?.isSuccessful == true && privResp.body() != null) {
+      val p = privResp.body()!!
       if (activeBlocklistDtos == null) activeBlocklistDtos = p.blocklists
       if (activeNativeDtos == null) activeNativeDtos = p.natives
       disguisedTrackersVal = p.disguisedTrackers
       allowAffiliatesVal = p.allowAffiliateLinks
     }
 
-    val baseCatalog = _privacySettings.value.blocklists.ifEmpty { PrivacySettings.defaultBlocklistCatalog() }
-    val updatedBlocklists = if (activeBlocklistDtos != null) {
-      val activeMap = activeBlocklistDtos.associateBy { it.id.lowercase().trim() }
-      val catalogMerged = baseCatalog.map { catItem ->
+    val availResp = safeApiCall("getAvailableBlocklists") { NextDnsNetworkClient.api.getAvailableBlocklists(key) }
+    var availableDtos = if (availResp?.isSuccessful == true) availResp.body()?.data else null
+    if (availableDtos.isNullOrEmpty()) {
+      availableDtos = NextDnsNetworkClient.fetchAvailableBlocklistsDirect()
+    }
+    val safeAvailDtos = availableDtos ?: emptyList()
+
+    val activeMap = activeBlocklistDtos?.associateBy { it.id.lowercase().trim() } ?: emptyMap()
+
+    val updatedBlocklists = if (safeAvailDtos.isNotEmpty()) {
+      val list = safeAvailDtos.map { dto ->
+        val cleanId = dto.id.lowercase().trim()
+        val isActive = activeMap.containsKey(cleanId)
+        val isRecommended = cleanId == "nextdns-recommended"
+
+        val displayName = when {
+          !dto.name.isNullOrBlank() -> dto.name
+          isRecommended -> "NextDNS Reklam & İzleyici Koruması"
+          else -> dto.id
+        }
+
+        val displayDesc = when {
+          !dto.description.isNullOrBlank() -> dto.description
+          isRecommended -> "NextDNS tarafından optimize edilmiş dengeli ve kapsamlı reklam/izleyici engelleme listesi."
+          else -> ""
+        }
+
+        val displayWebsite = when {
+          !dto.website.isNullOrBlank() -> dto.website
+          isRecommended -> "https://nextdns.io"
+          else -> ""
+        }
+
+        val formattedUpdated = formatIsoDateWithRelative(dto.updatedOn)
+        val category = determineBlocklistCategory(cleanId, displayName, displayDesc)
+
+        BlocklistEntry(
+          id = dto.id,
+          name = displayName,
+          description = displayDesc,
+          entriesCount = dto.entries ?: 0L,
+          active = isActive,
+          website = displayWebsite,
+          category = category,
+          updatedTime = formattedUpdated
+        )
+      }.toMutableList()
+
+      // Also append any active blocklist in the profile that is not in the public list
+      val existingIds = list.map { it.id.lowercase().trim() }.toSet()
+      activeBlocklistDtos?.forEach { activeDto ->
+        val cleanId = activeDto.id.lowercase().trim()
+        if (!existingIds.contains(cleanId)) {
+          list.add(
+            BlocklistEntry(
+              id = activeDto.id,
+              name = activeDto.name ?: activeDto.id,
+              description = activeDto.description ?: "Özel filtre listesi.",
+              entriesCount = activeDto.entries ?: 0L,
+              active = true,
+              website = activeDto.website ?: "",
+              category = "Özel",
+              updatedTime = formatIsoDateWithRelative(activeDto.updatedOn)
+            )
+          )
+        }
+      }
+      list
+    } else {
+      val baseCatalog = _privacySettings.value.blocklists.ifEmpty { _availableBlocklistsCatalog.value }
+      baseCatalog.map { catItem ->
         val cleanId = catItem.id.lowercase().trim()
-        val remote = activeMap[cleanId] ?: activeBlocklistDtos.find { it.name?.equals(catItem.name, ignoreCase = true) == true }
+        val remote = activeMap[cleanId]
         if (remote != null) {
           catItem.copy(
             id = remote.id,
             active = true,
             name = remote.name?.takeIf { it.isNotBlank() } ?: catItem.name,
-            description = remote.description?.takeIf { it.isNotBlank() } ?: catItem.description,
             entriesCount = remote.entries ?: catItem.entriesCount,
-            website = remote.website ?: catItem.website
+            updatedTime = formatIsoDateWithRelative(remote.updatedOn).ifBlank { catItem.updatedTime }
           )
         } else {
           catItem.copy(active = false)
         }
-      }.toMutableList()
-
-      val catalogIds = catalogMerged.map { it.id.lowercase().trim() }.toSet()
-      activeBlocklistDtos.forEach { dto ->
-        if (!catalogIds.contains(dto.id.lowercase().trim())) {
-          catalogMerged.add(
-            BlocklistEntry(
-              id = dto.id,
-              name = dto.name ?: dto.id,
-              description = dto.description ?: "Özel/Harici liste.",
-              entriesCount = dto.entries ?: 0L,
-              active = true,
-              website = dto.website ?: "",
-              category = "Özel"
-            )
-          )
-        }
       }
-      catalogMerged
-    } else {
-      baseCatalog
     }
 
-    val baseNatives = _privacySettings.value.nativeTracking.ifEmpty { PrivacySettings.defaultNativeTracking() }
+    val baseNatives = _privacySettings.value.nativeTracking.ifEmpty {
+      _availableNativesCatalog.value.map { NativeTrackingEntry(id = it.id, name = it.id.replaceFirstChar { c -> c.uppercase() }, active = false) }
+    }
     val updatedNatives = if (activeNativeDtos != null) {
       val activeNatIds = activeNativeDtos.map { it.id.lowercase().trim() }.toSet()
       baseNatives.map { nat ->
@@ -370,22 +550,60 @@ class NextDnsRepository(
 
   private suspend fun applyParentalSettingsFromApi(key: String, profileId: String) {
     val parentResp = safeApiCall("getParentalControl") { NextDnsNetworkClient.api.getParentalControl(key, profileId) } ?: return
-    val pc = parentResp.body()?.data ?: return
+    val pc = parentResp.body() ?: return
     if (!parentResp.isSuccessful) return
+
+    var servCatalog = _availableParentalServicesCatalog.value
+    if (servCatalog.isEmpty()) {
+      val fetched = NextDnsNetworkClient.fetchAvailableParentalServicesDirect()
+      if (fetched != null && fetched.isNotEmpty()) {
+        servCatalog = fetched
+        _availableParentalServicesCatalog.value = fetched
+      }
+    }
+
+    var catCatalog = _availableParentalCategoriesCatalog.value
+    if (catCatalog.isEmpty()) {
+      val fetched = NextDnsNetworkClient.fetchAvailableParentalCategoriesDirect()
+      if (fetched != null && fetched.isNotEmpty()) {
+        catCatalog = fetched
+        _availableParentalCategoriesCatalog.value = fetched
+      }
+    }
 
     val activeServiceMap = pc.services?.associate { it.id.lowercase().trim() to (it.active != false) } ?: emptyMap()
     val activeCatMap = pc.categories?.associate { it.id.lowercase().trim() to (it.active != false) } ?: emptyMap()
 
-    val currentServices = _parentalControlSettings.value.services
-    val currentCats = _parentalControlSettings.value.categories
-
-    val updatedServices = currentServices.map { s ->
-      val clean = s.id.lowercase().trim()
-      if (activeServiceMap.containsKey(clean)) s.copy(active = activeServiceMap[clean] == true) else s
+    val updatedServices = if (servCatalog.isNotEmpty()) {
+      servCatalog.map { s ->
+        BlockedServiceEntry(
+          id = s.id,
+          name = s.id.replaceFirstChar { it.uppercase() },
+          website = s.website,
+          active = activeServiceMap[s.id.lowercase().trim()] == true
+        )
+      }
+    } else {
+      _parentalControlSettings.value.services.map { s ->
+        val clean = s.id.lowercase().trim()
+        if (activeServiceMap.containsKey(clean)) s.copy(active = activeServiceMap[clean] == true) else s
+      }
     }
-    val updatedCats = currentCats.map { c ->
-      val clean = c.id.lowercase().trim()
-      if (activeCatMap.containsKey(clean)) c.copy(active = activeCatMap[clean] == true) else c
+
+    val updatedCats = if (catCatalog.isNotEmpty()) {
+      catCatalog.map { c ->
+        BlockedCategoryEntry(
+          id = c.id,
+          name = c.id.replaceFirstChar { it.uppercase() },
+          description = "",
+          active = activeCatMap[c.id.lowercase().trim()] == true
+        )
+      }
+    } else {
+      _parentalControlSettings.value.categories.map { c ->
+        val clean = c.id.lowercase().trim()
+        if (activeCatMap.containsKey(clean)) c.copy(active = activeCatMap[clean] == true) else c
+      }
     }
 
     val updated = ParentalControlSettings(
@@ -456,15 +674,13 @@ class NextDnsRepository(
   }
 
   private suspend fun applyLogsFromApi(key: String, profileId: String) {
-    val logsResp = safeApiCall("getLogs") { NextDnsNetworkClient.api.getLogs(key, profileId) } ?: return
+    val logsResp = safeApiCall("getLogs") { NextDnsNetworkClient.api.getLogs(key, profileId, limit = 100, raw = 1) } ?: return
     val dtoList = logsResp.body()?.data ?: return
     if (!logsResp.isSuccessful) return
 
     val fetchedLogs = parseLogsResponse(dtoList)
-    if (fetchedLogs.isNotEmpty()) {
-      _logs.value = fetchedLogs
-      preferences.saveLogs(profileId, fetchedLogs)
-    }
+    _logs.value = fetchedLogs
+    preferences.saveLogs(profileId, fetchedLogs)
   }
 
   private suspend fun applyDevicesAnalyticsFromApi(key: String, profileId: String) {
@@ -473,9 +689,16 @@ class NextDnsRepository(
     if (!devResp.isSuccessful) return
 
     val devItems = dtoList.map {
-      DeviceMetric(name = it.name ?: it.id ?: "Cihaz", queries = it.queries ?: 0L)
+      val id = it.id ?: ""
+      val name = it.name?.takeIf { n -> n.isNotBlank() } ?: it.id ?: "Bilinmeyen Cihaz"
+      if (id.isNotBlank() && name.isNotBlank()) {
+        _knownDeviceNameToId[name] = id
+        _knownDeviceIdToName[id] = name
+      }
+      DeviceMetric(id = id, name = name, queries = it.queries ?: 0L)
     }
     if (devItems.isNotEmpty()) {
+      updateKnownDevices(devItems.map { it.name })
       _analytics.value = _analytics.value.copy(topDevices = devItems)
     }
   }
@@ -485,18 +708,36 @@ class NextDnsRepository(
   // =========================================================================
 
   private fun parseLogsResponse(dtoList: List<DnsLogDto>): List<DnsLogEntry> {
-    return dtoList.map { l ->
+    val parsedLogs = dtoList.map { l ->
+      val devId = l.device?.id
+      val devName = l.device?.name?.takeIf { it.isNotBlank() }
+        ?: l.deviceName?.takeIf { it.isNotBlank() }
+        ?: l.deviceNameSnake?.takeIf { it.isNotBlank() }
+        ?: (if (!devId.isNullOrBlank()) _knownDeviceIdToName[devId] else null)
+        ?: (if (!devId.isNullOrBlank()) devId else "Bilinmeyen Cihaz")
+
+      if (!devId.isNullOrBlank() && !devName.isNullOrBlank() && devName != "Bilinmeyen Cihaz") {
+        _knownDeviceNameToId[devName] = devId
+        _knownDeviceIdToName[devId] = devName
+      }
+
+      val reasonObj = l.reasons?.firstOrNull()
+      val blockReason = formatBlockReason(reasonObj?.id, reasonObj?.name)
+
       DnsLogEntry(
         id = UUID.randomUUID().toString(),
         timestamp = l.timestamp?.toString() ?: "",
-        domain = l.domain ?: "unknown.com",
-        deviceName = l.device?.name ?: l.deviceName ?: "Bilinmeyen Cihaz",
+        domain = l.domain?.takeIf { it.isNotBlank() } ?: l.root?.takeIf { it.isNotBlank() } ?: l.rootDomain?.takeIf { it.isNotBlank() } ?: "unknown.com",
+        clientIp = l.clientIp ?: l.clientIpSnake,
+        deviceName = devName,
         blocked = l.status == "blocked",
-        blockReason = l.reasons?.firstOrNull()?.name,
+        blockReason = if (l.status == "blocked") blockReason else null,
         protocol = l.protocol ?: "DoH",
-        responseTimeMs = l.responseTime ?: 14
+        responseTimeMs = l.responseTime ?: l.responseTimeSnake ?: 14
       )
     }
+    updateKnownDevices(parsedLogs.mapNotNull { it.deviceName })
+    return parsedLogs
   }
 
   // =========================================================================
@@ -508,6 +749,15 @@ class NextDnsRepository(
     _apiKey.value = ""
     _activeProfileId.value = ""
     _profiles.value = emptyList()
+    _denylist.value = emptyList()
+    _allowlist.value = emptyList()
+    _logs.value = emptyList()
+    _accountInfo.value = NextDnsAccountInfo()
+    _profileSetup.value = SetupDto()
+    _securitySettings.value = SecuritySettings()
+    _privacySettings.value = PrivacySettings()
+    _parentalControlSettings.value = ParentalControlSettings()
+    _configSettings.value = ConfigSettings()
     _apiStatus.value = ApiConnectionStatus.Disconnected
   }
 
@@ -515,6 +765,15 @@ class NextDnsRepository(
     _activeProfileId.value = profileId
     preferences.activeProfileId = profileId
     loadLocalProfileData(profileId)
+    val key = _apiKey.value
+    if (key.isNotBlank()) {
+      repoScope.launch {
+        loadActiveProfileDataFromApi(key, profileId)
+      }
+    }
+    repoScope.launch {
+      runDiagnosticTest()
+    }
   }
 
   suspend fun createProfileRemote(name: String): Result<NextDnsProfile> = withContext(Dispatchers.IO) {
@@ -1099,21 +1358,27 @@ class NextDnsRepository(
     }
   }
 
-  suspend fun refreshLogsFromApi() {
+  suspend fun refreshLogsFromApi(limit: Int = 100) {
     val key = _apiKey.value
     val pid = _activeProfileId.value
     if (key.isBlank() || pid.isBlank()) return
 
     val logsResp = safeApiCall("refreshLogsFromApi") {
-      NextDnsNetworkClient.api.getLogs(key, pid)
+      NextDnsNetworkClient.api.getLogs(key, pid, limit = limit, raw = 1)
     } ?: return
 
     val dtoList = logsResp.body()?.data ?: return
     if (!logsResp.isSuccessful) return
 
     val fetchedLogs = parseLogsResponse(dtoList)
-    _logs.value = fetchedLogs
-    preferences.saveLogs(pid, fetchedLogs)
+    if (fetchedLogs.isNotEmpty()) {
+      val existing = _logs.value
+      val merged = (fetchedLogs + existing).distinctBy {
+        "${it.timestamp}_${it.domain}_${it.deviceName}_${it.blocked}"
+      }.take(500)
+      _logs.value = merged
+      preferences.saveLogs(pid, merged)
+    }
   }
 
   fun setLiveStreaming(enabled: Boolean) {
@@ -1129,7 +1394,7 @@ class NextDnsRepository(
     analyticsPollingJob?.cancel()
     analyticsPollingJob = repoScope.launch {
       while (isActive) {
-        fetchAnalytics(_apiKey.value, _activeProfileId.value)
+        fetchAnalytics(_apiKey.value, _activeProfileId.value, currentAnalyticsDevice, currentAnalyticsTime)
         delay(30000)
       }
     }
@@ -1207,22 +1472,44 @@ class NextDnsRepository(
       NextDnsNetworkClient.moshi.adapter(DnsLogDto::class.java).fromJson(jsonStr)
     } ?: return null
 
+    val devId = logDto.device?.id
+    val devName = logDto.device?.name?.takeIf { it.isNotBlank() }
+      ?: logDto.deviceName?.takeIf { it.isNotBlank() }
+      ?: logDto.deviceNameSnake?.takeIf { it.isNotBlank() }
+      ?: (if (!devId.isNullOrBlank()) _knownDeviceIdToName[devId] else null)
+      ?: (if (!devId.isNullOrBlank()) devId else "Bilinmeyen Cihaz")
+
+    if (!devId.isNullOrBlank() && !devName.isNullOrBlank() && devName != "Bilinmeyen Cihaz") {
+      _knownDeviceNameToId[devName] = devId
+      _knownDeviceIdToName[devId] = devName
+      updateKnownDevices(listOf(devName))
+    }
+
+    val reasonObj = logDto.reasons?.firstOrNull()
+    val blockReason = formatBlockReason(reasonObj?.id, reasonObj?.name)
+
     return DnsLogEntry(
       id = UUID.randomUUID().toString(),
       timestamp = logDto.timestamp?.toString() ?: "",
-      domain = logDto.domain ?: "unknown.com",
-      clientIp = logDto.clientIp,
-      deviceName = logDto.device?.name ?: logDto.deviceName ?: "Bilinmeyen Cihaz",
+      domain = logDto.domain?.takeIf { it.isNotBlank() } ?: logDto.root?.takeIf { it.isNotBlank() } ?: logDto.rootDomain?.takeIf { it.isNotBlank() } ?: "unknown.com",
+      clientIp = logDto.clientIp ?: logDto.clientIpSnake,
+      deviceName = devName,
       blocked = logDto.status == "blocked",
-      blockReason = logDto.reasons?.firstOrNull()?.name,
+      blockReason = if (logDto.status == "blocked") blockReason else null,
       protocol = logDto.protocol ?: "DoH",
-      responseTimeMs = null
+      responseTimeMs = logDto.responseTime ?: logDto.responseTimeSnake
     )
   }
 
   private suspend fun emitLogEntry(entry: DnsLogEntry) {
     withContext(Dispatchers.Main) {
-      _logs.value = listOf(entry) + _logs.value.take(199)
+      val current = _logs.value
+      val isDuplicate = current.take(15).any {
+        it.timestamp == entry.timestamp && it.domain == entry.domain && it.deviceName == entry.deviceName
+      }
+      if (!isDuplicate) {
+        _logs.value = (listOf(entry) + current).take(500)
+      }
     }
   }
 
@@ -1244,17 +1531,24 @@ class NextDnsRepository(
     val statuses = response.body()?.data ?: emptyList()
     val blockedQueries = statuses.find { it.status == "blocked" }?.queries ?: 0L
     val allQueries = statuses.sumOf { it.queries ?: 0L }
-    val totalQueries = if (allQueries > 0) allQueries else 100L
-    return Pair(totalQueries, blockedQueries)
+    return Pair(allQueries, blockedQueries)
   }
 
   private fun parseTopDevices(
     response: Response<NextDnsApiResponse<List<AnalyticsDeviceItem>>>?
   ): List<DeviceMetric> {
     if (response == null || !response.isSuccessful) return _analytics.value.topDevices
-    return response.body()?.data?.map {
-      DeviceMetric(name = it.name ?: it.id ?: "Bilinmeyen", queries = it.queries ?: 0)
+    val devices = response.body()?.data?.map {
+      val id = it.id ?: ""
+      val name = it.name?.takeIf { n -> n.isNotBlank() } ?: it.id ?: "Bilinmeyen Cihaz"
+      if (id.isNotBlank() && name.isNotBlank()) {
+        _knownDeviceNameToId[name] = id
+        _knownDeviceIdToName[id] = name
+      }
+      DeviceMetric(id = id, name = name, queries = it.queries ?: 0L)
     } ?: _analytics.value.topDevices
+    updateKnownDevices(devices.map { it.name })
+    return devices
   }
 
   private fun parseTopDomains(
@@ -1262,8 +1556,10 @@ class NextDnsRepository(
     fallback: List<DomainMetric> = emptyList()
   ): List<DomainMetric> {
     if (response == null || !response.isSuccessful) return fallback
-    return response.body()?.data?.map {
-      DomainMetric(domain = it.domain ?: "Bilinmeyen", queries = it.queries ?: 0)
+    return response.body()?.data?.mapNotNull {
+      val dom = it.domain ?: it.root
+      if (dom.isNullOrBlank()) null
+      else DomainMetric(domain = dom, queries = it.queries ?: 0L)
     } ?: fallback
   }
 
@@ -1273,9 +1569,11 @@ class NextDnsRepository(
     if (response == null || !response.isSuccessful) return _analytics.value.topBlockedReasons
     val rMap = mutableMapOf<String, Long>()
     response.body()?.data?.forEach { item ->
-      rMap[item.id ?: item.name ?: "Diğer"] = item.queries ?: 0L
+      val formatted = formatBlockReason(item.id, item.name)
+      val cur = rMap.getOrDefault(formatted, 0L)
+      rMap[formatted] = cur + (item.queries ?: 0L)
     }
-    return rMap
+    return rMap.toList().sortedByDescending { it.second }.toMap()
   }
 
   private fun parseGafamMetrics(
@@ -1287,12 +1585,12 @@ class NextDnsRepository(
       val data = response.body()?.data ?: emptyList()
       data.forEach { item ->
         val count = item.queries ?: 0L
-        val pct = if (totalQueries > 0) (count.toDouble() / totalQueries) * 100.0 else 0.0
+        val pct = if (totalQueries > 0) ((count.toDouble() / totalQueries) * 100.0).coerceIn(0.0, 100.0) else 0.0
         val companyName = item.company ?: item.name ?: item.id ?: "Diğer"
         gafamMetrics[companyName] = Pair(pct, count)
       }
     }
-    return if (gafamMetrics.isNotEmpty()) gafamMetrics else _analytics.value.gafamMetrics
+    return gafamMetrics
   }
 
   private fun parseCountryMetrics(
@@ -1303,37 +1601,37 @@ class NextDnsRepository(
     if (response != null && response.isSuccessful) {
       response.body()?.data?.forEach { item ->
         val count = item.queries ?: 0L
-        val pct = if (totalQueries > 0) (count.toDouble() / totalQueries) * 100.0 else 0.0
+        val pct = if (totalQueries > 0) ((count.toDouble() / totalQueries) * 100.0).coerceIn(0.0, 100.0) else 0.0
         val code = item.code ?: ""
         val name = if (code.length == 2) {
           Locale("", code).getDisplayName(Locale("tr"))
         } else {
-          "Bilinmeyen"
+          item.name ?: "Bilinmeyen"
         }
         topCountries.add(Pair(name, pct))
       }
     }
-    return if (topCountries.isNotEmpty()) topCountries else _analytics.value.topCountries
+    return topCountries
   }
 
   private fun parseDnssecPercentage(
     response: Response<NextDnsApiResponse<List<AnalyticsItemDto>>>?,
     totalQueries: Long
   ): Double {
-    if (response == null || !response.isSuccessful) return _analytics.value.dnssecPercentage.toDouble()
+    if (response == null || !response.isSuccessful) return 0.0
     val items = response.body()?.data ?: emptyList()
     val validated = items.find { it.validated == true || it.id == "validated" || it.id == "true" }?.queries ?: 0L
-    return if (totalQueries > 0) (validated.toDouble() / totalQueries) * 100.0 else 0.0
+    return if (totalQueries > 0) ((validated.toDouble() / totalQueries) * 100.0).coerceIn(0.0, 100.0) else 0.0
   }
 
   private fun parseEncryptionPercentage(
     response: Response<NextDnsApiResponse<List<AnalyticsItemDto>>>?,
     totalQueries: Long
   ): Double {
-    if (response == null || !response.isSuccessful) return _analytics.value.encryptedDnsPercentage.toDouble()
+    if (response == null || !response.isSuccessful) return 0.0
     val items = response.body()?.data ?: emptyList()
     val encrypted = items.find { it.encrypted == true || it.id == "encrypted" || it.id == "true" }?.queries ?: 0L
-    return if (totalQueries > 0) (encrypted.toDouble() / totalQueries) * 100.0 else 0.0
+    return if (totalQueries > 0) ((encrypted.toDouble() / totalQueries) * 100.0).coerceIn(0.0, 100.0) else 0.0
   }
 
   // =========================================================================
@@ -1343,18 +1641,35 @@ class NextDnsRepository(
   suspend fun fetchAnalytics(key: String, profileId: String, device: String? = null, from: String? = null) {
     if (key.isBlank() || profileId.isBlank()) return
 
-    val devParam = if (device == "Tüm cihazlar" || device.isNullOrBlank()) null else device
-    val fromParam = when (from) {
-      "Son 1 Saat" -> "-1h"
-      "Son 24 Saat" -> "-24h"
-      "Son 7 Gün" -> "-7d"
-      "Son 30 Gün" -> "-30d"
-      "Son 90 Gün" -> "-90d"
+    currentAnalyticsDevice = device
+    currentAnalyticsTime = from
+
+    val devParam = if (device == "Tüm cihazlar" || device.isNullOrBlank()) {
+      null
+    } else {
+      val trimmed = device.trim()
+      _knownDeviceNameToId[trimmed]
+        ?: _knownDeviceNameToId.entries.firstOrNull { it.key.equals(trimmed, ignoreCase = true) }?.value
+        ?: _analytics.value.topDevices.firstOrNull { it.name.equals(trimmed, ignoreCase = true) }?.id?.takeIf { it.isNotBlank() }
+        ?: if (trimmed.equals("Bilinmeyen Cihaz", ignoreCase = true) || trimmed.equals("Bilinmeyen", ignoreCase = true) || trimmed == "__UNIDENTIFIED__") {
+             "__UNIDENTIFIED__"
+           } else {
+             trimmed
+           }
+    }
+
+    val fromParam = when {
+      from.isNullOrBlank() -> "-30d"
+      from.equals("Son 1 Saat", ignoreCase = true) || from.equals("1h", ignoreCase = true) || from.equals("-1h", ignoreCase = true) -> "-1h"
+      from.equals("Son 24 Saat", ignoreCase = true) || from.equals("Son 24 saat", ignoreCase = true) || from.equals("24h", ignoreCase = true) || from.equals("-24h", ignoreCase = true) -> "-24h"
+      from.equals("Son 7 Gün", ignoreCase = true) || from.equals("Son 7 gün", ignoreCase = true) || from.equals("7d", ignoreCase = true) || from.equals("-7d", ignoreCase = true) -> "-7d"
+      from.equals("Son 30 Gün", ignoreCase = true) || from.equals("Son 30 gün", ignoreCase = true) || from.equals("30d", ignoreCase = true) || from.equals("-30d", ignoreCase = true) -> "-30d"
+      from.equals("Son 3 Ay", ignoreCase = true) || from.equals("Son 3 ay", ignoreCase = true) || from.equals("Son 90 Gün", ignoreCase = true) || from.equals("Son 90 gün", ignoreCase = true) || from.equals("90d", ignoreCase = true) || from.equals("-90d", ignoreCase = true) -> "-90d"
       else -> "-30d"
     }
 
     val statusResp = safeApiCall("getAnalyticsStatus") { NextDnsNetworkClient.api.getAnalyticsStatus(key, profileId, devParam, fromParam) }
-    val devicesResp = safeApiCall("getAnalyticsDevices") { NextDnsNetworkClient.api.getAnalyticsDevices(key, profileId, devParam, fromParam) }
+    val devicesResp = safeApiCall("getAnalyticsDevices") { NextDnsNetworkClient.api.getAnalyticsDevices(key, profileId, null, fromParam) }
     val allowedDomainsResp = safeApiCall("getAllowedDomains") { NextDnsNetworkClient.api.getAnalyticsDomains(key, profileId, devParam, fromParam, status = "default") }
     val blockedDomainsResp = safeApiCall("getBlockedDomains") { NextDnsNetworkClient.api.getAnalyticsDomains(key, profileId, devParam, fromParam, status = "blocked") }
     val rootDomainsResp = safeApiCall("getRootDomains") { NextDnsNetworkClient.api.getAnalyticsDomains(key, profileId, devParam, fromParam) }
@@ -1366,9 +1681,9 @@ class NextDnsRepository(
 
     val (totalQueries, blockedQueries) = parseStatusMetrics(statusResp)
     val topDevices = parseTopDevices(devicesResp)
-    val topAllowedDomains = parseTopDomains(allowedDomainsResp, _analytics.value.topAllowedDomains)
-    val topBlockedDomains = parseTopDomains(blockedDomainsResp, _analytics.value.topBlockedDomains)
-    val topDomains = parseTopDomains(rootDomainsResp, _analytics.value.topDomains)
+    val topAllowedDomains = parseTopDomains(allowedDomainsResp, emptyList())
+    val topBlockedDomains = parseTopDomains(blockedDomainsResp, emptyList())
+    val topDomains = parseTopDomains(rootDomainsResp, emptyList())
     val topBlockedReasons = parseBlockedReasons(reasonsResp)
     val gafamMetrics = parseGafamMetrics(companiesResp, totalQueries)
     val topCountries = parseCountryMetrics(destinationsResp, totalQueries)
@@ -1388,11 +1703,199 @@ class NextDnsRepository(
       topDevices = topDevices,
       topDomains = topDomains,
       gafamMetrics = gafamMetrics,
-      encryptedDnsPercentage = if (encryptionResp?.isSuccessful == true) encPct.toFloat() else _analytics.value.encryptedDnsPercentage,
-      dnssecPercentage = if (dnssecResp?.isSuccessful == true) dnssecPct.toFloat() else _analytics.value.dnssecPercentage,
+      encryptedDnsPercentage = encPct.toFloat(),
+      dnssecPercentage = dnssecPct.toFloat(),
       topCountries = topCountries
     )
 
     _analytics.value = updatedAnalytics
   }
+
+  fun formatBlockReason(rawId: String?, rawName: String?): String {
+    val id = rawId?.trim()?.lowercase(Locale.ROOT) ?: ""
+    val name = rawName?.trim() ?: ""
+
+    // 1. Name based translations / cleanups
+    if (name.isNotBlank()) {
+      when {
+        name.equals("NextDNS Ads & Trackers Blocklist", ignoreCase = true) -> return "NextDNS Reklam ve İzleyici Engelleme Listesi"
+        name.equals("Disguised Third-Party Trackers", ignoreCase = true) || name.equals("Disguised Trackers", ignoreCase = true) -> return "Gizlenmiş Üçüncü Taraf İzleyiciler"
+        name.equals("Block Bypass Methods", ignoreCase = true) || name.equals("Bypass Methods", ignoreCase = true) -> return "Atlatma Yöntemleri"
+        name.equals("Denylist", ignoreCase = true) || name.equals("Blacklist", ignoreCase = true) -> return "Kara Liste"
+        name.equals("Allowlist", ignoreCase = true) || name.equals("Whitelist", ignoreCase = true) -> return "Beyaz Liste"
+        name.equals("Threat Intelligence Feeds", ignoreCase = true) -> return "Tehdit İstihbarat Kaynakları"
+        name.equals("AI Threat Detection", ignoreCase = true) -> return "Yapay Zeka Tehdit Algılama"
+        name.equals("Google Safe Browsing", ignoreCase = true) -> return "Google Güvenli Tarama"
+        name.equals("Cryptojacking Protection", ignoreCase = true) || name.equals("Cryptojacking", ignoreCase = true) -> return "Kripto Madenciliği Koruması"
+        name.equals("DNS Rebinding Protection", ignoreCase = true) || name.equals("DNS Rebinding", ignoreCase = true) -> return "DNS Yeniden Bağlama Koruması"
+        name.equals("IDN Homograph Attacks Protection", ignoreCase = true) -> return "IDN Eşsesli Saldırı Koruması"
+        name.equals("Typosquatting Protection", ignoreCase = true) -> return "Yazım Hatası Alan Adı Koruması"
+        name.equals("Newly Registered Domains (NRD)", ignoreCase = true) || name.equals("Newly Registered Domains", ignoreCase = true) -> return "Yeni Kaydedilen Alan Adları (NRD)"
+        name.equals("Dynamic DNS (DDNS)", ignoreCase = true) || name.equals("Dynamic DNS Hostnames", ignoreCase = true) -> return "Dinamik DNS Alan Adları (DDNS)"
+        name.equals("Parked Domains", ignoreCase = true) -> return "Park Edilmiş Alan Adları"
+        name.equals("Child Sexual Abuse Material (CSAM)", ignoreCase = true) -> return "Çocuk Cinsel İstismarı Materyalleri (CSAM)"
+        name.equals("SafeSearch", ignoreCase = true) -> return "Güvenli Arama"
+        name.equals("YouTube Restricted Mode", ignoreCase = true) -> return "YouTube Kısıtlı Modu"
+        name.startsWith("Native Tracking (", ignoreCase = true) -> {
+          val brand = name.substringAfter("(").substringBefore(")")
+          return "Yerel İzleme ($brand)"
+        }
+        !name.startsWith("blocklist:", ignoreCase = true) && !name.startsWith("native:", ignoreCase = true) -> return name
+      }
+    }
+
+    // 2. ID based lookups
+    val cleanId = id.removePrefix("blocklist:").removePrefix("parentalcontrol:").trim()
+
+    return when {
+      cleanId == "denylist" || cleanId == "blacklist" -> "Kara Liste"
+      cleanId == "allowlist" || cleanId == "whitelist" -> "Beyaz Liste"
+      cleanId == "block-bypass" || cleanId == "bypass" -> "Atlatma Yöntemleri"
+      cleanId == "disguised-trackers" || cleanId == "cname-flattening" -> "Gizlenmiş Üçüncü Taraf İzleyiciler"
+      cleanId == "nextdns-recommended" -> "NextDNS Reklam ve İzleyici Engelleme Listesi"
+      cleanId == "adguard-dns-filter" || cleanId == "adguard-mobile-filter" -> "AdGuard DNS filter"
+      cleanId == "oisd" || cleanId == "oisd-full" || cleanId == "oisd-basic" -> "oisd"
+      cleanId == "easylist" -> "EasyList"
+      cleanId == "easyprivacy" -> "EasyPrivacy"
+      cleanId == "stevenblack" -> "Steven Black"
+      cleanId == "fanboy-annoyance" -> "Fanboy's Annoyance"
+      cleanId == "notracking" -> "NoTracking"
+      cleanId == "1hosts-pro" -> "1Hosts (Pro)"
+      cleanId == "1hosts-lite" -> "1Hosts (Lite)"
+      cleanId == "1hosts-mini" -> "1Hosts (Mini)"
+      cleanId == "doh-dot-vpn-tor" -> "DoH/DoT/VPN/TOR"
+      cleanId.startsWith("native:") || cleanId.startsWith("native-") -> {
+        val brand = cleanId.removePrefix("native:").removePrefix("native-").trim()
+        val formattedBrand = when (brand.lowercase(Locale.ROOT)) {
+          "apple" -> "Apple"
+          "xiaomi" -> "Xiaomi"
+          "samsung" -> "Samsung"
+          "huawei" -> "Huawei"
+          "windows" -> "Windows"
+          "roku" -> "Roku"
+          "sonos" -> "Sonos"
+          "alexa" -> "Amazon Alexa"
+          "lg" -> "LG"
+          else -> brand.replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.ROOT) else it.toString() }
+        }
+        "Yerel İzleme ($formattedBrand)"
+      }
+      cleanId == "threat-intelligence-feeds" || cleanId == "threat-intelligence" -> "Tehdit İstihbarat Kaynakları"
+      cleanId == "ai-threat-detection" || cleanId == "ai-threat" -> "Yapay Zeka Tehdit Algılama"
+      cleanId == "google-safe-browsing" || cleanId == "safebrowsing" -> "Google Güvenli Tarama"
+      cleanId == "cryptojacking" -> "Kripto Madenciliği Koruması"
+      cleanId == "dns-rebinding" -> "DNS Yeniden Bağlama Koruması"
+      cleanId == "idn-homographs" || cleanId == "homographs" -> "IDN Eşsesli Saldırı Koruması"
+      cleanId == "typosquatting" -> "Yazım Hatası Alan Adı Koruması"
+      cleanId == "dga" -> "DGA Koruması"
+      cleanId == "nrd" -> "Yeni Kaydedilen Alan Adları (NRD)"
+      cleanId == "ddns" -> "Dinamik DNS Alan Adları (DDNS)"
+      cleanId == "parking" || cleanId == "parked-domains" -> "Park Edilmiş Alan Adları"
+      cleanId == "csam" -> "Çocuk Cinsel İstismarı Materyalleri (CSAM)"
+      cleanId == "safesearch" -> "Güvenli Arama"
+      cleanId == "youtube-restricted-mode" || cleanId == "youtube-restricted" -> "YouTube Kısıtlı Modu"
+      cleanId == "block-page" -> "Engelleme Sayfası"
+      cleanId == "tlds" || cleanId == "blocked-tlds" -> "Engellenen Üst Seviye Alan Adları (TLD)"
+      name.isNotBlank() -> name
+      id.isNotBlank() -> id.replace("-", " ").replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.ROOT) else it.toString() }
+      else -> "Diğer"
+    }
+  }
+
+  fun formatIsoDateWithRelative(rawTime: String?): String {
+    if (rawTime.isNullOrBlank()) return ""
+    val trimmed = rawTime.trim()
+
+    try {
+      val epochMillis: Long? = when {
+        trimmed.toLongOrNull() != null -> {
+          val num = trimmed.toLong()
+          if (num < 10000000000L) num * 1000 else num
+        }
+        else -> {
+          try {
+            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
+              java.time.Instant.parse(trimmed).toEpochMilli()
+            } else {
+              val sdf = java.text.SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", java.util.Locale.ROOT)
+              sdf.timeZone = java.util.TimeZone.getTimeZone("UTC")
+              sdf.parse(trimmed)?.time
+            }
+          } catch (_: Exception) {
+            try {
+              val sdf = java.text.SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss", java.util.Locale.ROOT)
+              sdf.timeZone = java.util.TimeZone.getTimeZone("UTC")
+              sdf.parse(trimmed)?.time
+            } catch (_: Exception) {
+              null
+            }
+          }
+        }
+      }
+
+      if (epochMillis != null && epochMillis > 0) {
+        val cal = java.util.Calendar.getInstance(java.util.TimeZone.getTimeZone("UTC")).apply {
+          timeInMillis = epochMillis
+        }
+        val day = cal.get(java.util.Calendar.DAY_OF_MONTH)
+        val monthNames = arrayOf("Oca", "Şub", "Mar", "Nis", "May", "Haz", "Tem", "Ağu", "Eyl", "Eki", "Kas", "Ara")
+        val monthStr = monthNames.getOrElse(cal.get(java.util.Calendar.MONTH)) { "" }
+        val year = cal.get(java.util.Calendar.YEAR)
+        val formattedDate = "$day $monthStr $year"
+
+        val now = System.currentTimeMillis()
+        val diffMs = now - epochMillis
+
+        val relative = if (diffMs <= 0) {
+          "Bugün"
+        } else {
+          val diffSec = diffMs / 1000
+          val diffMin = diffSec / 60
+          val diffHours = diffMin / 60
+          val diffDays = diffHours / 24
+
+          when {
+            diffMin < 1 -> "Az önce"
+            diffMin < 60 -> "$diffMin dk önce"
+            diffHours < 24 -> "$diffHours saat önce"
+            diffDays == 1L -> "Dün"
+            diffDays < 30 -> "$diffDays gün önce"
+            diffDays < 365 -> "${diffDays / 30} ay önce"
+            else -> "${diffDays / 365} yıl önce"
+          }
+        }
+
+        return "$formattedDate ($relative)"
+      }
+    } catch (_: Exception) {
+      // ignore
+    }
+
+    return trimmed
+  }
+
+  fun determineBlocklistCategory(id: String, name: String, desc: String): String {
+    val lower = "$id $name $desc".lowercase()
+    return when {
+      lower.contains("malware") || lower.contains("threat") || lower.contains("phishing") ||
+        lower.contains("security") || lower.contains("güvenlik") || lower.contains("crypto") ||
+        lower.contains("scam") || lower.contains("ransomware") || lower.contains("c2") -> "Güvenlik"
+      lower.contains("privacy") || lower.contains("gizlilik") || lower.contains("telemetry") ||
+        lower.contains("tracker") || lower.contains("tracking") || lower.contains("izle") ||
+        lower.contains("facebook") || lower.contains("google") || lower.contains("smarttv") -> "Gizlilik"
+      lower.contains("turk") || lower.contains("french") || lower.contains("german") ||
+        lower.contains("polish") || lower.contains("persian") || lower.contains("arabic") ||
+        lower.contains("korean") || lower.contains("chinese") || lower.contains("japan") ||
+        lower.contains("regional") || lower.contains("bölge") || lower.contains("russian") ||
+        lower.contains("czech") || lower.contains("vietnam") || lower.contains("spanish") ||
+        lower.contains("israel") || lower.contains("lithuania") || lower.contains("indonesia") ||
+        lower.contains("swedish") || lower.contains("finnish") || lower.contains("dutch") -> "Bölgesel"
+      else -> "Genel"
+    }
+  }
+
+  fun formatRelativeTime(rawTime: String?): String {
+    return formatIsoDateWithRelative(rawTime)
+  }
 }
+

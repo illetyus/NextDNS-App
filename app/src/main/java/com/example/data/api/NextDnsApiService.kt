@@ -4,6 +4,7 @@ import com.squareup.moshi.Json
 import com.squareup.moshi.Moshi
 import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
 import okhttp3.OkHttpClient
+import okhttp3.Request
 import okhttp3.ResponseBody
 import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Response
@@ -25,6 +26,18 @@ data class NextDnsApiResponse<T>(
 data class ApiErrorDetail(
   val code: String? = null,
   val detail: String? = null
+)
+
+data class AccountSubscriptionDto(
+  val status: String? = null,
+  val period: String? = null
+)
+
+data class AccountDto(
+  val email: String? = null,
+  val name: String? = null,
+  val plan: String? = null,
+  val subscription: AccountSubscriptionDto? = null
 )
 
 data class ProfileDto(
@@ -58,7 +71,8 @@ data class BlocklistDto(
   val name: String? = null,
   val description: String? = null,
   val entries: Long? = null,
-  val website: String? = null
+  val website: String? = null,
+  @Json(name = "updatedOn") val updatedOn: String? = null
 )
 
 data class NativeTrackingDto(
@@ -81,6 +95,30 @@ data class ParentalServiceDto(
 data class ParentalCategoryDto(
   val id: String,
   val active: Boolean? = true
+)
+
+data class ParentalServiceCatalogDto(
+  val id: String,
+  val website: String? = null
+)
+
+data class SecurityTldCatalogDto(
+  val id: String,
+  val spamhaus: Int? = 0
+)
+
+data class SetupLinkedIpDto(
+  val ip: String? = null,
+  val servers: List<String>? = null,
+  val ddns: String? = null,
+  val updateToken: String? = null
+)
+
+data class SetupDto(
+  val ipv4: List<String>? = null,
+  val ipv6: List<String>? = null,
+  val linkedIp: SetupLinkedIpDto? = null,
+  val dnscrypt: String? = null
 )
 
 data class ParentalControlDto(
@@ -111,14 +149,18 @@ data class DnsLogDto(
   val timestamp: Any? = null,
   val domain: String? = null,
   val root: String? = null,
-  @Json(name = "client_ip") val clientIp: String? = null,
-  @Json(name = "device_name") val deviceName: String? = null,
+  val rootDomain: String? = null,
+  val clientIp: String? = null,
+  @Json(name = "client_ip") val clientIpSnake: String? = null,
+  val deviceName: String? = null,
+  @Json(name = "device_name") val deviceNameSnake: String? = null,
   val device: DeviceDto? = null,
   val status: String? = null,
   val reasons: List<LogReasonDto>? = null,
   val protocol: String? = null,
   val dnssec: Boolean? = null,
-  @Json(name = "response_time") val responseTime: Int? = null
+  val responseTime: Int? = null,
+  @Json(name = "response_time") val responseTimeSnake: Int? = null
 )
 
 data class AnalyticsStatusItem(
@@ -183,6 +225,8 @@ data class NextDnsTestResponse(
   val protocol: String? = null,
   val profile: String? = null,
   val client: String? = null,
+  @Json(name = "srcIP") val srcIP: String? = null,
+  val resolver: String? = null,
   val server: String? = null,
   val anycast: Boolean? = null
 )
@@ -274,6 +318,12 @@ data class SettingsBlockPageUpdateRequest(
 
 interface NextDnsApiService {
 
+  // Account
+  @GET("account")
+  suspend fun getAccount(
+    @Header("X-Api-Key") apiKey: String
+  ): Response<NextDnsApiResponse<AccountDto>>
+
   // Profiles
   @GET("profiles")
   suspend fun getProfiles(
@@ -299,12 +349,29 @@ interface NextDnsApiService {
     @Body body: NameRequest
   ): Response<ResponseBody>
 
+  // Setup
+  @GET("profiles/{profileId}/setup")
+  suspend fun getProfileSetup(
+    @Header("X-Api-Key") apiKey: String,
+    @Path("profileId") profileId: String
+  ): Response<SetupDto>
+
+  @POST("profiles/{profileId}/setup/linkedIp")
+  suspend fun updateLinkedIp(
+    @Header("X-Api-Key") apiKey: String,
+    @Path("profileId") profileId: String,
+    @Body body: Map<String, String?> = emptyMap()
+  ): Response<ResponseBody>
+
   // Security
   @GET("profiles/{profileId}/security")
   suspend fun getSecurity(
     @Header("X-Api-Key") apiKey: String,
     @Path("profileId") profileId: String
-  ): Response<NextDnsApiResponse<SecurityDto>>
+  ): Response<SecurityDto>
+
+  @GET("security/tlds")
+  suspend fun getAvailableTlds(): Response<NextDnsApiResponse<List<SecurityTldCatalogDto>>>
 
   @PATCH("profiles/{profileId}/security")
   suspend fun updateSecurity(
@@ -332,7 +399,7 @@ interface NextDnsApiService {
   suspend fun getPrivacy(
     @Header("X-Api-Key") apiKey: String,
     @Path("profileId") profileId: String
-  ): Response<NextDnsApiResponse<PrivacyDto>>
+  ): Response<PrivacyDto>
 
   @GET("profiles/{profileId}/privacy/blocklists")
   suspend fun getProfileBlocklists(
@@ -348,8 +415,11 @@ interface NextDnsApiService {
 
   @GET("privacy/blocklists")
   suspend fun getAvailableBlocklists(
-    @Header("X-Api-Key") apiKey: String
+    @Header("X-Api-Key") apiKey: String? = null
   ): Response<NextDnsApiResponse<List<BlocklistDto>>>
+
+  @GET("privacy/natives")
+  suspend fun getAvailableNatives(): Response<NextDnsApiResponse<List<NativeTrackingDto>>>
 
   @PATCH("profiles/{profileId}/privacy")
   suspend fun updatePrivacy(
@@ -387,27 +457,33 @@ interface NextDnsApiService {
   ): Response<ResponseBody>
 
   // Parental Control
-  @GET("profiles/{profileId}/parentalcontrol")
+  @GET("parentalControl/services")
+  suspend fun getAvailableParentalServices(): Response<NextDnsApiResponse<List<ParentalServiceCatalogDto>>>
+
+  @GET("parentalControl/categories")
+  suspend fun getAvailableParentalCategories(): Response<NextDnsApiResponse<List<ParentalCategoryDto>>>
+
+  @GET("profiles/{profileId}/parentalControl")
   suspend fun getParentalControl(
     @Header("X-Api-Key") apiKey: String,
     @Path("profileId") profileId: String
-  ): Response<NextDnsApiResponse<ParentalControlDto>>
+  ): Response<ParentalControlDto>
 
-  @PATCH("profiles/{profileId}/parentalcontrol")
+  @PATCH("profiles/{profileId}/parentalControl")
   suspend fun updateParentalControl(
     @Header("X-Api-Key") apiKey: String,
     @Path("profileId") profileId: String,
     @Body body: ParentalControlUpdateRequest
   ): Response<ResponseBody>
 
-  @POST("profiles/{profileId}/parentalcontrol/categories")
+  @POST("profiles/{profileId}/parentalControl/categories")
   suspend fun addParentalCategory(
     @Header("X-Api-Key") apiKey: String,
     @Path("profileId") profileId: String,
     @Body body: ParentalItemRequest
   ): Response<ResponseBody>
 
-  @PATCH("profiles/{profileId}/parentalcontrol/categories/{categoryId}")
+  @PATCH("profiles/{profileId}/parentalControl/categories/{categoryId}")
   suspend fun updateParentalCategory(
     @Header("X-Api-Key") apiKey: String,
     @Path("profileId") profileId: String,
@@ -415,21 +491,21 @@ interface NextDnsApiService {
     @Body body: ParentalActiveRequest
   ): Response<ResponseBody>
 
-  @DELETE("profiles/{profileId}/parentalcontrol/categories/{categoryId}")
+  @DELETE("profiles/{profileId}/parentalControl/categories/{categoryId}")
   suspend fun removeParentalCategory(
     @Header("X-Api-Key") apiKey: String,
     @Path("profileId") profileId: String,
     @Path("categoryId") categoryId: String
   ): Response<ResponseBody>
 
-  @POST("profiles/{profileId}/parentalcontrol/services")
+  @POST("profiles/{profileId}/parentalControl/services")
   suspend fun addParentalService(
     @Header("X-Api-Key") apiKey: String,
     @Path("profileId") profileId: String,
     @Body body: ParentalItemRequest
   ): Response<ResponseBody>
 
-  @PATCH("profiles/{profileId}/parentalcontrol/services/{serviceId}")
+  @PATCH("profiles/{profileId}/parentalControl/services/{serviceId}")
   suspend fun updateParentalService(
     @Header("X-Api-Key") apiKey: String,
     @Path("profileId") profileId: String,
@@ -437,7 +513,7 @@ interface NextDnsApiService {
     @Body body: ParentalActiveRequest
   ): Response<ResponseBody>
 
-  @DELETE("profiles/{profileId}/parentalcontrol/services/{serviceId}")
+  @DELETE("profiles/{profileId}/parentalControl/services/{serviceId}")
   suspend fun removeParentalService(
     @Header("X-Api-Key") apiKey: String,
     @Path("profileId") profileId: String,
@@ -515,8 +591,13 @@ interface NextDnsApiService {
   suspend fun getLogs(
     @Header("X-Api-Key") apiKey: String,
     @Path("profileId") profileId: String,
-    @Query("limit") limit: Int = 50,
-    @Query("search") search: String? = null
+    @Query("limit") limit: Int = 100,
+    @Query("search") search: String? = null,
+    @Query("device") device: String? = null,
+    @Query("status") status: String? = null,
+    @Query("from") from: String? = null,
+    @Query("before") before: String? = null,
+    @Query("raw") raw: Int? = 1
   ): Response<NextDnsApiResponse<List<DnsLogDto>>>
 
   @DELETE("profiles/{profileId}/logs")
@@ -651,6 +732,13 @@ object NextDnsNetworkClient {
   }
 
   val client = OkHttpClient.Builder()
+    .addInterceptor { chain ->
+      val original = chain.request()
+      val request = original.newBuilder()
+        .header("User-Agent", "Mozilla/5.0 (Linux; Android 14; Mobile) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Mobile Safari/537.36 NextDNS-Android")
+        .build()
+      chain.proceed(request)
+    }
     .addInterceptor(logging)
     .connectTimeout(15, TimeUnit.SECONDS)
     .readTimeout(15, TimeUnit.SECONDS)
@@ -673,8 +761,182 @@ object NextDnsNetworkClient {
     Retrofit.Builder()
       .baseUrl(TEST_URL)
       .client(client)
-      .addConverterFactory(MoshiConverterFactory.create(moshi))
+      .addConverterFactory(MoshiConverterFactory.create(moshi).asLenient())
       .build()
       .create(NextDnsTestService::class.java)
+  }
+
+  fun fetchTestConnectionDirect(profileId: String? = null): NextDnsTestResponse? {
+    return try {
+      val testUrl = if (!profileId.isNullOrBlank()) {
+        val rand = java.util.UUID.randomUUID().toString().replace("-", "").take(12)
+        "https://$rand-$profileId.test.nextdns.io/"
+      } else {
+        TEST_URL
+      }
+      val request = Request.Builder()
+        .url(testUrl)
+        .header("Accept", "application/json")
+        .header("User-Agent", "Mozilla/5.0 (Linux; Android 14) NextDNS/App")
+        .build()
+      val response = client.newCall(request).execute()
+      val bodyStr = response.body?.string() ?: return null
+      val json = org.json.JSONObject(bodyStr)
+      NextDnsTestResponse(
+        status = json.optString("status").takeIf { it.isNotBlank() },
+        protocol = json.optString("protocol").takeIf { it.isNotBlank() },
+        profile = json.optString("profile").takeIf { it.isNotBlank() },
+        client = json.optString("client").takeIf { it.isNotBlank() },
+        srcIP = json.optString("srcIP").takeIf { it.isNotBlank() },
+        resolver = json.optString("resolver").takeIf { it.isNotBlank() },
+        server = json.optString("server").takeIf { it.isNotBlank() },
+        anycast = if (json.has("anycast")) json.optBoolean("anycast") else null
+      )
+    } catch (_: Exception) {
+      null
+    }
+  }
+
+  fun linkIpAddress(profileId: String): Boolean {
+    return try {
+      val request = Request.Builder()
+        .url("https://link-ip.nextdns.io/$profileId")
+        .header("Accept", "*/*")
+        .build()
+      val resp = client.newCall(request).execute()
+      resp.isSuccessful
+    } catch (_: Exception) {
+      false
+    }
+  }
+
+  fun fetchAvailableBlocklistsDirect(): List<BlocklistDto>? {
+    return try {
+      val request = Request.Builder()
+        .url("https://api.nextdns.io/privacy/blocklists")
+        .header("Accept", "application/json")
+        .header("User-Agent", "NextDNS-Android/1.0")
+        .build()
+      val response = client.newCall(request).execute()
+      if (!response.isSuccessful) return null
+      val bodyStr = response.body?.string() ?: return null
+      val json = org.json.JSONObject(bodyStr)
+      val arr = json.optJSONArray("data") ?: return null
+      val list = mutableListOf<BlocklistDto>()
+      for (i in 0 until arr.length()) {
+        val obj = arr.getJSONObject(i)
+        list.add(
+          BlocklistDto(
+            id = obj.getString("id"),
+            name = obj.optString("name").takeIf { it.isNotBlank() && it != "null" },
+            description = obj.optString("description").takeIf { it.isNotBlank() && it != "null" },
+            entries = if (obj.has("entries") && !obj.isNull("entries")) obj.getLong("entries") else null,
+            website = obj.optString("website").takeIf { it.isNotBlank() && it != "null" },
+            updatedOn = obj.optString("updatedOn").takeIf { it.isNotBlank() && it != "null" }
+          )
+        )
+      }
+      list
+    } catch (_: Exception) {
+      null
+    }
+  }
+
+  fun fetchAvailableNativesDirect(): List<NativeTrackingDto>? {
+    return try {
+      val request = Request.Builder()
+        .url("https://api.nextdns.io/privacy/natives")
+        .header("Accept", "application/json")
+        .build()
+      val response = client.newCall(request).execute()
+      if (!response.isSuccessful) return null
+      val bodyStr = response.body?.string() ?: return null
+      val json = org.json.JSONObject(bodyStr)
+      val arr = json.optJSONArray("data") ?: return null
+      val list = mutableListOf<NativeTrackingDto>()
+      for (i in 0 until arr.length()) {
+        val obj = arr.getJSONObject(i)
+        list.add(NativeTrackingDto(id = obj.getString("id")))
+      }
+      list
+    } catch (_: Exception) {
+      null
+    }
+  }
+
+  fun fetchAvailableParentalServicesDirect(): List<ParentalServiceCatalogDto>? {
+    return try {
+      val request = Request.Builder()
+        .url("https://api.nextdns.io/parentalControl/services")
+        .header("Accept", "application/json")
+        .build()
+      val response = client.newCall(request).execute()
+      if (!response.isSuccessful) return null
+      val bodyStr = response.body?.string() ?: return null
+      val json = org.json.JSONObject(bodyStr)
+      val arr = json.optJSONArray("data") ?: return null
+      val list = mutableListOf<ParentalServiceCatalogDto>()
+      for (i in 0 until arr.length()) {
+        val obj = arr.getJSONObject(i)
+        list.add(
+          ParentalServiceCatalogDto(
+            id = obj.getString("id"),
+            website = obj.optString("website").takeIf { it.isNotBlank() && it != "null" }
+          )
+        )
+      }
+      list
+    } catch (_: Exception) {
+      null
+    }
+  }
+
+  fun fetchAvailableParentalCategoriesDirect(): List<ParentalCategoryDto>? {
+    return try {
+      val request = Request.Builder()
+        .url("https://api.nextdns.io/parentalControl/categories")
+        .header("Accept", "application/json")
+        .build()
+      val response = client.newCall(request).execute()
+      if (!response.isSuccessful) return null
+      val bodyStr = response.body?.string() ?: return null
+      val json = org.json.JSONObject(bodyStr)
+      val arr = json.optJSONArray("data") ?: return null
+      val list = mutableListOf<ParentalCategoryDto>()
+      for (i in 0 until arr.length()) {
+        val obj = arr.getJSONObject(i)
+        list.add(ParentalCategoryDto(id = obj.getString("id")))
+      }
+      list
+    } catch (_: Exception) {
+      null
+    }
+  }
+
+  fun fetchAvailableTldsDirect(): List<SecurityTldCatalogDto>? {
+    return try {
+      val request = Request.Builder()
+        .url("https://api.nextdns.io/security/tlds")
+        .header("Accept", "application/json")
+        .build()
+      val response = client.newCall(request).execute()
+      if (!response.isSuccessful) return null
+      val bodyStr = response.body?.string() ?: return null
+      val json = org.json.JSONObject(bodyStr)
+      val arr = json.optJSONArray("data") ?: return null
+      val list = mutableListOf<SecurityTldCatalogDto>()
+      for (i in 0 until arr.length()) {
+        val obj = arr.getJSONObject(i)
+        list.add(
+          SecurityTldCatalogDto(
+            id = obj.getString("id"),
+            spamhaus = if (obj.has("spamhaus")) obj.optInt("spamhaus", 0) else 0
+          )
+        )
+      }
+      list
+    } catch (_: Exception) {
+      null
+    }
   }
 }
