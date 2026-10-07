@@ -44,6 +44,8 @@ fun AnalyticsScreen(
 ) {
   val activeProfile by viewModel.activeProfile.collectAsState()
   val analytics by viewModel.analytics.collectAsState()
+  val analyticsLastSuccessAt by viewModel.analyticsLastSuccessAt.collectAsState()
+  val analyticsErrorMessage by viewModel.analyticsErrorMessage.collectAsState()
   val isAnalyticsLoading by viewModel.isAnalyticsLoading.collectAsState()
   val allKnownDevices by viewModel.allKnownDevices.collectAsState()
 
@@ -134,6 +136,49 @@ fun AnalyticsScreen(
       )
     }
 
+    if (analyticsLastSuccessAt == null) {
+      item {
+        NextDnsCard(
+          title = "Analiz Verisi",
+          subtitle = "Aktif profil için NextDNS API durumu."
+        ) {
+          Row(
+            modifier = Modifier
+              .fillMaxWidth()
+              .padding(vertical = 8.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(10.dp)
+          ) {
+            if (isAnalyticsLoading) {
+              CircularProgressIndicator(
+                modifier = Modifier.size(18.dp),
+                strokeWidth = 2.dp
+              )
+            } else {
+              Icon(
+                imageVector = Icons.Default.Info,
+                contentDescription = null,
+                tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                modifier = Modifier.size(18.dp)
+              )
+            }
+            Text(
+              text = when {
+                isAnalyticsLoading -> "NextDNS analiz verisi alınıyor…"
+                !analyticsErrorMessage.isNullOrBlank() -> analyticsErrorMessage!!
+                else -> "Henüz doğrulanmış analiz verisi alınmadı."
+              },
+              color = if (!analyticsErrorMessage.isNullOrBlank() && !isAnalyticsLoading) {
+                MaterialTheme.colorScheme.error
+              } else {
+                MaterialTheme.colorScheme.onSurfaceVariant
+              },
+              fontSize = 12.5.sp
+            )
+          }
+        }
+      }
+    } else {
     item {
       Box(modifier = Modifier.alpha(contentAlpha)) {
         AnalyticsOverviewCards(
@@ -211,6 +256,8 @@ fun AnalyticsScreen(
           analytics = analytics
         )
       }
+    }
+
     }
   }
 }
