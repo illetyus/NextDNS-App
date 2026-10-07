@@ -20,6 +20,11 @@ sealed interface ApiConnectionStatus {
   data class Error(val message: String) : ApiConnectionStatus
 }
 
+private class ProfilesFetchException(
+  val httpCode: Int,
+  message: String
+) : Exception(message)
+
 class NextDnsRepository(
   private val preferences: NextDnsPreferences = NextDnsApp.preferences
 ) {
@@ -328,26 +333,51 @@ class NextDnsRepository(
   // Authentication & Profile Fetching
   // =========================================================================
 
+  private suspend fun fetchAllProfilesFromApi(key: String): Result<List<ProfileDto>> {
+    val profiles = mutableListOf<ProfileDto>()
+    val seenCursors = mutableSetOf<String>()
+    var cursor: String? = null
+
+    do {
+      val response = safeApiCall("getProfiles") {
+        NextDnsNetworkClient.api.getProfiles(key, cursor)
+      } ?: return Result.failure(
+        ProfilesFetchException(-1, "NextDNS profil listesine bağlanılamadı.")
+      )
+
+      val body = response.body()
+      if (!response.isSuccessful || body.hasApiErrors()) {
+        val detail = body?.errors?.firstOrNull()?.detail
+          ?: "NextDNS profil listesi alınamadı."
+        return Result.failure(ProfilesFetchException(response.code(), detail))
+      }
+
+      profiles += body?.data.orEmpty()
+      val nextCursor = body?.meta?.pagination?.cursor
+      cursor = if (!nextCursor.isNullOrBlank() && seenCursors.add(nextCursor)) nextCursor else null
+    } while (cursor != null)
+
+    return Result.success(profiles.distinctBy { it.id })
+  }
+
   suspend fun loginWithApiKey(key: String, restoreProfileId: String? = null): Result<Int> = withContext(Dispatchers.IO) {
     _apiStatus.value = ApiConnectionStatus.Connecting
-    val response = safeApiCall("loginWithApiKey") {
-      NextDnsNetworkClient.api.getProfiles(key)
-    }
 
-    if (response == null || !response.isSuccessful || response.body().hasApiErrors()) {
-      val code = response?.code() ?: -1
-      val apiDetail = response?.body()?.errors?.firstOrNull()?.detail
+    val profilesResult = fetchAllProfilesFromApi(key)
+    if (profilesResult.isFailure) {
+      val cause = profilesResult.exceptionOrNull()
+      val code = (cause as? ProfilesFetchException)?.httpCode ?: -1
       val errorMsg = when (code) {
         401 -> "API Anahtarı geçersiz (401 Yetkisiz). Lütfen my.nextdns.io/account adresinden anahtarınızı kontrol edin."
         403 -> "Erişim engellendi (403 Yasak). Lütfen API anahtarınızı kontrol edin."
-        else -> apiDetail ?: "NextDNS API sunucusuna bağlanılamadı (${if (code > 0) "HTTP $code" else "Ağ Bağlantısı Hatası"})."
+        else -> cause?.message ?: "NextDNS API sunucusuna bağlanılamadı."
       }
       _apiStatus.value = ApiConnectionStatus.Error(errorMsg)
       return@withContext Result.failure(Exception(errorMsg))
     }
 
-    val apiProfiles = response.body()?.data
-    if (apiProfiles.isNullOrEmpty()) {
+    val apiProfiles = profilesResult.getOrThrow()
+    if (apiProfiles.isEmpty()) {
       val msg = "Hesabınızda hiçbir NextDNS profili bulunamadı."
       _apiStatus.value = ApiConnectionStatus.Error(msg)
       return@withContext Result.failure(Exception(msg))
@@ -356,7 +386,9 @@ class NextDnsRepository(
     _apiKey.value = key
     preferences.apiKey = key
 
-    val mapped = apiProfiles.map { NextDnsProfile(id = it.id, name = it.name, fingerprint = it.fingerprint ?: "") }
+    val mapped = apiProfiles.map {
+      NextDnsProfile(id = it.id, name = it.name, fingerprint = it.fingerprint ?: "")
+    }
 
     _profiles.value = mapped
     preferences.saveProfiles(mapped)
@@ -380,16 +412,10 @@ class NextDnsRepository(
     val key = _apiKey.value
     if (key.isBlank()) return@withContext false
 
-    val response = safeApiCall("refreshProfilesFromApi") {
-      NextDnsNetworkClient.api.getProfiles(key)
-    } ?: return@withContext false
+    val result = fetchAllProfilesFromApi(key)
+    if (result.isFailure) return@withContext false
 
-    val body = response.body()
-    if (!response.isSuccessful || body.hasApiErrors()) {
-      return@withContext false
-    }
-
-    val remoteProfiles = body?.data.orEmpty().map {
+    val remoteProfiles = result.getOrThrow().map {
       NextDnsProfile(
         id = it.id,
         name = it.name,
@@ -397,11 +423,16 @@ class NextDnsRepository(
       )
     }
 
-    if (remoteProfiles.isEmpty()) return@withContext false
-
     val currentActiveId = _activeProfileId.value
     _profiles.value = remoteProfiles
     preferences.saveProfiles(remoteProfiles)
+    _apiStatus.value = ApiConnectionStatus.Connected(remoteProfiles.size)
+
+    if (remoteProfiles.isEmpty()) {
+      _activeProfileId.value = ""
+      preferences.activeProfileId = ""
+      return@withContext true
+    }
 
     if (remoteProfiles.none { it.id == currentActiveId }) {
       val replacement = remoteProfiles.first().id
