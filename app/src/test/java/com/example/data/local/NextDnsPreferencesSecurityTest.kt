@@ -46,8 +46,8 @@ class NextDnsPreferencesSecurityTest {
     assertNull(rawPrefs().getString(LEGACY_KEY, null))
 
     val encrypted = rawPrefs().getString(ENCRYPTED_KEY, null)
-    assertEquals("enc:legacy-secret", encrypted)
-    assertFalse(encrypted.orEmpty().contains("saved_api_key"))
+    assertEquals("enc:terces-ycagel", encrypted)
+    assertFalse(encrypted.orEmpty().contains("legacy-secret"))
   }
 
   @Test
@@ -60,7 +60,7 @@ class NextDnsPreferencesSecurityTest {
     preferences.apiKey = "new-secret"
 
     assertNull(rawPrefs().getString(LEGACY_KEY, null))
-    assertEquals("enc:new-secret", rawPrefs().getString(ENCRYPTED_KEY, null))
+    assertEquals("enc:terces-wen", rawPrefs().getString(ENCRYPTED_KEY, null))
     assertEquals("new-secret", preferences.apiKey)
   }
 
@@ -104,7 +104,7 @@ class NextDnsPreferencesSecurityTest {
   fun clearingApiKey_removesLegacyAndEncryptedValues() {
     rawPrefs().edit()
       .putString(LEGACY_KEY, "legacy-secret")
-      .putString(ENCRYPTED_KEY, "enc:new-secret")
+      .putString(ENCRYPTED_KEY, "enc:terces-wen")
       .commit()
 
     val preferences = NextDnsPreferences(
@@ -133,11 +133,11 @@ class NextDnsPreferencesSecurityTest {
   }
 
   private class FakeProtector : ApiKeyProtector {
-    override fun encrypt(plainText: String): String = "enc:$plainText"
+    override fun encrypt(plainText: String): String = "enc:${plainText.reversed()}"
 
     override fun decrypt(envelope: String): String {
       require(envelope.startsWith("enc:"))
-      return envelope.removePrefix("enc:")
+      return envelope.removePrefix("enc:").reversed()
     }
   }
 
