@@ -34,6 +34,7 @@ import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.data.model.NextDnsProfile
 import com.example.data.repository.ApiConnectionStatus
 import com.example.ui.components.*
@@ -47,17 +48,17 @@ fun AccountScreen(
 ) {
   val context = LocalContext.current
   val activity = remember(context) { context.findActivity() }
-  val accountInfo by viewModel.accountInfo.collectAsState()
-  val hasApiKey by viewModel.hasApiKey.collectAsState()
-  val apiStatus by viewModel.apiStatus.collectAsState()
-  val profiles by viewModel.profiles.collectAsState()
-  val activeProfileId by viewModel.activeProfileId.collectAsState()
-  val testResult by viewModel.testResult.collectAsState()
-  val isSyncing by viewModel.isSyncing.collectAsState()
-  val analytics by viewModel.analytics.collectAsState()
-  val analyticsLastSuccessAt by viewModel.analyticsLastSuccessAt.collectAsState()
-  val analyticsErrorMessage by viewModel.analyticsErrorMessage.collectAsState()
-  val isAnalyticsLoading by viewModel.isAnalyticsLoading.collectAsState()
+  val accountInfo by viewModel.accountInfo.collectAsStateWithLifecycle()
+  val hasApiKey by viewModel.hasApiKey.collectAsStateWithLifecycle()
+  val apiStatus by viewModel.apiStatus.collectAsStateWithLifecycle()
+  val profiles by viewModel.profiles.collectAsStateWithLifecycle()
+  val activeProfileId by viewModel.activeProfileId.collectAsStateWithLifecycle()
+  val testResult by viewModel.testResult.collectAsStateWithLifecycle()
+  val isSyncing by viewModel.isSyncing.collectAsStateWithLifecycle()
+  val analytics by viewModel.analytics.collectAsStateWithLifecycle()
+  val analyticsLastSuccessAt by viewModel.analyticsLastSuccessAt.collectAsStateWithLifecycle()
+  val analyticsErrorMessage by viewModel.analyticsErrorMessage.collectAsStateWithLifecycle()
+  val isAnalyticsLoading by viewModel.isAnalyticsLoading.collectAsStateWithLifecycle()
 
   var showLogoutConfirm by remember { mutableStateOf(false) }
   var showNewProfileDialog by remember { mutableStateOf(false) }
