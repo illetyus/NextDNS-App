@@ -1588,7 +1588,7 @@ class NextDnsRepository(
       .build()
 
     return@withContext try {
-      NextDnsNetworkClient.client.newCall(request).execute().use { response ->
+      NextDnsNetworkClient.publicDownloadClient.newCall(request).execute().use { response ->
         if (!response.isSuccessful) {
           return@use Result.failure(
             IllegalStateException("Log dosyası indirilemedi (HTTP ${response.code}).")
