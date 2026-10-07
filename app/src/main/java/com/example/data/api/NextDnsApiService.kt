@@ -52,6 +52,11 @@ data class ProfileCreateDto(
   val id: String
 )
 
+data class NextDnsMutationResponse(
+  val errors: List<ApiErrorDetail>? = null,
+  val meta: ApiMeta? = null
+)
+
 data class AccountSubscriptionDto(
   val status: String? = null,
   val period: String? = null
@@ -409,14 +414,14 @@ interface NextDnsApiService {
   suspend fun deleteProfile(
     @Header("X-Api-Key") apiKey: String,
     @Path("profileId") profileId: String
-  ): Response<ResponseBody>
+  ): Response<NextDnsMutationResponse>
 
   @PATCH("profiles/{profileId}")
   suspend fun renameProfile(
     @Header("X-Api-Key") apiKey: String,
     @Path("profileId") profileId: String,
     @Body body: NameRequest
-  ): Response<ResponseBody>
+  ): Response<NextDnsMutationResponse>
 
   // Setup
   @GET("profiles/{profileId}/setup")
@@ -450,21 +455,21 @@ interface NextDnsApiService {
     @Header("X-Api-Key") apiKey: String,
     @Path("profileId") profileId: String,
     @Body body: SecurityUpdateRequest
-  ): Response<ResponseBody>
+  ): Response<NextDnsMutationResponse>
 
   @POST("profiles/{profileId}/security/tlds")
   suspend fun addSecurityTld(
     @Header("X-Api-Key") apiKey: String,
     @Path("profileId") profileId: String,
     @Body body: IdRequest
-  ): Response<ResponseBody>
+  ): Response<NextDnsMutationResponse>
 
   @DELETE("profiles/{profileId}/security/tlds/{tld}")
   suspend fun removeSecurityTld(
     @Header("X-Api-Key") apiKey: String,
     @Path("profileId") profileId: String,
     @Path("tld") tld: String
-  ): Response<ResponseBody>
+  ): Response<NextDnsMutationResponse>
 
   // Privacy
   @GET("profiles/{profileId}/privacy")
@@ -507,35 +512,35 @@ interface NextDnsApiService {
     @Header("X-Api-Key") apiKey: String,
     @Path("profileId") profileId: String,
     @Body body: PrivacyUpdateRequest
-  ): Response<ResponseBody>
+  ): Response<NextDnsMutationResponse>
 
   @POST("profiles/{profileId}/privacy/blocklists")
   suspend fun addBlocklist(
     @Header("X-Api-Key") apiKey: String,
     @Path("profileId") profileId: String,
     @Body body: IdRequest
-  ): Response<ResponseBody>
+  ): Response<NextDnsMutationResponse>
 
   @DELETE("profiles/{profileId}/privacy/blocklists/{blocklistId}")
   suspend fun removeBlocklist(
     @Header("X-Api-Key") apiKey: String,
     @Path("profileId") profileId: String,
     @Path("blocklistId") blocklistId: String
-  ): Response<ResponseBody>
+  ): Response<NextDnsMutationResponse>
 
   @POST("profiles/{profileId}/privacy/natives")
   suspend fun addNativeTracking(
     @Header("X-Api-Key") apiKey: String,
     @Path("profileId") profileId: String,
     @Body body: IdRequest
-  ): Response<ResponseBody>
+  ): Response<NextDnsMutationResponse>
 
   @DELETE("profiles/{profileId}/privacy/natives/{nativeId}")
   suspend fun removeNativeTracking(
     @Header("X-Api-Key") apiKey: String,
     @Path("profileId") profileId: String,
     @Path("nativeId") nativeId: String
-  ): Response<ResponseBody>
+  ): Response<NextDnsMutationResponse>
 
   // Parental Control
   @GET("parentalControl/services")
@@ -561,14 +566,14 @@ interface NextDnsApiService {
     @Header("X-Api-Key") apiKey: String,
     @Path("profileId") profileId: String,
     @Body body: ParentalControlUpdateRequest
-  ): Response<ResponseBody>
+  ): Response<NextDnsMutationResponse>
 
   @POST("profiles/{profileId}/parentalControl/categories")
   suspend fun addParentalCategory(
     @Header("X-Api-Key") apiKey: String,
     @Path("profileId") profileId: String,
     @Body body: ParentalItemRequest
-  ): Response<ResponseBody>
+  ): Response<NextDnsMutationResponse>
 
   @PATCH("profiles/{profileId}/parentalControl/categories/{categoryId}")
   suspend fun updateParentalCategory(
@@ -576,21 +581,21 @@ interface NextDnsApiService {
     @Path("profileId") profileId: String,
     @Path("categoryId") categoryId: String,
     @Body body: ParentalActiveRequest
-  ): Response<ResponseBody>
+  ): Response<NextDnsMutationResponse>
 
   @DELETE("profiles/{profileId}/parentalControl/categories/{categoryId}")
   suspend fun removeParentalCategory(
     @Header("X-Api-Key") apiKey: String,
     @Path("profileId") profileId: String,
     @Path("categoryId") categoryId: String
-  ): Response<ResponseBody>
+  ): Response<NextDnsMutationResponse>
 
   @POST("profiles/{profileId}/parentalControl/services")
   suspend fun addParentalService(
     @Header("X-Api-Key") apiKey: String,
     @Path("profileId") profileId: String,
     @Body body: ParentalItemRequest
-  ): Response<ResponseBody>
+  ): Response<NextDnsMutationResponse>
 
   @PATCH("profiles/{profileId}/parentalControl/services/{serviceId}")
   suspend fun updateParentalService(
@@ -598,14 +603,14 @@ interface NextDnsApiService {
     @Path("profileId") profileId: String,
     @Path("serviceId") serviceId: String,
     @Body body: ParentalActiveRequest
-  ): Response<ResponseBody>
+  ): Response<NextDnsMutationResponse>
 
   @DELETE("profiles/{profileId}/parentalControl/services/{serviceId}")
   suspend fun removeParentalService(
     @Header("X-Api-Key") apiKey: String,
     @Path("profileId") profileId: String,
     @Path("serviceId") serviceId: String
-  ): Response<ResponseBody>
+  ): Response<NextDnsMutationResponse>
 
   // Denylist
   @GET("profiles/{profileId}/denylist")
@@ -621,7 +626,7 @@ interface NextDnsApiService {
     @Header("X-Api-Key") apiKey: String,
     @Path("profileId") profileId: String,
     @Body body: AllowDenyItemRequest
-  ): Response<ResponseBody>
+  ): Response<NextDnsMutationResponse>
 
   @PATCH("profiles/{profileId}/denylist/{domain}")
   suspend fun toggleDenylist(
@@ -629,14 +634,14 @@ interface NextDnsApiService {
     @Path("profileId") profileId: String,
     @Path("domain") domain: String,
     @Body body: AllowDenyActiveRequest
-  ): Response<ResponseBody>
+  ): Response<NextDnsMutationResponse>
 
   @DELETE("profiles/{profileId}/denylist/{domain}")
   suspend fun removeDenylist(
     @Header("X-Api-Key") apiKey: String,
     @Path("profileId") profileId: String,
     @Path("domain") domain: String
-  ): Response<ResponseBody>
+  ): Response<NextDnsMutationResponse>
 
   // Allowlist
   @GET("profiles/{profileId}/allowlist")
@@ -652,7 +657,7 @@ interface NextDnsApiService {
     @Header("X-Api-Key") apiKey: String,
     @Path("profileId") profileId: String,
     @Body body: AllowDenyItemRequest
-  ): Response<ResponseBody>
+  ): Response<NextDnsMutationResponse>
 
   @PATCH("profiles/{profileId}/allowlist/{domain}")
   suspend fun toggleAllowlist(
@@ -660,14 +665,14 @@ interface NextDnsApiService {
     @Path("profileId") profileId: String,
     @Path("domain") domain: String,
     @Body body: AllowDenyActiveRequest
-  ): Response<ResponseBody>
+  ): Response<NextDnsMutationResponse>
 
   @DELETE("profiles/{profileId}/allowlist/{domain}")
   suspend fun removeAllowlist(
     @Header("X-Api-Key") apiKey: String,
     @Path("profileId") profileId: String,
     @Path("domain") domain: String
-  ): Response<ResponseBody>
+  ): Response<NextDnsMutationResponse>
 
   // Logs
   @Streaming
@@ -697,7 +702,7 @@ interface NextDnsApiService {
   suspend fun clearLogs(
     @Header("X-Api-Key") apiKey: String,
     @Path("profileId") profileId: String
-  ): Response<ResponseBody>
+  ): Response<NextDnsMutationResponse>
 
   // Analytics
   @GET("profiles/{profileId}/analytics/status")
@@ -845,28 +850,28 @@ interface NextDnsApiService {
     @Header("X-Api-Key") apiKey: String,
     @Path("profileId") profileId: String,
     @Body body: SettingsUpdateRequest
-  ): Response<ResponseBody>
+  ): Response<NextDnsMutationResponse>
 
   @PATCH("profiles/{profileId}/settings/performance")
   suspend fun updateSettingsPerformance(
     @Header("X-Api-Key") apiKey: String,
     @Path("profileId") profileId: String,
     @Body body: SettingsPerformanceUpdateRequest
-  ): Response<ResponseBody>
+  ): Response<NextDnsMutationResponse>
 
   @PATCH("profiles/{profileId}/settings/logs")
   suspend fun updateSettingsLogs(
     @Header("X-Api-Key") apiKey: String,
     @Path("profileId") profileId: String,
     @Body body: SettingsLogsUpdateRequest
-  ): Response<ResponseBody>
+  ): Response<NextDnsMutationResponse>
 
   @PATCH("profiles/{profileId}/settings/blockPage")
   suspend fun updateSettingsBlockPage(
     @Header("X-Api-Key") apiKey: String,
     @Path("profileId") profileId: String,
     @Body body: SettingsBlockPageUpdateRequest
-  ): Response<ResponseBody>
+  ): Response<NextDnsMutationResponse>
 }
 
 interface NextDnsTestService {
