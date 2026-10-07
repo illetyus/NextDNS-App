@@ -20,6 +20,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.data.model.BlocklistEntry
 import com.example.data.model.NativeTrackingEntry
 import com.example.data.model.PrivacySettings
@@ -32,7 +33,7 @@ fun PrivacyScreen(
   viewModel: NextDnsViewModel,
   modifier: Modifier = Modifier
 ) {
-  val settings by viewModel.privacySettings.collectAsState()
+  val settings by viewModel.privacySettings.collectAsStateWithLifecycle()
   var showAddBlocklistDialog by remember { mutableStateOf(false) }
   var showAddNativeDialog by remember { mutableStateOf(false) }
 
