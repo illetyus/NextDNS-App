@@ -25,7 +25,6 @@ import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.data.model.ConfigSettings
-import com.example.data.model.RewriteItem
 import com.example.data.preferences.ThemePreferences
 import com.example.ui.components.*
 import com.example.ui.theme.*
@@ -629,79 +628,6 @@ private fun CnameFlatteningBlock(
 }
 
 /**
- * 6. Yeniden Yazmalar (Rewrites) Bölümü
- */
-@Composable
-fun RewritesSection(
-  rewrites: List<RewriteItem>,
-  onAddRewriteClick: () -> Unit,
-  onRemoveRewrite: (String) -> Unit,
-  modifier: Modifier = Modifier
-) {
-  NextDnsCard(
-    title = "Yeniden Yazmalar",
-    subtitle = "Herhangi bir alan adı için DNS yanıtını ayarlayın veya geçersiz kılın. Bu yeniden yazmalar alt alan adları için de geçerlidir ve yerel IP adresleri yanıt olarak desteklenir.",
-    modifier = modifier
-  ) {
-    if (rewrites.isNotEmpty()) {
-      Column(
-        modifier = Modifier
-          .fillMaxWidth()
-          .padding(bottom = 12.dp),
-        verticalArrangement = Arrangement.spacedBy(8.dp)
-      ) {
-        rewrites.forEach { rw ->
-          Surface(
-            color = MaterialTheme.colorScheme.surfaceVariant,
-            shape = RoundedCornerShape(10.dp),
-            border = androidx.compose.foundation.BorderStroke(1.dp, MaterialTheme.colorScheme.outline),
-            modifier = Modifier.fillMaxWidth()
-          ) {
-            Row(
-              modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 14.dp, vertical = 10.dp),
-              horizontalArrangement = Arrangement.SpaceBetween,
-              verticalAlignment = Alignment.CenterVertically
-            ) {
-              Column(modifier = Modifier.weight(1f)) {
-                Text(
-                  text = rw.domain,
-                  color = MaterialTheme.colorScheme.onSurface,
-                  fontWeight = FontWeight.Bold,
-                  fontSize = 13.sp
-                )
-                Text(
-                  text = "➔ ${rw.answer}",
-                  color = MaterialTheme.colorScheme.outline,
-                  fontSize = 11.5.sp
-                )
-              }
-              IconButton(
-                onClick = { onRemoveRewrite(rw.domain) },
-                modifier = Modifier.size(28.dp)
-              ) {
-                Icon(
-                  imageVector = Icons.Default.Close,
-                  contentDescription = "Kaldır",
-                  tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                  modifier = Modifier.size(16.dp)
-                )
-              }
-            }
-          }
-        }
-      }
-    }
-
-    NextDnsButton(
-      text = "YENİ YENİDEN YAZMA",
-      onClick = onAddRewriteClick
-    )
-  }
-}
-
-/**
  * 7. Web3 Bölümü
  */
 @Composable
@@ -772,23 +698,6 @@ fun Web3Section(
 }
 
 /**
- * 8. Erişim Bölümü
- */
-@Composable
-fun AccessSection(
-  modifier: Modifier = Modifier
-) {
-  NextDnsCard(
-    title = "Erişim",
-    isBeta = true,
-    subtitle = "Başkalarına bu profili düzenleme veya sadece görüntüleme yetkisi verin.",
-    modifier = modifier
-  ) {
-    NextDnsButton(text = "INVITE", onClick = {})
-  }
-}
-
-/**
  * 9. Profil Eylemleri Bölümü (Kopyala / Sil)
  */
 @Composable
@@ -810,74 +719,4 @@ fun ProfileActionsSection(
   }
 }
 
-/**
- * Yeniden Yazma Ekle Dialog
- */
-@Composable
-fun RewriteDialog(
-  onDismiss: () -> Unit,
-  onConfirm: (String, String) -> Unit
-) {
-  var domain by remember { mutableStateOf("") }
-  var answer by remember { mutableStateOf("") }
 
-  AlertDialog(
-    onDismissRequest = onDismiss,
-    containerColor = MaterialTheme.colorScheme.surface,
-    shape = RoundedCornerShape(18.dp),
-    title = {
-      Text(
-        text = "Yeni Yeniden Yazma",
-        color = MaterialTheme.colorScheme.onSurface,
-        fontWeight = FontWeight.Bold,
-        fontSize = 16.sp
-      )
-    },
-    text = {
-      Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-        OutlinedTextField(
-          value = domain,
-          onValueChange = { domain = it },
-          placeholder = { Text("Alan adı (örn. google.com)", color = MaterialTheme.colorScheme.outline, fontSize = 12.sp) },
-          singleLine = true,
-          modifier = Modifier.fillMaxWidth(),
-          colors = OutlinedTextFieldDefaults.colors(
-            focusedBorderColor = MaterialTheme.colorScheme.primary,
-            unfocusedBorderColor = MaterialTheme.colorScheme.outline,
-            focusedTextColor = MaterialTheme.colorScheme.onSurface,
-            unfocusedTextColor = MaterialTheme.colorScheme.onSurface
-          ),
-          shape = RoundedCornerShape(12.dp)
-        )
-        OutlinedTextField(
-          value = answer,
-          onValueChange = { answer = it },
-          placeholder = { Text("Hedef (örn. 192.168.1.1)", color = MaterialTheme.colorScheme.outline, fontSize = 12.sp) },
-          singleLine = true,
-          modifier = Modifier.fillMaxWidth(),
-          colors = OutlinedTextFieldDefaults.colors(
-            focusedBorderColor = MaterialTheme.colorScheme.primary,
-            unfocusedBorderColor = MaterialTheme.colorScheme.outline,
-            focusedTextColor = MaterialTheme.colorScheme.onSurface,
-            unfocusedTextColor = MaterialTheme.colorScheme.onSurface
-          ),
-          shape = RoundedCornerShape(12.dp)
-        )
-      }
-    },
-    confirmButton = {
-      TextButton(onClick = {
-        if (domain.isNotBlank() && answer.isNotBlank()) {
-          onConfirm(domain.trim(), answer.trim())
-        }
-      }) {
-        Text("Kaydet", color = MaterialTheme.colorScheme.primary, fontWeight = FontWeight.Bold)
-      }
-    },
-    dismissButton = {
-      TextButton(onClick = onDismiss) {
-        Text("İptal", color = MaterialTheme.colorScheme.onSurfaceVariant)
-      }
-    }
-  )
-}
