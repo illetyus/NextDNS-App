@@ -269,26 +269,28 @@ class NextDnsApiContractTest {
   }
 
   @Test
-  fun logDownload_streamsCsvResponseFromDocumentedEndpoint() = runTest {
+  fun logDownload_requestsPublicUrlWithoutFollowingCredentialedRedirect() = runTest {
     server.enqueue(
       MockResponse()
         .setResponseCode(200)
-        .setHeader("Content-Type", "text/csv")
-        .setBody("timestamp,domain,status\n2026-10-07T19:00:00Z,example.com,default\n")
+        .setHeader("Content-Type", "application/json")
+        .setBody("""{"data":{"url":"https://download.example.test/logs.csv"}}""")
     )
 
-    val response = api.downloadLogsFile(
+    val response = api.getLogsDownloadLink(
       apiKey = "test-key",
-      profileId = "profile-1"
+      profileId = "profile-1",
+      redirect = 0
     )
 
     assertTrue(response.isSuccessful)
     assertTrue(
-      response.body()?.string()?.contains("example.com") == true
+      response.body()?.string()?.contains("https://download.example.test/logs.csv") == true
     )
 
     val request = server.takeRequest()
-    assertEquals("/profiles/profile-1/logs/download", request.path)
+    assertTrue(request.path.orEmpty().contains("/profiles/profile-1/logs/download"))
+    assertTrue(request.path.orEmpty().contains("redirect=0"))
     assertEquals("test-key", request.getHeader("X-Api-Key"))
   }
 
