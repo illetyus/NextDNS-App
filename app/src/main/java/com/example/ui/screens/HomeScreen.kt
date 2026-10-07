@@ -57,6 +57,26 @@ fun HomeScreen(
   val snackbarHostState = remember { SnackbarHostState() }
   val lifecycleOwner = LocalLifecycleOwner.current
 
+  DisposableEffect(lifecycleOwner) {
+    val observer = LifecycleEventObserver { _, event ->
+      when (event) {
+        Lifecycle.Event.ON_RESUME -> viewModel.startForegroundProfileSync()
+        Lifecycle.Event.ON_PAUSE -> viewModel.stopForegroundProfileSync()
+        else -> Unit
+      }
+    }
+
+    lifecycleOwner.lifecycle.addObserver(observer)
+    if (lifecycleOwner.lifecycle.currentState.isAtLeast(Lifecycle.State.RESUMED)) {
+      viewModel.startForegroundProfileSync()
+    }
+
+    onDispose {
+      lifecycleOwner.lifecycle.removeObserver(observer)
+      viewModel.stopForegroundProfileSync()
+    }
+  }
+
   DisposableEffect(lifecycleOwner, currentTab) {
     val observer = LifecycleEventObserver { _, event ->
       when (event) {
