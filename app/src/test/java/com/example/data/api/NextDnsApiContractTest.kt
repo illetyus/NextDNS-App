@@ -109,6 +109,47 @@ class NextDnsApiContractTest {
   }
 
   @Test
+  fun configurationGets_parseNextDnsDataEnvelope() = runTest {
+    server.enqueue(
+      MockResponse()
+        .setResponseCode(200)
+        .setBody(
+          """{"data":{"threatIntelligenceFeeds":false,"googleSafeBrowsing":true,"tlds":[{"id":"ru"}]}}"""
+        )
+    )
+    server.enqueue(
+      MockResponse()
+        .setResponseCode(200)
+        .setBody(
+          """{"data":{"disguisedTrackers":true,"allowAffiliate":false,"blocklists":[{"id":"oisd"}],"natives":[{"id":"apple"}]}}"""
+        )
+    )
+    server.enqueue(
+      MockResponse()
+        .setResponseCode(200)
+        .setBody(
+          """{"data":{"safeSearch":true,"youtubeRestrictedMode":false,"blockBypass":false,"services":[{"id":"tiktok","active":true}],"categories":[{"id":"porn","active":true}]}}"""
+        )
+    )
+
+    val security = api.getSecurity("test-key", "profile-1")
+    val privacy = api.getPrivacy("test-key", "profile-1")
+    val parental = api.getParentalControl("test-key", "profile-1")
+
+    assertTrue(security.body().isSemanticallySuccessful())
+    assertEquals(false, security.body()?.data?.threatIntelligenceFeeds)
+    assertEquals("ru", security.body()?.data?.tlds?.firstOrNull()?.id)
+
+    assertTrue(privacy.body().isSemanticallySuccessful())
+    assertEquals("oisd", privacy.body()?.data?.blocklists?.firstOrNull()?.id)
+    assertEquals(true, privacy.body()?.data?.disguisedTrackers)
+
+    assertTrue(parental.body().isSemanticallySuccessful())
+    assertEquals("tiktok", parental.body()?.data?.services?.firstOrNull()?.id)
+    assertEquals(false, parental.body()?.data?.blockBypass)
+  }
+
+  @Test
   fun profilesRequest_supportsCursorPagination() = runTest {
     server.enqueue(
       MockResponse()
