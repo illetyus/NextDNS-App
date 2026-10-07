@@ -26,6 +26,9 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleEventObserver
+import androidx.lifecycle.compose.LocalLifecycleOwner
 import com.example.ui.components.NextDnsButton
 import com.example.ui.components.StatusBeacon
 import com.example.ui.components.bounceClick
@@ -40,6 +43,7 @@ fun HomeScreen(
   modifier: Modifier = Modifier
 ) {
   val currentTab by viewModel.currentTab.collectAsState()
+  val currentSectionSyncState by viewModel.currentSectionSyncState.collectAsState()
   val activeProfile by viewModel.activeProfile.collectAsState()
   val profiles by viewModel.profiles.collectAsState()
   val apiKey by viewModel.apiKey.collectAsState()
@@ -51,6 +55,27 @@ fun HomeScreen(
   var showNewProfileDialog by remember { mutableStateOf(false) }
   var newProfileNameInput by remember { mutableStateOf("") }
   val snackbarHostState = remember { SnackbarHostState() }
+  val lifecycleOwner = LocalLifecycleOwner.current
+
+  DisposableEffect(lifecycleOwner, currentTab) {
+    val observer = LifecycleEventObserver { _, event ->
+      when (event) {
+        Lifecycle.Event.ON_RESUME -> viewModel.startVisibleTabSync(currentTab)
+        Lifecycle.Event.ON_PAUSE -> viewModel.stopVisibleTabSync()
+        else -> Unit
+      }
+    }
+
+    lifecycleOwner.lifecycle.addObserver(observer)
+    if (lifecycleOwner.lifecycle.currentState.isAtLeast(Lifecycle.State.RESUMED)) {
+      viewModel.startVisibleTabSync(currentTab)
+    }
+
+    onDispose {
+      lifecycleOwner.lifecycle.removeObserver(observer)
+      viewModel.stopVisibleTabSync()
+    }
+  }
 
   LaunchedEffect(uiMessage) {
     uiMessage?.let {
@@ -377,6 +402,54 @@ fun HomeScreen(
             }
           }
 
+          currentSectionSyncState?.let { syncState ->
+            val syncText = when {
+              syncState.isRefreshing -> "Sunucuyla eşitleniyor…"
+              syncState.errorMessage != null -> {
+                val lastOk = syncState.lastSuccessAt?.let(::formatSyncTime) ?: "yok"
+                "Eşitleme başarısız • son başarılı: $lastOk"
+              }
+              syncState.lastSuccessAt != null -> "Sunucudan güncel • ${formatSyncTime(syncState.lastSuccessAt)}"
+              else -> "Henüz sunucudan doğrulanmadı"
+            }
+
+            val syncColor = when {
+              syncState.errorMessage != null -> MaterialTheme.colorScheme.error
+              syncState.isRefreshing -> MaterialTheme.colorScheme.primary
+              else -> MaterialTheme.colorScheme.onSurfaceVariant
+            }
+
+            Row(
+              modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 16.dp, vertical = 3.dp),
+              verticalAlignment = Alignment.CenterVertically,
+              horizontalArrangement = Arrangement.spacedBy(6.dp)
+            ) {
+              if (syncState.isRefreshing) {
+                CircularProgressIndicator(
+                  modifier = Modifier.size(12.dp),
+                  strokeWidth = 1.5.dp,
+                  color = MaterialTheme.colorScheme.primary
+                )
+              } else {
+                Icon(
+                  imageVector = if (syncState.errorMessage != null) Icons.Default.Warning else Icons.Default.CloudDone,
+                  contentDescription = null,
+                  tint = syncColor,
+                  modifier = Modifier.size(13.dp)
+                )
+              }
+              Text(
+                text = syncText,
+                color = syncColor,
+                fontSize = 10.sp,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis
+              )
+            }
+          }
+
           HorizontalDivider(color = MaterialTheme.colorScheme.outline, thickness = 1.dp)
         }
       }
@@ -486,6 +559,10 @@ fun HomeScreen(
     )
   }
 }
+
+private fun formatSyncTime(epochMillis: Long): String =
+  java.text.SimpleDateFormat("HH:mm:ss", java.util.Locale.getDefault())
+    .format(java.util.Date(epochMillis))
 
 private fun getTabIcon(tab: NavTab): ImageVector {
   return when (tab) {
