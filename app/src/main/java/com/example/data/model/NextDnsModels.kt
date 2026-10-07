@@ -138,6 +138,36 @@ data class DeviceMetric(
   val model: String = ""
 )
 
+data class ProtocolMetric(
+  val protocol: String,
+  val queries: Long = 0L
+)
+
+data class QueryTypeMetric(
+  val type: Int? = null,
+  val name: String,
+  val queries: Long = 0L
+)
+
+data class IpVersionMetric(
+  val version: Int,
+  val queries: Long = 0L
+)
+
+data class IpMetric(
+  val ip: String,
+  val queries: Long = 0L,
+  val cellular: Boolean? = null,
+  val vpn: Boolean? = null,
+  val isp: String? = null,
+  val asn: Long? = null,
+  val countryCode: String? = null,
+  val country: String? = null,
+  val city: String? = null,
+  val latitude: Double? = null,
+  val longitude: Double? = null
+)
+
 data class AnalyticsSummary(
   val totalQueries: Long = 0L,
   val blockedQueries: Long = 0L,
@@ -148,6 +178,10 @@ data class AnalyticsSummary(
   val topBlockedReasons: Map<String, Long> = emptyMap(),
   val topDevices: List<DeviceMetric> = emptyList(),
   val topDomains: List<DomainMetric> = emptyList(),
+  val protocols: List<ProtocolMetric> = emptyList(),
+  val queryTypes: List<QueryTypeMetric> = emptyList(),
+  val ipVersions: List<IpVersionMetric> = emptyList(),
+  val topIps: List<IpMetric> = emptyList(),
   val gafamMetrics: Map<String, Pair<Double, Long>> = emptyMap(),
   val encryptedDnsPercentage: Float = 0f,
   val dnssecPercentage: Float = 0f,
