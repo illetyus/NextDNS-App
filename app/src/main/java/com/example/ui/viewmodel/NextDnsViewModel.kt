@@ -18,6 +18,7 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
+import java.io.OutputStream
 import java.util.UUID
 
 enum class NavTab(val title: String, val iconName: String) {
@@ -604,11 +605,13 @@ class NextDnsViewModel(
     }
   }
 
-  fun downloadLogs() {
-    showMessage(
-      "CSV dışa aktarma henüz gerçek NextDNS indirme akışına bağlanmadı.",
-      isError = true
+  suspend fun exportLogs(outputStream: OutputStream): Result<Unit> {
+    val result = repository.exportLogs(outputStream)
+    reportMutationResult(
+      result,
+      successMessage = "Günlükler CSV olarak kaydedildi"
     )
+    return result
   }
 
   fun clearLogs() {
