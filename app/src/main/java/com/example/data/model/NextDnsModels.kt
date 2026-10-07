@@ -106,14 +106,18 @@ data class AllowDenyItem(
 
 data class DnsLogEntry(
   val id: String = java.util.UUID.randomUUID().toString(),
-  val timestamp: String = "şimdi",
+  val timestamp: String = "",
   val domain: String,
   val rootDomain: String = domain,
+  val tracker: String? = null,
+  val encrypted: Boolean? = null,
+  val client: String? = null,
   val clientIp: String? = null,
   val deviceName: String? = null,
   val blocked: Boolean = false,
   val blockReason: String? = null,
-  val protocol: String = "DoH",
+  val protocol: String = "",
+  val dnssec: Boolean? = null,
   val responseTimeMs: Int? = null
 )
 
