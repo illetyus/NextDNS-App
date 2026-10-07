@@ -7,6 +7,7 @@ import com.example.data.model.*
 import com.example.data.repository.ApiConnectionStatus
 import com.example.data.repository.NextDnsRepository
 import com.example.data.repository.SectionSyncState
+import com.example.data.repository.SyncPolicy
 import com.example.data.repository.SyncSection
 import com.example.ui.theme.ThemeMode
 import kotlinx.coroutines.Job
@@ -159,18 +160,19 @@ class NextDnsViewModel(
 
       val intervalMs: Long = when (tab) {
         NavTab.SETUP, NavTab.ACCOUNT -> return@launch
-        else -> 30_000L
+        else -> SyncPolicy.SECTION_POLL_MS
       }
 
       var nextDelayMs = intervalMs
       while (true) {
         delay(nextDelayMs)
         val success = repository.refreshSection(section)
-        nextDelayMs = if (success) {
-          intervalMs
-        } else {
-          (nextDelayMs * 2).coerceAtMost(120_000L)
-        }
+        nextDelayMs = SyncPolicy.nextDelay(
+          success = success,
+          currentDelayMs = nextDelayMs,
+          baseDelayMs = intervalMs,
+          maxDelayMs = SyncPolicy.SECTION_MAX_BACKOFF_MS
+        )
       }
     }
   }
@@ -183,18 +185,19 @@ class NextDnsViewModel(
   fun startForegroundProfileSync() {
     foregroundProfileSyncJob?.cancel()
     foregroundProfileSyncJob = viewModelScope.launch {
-      var nextDelayMs = 60_000L
+      var nextDelayMs = SyncPolicy.PROFILE_POLL_MS
 
       repository.refreshProfilesFromApi()
 
       while (true) {
         delay(nextDelayMs)
         val success = repository.refreshProfilesFromApi()
-        nextDelayMs = if (success) {
-          60_000L
-        } else {
-          (nextDelayMs * 2).coerceAtMost(300_000L)
-        }
+        nextDelayMs = SyncPolicy.nextDelay(
+          success = success,
+          currentDelayMs = nextDelayMs,
+          baseDelayMs = SyncPolicy.PROFILE_POLL_MS,
+          maxDelayMs = SyncPolicy.PROFILE_MAX_BACKOFF_MS
+        )
       }
     }
   }
