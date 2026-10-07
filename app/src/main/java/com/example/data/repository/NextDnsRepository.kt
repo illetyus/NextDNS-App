@@ -1611,17 +1611,17 @@ class NextDnsRepository(
     return Result.success(Unit)
   }
 
-  suspend fun refreshLogsFromApi(limit: Int = 100) {
+  suspend fun refreshLogsFromApi(limit: Int = 100): Boolean {
     val key = _apiKey.value
     val pid = _activeProfileId.value
-    if (key.isBlank() || pid.isBlank()) return
+    if (key.isBlank() || pid.isBlank()) return false
 
     val logsResp = safeApiCall("refreshLogsFromApi") {
       NextDnsNetworkClient.api.getLogs(key, pid, limit = limit, raw = 1)
-    } ?: return
+    } ?: return false
 
-    val body = logsResp.body() ?: return
-    if (!logsResp.isSuccessful || body.hasApiErrors()) return
+    val body = logsResp.body() ?: return false
+    if (!logsResp.isSuccessful || body.hasApiErrors()) return false
 
     logsStreamSeedId = body.meta?.stream?.id ?: logsStreamSeedId
     nextLogsCursor = body.meta?.pagination?.cursor
@@ -1635,6 +1635,7 @@ class NextDnsRepository(
       _logs.value = merged
       preferences.saveLogs(pid, merged)
     }
+    return true
   }
 
   fun setLiveStreaming(enabled: Boolean) {
