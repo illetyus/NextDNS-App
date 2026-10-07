@@ -57,7 +57,7 @@ fun SettingsScreen(
   val activeProfile by viewModel.activeProfile.collectAsState()
   val configSettings by viewModel.configSettings.collectAsState()
 
-  var showRewriteDialog by remember { mutableStateOf(false) }
+  var showDeleteProfileDialog by remember { mutableStateOf(false) }
   val profileName = activeProfile?.name ?: "Varsayılan Profil"
 
   LazyColumn(
@@ -110,15 +110,6 @@ fun SettingsScreen(
       )
     }
 
-    // 6. Yeniden Yazmalar (Rewrites)
-    item {
-      RewritesSection(
-        rewrites = configSettings.rewrites,
-        onAddRewriteClick = { showRewriteDialog = true },
-        onRemoveRewrite = { domain -> viewModel.removeRewrite(domain) }
-      )
-    }
-
     // 7. Web3
     item {
       Web3Section(
@@ -127,28 +118,38 @@ fun SettingsScreen(
       )
     }
 
-    // 8. Erişim
-    item {
-      AccessSection()
-    }
-
-    // 9. Profil Eylemleri (Kopyala / Sil)
+    // Profil Eylemleri
     item {
       ProfileActionsSection(
         profileName = profileName,
-        onCopyProfile = {},
-        onDeleteProfile = {}
+        onDeleteProfile = { showDeleteProfileDialog = true }
       )
     }
   }
 
-  // Yeniden Yazma Ekle Dialog
-  if (showRewriteDialog) {
-    RewriteDialog(
-      onDismiss = { showRewriteDialog = false },
-      onConfirm = { domain, answer ->
-        viewModel.addRewrite(domain, answer)
-        showRewriteDialog = false
+  if (showDeleteProfileDialog) {
+    AlertDialog(
+      onDismissRequest = { showDeleteProfileDialog = false },
+      title = { Text("Profili sil?") },
+      text = {
+        Text(
+          "$profileName profili ve onunla ilişkili günlükler NextDNS'ten kalıcı olarak silinecek."
+        )
+      },
+      confirmButton = {
+        TextButton(
+          onClick = {
+            showDeleteProfileDialog = false
+            activeProfile?.id?.let(viewModel::deleteProfile)
+          }
+        ) {
+          Text("SİL", color = MaterialTheme.colorScheme.error)
+        }
+      },
+      dismissButton = {
+        TextButton(onClick = { showDeleteProfileDialog = false }) {
+          Text("VAZGEÇ")
+        }
       }
     )
   }
@@ -793,7 +794,6 @@ fun AccessSection(
 @Composable
 fun ProfileActionsSection(
   profileName: String,
-  onCopyProfile: () -> Unit,
   onDeleteProfile: () -> Unit,
   modifier: Modifier = Modifier
 ) {
@@ -801,12 +801,6 @@ fun ProfileActionsSection(
     modifier = modifier.fillMaxWidth(),
     verticalArrangement = Arrangement.spacedBy(14.dp)
   ) {
-    NextDnsActionCard(
-      buttonText = "$profileName profilini kopyala",
-      description = "Bu profilin tüm ayarlarını yeni bir profile kopyalayın.",
-      onButtonClick = onCopyProfile
-    )
-
     NextDnsActionCard(
       buttonText = "Sil: $profileName",
       description = "Bu işlem, bu profili ve onunla ilişkili tüm günlükleri kalıcı olarak silecektir.",
