@@ -28,6 +28,7 @@ import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.isActive
 import com.example.data.model.DiagnosticTestResult
@@ -42,11 +43,11 @@ fun SetupScreen(
   modifier: Modifier = Modifier
 ) {
   val context = LocalContext.current
-  val activeProfile by viewModel.activeProfile.collectAsState()
-  val testResult by viewModel.testResult.collectAsState()
-  val isDiagnosticRunning by viewModel.isDiagnosticRunning.collectAsState()
+  val activeProfile by viewModel.activeProfile.collectAsStateWithLifecycle()
+  val testResult by viewModel.testResult.collectAsStateWithLifecycle()
+  val isDiagnosticRunning by viewModel.isDiagnosticRunning.collectAsStateWithLifecycle()
 
-  val profileSetup by viewModel.profileSetup.collectAsState()
+  val profileSetup by viewModel.profileSetup.collectAsStateWithLifecycle()
 
   var selectedPlatform by remember { mutableStateOf("Android") }
   var showAdvancedIpSettings by remember { mutableStateOf(false) }
