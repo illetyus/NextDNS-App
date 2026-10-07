@@ -63,6 +63,22 @@ class NextDnsPreferencesSecurityTest {
   }
 
   @Test
+  fun migrationEncryptionFailure_removesLegacyPlaintext() {
+    rawPrefs().edit()
+      .putString(LEGACY_KEY, "legacy-secret")
+      .commit()
+
+    val preferences = NextDnsPreferences(
+      context = context,
+      apiKeyProtector = FailingProtector()
+    )
+
+    assertTrue(preferences.apiKey.isEmpty())
+    assertFalse(rawPrefs().contains(LEGACY_KEY))
+    assertFalse(rawPrefs().contains(ENCRYPTED_KEY))
+  }
+
+  @Test
   fun legacyDnsLogCache_isPurgedOnInitialization() {
     rawPrefs().edit()
       .putString("saved_logs_profileA", "sensitive-query-history")
@@ -99,6 +115,16 @@ class NextDnsPreferencesSecurityTest {
 
   private fun rawPrefs() =
     context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+
+  private class FailingProtector : ApiKeyProtector {
+    override fun encrypt(plainText: String): String {
+      error("simulated encryption failure")
+    }
+
+    override fun decrypt(envelope: String): String {
+      error("simulated decryption failure")
+    }
+  }
 
   private class FakeProtector : ApiKeyProtector {
     override fun encrypt(plainText: String): String = "enc:$plainText"
