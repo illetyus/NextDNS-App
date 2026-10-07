@@ -429,32 +429,52 @@ class NextDnsViewModel(
 
   // Denylist
   fun addToDenylist(domain: String) {
-    repository.addToDenylist(domain)
-    showMessage("$domain kara listeye eklendi")
+    viewModelScope.launch {
+      reportMutationResult(
+        repository.addToDenylist(domain),
+        successMessage = "$domain kara listeye eklendi"
+      )
+    }
   }
 
   fun removeFromDenylist(domain: String) {
-    repository.removeFromDenylist(domain)
-    showMessage("$domain kara listeden kaldırıldı")
+    viewModelScope.launch {
+      reportMutationResult(
+        repository.removeFromDenylist(domain),
+        successMessage = "$domain kara listeden kaldırıldı"
+      )
+    }
   }
 
   fun toggleDenylistItem(domain: String) {
-    repository.toggleDenylistItem(domain)
+    viewModelScope.launch {
+      reportMutationResult(repository.toggleDenylistItem(domain))
+    }
   }
 
   // Allowlist
   fun addToAllowlist(domain: String) {
-    repository.addToAllowlist(domain)
-    showMessage("$domain beyaz listeye eklendi")
+    viewModelScope.launch {
+      reportMutationResult(
+        repository.addToAllowlist(domain),
+        successMessage = "$domain beyaz listeye eklendi"
+      )
+    }
   }
 
   fun removeFromAllowlist(domain: String) {
-    repository.removeFromAllowlist(domain)
-    showMessage("$domain beyaz listeden kaldırıldı")
+    viewModelScope.launch {
+      reportMutationResult(
+        repository.removeFromAllowlist(domain),
+        successMessage = "$domain beyaz listeden kaldırıldı"
+      )
+    }
   }
 
   fun toggleAllowlistItem(domain: String) {
-    repository.toggleAllowlistItem(domain)
+    viewModelScope.launch {
+      reportMutationResult(repository.toggleAllowlistItem(domain))
+    }
   }
 
   // Logs & Live Stream
