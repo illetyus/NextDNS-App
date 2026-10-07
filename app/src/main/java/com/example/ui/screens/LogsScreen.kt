@@ -24,6 +24,9 @@ import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleEventObserver
+import androidx.lifecycle.compose.LocalLifecycleOwner
 import com.example.data.model.DnsLogEntry
 import com.example.ui.components.*
 import com.example.ui.theme.*
@@ -78,6 +81,7 @@ fun LogsScreen(
   val activeProfile by viewModel.activeProfile.collectAsState()
   val logs by viewModel.logs.collectAsState()
   val allKnownDevices by viewModel.allKnownDevices.collectAsState()
+  val lifecycleOwner = LocalLifecycleOwner.current
   var currentTick by remember { mutableStateOf(0L) }
 
   LaunchedEffect(activeProfile?.id) {
@@ -88,9 +92,22 @@ fun LogsScreen(
     }
   }
 
-  DisposableEffect(Unit) {
-    viewModel.startLogsStream()
+  DisposableEffect(lifecycleOwner, activeProfile?.id) {
+    val observer = LifecycleEventObserver { _, event ->
+      when (event) {
+        Lifecycle.Event.ON_RESUME -> viewModel.startLogsStream()
+        Lifecycle.Event.ON_PAUSE -> viewModel.stopLogsStream()
+        else -> Unit
+      }
+    }
+
+    lifecycleOwner.lifecycle.addObserver(observer)
+    if (lifecycleOwner.lifecycle.currentState.isAtLeast(Lifecycle.State.RESUMED)) {
+      viewModel.startLogsStream()
+    }
+
     onDispose {
+      lifecycleOwner.lifecycle.removeObserver(observer)
       viewModel.stopLogsStream()
     }
   }
