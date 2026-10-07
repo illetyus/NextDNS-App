@@ -56,15 +56,22 @@ fun AnalyticsScreen(
     viewModel.refreshAnalytics(selectedDeviceFilter, selectedTimeFilter)
   }
 
-  DisposableEffect(lifecycleOwner) {
-    viewModel.startAnalyticsPolling()
-
+  DisposableEffect(lifecycleOwner, activeProfile?.id) {
     val observer = LifecycleEventObserver { _, event ->
-      if (event == Lifecycle.Event.ON_RESUME) {
-        viewModel.refreshAnalytics(selectedDeviceFilter, selectedTimeFilter)
+      when (event) {
+        Lifecycle.Event.ON_RESUME -> {
+          viewModel.refreshAnalytics(selectedDeviceFilter, selectedTimeFilter)
+          viewModel.startAnalyticsPolling()
+        }
+        Lifecycle.Event.ON_PAUSE -> viewModel.stopAnalyticsPolling()
+        else -> Unit
       }
     }
     lifecycleOwner.lifecycle.addObserver(observer)
+
+    if (lifecycleOwner.lifecycle.currentState.isAtLeast(Lifecycle.State.RESUMED)) {
+      viewModel.startAnalyticsPolling()
+    }
 
     onDispose {
       viewModel.stopAnalyticsPolling()
