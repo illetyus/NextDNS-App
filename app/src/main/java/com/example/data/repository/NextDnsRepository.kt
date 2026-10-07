@@ -1511,6 +1511,27 @@ class NextDnsRepository(
       )
     }
 
+  private fun extractDownloadUrl(rawJson: String): String? {
+    fun find(value: Any?): String? = when (value) {
+      is String -> value.takeIf { it.startsWith("https://", ignoreCase = true) }
+      is org.json.JSONObject -> {
+        value.keys().asSequence()
+          .mapNotNull { key -> find(value.opt(key)) }
+          .firstOrNull()
+      }
+      is org.json.JSONArray -> {
+        (0 until value.length()).asSequence()
+          .mapNotNull { index -> find(value.opt(index)) }
+          .firstOrNull()
+      }
+      else -> null
+    }
+
+    return runCatching {
+      find(org.json.JSONObject(rawJson))
+    }.getOrNull()
+  }
+
   suspend fun exportLogs(outputStream: OutputStream): Result<Unit> = withContext(Dispatchers.IO) {
     val key = _apiKey.value
     val pid = _activeProfileId.value
@@ -1520,46 +1541,52 @@ class NextDnsRepository(
       )
     }
 
-    val response = safeApiCall("downloadLogsFile") {
-      NextDnsNetworkClient.api.downloadLogsFile(key, pid)
+    val linkResponse = safeApiCall("getLogsDownloadLink") {
+      NextDnsNetworkClient.api.getLogsDownloadLink(key, pid, redirect = 0)
     } ?: return@withContext Result.failure(
-      IllegalStateException("Log dosyası indirilemedi.")
+      IllegalStateException("Log indirme bağlantısı alınamadı.")
     )
 
-    if (!response.isSuccessful) {
+    if (!linkResponse.isSuccessful) {
       return@withContext Result.failure(
-        IllegalStateException("Log dosyası indirilemedi (HTTP ${response.code()}).")
+        IllegalStateException("Log indirme bağlantısı alınamadı (HTTP ${linkResponse.code()}).")
       )
     }
 
-    val body = response.body()
+    val rawJson = linkResponse.body()?.string()
       ?: return@withContext Result.failure(
-        IllegalStateException("NextDNS boş bir log dosyası döndürdü.")
+        IllegalStateException("NextDNS boş bir log indirme yanıtı döndürdü.")
       )
 
-    val contentType = body.contentType()?.toString().orEmpty()
-    if (contentType.contains("json", ignoreCase = true)) {
-      val raw = body.string()
-      val error = runCatching {
-        NextDnsNetworkClient.moshi
-          .adapter(NextDnsMutationResponse::class.java)
-          .fromJson(raw)
-          ?.errors
-          ?.firstOrNull()
-          ?.detail
-      }.getOrNull()
-
-      return@withContext Result.failure(
-        IllegalStateException(error ?: "NextDNS log dosyası yerine beklenmeyen JSON yanıtı döndürdü.")
+    val publicUrl = extractDownloadUrl(rawJson)
+      ?: return@withContext Result.failure(
+        IllegalStateException("NextDNS log indirme URL'si döndürmedi.")
       )
-    }
+
+    val request = Request.Builder()
+      .url(publicUrl)
+      .header("Accept", "*/*")
+      .build()
 
     return@withContext try {
-      body.byteStream().use { input ->
-        input.copyTo(outputStream)
+      NextDnsNetworkClient.client.newCall(request).execute().use { response ->
+        if (!response.isSuccessful) {
+          return@use Result.failure(
+            IllegalStateException("Log dosyası indirilemedi (HTTP ${response.code}).")
+          )
+        }
+
+        val body = response.body
+          ?: return@use Result.failure(
+            IllegalStateException("NextDNS boş bir log dosyası döndürdü.")
+          )
+
+        body.byteStream().use { input ->
+          input.copyTo(outputStream)
+        }
+        outputStream.flush()
+        Result.success(Unit)
       }
-      outputStream.flush()
-      Result.success(Unit)
     } catch (error: Exception) {
       Result.failure(
         IllegalStateException("Log dosyası cihaza yazılamadı.", error)
