@@ -159,7 +159,7 @@ class NextDnsViewModel(
 
   fun syncAllData() {
     viewModelScope.launch {
-      repository.loadActiveProfileDataFromApi(apiKey.value, activeProfileId.value)
+      repository.loadActiveProfileDataFromApi(repository.apiKey.value, activeProfileId.value)
 
       val requiredSections = listOf(
         SyncSection.SECURITY,
@@ -545,7 +545,7 @@ class NextDnsViewModel(
     viewModelScope.launch {
       _isAnalyticsLoading.value = true
       try {
-        repository.fetchAnalytics(apiKey.value, activeProfileId.value, device, time)
+        repository.fetchAnalytics(repository.apiKey.value, activeProfileId.value, device, time)
       } finally {
         _isAnalyticsLoading.value = false
       }
