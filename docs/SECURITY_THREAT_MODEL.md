@@ -52,10 +52,13 @@ NextDNS Android client.
 - Clipboard content is marked sensitive.
 - The clipboard is cleared after 30 seconds if it still contains the copied API key.
 
-### Dependency minimization
+### Dependency and third-party network minimization
 
-Unused Firebase AI, Firebase App Check, Google Services and Secrets Gradle integrations
-are removed from the app build.
+Unused Firebase AI, Firebase App Check, Google Services, Secrets Gradle, Room, Coil,
+Credential Manager, Google ID, camera, location and permission-library entries are removed.
+
+Remote favicon and JavaScript chart requests are removed so DNS/domain analytics are not
+sent to icon services or loaded through a JavaScript-enabled WebView.
 
 ## Residual risks
 
