@@ -6,6 +6,8 @@ import androidx.lifecycle.viewModelScope
 import com.example.data.model.*
 import com.example.data.repository.ApiConnectionStatus
 import com.example.data.repository.NextDnsRepository
+import com.example.data.repository.SectionSyncState
+import com.example.data.repository.SyncSection
 import com.example.ui.theme.ThemeMode
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
@@ -24,6 +26,18 @@ enum class NavTab(val title: String, val iconName: String) {
   LOGS("Günlükler", "format_list_bulleted"),
   SETTINGS("Ayarlar", "settings"),
   ACCOUNT("Hesap", "account_circle")
+}
+
+private fun NavTab.toSyncSection(): SyncSection? = when (this) {
+  NavTab.SETUP -> SyncSection.SETUP
+  NavTab.SECURITY -> SyncSection.SECURITY
+  NavTab.PRIVACY -> SyncSection.PRIVACY
+  NavTab.PARENTAL -> SyncSection.PARENTAL
+  NavTab.DENYLIST -> SyncSection.DENYLIST
+  NavTab.ALLOWLIST -> SyncSection.ALLOWLIST
+  NavTab.SETTINGS -> SyncSection.SETTINGS
+  NavTab.ACCOUNT -> SyncSection.ACCOUNT
+  NavTab.ANALYTICS, NavTab.LOGS -> null
 }
 
 data class UiMessage(
@@ -67,6 +81,7 @@ class NextDnsViewModel(
   val testResult = repository.testResult
   val isLiveStreaming = repository.isLiveStreaming
   val isSyncing = repository.isSyncing
+  val sectionSyncStates = repository.sectionSyncStates
 
   val availableBlocklistsCatalog = repository.availableBlocklistsCatalog
   val availableNativesCatalog = repository.availableNativesCatalog
@@ -110,6 +125,13 @@ class NextDnsViewModel(
   private val _currentTab = MutableStateFlow(NavTab.SETUP)
   val currentTab = _currentTab.asStateFlow()
 
+  val currentSectionSyncState: StateFlow<SectionSyncState?> =
+    combine(currentTab, sectionSyncStates) { tab, states ->
+      tab.toSyncSection()?.let { states[it] }
+    }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), null)
+
+  private var visibleSectionSyncJob: Job? = null
+
   private val _uiMessage = MutableStateFlow<UiMessage?>(null)
   val uiMessage = _uiMessage.asStateFlow()
 
@@ -125,6 +147,32 @@ class NextDnsViewModel(
 
   fun selectTab(tab: NavTab) {
     _currentTab.value = tab
+  }
+
+  fun startVisibleTabSync(tab: NavTab) {
+    visibleSectionSyncJob?.cancel()
+    val section = tab.toSyncSection() ?: return
+
+    visibleSectionSyncJob = viewModelScope.launch {
+      repository.refreshSection(section)
+
+      val intervalMs = when (tab) {
+        NavTab.SETUP, NavTab.ACCOUNT -> null
+        else -> 30_000L
+      }
+
+      if (intervalMs != null) {
+        while (true) {
+          delay(intervalMs)
+          repository.refreshSection(section)
+        }
+      }
+    }
+  }
+
+  fun stopVisibleTabSync() {
+    visibleSectionSyncJob?.cancel()
+    visibleSectionSyncJob = null
   }
 
   fun dismissMessage() {
@@ -454,5 +502,10 @@ class NextDnsViewModel(
       cfg.copy(rewrites = updated)
     }
     showMessage("Yeniden yazma kuralı silindi")
+  }
+
+  override fun onCleared() {
+    stopVisibleTabSync()
+    super.onCleared()
   }
 }
