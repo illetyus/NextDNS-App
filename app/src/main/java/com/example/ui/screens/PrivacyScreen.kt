@@ -108,7 +108,7 @@ private fun BlocklistsSection(
   NextDnsCard(
     modifier = modifier,
     title = "Engelleme Listeleri",
-    subtitle = "Tümü gerçek zamanlı olarak güncellenen mevcut en popüler engelleme listelerini kullanarak reklamları ve izleyicileri engelleyin."
+    subtitle = "NextDNS tarafından sunulan engelleme listelerini kullanarak reklamları ve izleyicileri engelleyin."
   ) {
     if (activeBlocklists.isNotEmpty()) {
       Column(
@@ -212,7 +212,7 @@ private fun BlocklistItemCard(
               fontSize = 11.sp
             )
           }
-          val updateInfo = if (item.updatedTime.isNotBlank()) "Son güncelleme: ${item.updatedTime}" else "Gerçek zamanlı senkronize"
+          val updateInfo = if (item.updatedTime.isNotBlank()) "Son güncelleme: ${item.updatedTime}" else "Güncelleme zamanı sağlanmadı"
           val formattedEntries = try {
             java.text.NumberFormat.getInstance(java.util.Locale("tr", "TR")).format(item.entriesCount)
           } catch (_: Exception) {
