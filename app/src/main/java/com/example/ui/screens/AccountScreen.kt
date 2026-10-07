@@ -1,7 +1,12 @@
 package com.example.ui.screens
 
+import android.content.ClipData
+import android.content.ClipboardManager
+import android.content.Context
 import android.content.Intent
 import android.net.Uri
+import android.os.Build
+import android.os.PersistableBundle
 import android.widget.Toast
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
@@ -19,9 +24,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalClipboardManager
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -30,6 +33,8 @@ import com.example.data.model.NextDnsProfile
 import com.example.data.repository.ApiConnectionStatus
 import com.example.ui.components.*
 import com.example.ui.viewmodel.NextDnsViewModel
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 
 @Composable
 fun AccountScreen(
@@ -37,7 +42,7 @@ fun AccountScreen(
   modifier: Modifier = Modifier
 ) {
   val context = LocalContext.current
-  val clipboardManager = LocalClipboardManager.current
+  val clipboardScope = rememberCoroutineScope()
   val accountInfo by viewModel.accountInfo.collectAsState()
   val apiKey by viewModel.apiKey.collectAsState()
   val apiStatus by viewModel.apiStatus.collectAsState()
@@ -58,6 +63,13 @@ fun AccountScreen(
   LaunchedEffect(activeProfileId) {
     if (activeProfileId.isNotBlank()) {
       viewModel.refreshAnalytics(device = null, time = null)
+    }
+  }
+
+  LaunchedEffect(showApiKey) {
+    if (showApiKey) {
+      delay(10_000L)
+      showApiKey = false
     }
   }
 
@@ -220,8 +232,11 @@ fun AccountScreen(
                 if (apiKey.isNotBlank()) {
                   IconButton(
                     onClick = {
-                      clipboardManager.setText(AnnotatedString(apiKey))
-                      Toast.makeText(context, "API Anahtarı kopyalandı", Toast.LENGTH_SHORT).show()
+                      copySensitiveApiKey(context, apiKey)
+                      clipboardScope.launch {
+                        delay(30_000L)
+                        clearApiKeyClipboardIfUnchanged(context, apiKey)
+                      }
                     },
                     modifier = Modifier.size(32.dp)
                   ) {
@@ -504,4 +519,40 @@ fun AccountScreen(
     )
   }
 
+}
+
+
+private fun copySensitiveApiKey(context: Context, apiKey: String) {
+  val clipboard = context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
+  val clip = ClipData.newPlainText("NextDNS API key", apiKey)
+
+  clip.description.extras = PersistableBundle().apply {
+    putBoolean("android.content.extra.IS_SENSITIVE", true)
+  }
+
+  clipboard.setPrimaryClip(clip)
+
+  if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.S_V2) {
+    Toast.makeText(context, "API Anahtarı kopyalandı", Toast.LENGTH_SHORT).show()
+  }
+}
+
+private fun clearApiKeyClipboardIfUnchanged(
+  context: Context,
+  expectedApiKey: String
+) {
+  val clipboard = context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
+  val current = clipboard.primaryClip
+    ?.takeIf { it.itemCount > 0 }
+    ?.getItemAt(0)
+    ?.coerceToText(context)
+    ?.toString()
+
+  if (current != expectedApiKey) return
+
+  if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+    clipboard.clearPrimaryClip()
+  } else {
+    clipboard.setPrimaryClip(ClipData.newPlainText("", ""))
+  }
 }
