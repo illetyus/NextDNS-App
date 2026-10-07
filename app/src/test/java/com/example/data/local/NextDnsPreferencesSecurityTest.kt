@@ -1,0 +1,101 @@
+package com.example.data.local
+
+import android.content.Context
+import androidx.test.core.app.ApplicationProvider
+import com.example.data.security.ApiKeyProtector
+import org.junit.After
+import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
+import org.junit.Assert.assertNull
+import org.junit.Assert.assertTrue
+import org.junit.Before
+import org.junit.Test
+import org.junit.runner.RunWith
+import org.robolectric.RobolectricTestRunner
+
+@RunWith(RobolectricTestRunner::class)
+class NextDnsPreferencesSecurityTest {
+
+  private lateinit var context: Context
+
+  @Before
+  fun setUp() {
+    context = ApplicationProvider.getApplicationContext()
+    rawPrefs().edit().clear().commit()
+  }
+
+  @After
+  fun tearDown() {
+    rawPrefs().edit().clear().commit()
+  }
+
+  @Test
+  fun legacyPlaintextApiKey_isMigratedAndRemovedOnRead() {
+    rawPrefs().edit()
+      .putString(LEGACY_KEY, "legacy-secret")
+      .commit()
+
+    val preferences = NextDnsPreferences(
+      context = context,
+      apiKeyProtector = FakeProtector()
+    )
+
+    assertEquals("legacy-secret", preferences.apiKey)
+    assertNull(rawPrefs().getString(LEGACY_KEY, null))
+
+    val encrypted = rawPrefs().getString(ENCRYPTED_KEY, null)
+    assertEquals("enc:legacy-secret", encrypted)
+    assertFalse(encrypted.orEmpty().contains("saved_api_key"))
+  }
+
+  @Test
+  fun settingApiKey_neverStoresPlaintextCredential() {
+    val preferences = NextDnsPreferences(
+      context = context,
+      apiKeyProtector = FakeProtector()
+    )
+
+    preferences.apiKey = "new-secret"
+
+    assertNull(rawPrefs().getString(LEGACY_KEY, null))
+    assertEquals("enc:new-secret", rawPrefs().getString(ENCRYPTED_KEY, null))
+    assertEquals("new-secret", preferences.apiKey)
+  }
+
+  @Test
+  fun clearingApiKey_removesLegacyAndEncryptedValues() {
+    rawPrefs().edit()
+      .putString(LEGACY_KEY, "legacy-secret")
+      .putString(ENCRYPTED_KEY, "enc:new-secret")
+      .commit()
+
+    val preferences = NextDnsPreferences(
+      context = context,
+      apiKeyProtector = FakeProtector()
+    )
+
+    preferences.apiKey = ""
+
+    assertFalse(rawPrefs().contains(LEGACY_KEY))
+    assertFalse(rawPrefs().contains(ENCRYPTED_KEY))
+    assertTrue(preferences.apiKey.isEmpty())
+  }
+
+  private fun rawPrefs() =
+    context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+
+  private class FakeProtector : ApiKeyProtector {
+    override fun encrypt(plainText: String): String = "enc:$plainText"
+
+    override fun decrypt(envelope: String): String {
+      require(envelope.startsWith("enc:"))
+      return envelope.removePrefix("enc:")
+    }
+  }
+
+  companion object {
+    private const val PREFS_NAME = "nextdns_secure_prefs"
+    private const val LEGACY_KEY = "saved_api_key"
+    private const val ENCRYPTED_KEY = "saved_api_key_encrypted_v1"
+  }
+}
