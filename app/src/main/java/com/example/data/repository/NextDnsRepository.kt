@@ -571,16 +571,6 @@ class NextDnsRepository(
     }
   }
 
-  fun updateUserEmail(email: String, name: String = "") {
-    preferences.userEmail = email
-    if (name.isNotBlank()) preferences.userName = name
-    val current = _accountInfo.value
-    _accountInfo.value = current.copy(
-      email = email,
-      name = name.ifBlank { current.name ?: email.substringBefore("@").replaceFirstChar { it.uppercase() } }
-    )
-  }
-
   private suspend fun applyAccountFromApi(key: String): Boolean {
     try {
       val accResp = NextDnsNetworkClient.api.getAccount(key)
