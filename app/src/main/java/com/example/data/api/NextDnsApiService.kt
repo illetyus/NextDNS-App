@@ -71,18 +71,18 @@ data class ProfileDto(
 )
 
 data class SecurityDto(
-  val threatIntelligenceFeeds: Boolean? = true,
-  val aiThreatDetection: Boolean? = true,
-  val googleSafeBrowsing: Boolean? = true,
-  val cryptojacking: Boolean? = true,
-  val dnsRebinding: Boolean? = true,
-  val idnHomographs: Boolean? = true,
-  val typosquatting: Boolean? = true,
-  val dga: Boolean? = true,
-  val nrd: Boolean? = true,
-  val ddns: Boolean? = false,
-  val parking: Boolean? = true,
-  val csam: Boolean? = true,
+  val threatIntelligenceFeeds: Boolean? = null,
+  val aiThreatDetection: Boolean? = null,
+  val googleSafeBrowsing: Boolean? = null,
+  val cryptojacking: Boolean? = null,
+  val dnsRebinding: Boolean? = null,
+  val idnHomographs: Boolean? = null,
+  val typosquatting: Boolean? = null,
+  val dga: Boolean? = null,
+  val nrd: Boolean? = null,
+  val ddns: Boolean? = null,
+  val parking: Boolean? = null,
+  val csam: Boolean? = null,
   val tlds: List<TldDto>? = null
 )
 
@@ -107,8 +107,8 @@ data class NativeTrackingDto(
 data class PrivacyDto(
   val blocklists: List<BlocklistDto>? = null,
   val natives: List<NativeTrackingDto>? = null,
-  val disguisedTrackers: Boolean? = true,
-  @Json(name = "allowAffiliate") val allowAffiliateLinks: Boolean? = false
+  val disguisedTrackers: Boolean? = null,
+  @Json(name = "allowAffiliate") val allowAffiliateLinks: Boolean? = null
 )
 
 data class ParentalServiceDto(
@@ -148,9 +148,9 @@ data class SetupDto(
 data class ParentalControlDto(
   val services: List<ParentalServiceDto>? = null,
   val categories: List<ParentalCategoryDto>? = null,
-  val safeSearch: Boolean? = true,
-  val youtubeRestrictedMode: Boolean? = false,
-  val blockBypass: Boolean? = true
+  val safeSearch: Boolean? = null,
+  val youtubeRestrictedMode: Boolean? = null,
+  val blockBypass: Boolean? = null
 )
 
 data class AllowDenyRuleDto(
@@ -223,25 +223,25 @@ data class SettingsDto(
 )
 
 data class SettingsLogsDto(
-  val enabled: Boolean? = true,
+  val enabled: Boolean? = null,
   val retention: Int? = null,
-  val location: String? = "ch",
+  val location: String? = null,
   val drop: SettingsLogsDropDto? = null
 )
 
 data class SettingsLogsDropDto(
-  val ip: Boolean? = false,
-  val domain: Boolean? = false
+  val ip: Boolean? = null,
+  val domain: Boolean? = null
 )
 
 data class SettingsBlockPageDto(
-  val enabled: Boolean? = false
+  val enabled: Boolean? = null
 )
 
 data class SettingsPerformanceDto(
-  val ecs: Boolean? = true,
-  val cacheBoost: Boolean? = true,
-  val cnameFlattening: Boolean? = true
+  val ecs: Boolean? = null,
+  val cacheBoost: Boolean? = null,
+  val cnameFlattening: Boolean? = null
 )
 
 data class NextDnsTestResponse(
@@ -399,7 +399,7 @@ interface NextDnsApiService {
   suspend fun getSecurity(
     @Header("X-Api-Key") apiKey: String,
     @Path("profileId") profileId: String
-  ): Response<SecurityDto>
+  ): Response<NextDnsApiResponse<SecurityDto>>
 
   @GET("security/tlds")
   suspend fun getAvailableTlds(): Response<NextDnsApiResponse<List<SecurityTldCatalogDto>>>
@@ -430,7 +430,7 @@ interface NextDnsApiService {
   suspend fun getPrivacy(
     @Header("X-Api-Key") apiKey: String,
     @Path("profileId") profileId: String
-  ): Response<PrivacyDto>
+  ): Response<NextDnsApiResponse<PrivacyDto>>
 
   @GET("profiles/{profileId}/privacy/blocklists")
   suspend fun getProfileBlocklists(
@@ -498,7 +498,7 @@ interface NextDnsApiService {
   suspend fun getParentalControl(
     @Header("X-Api-Key") apiKey: String,
     @Path("profileId") profileId: String
-  ): Response<ParentalControlDto>
+  ): Response<NextDnsApiResponse<ParentalControlDto>>
 
   @PATCH("profiles/{profileId}/parentalControl")
   suspend fun updateParentalControl(
