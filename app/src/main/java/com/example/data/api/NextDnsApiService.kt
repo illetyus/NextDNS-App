@@ -20,12 +20,36 @@ import com.example.data.model.AnalyticsItemDto
 
 data class NextDnsApiResponse<T>(
   val data: T? = null,
-  val errors: List<ApiErrorDetail>? = null
+  val errors: List<ApiErrorDetail>? = null,
+  val meta: ApiMeta? = null
 )
 
 data class ApiErrorDetail(
   val code: String? = null,
-  val detail: String? = null
+  val detail: String? = null,
+  val source: ApiErrorSource? = null
+)
+
+data class ApiErrorSource(
+  val parameter: String? = null,
+  val pointer: String? = null
+)
+
+data class ApiMeta(
+  val pagination: ApiPaginationMeta? = null,
+  val stream: ApiStreamMeta? = null
+)
+
+data class ApiPaginationMeta(
+  val cursor: String? = null
+)
+
+data class ApiStreamMeta(
+  val id: String? = null
+)
+
+data class ProfileCreateDto(
+  val id: String
 )
 
 data class AccountSubscriptionDto(
@@ -200,7 +224,7 @@ data class SettingsDto(
 
 data class SettingsLogsDto(
   val enabled: Boolean? = true,
-  val retention: Int? = 720,
+  val retention: Int? = null,
   val location: String? = "ch",
   val drop: SettingsLogsDropDto? = null
 )
@@ -334,6 +358,12 @@ interface NextDnsApiService {
   suspend fun createProfile(
     @Header("X-Api-Key") apiKey: String,
     @Body body: NameRequest
+  ): Response<NextDnsApiResponse<ProfileCreateDto>>
+
+  @GET("profiles/{profileId}")
+  suspend fun getProfile(
+    @Header("X-Api-Key") apiKey: String,
+    @Path("profileId") profileId: String
   ): Response<NextDnsApiResponse<ProfileDto>>
 
   @DELETE("profiles/{profileId}")
@@ -596,7 +626,9 @@ interface NextDnsApiService {
     @Query("device") device: String? = null,
     @Query("status") status: String? = null,
     @Query("from") from: String? = null,
-    @Query("before") before: String? = null,
+    @Query("to") to: String? = null,
+    @Query("sort") sort: String? = null,
+    @Query("cursor") cursor: String? = null,
     @Query("raw") raw: Int? = 1
   ): Response<NextDnsApiResponse<List<DnsLogDto>>>
 
