@@ -1312,211 +1312,83 @@ class NextDnsRepository(
   // Denylist & Allowlist
   // =========================================================================
 
-  fun addToDenylist(domain: String) {
-    addAllowDenyItem(
-      flow = _denylist,
-      saveLocal = { pid, list -> preferences.saveDenylist(pid, list) },
-      domain = domain,
-      callName = "addToDenylist"
+  suspend fun addToDenylist(domain: String): Result<Unit> =
+    mutateSection(
+      section = SyncSection.DENYLIST,
+      operationName = "addToDenylist"
     ) { key, pid ->
-      NextDnsNetworkClient.api.addDenylist(key, pid, AllowDenyItemRequest(id = domain, active = true))
-    }
-  }
-
-  fun removeFromDenylist(id: String) {
-    removeAllowDenyItem(
-      flow = _denylist,
-      saveLocal = { pid, list -> preferences.saveDenylist(pid, list) },
-      id = id,
-      callName = "removeFromDenylist"
-    ) { key, pid ->
-      NextDnsNetworkClient.api.removeDenylist(key, pid, id)
-    }
-  }
-
-  fun toggleDenylistItem(id: String) {
-    toggleAllowDenyItemState(
-      flow = _denylist,
-      saveLocal = { pid, list -> preferences.saveDenylist(pid, list) },
-      id = id,
-      callName = "toggleDenylistItem"
-    ) { key, pid, domain, active ->
-      syncAllowDenyToggleRemote(
-        key = key,
-        pid = pid,
-        domain = domain,
-        active = active,
-        toggleCall = { k, p, d, req -> NextDnsNetworkClient.api.toggleDenylist(k, p, d, req) },
-        addCall = { k, p, req -> NextDnsNetworkClient.api.addDenylist(k, p, req) }
+      NextDnsNetworkClient.api.addDenylist(
+        key, pid, AllowDenyItemRequest(id = domain, active = true)
       )
     }
-  }
 
-  fun addToAllowlist(domain: String) {
-    addAllowDenyItem(
-      flow = _allowlist,
-      saveLocal = { pid, list -> preferences.saveAllowlist(pid, list) },
-      domain = domain,
-      callName = "addToAllowlist"
+  suspend fun removeFromDenylist(domain: String): Result<Unit> =
+    mutateSection(
+      section = SyncSection.DENYLIST,
+      operationName = "removeFromDenylist"
     ) { key, pid ->
-      NextDnsNetworkClient.api.addAllowlist(key, pid, AllowDenyItemRequest(id = domain, active = true))
+      NextDnsNetworkClient.api.removeDenylist(key, pid, domain)
+    }
+
+  suspend fun toggleDenylistItem(domain: String): Result<Unit> {
+    val target = _denylist.value.firstOrNull { it.id == domain || it.domain == domain }
+      ?: return Result.failure(IllegalArgumentException("Kara liste kaydı bulunamadı."))
+
+    val activate = !target.active
+    return mutateSection(
+      section = SyncSection.DENYLIST,
+      operationName = "toggleDenylistItem"
+    ) { key, pid ->
+      val patch = NextDnsNetworkClient.api.toggleDenylist(
+        key, pid, target.domain, AllowDenyActiveRequest(active = activate)
+      )
+      if (patch.isMutationAccepted()) {
+        patch
+      } else {
+        NextDnsNetworkClient.api.addDenylist(
+          key, pid, AllowDenyItemRequest(id = target.domain, active = activate)
+        )
+      }
     }
   }
 
-  fun removeFromAllowlist(id: String) {
-    removeAllowDenyItem(
-      flow = _allowlist,
-      saveLocal = { pid, list -> preferences.saveAllowlist(pid, list) },
-      id = id,
-      callName = "removeFromAllowlist"
+  suspend fun addToAllowlist(domain: String): Result<Unit> =
+    mutateSection(
+      section = SyncSection.ALLOWLIST,
+      operationName = "addToAllowlist"
     ) { key, pid ->
-      NextDnsNetworkClient.api.removeAllowlist(key, pid, id)
-    }
-  }
-
-  fun toggleAllowlistItem(id: String) {
-    toggleAllowDenyItemState(
-      flow = _allowlist,
-      saveLocal = { pid, list -> preferences.saveAllowlist(pid, list) },
-      id = id,
-      callName = "toggleAllowlistItem"
-    ) { key, pid, domain, active ->
-      syncAllowDenyToggleRemote(
-        key = key,
-        pid = pid,
-        domain = domain,
-        active = active,
-        toggleCall = { k, p, d, req -> NextDnsNetworkClient.api.toggleAllowlist(k, p, d, req) },
-        addCall = { k, p, req -> NextDnsNetworkClient.api.addAllowlist(k, p, req) }
+      NextDnsNetworkClient.api.addAllowlist(
+        key, pid, AllowDenyItemRequest(id = domain, active = true)
       )
     }
-  }
 
-  // =========================================================================
-  // Generic List & Item Operations (De-duplicated)
-  // =========================================================================
-
-  private fun addAllowDenyItem(
-    flow: MutableStateFlow<List<AllowDenyItem>>,
-    saveLocal: (String, List<AllowDenyItem>) -> Unit,
-    domain: String,
-    callName: String,
-    apiAction: suspend (key: String, pid: String) -> Unit
-  ) {
-    val current = flow.value.filter { it.domain != domain && it.id != domain }
-    val updated = listOf(AllowDenyItem(id = domain, domain = domain, active = true)) + current
-    flow.value = updated
-    saveLocal(_activeProfileId.value, updated)
-
-    val key = _apiKey.value
-    val pid = _activeProfileId.value
-    if (key.isBlank() || pid.isBlank()) return
-
-    repoScope.launch {
-      safeApiCall(callName) {
-        apiAction(key, pid)
-      }
+  suspend fun removeFromAllowlist(domain: String): Result<Unit> =
+    mutateSection(
+      section = SyncSection.ALLOWLIST,
+      operationName = "removeFromAllowlist"
+    ) { key, pid ->
+      NextDnsNetworkClient.api.removeAllowlist(key, pid, domain)
     }
-  }
 
-  private fun removeAllowDenyItem(
-    flow: MutableStateFlow<List<AllowDenyItem>>,
-    saveLocal: (String, List<AllowDenyItem>) -> Unit,
-    id: String,
-    callName: String,
-    apiAction: suspend (key: String, pid: String) -> Unit
-  ) {
-    val updated = flow.value.filter { it.id != id && it.domain != id }
-    flow.value = updated
-    saveLocal(_activeProfileId.value, updated)
+  suspend fun toggleAllowlistItem(domain: String): Result<Unit> {
+    val target = _allowlist.value.firstOrNull { it.id == domain || it.domain == domain }
+      ?: return Result.failure(IllegalArgumentException("Beyaz liste kaydı bulunamadı."))
 
-    val key = _apiKey.value
-    val pid = _activeProfileId.value
-    if (key.isBlank() || pid.isBlank()) return
-
-    repoScope.launch {
-      safeApiCall(callName) {
-        apiAction(key, pid)
-      }
-    }
-  }
-
-  private fun toggleAllowDenyItemState(
-    flow: MutableStateFlow<List<AllowDenyItem>>,
-    saveLocal: (String, List<AllowDenyItem>) -> Unit,
-    id: String,
-    callName: String,
-    apiToggleAction: suspend (key: String, pid: String, domain: String, active: Boolean) -> Unit
-  ) {
-    val targetItem = flow.value.find { it.id == id || it.domain == id }
-    val newActive = !(targetItem?.active ?: true)
-    val updated = flow.value.map {
-      if (it.id == id || it.domain == id) it.copy(active = newActive) else it
-    }
-    flow.value = updated
-    saveLocal(_activeProfileId.value, updated)
-
-    val key = _apiKey.value
-    val pid = _activeProfileId.value
-    val domain = targetItem?.domain ?: id
-    if (key.isBlank() || pid.isBlank()) return
-
-    repoScope.launch {
-      safeApiCall(callName) {
-        apiToggleAction(key, pid, domain, newActive)
-      }
-    }
-  }
-
-  private suspend fun syncBlocklistRemote(key: String, pid: String, blocklistId: String, active: Boolean) {
-    if (active) {
-      NextDnsNetworkClient.api.addBlocklist(key, pid, IdRequest(id = blocklistId))
-    } else {
-      NextDnsNetworkClient.api.removeBlocklist(key, pid, blocklistId)
-    }
-  }
-
-  private suspend fun syncNativeTrackingRemote(key: String, pid: String, nativeId: String, active: Boolean) {
-    if (active) {
-      NextDnsNetworkClient.api.addNativeTracking(key, pid, IdRequest(id = nativeId))
-    } else {
-      NextDnsNetworkClient.api.removeNativeTracking(key, pid, nativeId)
-    }
-  }
-
-  private suspend fun syncParentalServiceRemote(key: String, pid: String, serviceId: String, active: Boolean) {
-    val patchResp = NextDnsNetworkClient.api.updateParentalService(key, pid, serviceId, ParentalActiveRequest(active = active))
-    if (!patchResp.isSuccessful) {
-      if (active) {
-        NextDnsNetworkClient.api.addParentalService(key, pid, ParentalItemRequest(id = serviceId, active = true))
+    val activate = !target.active
+    return mutateSection(
+      section = SyncSection.ALLOWLIST,
+      operationName = "toggleAllowlistItem"
+    ) { key, pid ->
+      val patch = NextDnsNetworkClient.api.toggleAllowlist(
+        key, pid, target.domain, AllowDenyActiveRequest(active = activate)
+      )
+      if (patch.isMutationAccepted()) {
+        patch
       } else {
-        NextDnsNetworkClient.api.removeParentalService(key, pid, serviceId)
+        NextDnsNetworkClient.api.addAllowlist(
+          key, pid, AllowDenyItemRequest(id = target.domain, active = activate)
+        )
       }
-    }
-  }
-
-  private suspend fun syncParentalCategoryRemote(key: String, pid: String, categoryId: String, active: Boolean) {
-    val patchResp = NextDnsNetworkClient.api.updateParentalCategory(key, pid, categoryId, ParentalActiveRequest(active = active))
-    if (!patchResp.isSuccessful) {
-      if (active) {
-        NextDnsNetworkClient.api.addParentalCategory(key, pid, ParentalItemRequest(id = categoryId, active = true))
-      } else {
-        NextDnsNetworkClient.api.removeParentalCategory(key, pid, categoryId)
-      }
-    }
-  }
-
-  private suspend fun syncAllowDenyToggleRemote(
-    key: String,
-    pid: String,
-    domain: String,
-    active: Boolean,
-    toggleCall: suspend (String, String, String, AllowDenyActiveRequest) -> Response<*>,
-    addCall: suspend (String, String, AllowDenyItemRequest) -> Response<*>
-  ) {
-    val patchResp = toggleCall(key, pid, domain, AllowDenyActiveRequest(active = active))
-    if (!patchResp.isSuccessful) {
-      addCall(key, pid, AllowDenyItemRequest(id = domain, active = active))
     }
   }
 
