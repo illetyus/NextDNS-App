@@ -49,8 +49,6 @@ fun AccountScreen(
 
   var showLogoutConfirm by remember { mutableStateOf(false) }
   var showNewProfileDialog by remember { mutableStateOf(false) }
-  var showEditEmailDialog by remember { mutableStateOf(false) }
-  var editEmailInput by remember { mutableStateOf("") }
   var newProfileName by remember { mutableStateOf("") }
   var showApiKey by remember { mutableStateOf(false) }
 
@@ -481,50 +479,4 @@ fun AccountScreen(
     )
   }
 
-  // Edit Email Dialog
-  if (showEditEmailDialog) {
-    AlertDialog(
-      onDismissRequest = { showEditEmailDialog = false },
-      containerColor = MaterialTheme.colorScheme.surface,
-      shape = RoundedCornerShape(16.dp),
-      title = {
-        Text("Hesap E-postasını Güncelle", color = MaterialTheme.colorScheme.onSurface, fontWeight = FontWeight.Bold)
-      },
-      text = {
-        Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-          Text(
-            "NextDNS hesabınızla ilişkili e-posta adresinizi girin:",
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
-            fontSize = 12.5.sp
-          )
-          OutlinedTextField(
-            value = editEmailInput,
-            onValueChange = { editEmailInput = it },
-            label = { Text("E-posta Adresi") },
-            placeholder = { Text("ornek@eposta.com") },
-            singleLine = true,
-            modifier = Modifier.fillMaxWidth()
-          )
-        }
-      },
-      confirmButton = {
-        Button(
-          onClick = {
-            if (editEmailInput.isNotBlank()) {
-              viewModel.updateUserEmail(editEmailInput.trim())
-              showEditEmailDialog = false
-            }
-          },
-          enabled = editEmailInput.isNotBlank()
-        ) {
-          Text("Kaydet")
-        }
-      },
-      dismissButton = {
-        TextButton(onClick = { showEditEmailDialog = false }) {
-          Text("İptal", color = MaterialTheme.colorScheme.onSurfaceVariant)
-        }
-      }
-    )
-  }
 }
