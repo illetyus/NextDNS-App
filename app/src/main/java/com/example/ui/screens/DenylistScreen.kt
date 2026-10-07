@@ -21,6 +21,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.ui.components.*
 import com.example.ui.theme.*
 import com.example.ui.viewmodel.NextDnsViewModel
@@ -30,7 +31,7 @@ fun DenylistScreen(
   viewModel: NextDnsViewModel,
   modifier: Modifier = Modifier
 ) {
-  val denylist by viewModel.denylist.collectAsState()
+  val denylist by viewModel.denylist.collectAsStateWithLifecycle()
   var domainInput by remember { mutableStateOf("") }
   var isError by remember { mutableStateOf(false) }
   var errorMessage by remember { mutableStateOf("") }
