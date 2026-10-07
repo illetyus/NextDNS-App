@@ -351,7 +351,8 @@ interface NextDnsApiService {
   // Profiles
   @GET("profiles")
   suspend fun getProfiles(
-    @Header("X-Api-Key") apiKey: String
+    @Header("X-Api-Key") apiKey: String,
+    @Query("cursor") cursor: String? = null
   ): Response<NextDnsApiResponse<List<ProfileDto>>>
 
   @POST("profiles")
