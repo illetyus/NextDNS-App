@@ -82,6 +82,8 @@ class NextDnsViewModel(
   val allowlist = repository.allowlist
   val logs = repository.logs
   val analytics = repository.analytics
+  val analyticsLastSuccessAt = repository.analyticsLastSuccessAt
+  val analyticsErrorMessage = repository.analyticsErrorMessage
   val allKnownDevices = repository.allKnownDevices
   val configSettings = repository.configSettings
   val testResult = repository.testResult
@@ -111,7 +113,7 @@ class NextDnsViewModel(
     when (status) {
       is ApiConnectionStatus.Connected -> {
         _isInitializing.value = false
-        true || isGuest
+        true
       }
       is ApiConnectionStatus.Disconnected -> {
         _isInitializing.value = false
