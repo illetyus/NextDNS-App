@@ -1822,7 +1822,7 @@ class NextDnsRepository(
     fallbackBlocked: Long = 0L
   ): Pair<Long, Long> {
     if (!response.isUsableApiResponse()) return Pair(fallbackTotal, fallbackBlocked)
-    val statuses = response.body()?.data ?: emptyList()
+    val statuses = response?.body()?.data ?: emptyList()
     val blockedQueries = statuses.find { it.status == "blocked" }?.queries ?: 0L
     val allQueries = statuses.sumOf { it.queries ?: 0L }
     return Pair(allQueries, blockedQueries)
@@ -1832,7 +1832,7 @@ class NextDnsRepository(
     response: Response<NextDnsApiResponse<List<AnalyticsDeviceItem>>>?
   ): List<DeviceMetric> {
     if (!response.isUsableApiResponse()) return _analytics.value.topDevices
-    val devices = response.body()?.data?.map {
+    val devices = response?.body()?.data?.map {
       val id = it.id ?: ""
       val name = it.name?.takeIf { n -> n.isNotBlank() } ?: it.id ?: "Bilinmeyen Cihaz"
       if (id.isNotBlank() && name.isNotBlank()) {
@@ -1850,7 +1850,7 @@ class NextDnsRepository(
     fallback: List<DomainMetric> = emptyList()
   ): List<DomainMetric> {
     if (!response.isUsableApiResponse()) return fallback
-    return response.body()?.data?.mapNotNull {
+    return response?.body()?.data?.mapNotNull {
       val dom = it.domain ?: it.root
       if (dom.isNullOrBlank()) null
       else DomainMetric(domain = dom, queries = it.queries ?: 0L)
@@ -1862,7 +1862,7 @@ class NextDnsRepository(
   ): Map<String, Long> {
     if (!response.isUsableApiResponse()) return _analytics.value.topBlockedReasons
     val rMap = mutableMapOf<String, Long>()
-    response.body()?.data?.forEach { item ->
+    response?.body()?.data?.forEach { item ->
       val formatted = formatBlockReason(item.id, item.name)
       val cur = rMap.getOrDefault(formatted, 0L)
       rMap[formatted] = cur + (item.queries ?: 0L)
@@ -1915,7 +1915,7 @@ class NextDnsRepository(
     totalQueries: Long
   ): Double {
     if (!response.isUsableApiResponse()) return _analytics.value.dnssecPercentage.toDouble()
-    val items = response.body()?.data ?: emptyList()
+    val items = response?.body()?.data ?: emptyList()
     val validated = items.find { it.validated == true || it.id == "validated" || it.id == "true" }?.queries ?: 0L
     return if (totalQueries > 0) ((validated.toDouble() / totalQueries) * 100.0).coerceIn(0.0, 100.0) else 0.0
   }
@@ -1925,7 +1925,7 @@ class NextDnsRepository(
     totalQueries: Long
   ): Double {
     if (!response.isUsableApiResponse()) return _analytics.value.encryptedDnsPercentage.toDouble()
-    val items = response.body()?.data ?: emptyList()
+    val items = response?.body()?.data ?: emptyList()
     val encrypted = items.find { it.encrypted == true || it.id == "encrypted" || it.id == "true" }?.queries ?: 0L
     return if (totalQueries > 0) ((encrypted.toDouble() / totalQueries) * 100.0).coerceIn(0.0, 100.0) else 0.0
   }
