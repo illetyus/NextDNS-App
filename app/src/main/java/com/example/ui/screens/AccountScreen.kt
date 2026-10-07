@@ -48,7 +48,7 @@ fun AccountScreen(
   val context = LocalContext.current
   val activity = remember(context) { context.findActivity() }
   val accountInfo by viewModel.accountInfo.collectAsState()
-  val apiKey by viewModel.apiKey.collectAsState()
+  val hasApiKey by viewModel.hasApiKey.collectAsState()
   val apiStatus by viewModel.apiStatus.collectAsState()
   val profiles by viewModel.profiles.collectAsState()
   val activeProfileId by viewModel.activeProfileId.collectAsState()
@@ -219,12 +219,12 @@ fun AccountScreen(
               horizontalArrangement = Arrangement.SpaceBetween
             ) {
               Text(
-                text = if (apiKey.isBlank()) {
+                text = if (!hasApiKey) {
                   "Anahtar girilmedi"
                 } else if (showApiKey) {
-                  apiKey
+                  viewModel.currentApiKeyForSensitiveUse()
                 } else {
-                  apiKey.take(4) + "••••••••••••••••" + apiKey.takeLast(4)
+                  viewModel.maskedApiKey()
                 },
                 fontFamily = FontFamily.Monospace,
                 fontSize = 12.5.sp,
@@ -245,9 +245,10 @@ fun AccountScreen(
                   )
                 }
 
-                if (apiKey.isNotBlank()) {
+                if (hasApiKey) {
                   IconButton(
                     onClick = {
+                      val apiKey = viewModel.currentApiKeyForSensitiveUse()
                       copySensitiveApiKey(context, apiKey)
                       scheduleApiKeyClipboardClear(context, apiKey)
                     },
