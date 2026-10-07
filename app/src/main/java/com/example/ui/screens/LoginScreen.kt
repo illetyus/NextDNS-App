@@ -24,6 +24,7 @@ import androidx.compose.ui.platform.LocalClipboardManager
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
@@ -47,6 +48,13 @@ fun LoginScreen(
 
   val isLoading = apiStatus is ApiConnectionStatus.Connecting
   val scrollState = rememberScrollState()
+
+  LaunchedEffect(apiStatus) {
+    if (apiStatus is ApiConnectionStatus.Connected) {
+      apiKeyInput = ""
+      isPasswordVisible = false
+    }
+  }
 
   Surface(
     modifier = modifier.fillMaxSize(),
@@ -134,7 +142,10 @@ fun LoginScreen(
             placeholder = { Text("örn. 28df1993bf40d5885cfa", color = MaterialTheme.colorScheme.outline, fontSize = 12.sp) },
             singleLine = true,
             visualTransformation = if (isPasswordVisible) VisualTransformation.None else PasswordVisualTransformation(),
-            keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
+            keyboardOptions = KeyboardOptions(
+              keyboardType = KeyboardType.Password,
+              imeAction = ImeAction.Done
+            ),
             keyboardActions = KeyboardActions(onDone = {
               if (apiKeyInput.isNotBlank()) viewModel.saveApiKey(apiKeyInput.trim())
             }),
@@ -190,10 +201,7 @@ fun LoginScreen(
             },
             modifier = Modifier
               .fillMaxWidth()
-              .height(46.dp)
-              .bounceClick {
-                if (apiKeyInput.isNotBlank()) viewModel.saveApiKey(apiKeyInput.trim())
-              },
+              .height(46.dp),
             shape = RoundedCornerShape(12.dp),
             colors = ButtonDefaults.buttonColors(
               containerColor = MaterialTheme.colorScheme.primary,
@@ -213,8 +221,7 @@ fun LoginScreen(
             onClick = { viewModel.enterGuestMode() },
             modifier = Modifier
               .fillMaxWidth()
-              .height(42.dp)
-              .bounceClick { viewModel.enterGuestMode() },
+              .height(42.dp),
             shape = RoundedCornerShape(12.dp),
             border = androidx.compose.foundation.BorderStroke(1.dp, MaterialTheme.colorScheme.outline),
             colors = ButtonDefaults.outlinedButtonColors(
