@@ -235,12 +235,12 @@ class NextDnsRepository(
         request(cursor)
       } ?: return null
 
-      val body = response.body()
+      val body = response.body() ?: return null
       if (!response.isSuccessful || body.hasApiErrors()) return null
 
-      items += body?.data.orEmpty()
+      items += body.data.orEmpty()
 
-      val nextCursor = body?.meta?.pagination?.cursor
+      val nextCursor = body.meta?.pagination?.cursor
       cursor = if (!nextCursor.isNullOrBlank() && seenCursors.add(nextCursor)) {
         nextCursor
       } else {
@@ -397,14 +397,17 @@ class NextDnsRepository(
       )
 
       val body = response.body()
+        ?: return Result.failure(
+          ProfilesFetchException(response.code(), "NextDNS boş bir profil yanıtı döndürdü.")
+        )
       if (!response.isSuccessful || body.hasApiErrors()) {
-        val detail = body?.errors?.firstOrNull()?.detail
+        val detail = body.errors?.firstOrNull()?.detail
           ?: "NextDNS profil listesi alınamadı."
         return Result.failure(ProfilesFetchException(response.code(), detail))
       }
 
-      profiles += body?.data.orEmpty()
-      val nextCursor = body?.meta?.pagination?.cursor
+      profiles += body.data.orEmpty()
+      val nextCursor = body.meta?.pagination?.cursor
       cursor = if (!nextCursor.isNullOrBlank() && seenCursors.add(nextCursor)) nextCursor else null
     } while (cursor != null)
 
@@ -1811,7 +1814,7 @@ class NextDnsRepository(
   // =========================================================================
 
   private fun <T> Response<NextDnsApiResponse<T>>?.isUsableApiResponse(): Boolean =
-    this?.isSuccessful == true && this.body().isSemanticallySuccessful()
+    this?.isSuccessful == true && this?.body().isSemanticallySuccessful()
 
   private fun parseStatusMetrics(
     response: Response<NextDnsApiResponse<List<AnalyticsStatusItem>>>?,
