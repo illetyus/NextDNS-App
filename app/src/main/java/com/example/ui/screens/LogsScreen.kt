@@ -31,6 +31,7 @@ import com.example.data.model.DnsLogEntry
 import com.example.ui.components.*
 import com.example.ui.theme.*
 import com.example.ui.viewmodel.NextDnsViewModel
+import kotlinx.coroutines.delay
 import java.time.Instant
 
 fun formatRelativeTime(timestampStr: String): String {
