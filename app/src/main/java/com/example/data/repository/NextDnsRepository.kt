@@ -386,7 +386,7 @@ class NextDnsRepository(
     _denylist.value = preferences.getDenylist(profileId) ?: emptyList()
     _allowlist.value = preferences.getAllowlist(profileId) ?: emptyList()
     _configSettings.value = preferences.getConfigSettings(profileId) ?: ConfigSettings()
-    _logs.value = preferences.getLogs(profileId) ?: emptyList()
+    _logs.value = emptyList()
   }
 
   // =========================================================================
@@ -977,7 +977,6 @@ class NextDnsRepository(
 
     val fetchedLogs = parseLogsResponse(body.data.orEmpty())
     _logs.value = fetchedLogs
-    preferences.saveLogs(profileId, fetchedLogs)
   }
 
   private suspend fun applyDevicesAnalyticsFromApi(key: String, profileId: String) {
@@ -1637,7 +1636,6 @@ class NextDnsRepository(
     }
 
     _logs.value = emptyList()
-    preferences.saveLogs(pid, emptyList())
     return Result.success(Unit)
   }
 
@@ -1663,7 +1661,6 @@ class NextDnsRepository(
         "${it.timestamp}_${it.domain}_${it.deviceName}_${it.blocked}"
       }.take(500)
       _logs.value = merged
-      preferences.saveLogs(pid, merged)
     }
     return true
   }
@@ -1723,7 +1720,6 @@ class NextDnsRepository(
         if (seedResp?.isSuccessful == true && seedBody.isSemanticallySuccessful()) {
           val seededLogs = parseLogsResponse(seedBody?.data.orEmpty())
           _logs.value = seededLogs
-          preferences.saveLogs(pid, seededLogs)
           logsStreamSeedId = seedBody?.meta?.stream?.id
           nextLogsCursor = seedBody?.meta?.pagination?.cursor
           lastId = logsStreamSeedId
