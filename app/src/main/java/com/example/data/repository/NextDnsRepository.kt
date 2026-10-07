@@ -1737,12 +1737,15 @@ class NextDnsRepository(
   // Analytics Parsing Helper Functions
   // =========================================================================
 
+  private fun <T> Response<NextDnsApiResponse<T>>?.isUsableApiResponse(): Boolean =
+    this?.isSuccessful == true && this.body().isSemanticallySuccessful()
+
   private fun parseStatusMetrics(
     response: Response<NextDnsApiResponse<List<AnalyticsStatusItem>>>?,
     fallbackTotal: Long = 0L,
     fallbackBlocked: Long = 0L
   ): Pair<Long, Long> {
-    if (response == null || !response.isSuccessful) return Pair(fallbackTotal, fallbackBlocked)
+    if (!response.isUsableApiResponse()) return Pair(fallbackTotal, fallbackBlocked)
     val statuses = response.body()?.data ?: emptyList()
     val blockedQueries = statuses.find { it.status == "blocked" }?.queries ?: 0L
     val allQueries = statuses.sumOf { it.queries ?: 0L }
@@ -1752,7 +1755,7 @@ class NextDnsRepository(
   private fun parseTopDevices(
     response: Response<NextDnsApiResponse<List<AnalyticsDeviceItem>>>?
   ): List<DeviceMetric> {
-    if (response == null || !response.isSuccessful) return _analytics.value.topDevices
+    if (!response.isUsableApiResponse()) return _analytics.value.topDevices
     val devices = response.body()?.data?.map {
       val id = it.id ?: ""
       val name = it.name?.takeIf { n -> n.isNotBlank() } ?: it.id ?: "Bilinmeyen Cihaz"
@@ -1770,7 +1773,7 @@ class NextDnsRepository(
     response: Response<NextDnsApiResponse<List<AnalyticsDomainItem>>>?,
     fallback: List<DomainMetric> = emptyList()
   ): List<DomainMetric> {
-    if (response == null || !response.isSuccessful) return fallback
+    if (!response.isUsableApiResponse()) return fallback
     return response.body()?.data?.mapNotNull {
       val dom = it.domain ?: it.root
       if (dom.isNullOrBlank()) null
@@ -1781,7 +1784,7 @@ class NextDnsRepository(
   private fun parseBlockedReasons(
     response: Response<NextDnsApiResponse<List<AnalyticsReasonItem>>>?
   ): Map<String, Long> {
-    if (response == null || !response.isSuccessful) return _analytics.value.topBlockedReasons
+    if (!response.isUsableApiResponse()) return _analytics.value.topBlockedReasons
     val rMap = mutableMapOf<String, Long>()
     response.body()?.data?.forEach { item ->
       val formatted = formatBlockReason(item.id, item.name)
@@ -1796,8 +1799,8 @@ class NextDnsRepository(
     totalQueries: Long
   ): Map<String, Pair<Double, Long>> {
     val gafamMetrics = mutableMapOf<String, Pair<Double, Long>>()
-    if (response != null && response.isSuccessful) {
-      val data = response.body()?.data ?: emptyList()
+    if (response.isUsableApiResponse()) {
+      val data = response?.body()?.data ?: emptyList()
       data.forEach { item ->
         val count = item.queries ?: 0L
         val pct = if (totalQueries > 0) ((count.toDouble() / totalQueries) * 100.0).coerceIn(0.0, 100.0) else 0.0
@@ -1813,8 +1816,8 @@ class NextDnsRepository(
     totalQueries: Long
   ): List<Pair<String, Double>> {
     val topCountries = mutableListOf<Pair<String, Double>>()
-    if (response != null && response.isSuccessful) {
-      response.body()?.data?.forEach { item ->
+    if (response.isUsableApiResponse()) {
+      response?.body()?.data?.forEach { item ->
         val count = item.queries ?: 0L
         val pct = if (totalQueries > 0) ((count.toDouble() / totalQueries) * 100.0).coerceIn(0.0, 100.0) else 0.0
         val code = item.code ?: ""
@@ -1833,7 +1836,7 @@ class NextDnsRepository(
     response: Response<NextDnsApiResponse<List<AnalyticsItemDto>>>?,
     totalQueries: Long
   ): Double {
-    if (response == null || !response.isSuccessful) return 0.0
+    if (!response.isUsableApiResponse()) return 0.0
     val items = response.body()?.data ?: emptyList()
     val validated = items.find { it.validated == true || it.id == "validated" || it.id == "true" }?.queries ?: 0L
     return if (totalQueries > 0) ((validated.toDouble() / totalQueries) * 100.0).coerceIn(0.0, 100.0) else 0.0
@@ -1843,10 +1846,62 @@ class NextDnsRepository(
     response: Response<NextDnsApiResponse<List<AnalyticsItemDto>>>?,
     totalQueries: Long
   ): Double {
-    if (response == null || !response.isSuccessful) return 0.0
+    if (!response.isUsableApiResponse()) return 0.0
     val items = response.body()?.data ?: emptyList()
     val encrypted = items.find { it.encrypted == true || it.id == "encrypted" || it.id == "true" }?.queries ?: 0L
     return if (totalQueries > 0) ((encrypted.toDouble() / totalQueries) * 100.0).coerceIn(0.0, 100.0) else 0.0
+  }
+
+  private fun parseProtocolMetrics(
+    response: Response<NextDnsApiResponse<List<AnalyticsProtocolItem>>>?
+  ): List<ProtocolMetric> {
+    if (!response.isUsableApiResponse()) return _analytics.value.protocols
+    return response?.body()?.data.orEmpty().mapNotNull { item ->
+      val protocol = item.protocol?.takeIf { it.isNotBlank() } ?: return@mapNotNull null
+      ProtocolMetric(protocol = protocol, queries = item.queries ?: 0L)
+    }
+  }
+
+  private fun parseQueryTypeMetrics(
+    response: Response<NextDnsApiResponse<List<AnalyticsQueryTypeItem>>>?
+  ): List<QueryTypeMetric> {
+    if (!response.isUsableApiResponse()) return _analytics.value.queryTypes
+    return response?.body()?.data.orEmpty().mapNotNull { item ->
+      val name = item.name?.takeIf { it.isNotBlank() } ?: return@mapNotNull null
+      QueryTypeMetric(type = item.type, name = name, queries = item.queries ?: 0L)
+    }
+  }
+
+  private fun parseIpVersionMetrics(
+    response: Response<NextDnsApiResponse<List<AnalyticsIpVersionItem>>>?
+  ): List<IpVersionMetric> {
+    if (!response.isUsableApiResponse()) return _analytics.value.ipVersions
+    return response?.body()?.data.orEmpty().mapNotNull { item ->
+      val version = item.version ?: return@mapNotNull null
+      IpVersionMetric(version = version, queries = item.queries ?: 0L)
+    }
+  }
+
+  private fun parseIpMetrics(
+    response: Response<NextDnsApiResponse<List<AnalyticsIpItem>>>?
+  ): List<IpMetric> {
+    if (!response.isUsableApiResponse()) return _analytics.value.topIps
+    return response?.body()?.data.orEmpty().mapNotNull { item ->
+      val ip = item.ip?.takeIf { it.isNotBlank() } ?: return@mapNotNull null
+      IpMetric(
+        ip = ip,
+        queries = item.queries ?: 0L,
+        cellular = item.network?.cellular,
+        vpn = item.network?.vpn,
+        isp = item.network?.isp,
+        asn = item.network?.asn,
+        countryCode = item.geo?.countryCode,
+        country = item.geo?.country,
+        city = item.geo?.city,
+        latitude = item.geo?.latitude,
+        longitude = item.geo?.longitude
+      )
+    }
   }
 
   // =========================================================================
@@ -1883,16 +1938,83 @@ class NextDnsRepository(
       else -> "-30d"
     }
 
-    val statusResp = safeApiCall("getAnalyticsStatus") { NextDnsNetworkClient.api.getAnalyticsStatus(key, profileId, devParam, fromParam) }
-    val devicesResp = safeApiCall("getAnalyticsDevices") { NextDnsNetworkClient.api.getAnalyticsDevices(key, profileId, null, fromParam) }
-    val allowedDomainsResp = safeApiCall("getAllowedDomains") { NextDnsNetworkClient.api.getAnalyticsDomains(key, profileId, devParam, fromParam, status = "default") }
-    val blockedDomainsResp = safeApiCall("getBlockedDomains") { NextDnsNetworkClient.api.getAnalyticsDomains(key, profileId, devParam, fromParam, status = "blocked") }
-    val rootDomainsResp = safeApiCall("getRootDomains") { NextDnsNetworkClient.api.getAnalyticsDomains(key, profileId, devParam, fromParam) }
-    val reasonsResp = safeApiCall("getReasons") { NextDnsNetworkClient.api.getAnalyticsReasons(key, profileId, devParam, fromParam) }
-    val companiesResp = safeApiCall("getCompanies") { NextDnsNetworkClient.api.getAnalyticsDestinations(key, profileId, devParam, fromParam, type = "gafam") }
-    val destinationsResp = safeApiCall("getDestinations") { NextDnsNetworkClient.api.getAnalyticsDestinations(key, profileId, devParam, fromParam, type = "countries") }
-    val dnssecResp = safeApiCall("getDnssec") { NextDnsNetworkClient.api.getAnalyticsDnssec(key, profileId, devParam, fromParam) }
-    val encryptionResp = safeApiCall("getEncryption") { NextDnsNetworkClient.api.getAnalyticsEncryption(key, profileId, devParam, fromParam) }
+    val toParam = "now"
+
+    val statusResp = safeApiCall("getAnalyticsStatus") {
+      NextDnsNetworkClient.api.getAnalyticsStatus(
+        key, profileId, devParam, fromParam, to = toParam
+      )
+    }
+    val devicesResp = safeApiCall("getAnalyticsDevices") {
+      NextDnsNetworkClient.api.getAnalyticsDevices(
+        key, profileId, null, fromParam, to = toParam, limit = 500
+      )
+    }
+    val allowedDomainsResp = safeApiCall("getAllowedDomains") {
+      NextDnsNetworkClient.api.getAnalyticsDomains(
+        key, profileId, devParam, fromParam,
+        status = "default", to = toParam, limit = 50
+      )
+    }
+    val blockedDomainsResp = safeApiCall("getBlockedDomains") {
+      NextDnsNetworkClient.api.getAnalyticsDomains(
+        key, profileId, devParam, fromParam,
+        status = "blocked", to = toParam, limit = 50
+      )
+    }
+    val rootDomainsResp = safeApiCall("getRootDomains") {
+      NextDnsNetworkClient.api.getAnalyticsDomains(
+        key, profileId, devParam, fromParam,
+        root = true, to = toParam, limit = 50
+      )
+    }
+    val reasonsResp = safeApiCall("getReasons") {
+      NextDnsNetworkClient.api.getAnalyticsReasons(
+        key, profileId, devParam, fromParam, to = toParam, limit = 100
+      )
+    }
+    val companiesResp = safeApiCall("getCompanies") {
+      NextDnsNetworkClient.api.getAnalyticsDestinations(
+        key, profileId, devParam, fromParam,
+        type = "gafam", to = toParam, limit = 50
+      )
+    }
+    val destinationsResp = safeApiCall("getDestinations") {
+      NextDnsNetworkClient.api.getAnalyticsDestinations(
+        key, profileId, devParam, fromParam,
+        type = "countries", to = toParam, limit = 50
+      )
+    }
+    val dnssecResp = safeApiCall("getDnssec") {
+      NextDnsNetworkClient.api.getAnalyticsDnssec(
+        key, profileId, devParam, fromParam, to = toParam
+      )
+    }
+    val encryptionResp = safeApiCall("getEncryption") {
+      NextDnsNetworkClient.api.getAnalyticsEncryption(
+        key, profileId, devParam, fromParam, to = toParam
+      )
+    }
+    val protocolsResp = safeApiCall("getProtocols") {
+      NextDnsNetworkClient.api.getAnalyticsProtocols(
+        key, profileId, devParam, fromParam, to = toParam, limit = 50
+      )
+    }
+    val queryTypesResp = safeApiCall("getQueryTypes") {
+      NextDnsNetworkClient.api.getAnalyticsQueryTypes(
+        key, profileId, devParam, fromParam, to = toParam, limit = 50
+      )
+    }
+    val ipVersionsResp = safeApiCall("getIpVersions") {
+      NextDnsNetworkClient.api.getAnalyticsIpVersions(
+        key, profileId, devParam, fromParam, to = toParam, limit = 10
+      )
+    }
+    val ipsResp = safeApiCall("getIps") {
+      NextDnsNetworkClient.api.getAnalyticsIps(
+        key, profileId, devParam, fromParam, to = toParam, limit = 50
+      )
+    }
 
     val (totalQueries, blockedQueries) = parseStatusMetrics(statusResp)
     val topDevices = parseTopDevices(devicesResp)
@@ -1900,6 +2022,10 @@ class NextDnsRepository(
     val topBlockedDomains = parseTopDomains(blockedDomainsResp, emptyList())
     val topDomains = parseTopDomains(rootDomainsResp, emptyList())
     val topBlockedReasons = parseBlockedReasons(reasonsResp)
+    val protocols = parseProtocolMetrics(protocolsResp)
+    val queryTypes = parseQueryTypeMetrics(queryTypesResp)
+    val ipVersions = parseIpVersionMetrics(ipVersionsResp)
+    val topIps = parseIpMetrics(ipsResp)
     val gafamMetrics = parseGafamMetrics(companiesResp, totalQueries)
     val topCountries = parseCountryMetrics(destinationsResp, totalQueries)
     val dnssecPct = parseDnssecPercentage(dnssecResp, totalQueries)
@@ -1917,6 +2043,10 @@ class NextDnsRepository(
       topBlockedReasons = topBlockedReasons,
       topDevices = topDevices,
       topDomains = topDomains,
+      protocols = protocols,
+      queryTypes = queryTypes,
+      ipVersions = ipVersions,
+      topIps = topIps,
       gafamMetrics = gafamMetrics,
       encryptedDnsPercentage = encPct.toFloat(),
       dnssecPercentage = dnssecPct.toFloat(),
