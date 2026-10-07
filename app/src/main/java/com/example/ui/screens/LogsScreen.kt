@@ -31,7 +31,6 @@ import com.example.data.model.DnsLogEntry
 import com.example.ui.components.*
 import com.example.ui.theme.*
 import com.example.ui.viewmodel.NextDnsViewModel
-import kotlinx.coroutines.delay
 import java.time.Instant
 
 fun formatRelativeTime(timestampStr: String): String {
@@ -82,14 +81,8 @@ fun LogsScreen(
   val logs by viewModel.logs.collectAsState()
   val allKnownDevices by viewModel.allKnownDevices.collectAsState()
   val lifecycleOwner = LocalLifecycleOwner.current
-  var currentTick by remember { mutableStateOf(0L) }
-
   LaunchedEffect(activeProfile?.id) {
     viewModel.refreshLogs(showToast = false)
-    while (true) {
-      delay(5000)
-      currentTick++
-    }
   }
 
   DisposableEffect(lifecycleOwner, activeProfile?.id) {
@@ -382,7 +375,7 @@ private fun LiveStreamInfoCard(modifier: Modifier = Modifier) {
         Text("Canlı Günlük Akışı Nedir?", color = MaterialTheme.colorScheme.primary, fontWeight = FontWeight.Bold, fontSize = 12.sp)
       }
       Text(
-        text = "• AÇIK olduğunda: Cihazlarınızdan gelen yeni DNS sorguları her 2.5 saniyede bir otomatik olarak ekranınıza gerçek zamanlı akar.\n• KAPALI olduğunda: Günlükler sabit kalır, yalnızca 'Yenile' butonuna bastığınızda güncellenir.",
+        text = "• AÇIK olduğunda: NextDNS yeni DNS olaylarını SSE canlı akışı üzerinden geldikçe ekrana iletir.\n• KAPALI olduğunda: Canlı bağlantı kapatılır; kayıtları 'Yenile' butonuyla yeniden alabilirsiniz.",
         color = MaterialTheme.colorScheme.onSurface,
         fontSize = 11.sp,
         lineHeight = 15.sp
