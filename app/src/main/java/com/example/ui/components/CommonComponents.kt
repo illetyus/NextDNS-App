@@ -14,6 +14,7 @@ import androidx.compose.foundation.interaction.collectIsPressedAsState
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.selection.toggleable
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
@@ -28,6 +29,7 @@ import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.platform.LocalHapticFeedback
+import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
@@ -45,45 +47,33 @@ fun Modifier.bounceClick(
   enabled: Boolean = true,
   onClick: (() -> Unit)? = null
 ): Modifier {
-  val haptic = LocalHapticFeedback.current
+  if (onClick == null) return this
+
   val interactionSource = remember { MutableInteractionSource() }
   val isPressed by interactionSource.collectIsPressedAsState()
   val scale by animateFloatAsState(
     targetValue = if (isPressed && enabled) scaleDown else 1f,
     animationSpec = spring(
-      dampingRatio = Spring.DampingRatioMediumBouncy,
-      stiffness = Spring.StiffnessMediumLow
+      dampingRatio = Spring.DampingRatioNoBouncy,
+      stiffness = Spring.StiffnessMedium
     ),
     label = "bounceScale"
   )
-
-  val clickableModifier = if (onClick != null) {
-    Modifier.clickable(
-      interactionSource = interactionSource,
-      indication = ripple(bounded = true, color = MaterialTheme.colorScheme.primary.copy(alpha = 0.25f)),
-      enabled = enabled,
-      onClick = {
-        haptic.performHapticFeedback(HapticFeedbackType.TextHandleMove)
-        onClick.invoke()
-      }
-    )
-  } else {
-    Modifier.clickable(
-      interactionSource = interactionSource,
-      indication = ripple(bounded = true, color = MaterialTheme.colorScheme.primary.copy(alpha = 0.25f)),
-      enabled = enabled,
-      onClick = {
-        haptic.performHapticFeedback(HapticFeedbackType.TextHandleMove)
-      }
-    )
-  }
 
   return this
     .graphicsLayer {
       scaleX = scale
       scaleY = scale
     }
-    .then(clickableModifier)
+    .clickable(
+      interactionSource = interactionSource,
+      indication = ripple(
+        bounded = true,
+        color = MaterialTheme.colorScheme.primary.copy(alpha = 0.18f)
+      ),
+      enabled = enabled,
+      onClick = onClick
+    )
 }
 
 /**
@@ -255,7 +245,6 @@ fun NextDnsSettingToggle(
   isBeta: Boolean = false,
   actionButton: @Composable (() -> Unit)? = null
 ) {
-  val haptic = LocalHapticFeedback.current
   val animatedBgColor by animateColorAsState(
     targetValue = if (checked) MaterialTheme.colorScheme.surface else MaterialTheme.colorScheme.surface.copy(alpha = 0.7f),
     animationSpec = spring(stiffness = Spring.StiffnessLow),
@@ -330,21 +319,17 @@ fun NextDnsSettingToggle(
           verticalAlignment = Alignment.CenterVertically,
           modifier = Modifier
             .clip(RoundedCornerShape(12.dp))
-            .clickable(
-              interactionSource = remember { MutableInteractionSource() },
-              indication = ripple(color = MaterialTheme.colorScheme.primary.copy(alpha = 0.2f))
-            ) {
-              haptic.performHapticFeedback(HapticFeedbackType.TextHandleMove)
-              onCheckedChange(!checked)
-            }
-            .padding(vertical = 6.dp, horizontal = 4.dp)
+            .toggleable(
+              value = checked,
+              role = Role.Switch,
+              onValueChange = onCheckedChange
+            )
+            .heightIn(min = 48.dp)
+            .padding(horizontal = 4.dp)
         ) {
           NextDnsSwitch(
             checked = checked,
-            onCheckedChange = {
-              haptic.performHapticFeedback(HapticFeedbackType.TextHandleMove)
-              onCheckedChange(it)
-            }
+            onCheckedChange = null
           )
           Spacer(modifier = Modifier.width(12.dp))
           Text(
@@ -379,7 +364,12 @@ fun NextDnsSettingToggleRow(
   Row(
     modifier = modifier
       .fillMaxWidth()
-      .bounceClick { onCheckedChange(!checked) }
+      .toggleable(
+        value = checked,
+        role = Role.Switch,
+        onValueChange = onCheckedChange
+      )
+      .heightIn(min = 48.dp)
       .padding(vertical = 6.dp),
     verticalAlignment = Alignment.CenterVertically,
     horizontalArrangement = Arrangement.SpaceBetween
@@ -402,7 +392,7 @@ fun NextDnsSettingToggleRow(
     }
     NextDnsSwitch(
       checked = checked,
-      onCheckedChange = onCheckedChange
+      onCheckedChange = null
     )
   }
 }
@@ -421,14 +411,19 @@ fun NextDnsCheckboxRow(
   Row(
     modifier = modifier
       .fillMaxWidth()
-      .bounceClick { onCheckedChange(!checked) }
+      .toggleable(
+        value = checked,
+        role = Role.Checkbox,
+        onValueChange = onCheckedChange
+      )
+      .heightIn(min = 48.dp)
       .padding(vertical = 4.dp),
     verticalAlignment = Alignment.CenterVertically,
     horizontalArrangement = Arrangement.spacedBy(8.dp)
   ) {
     Checkbox(
       checked = checked,
-      onCheckedChange = onCheckedChange,
+      onCheckedChange = null,
       colors = CheckboxDefaults.colors(
         checkedColor = MaterialTheme.colorScheme.primary,
         uncheckedColor = MaterialTheme.colorScheme.onSurfaceVariant
@@ -556,7 +551,7 @@ fun NextDnsActionCard(
         colors = ButtonDefaults.buttonColors(containerColor = btnColor),
         shape = RoundedCornerShape(8.dp),
         contentPadding = PaddingValues(horizontal = 12.dp, vertical = 6.dp),
-        modifier = Modifier.height(32.dp)
+        modifier = Modifier.heightIn(min = 48.dp)
       ) {
         Text(
           text = buttonText,
@@ -580,17 +575,12 @@ fun NextDnsActionCard(
 @Composable
 fun NextDnsSwitch(
   checked: Boolean,
-  onCheckedChange: (Boolean) -> Unit,
+  onCheckedChange: ((Boolean) -> Unit)?,
   modifier: Modifier = Modifier
 ) {
-  val haptic = LocalHapticFeedback.current
-
   Switch(
     checked = checked,
-    onCheckedChange = {
-      haptic.performHapticFeedback(HapticFeedbackType.TextHandleMove)
-      onCheckedChange(it)
-    },
+    onCheckedChange = onCheckedChange,
     modifier = modifier,
     thumbContent = if (checked) {
       {
@@ -657,16 +647,9 @@ fun NextDnsButton(
   colors: NextDnsButtonColors = NextDnsButtonDefaults.buttonColors(),
   enabled: Boolean = true
 ) {
-  val haptic = LocalHapticFeedback.current
-
   Button(
-    onClick = {
-      haptic.performHapticFeedback(HapticFeedbackType.TextHandleMove)
-      onClick()
-    },
-    modifier = modifier
-      .height(40.dp)
-      .bounceClick(scaleDown = 0.95f, enabled = enabled, onClick = onClick),
+    onClick = onClick,
+    modifier = modifier.heightIn(min = 48.dp),
     shape = RoundedCornerShape(12.dp),
     colors = ButtonDefaults.buttonColors(
       containerColor = colors.containerColor,
@@ -681,16 +664,14 @@ fun NextDnsButton(
       Icon(
         imageVector = icon,
         contentDescription = null,
-        modifier = Modifier.size(16.dp)
+        modifier = Modifier.size(18.dp)
       )
-      Spacer(modifier = Modifier.width(6.dp))
+      Spacer(modifier = Modifier.width(8.dp))
     }
     Text(
       text = text,
-      style = MaterialTheme.typography.labelMedium.copy(
-        fontWeight = FontWeight.Bold,
-        fontSize = 12.5.sp,
-        letterSpacing = 0.2.sp
+      style = MaterialTheme.typography.labelLarge.copy(
+        fontWeight = FontWeight.Bold
       )
     )
   }
@@ -709,18 +690,14 @@ fun NextDnsOutlineButton(
   colors: NextDnsOutlineButtonColors = NextDnsButtonDefaults.outlineButtonColors(),
   icon: ImageVector? = null
 ) {
-  val haptic = LocalHapticFeedback.current
-
   OutlinedButton(
-    onClick = {
-      haptic.performHapticFeedback(HapticFeedbackType.TextHandleMove)
-      onClick()
-    },
-    modifier = modifier
-      .height(38.dp)
-      .bounceClick(scaleDown = 0.95f, onClick = onClick),
+    onClick = onClick,
+    modifier = modifier.heightIn(min = 48.dp),
     shape = RoundedCornerShape(12.dp),
-    border = androidx.compose.foundation.BorderStroke(1.dp, colors.borderColor.copy(alpha = 0.7f)),
+    border = androidx.compose.foundation.BorderStroke(
+      1.dp,
+      colors.borderColor.copy(alpha = 0.7f)
+    ),
     colors = ButtonDefaults.outlinedButtonColors(
       contentColor = colors.contentColor
     ),
@@ -730,15 +707,14 @@ fun NextDnsOutlineButton(
       Icon(
         imageVector = icon,
         contentDescription = null,
-        modifier = Modifier.size(15.dp)
+        modifier = Modifier.size(18.dp)
       )
-      Spacer(modifier = Modifier.width(6.dp))
+      Spacer(modifier = Modifier.width(8.dp))
     }
     Text(
       text = text,
-      style = MaterialTheme.typography.labelSmall.copy(
-        fontWeight = FontWeight.SemiBold,
-        fontSize = 12.sp
+      style = MaterialTheme.typography.labelLarge.copy(
+        fontWeight = FontWeight.SemiBold
       )
     )
   }
