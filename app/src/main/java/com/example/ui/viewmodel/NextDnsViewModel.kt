@@ -162,9 +162,15 @@ class NextDnsViewModel(
       }
 
       if (intervalMs != null) {
+        var nextDelayMs = intervalMs
         while (true) {
-          delay(intervalMs)
-          repository.refreshSection(section)
+          delay(nextDelayMs)
+          val success = repository.refreshSection(section)
+          nextDelayMs = if (success) {
+            intervalMs
+          } else {
+            (nextDelayMs * 2).coerceAtMost(120_000L)
+          }
         }
       }
     }
