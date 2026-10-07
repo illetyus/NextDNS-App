@@ -222,10 +222,41 @@ class NextDnsRepository(
     }
   }
 
+  private suspend fun <T> fetchAllPages(
+    operationName: String,
+    request: suspend (cursor: String?) -> Response<NextDnsApiResponse<List<T>>>
+  ): List<T>? {
+    val items = mutableListOf<T>()
+    val seenCursors = mutableSetOf<String>()
+    var cursor: String? = null
+
+    do {
+      val response = safeApiCall(operationName) {
+        request(cursor)
+      } ?: return null
+
+      val body = response.body()
+      if (!response.isSuccessful || body.hasApiErrors()) return null
+
+      items += body?.data.orEmpty()
+
+      val nextCursor = body?.meta?.pagination?.cursor
+      cursor = if (!nextCursor.isNullOrBlank() && seenCursors.add(nextCursor)) {
+        nextCursor
+      } else {
+        null
+      }
+    } while (cursor != null)
+
+    return items
+  }
+
   suspend fun loadAllLiveCatalogs() = withContext(Dispatchers.IO) {
     try {
       // 1. Blocklists Catalog
-      val blocklistDtos = NextDnsNetworkClient.fetchAvailableBlocklistsDirect()
+      val blocklistDtos = fetchAllPages("availableBlocklists") { cursor ->
+        NextDnsNetworkClient.api.getAvailableBlocklists(apiKey = null, cursor = cursor)
+      } ?: NextDnsNetworkClient.fetchAvailableBlocklistsDirect()
       if (blocklistDtos != null && blocklistDtos.isNotEmpty()) {
         _availableBlocklistsCatalog.value = blocklistDtos.map { dto ->
           val cleanId = dto.id.lowercase().trim()
@@ -244,25 +275,33 @@ class NextDnsRepository(
       }
 
       // 2. Natives Catalog
-      val nativesDtos = NextDnsNetworkClient.fetchAvailableNativesDirect()
+      val nativesDtos = fetchAllPages("availableNatives") { cursor ->
+        NextDnsNetworkClient.api.getAvailableNatives(cursor = cursor)
+      } ?: NextDnsNetworkClient.fetchAvailableNativesDirect()
       if (nativesDtos != null && nativesDtos.isNotEmpty()) {
         _availableNativesCatalog.value = nativesDtos
       }
 
       // 3. Parental Services Catalog
-      val parentServices = NextDnsNetworkClient.fetchAvailableParentalServicesDirect()
+      val parentServices = fetchAllPages("availableParentalServices") { cursor ->
+        NextDnsNetworkClient.api.getAvailableParentalServices(cursor = cursor)
+      } ?: NextDnsNetworkClient.fetchAvailableParentalServicesDirect()
       if (parentServices != null && parentServices.isNotEmpty()) {
         _availableParentalServicesCatalog.value = parentServices
       }
 
       // 4. Parental Categories Catalog
-      val parentCats = NextDnsNetworkClient.fetchAvailableParentalCategoriesDirect()
+      val parentCats = fetchAllPages("availableParentalCategories") { cursor ->
+        NextDnsNetworkClient.api.getAvailableParentalCategories(cursor = cursor)
+      } ?: NextDnsNetworkClient.fetchAvailableParentalCategoriesDirect()
       if (parentCats != null && parentCats.isNotEmpty()) {
         _availableParentalCategoriesCatalog.value = parentCats
       }
 
       // 5. TLDs Catalog
-      val tlds = NextDnsNetworkClient.fetchAvailableTldsDirect()
+      val tlds = fetchAllPages("availableTlds") { cursor ->
+        NextDnsNetworkClient.api.getAvailableTlds(cursor = cursor)
+      } ?: NextDnsNetworkClient.fetchAvailableTldsDirect()
       if (tlds != null && tlds.isNotEmpty()) {
         _availableTldsCatalog.value = tlds
       }
@@ -571,14 +610,16 @@ class NextDnsRepository(
     var disguisedTrackersVal: Boolean? = null
     var allowAffiliatesVal: Boolean? = null
 
-    val bResp = safeApiCall("getProfileBlocklists") { NextDnsNetworkClient.api.getProfileBlocklists(key, profileId) }
-    if (bResp?.isSuccessful == true && bResp.body().isSemanticallySuccessful()) {
-      activeBlocklistDtos = bResp.body()?.data
+    activeBlocklistDtos = fetchAllPages("getProfileBlocklists") { cursor ->
+      NextDnsNetworkClient.api.getProfileBlocklists(
+        key, profileId, cursor = cursor
+      )
     }
 
-    val nResp = safeApiCall("getProfileNatives") { NextDnsNetworkClient.api.getProfileNatives(key, profileId) }
-    if (nResp?.isSuccessful == true && nResp.body().isSemanticallySuccessful()) {
-      activeNativeDtos = nResp.body()?.data
+    activeNativeDtos = fetchAllPages("getProfileNatives") { cursor ->
+      NextDnsNetworkClient.api.getProfileNatives(
+        key, profileId, cursor = cursor
+      )
     }
 
     val privResp = safeApiCall("getPrivacy") {
@@ -595,17 +636,23 @@ class NextDnsRepository(
       }
     }
 
-    val availResp = safeApiCall("getAvailableBlocklists") { NextDnsNetworkClient.api.getAvailableBlocklists(key) }
-    var availableDtos = if (
-      availResp?.isSuccessful == true &&
-      availResp.body().isSemanticallySuccessful()
-    ) {
-      availResp.body()?.data
-    } else {
-      null
+    var availableDtos = fetchAllPages("getAvailableBlocklists") { cursor ->
+      NextDnsNetworkClient.api.getAvailableBlocklists(
+        apiKey = key,
+        cursor = cursor
+      )
     }
     if (availableDtos.isNullOrEmpty()) {
-      availableDtos = NextDnsNetworkClient.fetchAvailableBlocklistsDirect()
+      availableDtos = _availableBlocklistsCatalog.value.takeIf { it.isNotEmpty() }?.map {
+        BlocklistDto(
+          id = it.id,
+          name = it.name,
+          description = it.description,
+          entries = it.entriesCount,
+          website = it.website,
+          updatedOn = null
+        )
+      } ?: NextDnsNetworkClient.fetchAvailableBlocklistsDirect()
     }
     val safeAvailDtos = availableDtos ?: emptyList()
 
@@ -788,12 +835,11 @@ class NextDnsRepository(
   }
 
   private suspend fun applyDenylistFromApi(key: String, profileId: String): Boolean {
-    val denyResp = safeApiCall("getDenylist") {
-      NextDnsNetworkClient.api.getDenylist(key, profileId)
+    val items = fetchAllPages("getDenylist") { cursor ->
+      NextDnsNetworkClient.api.getDenylist(
+        key, profileId, cursor = cursor
+      )
     } ?: return false
-    val body = denyResp.body() ?: return false
-    if (!denyResp.isSuccessful || body.hasApiErrors()) return false
-    val items = body.data ?: return false
 
     val list = items.map { AllowDenyItem(id = it.id, domain = it.id, active = it.active != false) }
     _denylist.value = list
@@ -802,12 +848,11 @@ class NextDnsRepository(
   }
 
   private suspend fun applyAllowlistFromApi(key: String, profileId: String): Boolean {
-    val allowResp = safeApiCall("getAllowlist") {
-      NextDnsNetworkClient.api.getAllowlist(key, profileId)
+    val items = fetchAllPages("getAllowlist") { cursor ->
+      NextDnsNetworkClient.api.getAllowlist(
+        key, profileId, cursor = cursor
+      )
     } ?: return false
-    val body = allowResp.body() ?: return false
-    if (!allowResp.isSuccessful || body.hasApiErrors()) return false
-    val items = body.data ?: return false
 
     val list = items.map { AllowDenyItem(id = it.id, domain = it.id, active = it.active != false) }
     _allowlist.value = list
