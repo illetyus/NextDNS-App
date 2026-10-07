@@ -1097,10 +1097,15 @@ class NextDnsRepository(
       null
     }
 
+    val verifiedProfile = profileDto
+      ?: return@withContext Result.failure(
+        IllegalStateException("Profil oluşturuldu ancak NextDNS'ten doğrulanamadı.")
+      )
+
     val created = NextDnsProfile(
       id = newId,
-      name = profileDto?.name?.takeIf { it.isNotBlank() } ?: name,
-      fingerprint = profileDto?.fingerprint ?: ""
+      name = verifiedProfile.name,
+      fingerprint = verifiedProfile.fingerprint ?: ""
     )
     val updatedList = _profiles.value.filterNot { it.id == newId } + created
     _profiles.value = updatedList
@@ -1111,38 +1116,68 @@ class NextDnsRepository(
     Result.success(created)
   }
 
-  suspend fun deleteProfileRemote(profileId: String) = withContext(Dispatchers.IO) {
+  suspend fun deleteProfileRemote(profileId: String): Result<Unit> = withContext(Dispatchers.IO) {
     val key = _apiKey.value
-    if (key.isNotBlank()) {
-      safeApiCall("deleteProfile") {
-        NextDnsNetworkClient.api.deleteProfile(key, profileId)
-      }
+    if (key.isBlank()) {
+      return@withContext Result.failure(
+        IllegalStateException("API anahtarı olmadan profil silinemez.")
+      )
     }
-    val updated = _profiles.value.filter { it.id != profileId }
-    _profiles.value = updated
-    preferences.saveProfiles(updated)
-    if (_activeProfileId.value == profileId) {
-      val next = updated.firstOrNull()?.id ?: ""
-      _activeProfileId.value = next
-      preferences.activeProfileId = next
-      if (next.isNotBlank()) loadLocalProfileData(next)
+
+    val response = safeApiCall("deleteProfile") {
+      NextDnsNetworkClient.api.deleteProfile(key, profileId)
+    } ?: return@withContext Result.failure(
+      IllegalStateException("Profil silme isteği tamamlanamadı.")
+    )
+
+    val apiError = response.body()?.errors?.firstOrNull()?.detail
+    if (!response.isMutationAccepted()) {
+      return@withContext Result.failure(
+        IllegalStateException(apiError ?: "NextDNS profil silme işlemini reddetti.")
+      )
     }
+
+    val verified = refreshProfilesFromApi()
+    if (!verified) {
+      return@withContext Result.failure(
+        IllegalStateException("Profil silindi ancak profil listesi doğrulanamadı.")
+      )
+    }
+
+    Result.success(Unit)
   }
 
-  fun renameProfile(profileId: String, newName: String) {
-    val updated = _profiles.value.map {
-      if (it.id == profileId) it.copy(name = newName) else it
-    }
-    _profiles.value = updated
-    preferences.saveProfiles(updated)
+  suspend fun renameProfile(profileId: String, newName: String): Result<Unit> = withContext(Dispatchers.IO) {
     val key = _apiKey.value
-    if (key.isNotBlank()) {
-      repoScope.launch {
-        safeApiCall("renameProfile") {
-          NextDnsNetworkClient.api.renameProfile(key, profileId, NameRequest(name = newName))
-        }
-      }
+    if (key.isBlank()) {
+      return@withContext Result.failure(
+        IllegalStateException("API anahtarı olmadan profil adı değiştirilemez.")
+      )
     }
+
+    val response = safeApiCall("renameProfile") {
+      NextDnsNetworkClient.api.renameProfile(
+        key, profileId, NameRequest(name = newName)
+      )
+    } ?: return@withContext Result.failure(
+      IllegalStateException("Profil adı değiştirme isteği tamamlanamadı.")
+    )
+
+    val apiError = response.body()?.errors?.firstOrNull()?.detail
+    if (!response.isMutationAccepted()) {
+      return@withContext Result.failure(
+        IllegalStateException(apiError ?: "NextDNS profil adını değiştirmeyi reddetti.")
+      )
+    }
+
+    val verified = refreshProfilesFromApi()
+    if (!verified) {
+      return@withContext Result.failure(
+        IllegalStateException("Profil adı değiştirildi ancak güncel liste doğrulanamadı.")
+      )
+    }
+
+    Result.success(Unit)
   }
 
   // =========================================================================
