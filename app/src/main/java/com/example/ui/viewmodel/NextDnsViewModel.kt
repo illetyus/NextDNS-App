@@ -496,9 +496,13 @@ class NextDnsViewModel(
 
   fun refreshLogs(showToast: Boolean = true) {
     viewModelScope.launch {
-      repository.refreshLogsFromApi()
+      val success = repository.refreshLogsFromApi()
       if (showToast) {
-        showMessage("Günlük kayıtları yenilendi")
+        if (success) {
+          showMessage("Günlük kayıtları yenilendi")
+        } else {
+          showMessage("Günlük kayıtları yenilenemedi.", isError = true)
+        }
       }
     }
   }
