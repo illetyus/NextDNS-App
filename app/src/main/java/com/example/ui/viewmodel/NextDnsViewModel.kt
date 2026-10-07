@@ -148,7 +148,29 @@ class NextDnsViewModel(
   fun syncAllData() {
     viewModelScope.launch {
       repository.loadActiveProfileDataFromApi(apiKey.value, activeProfileId.value)
-      showMessage("Tüm NextDNS verileri senkronize edildi")
+
+      val requiredSections = listOf(
+        SyncSection.SECURITY,
+        SyncSection.PRIVACY,
+        SyncSection.PARENTAL,
+        SyncSection.DENYLIST,
+        SyncSection.ALLOWLIST,
+        SyncSection.SETTINGS
+      )
+      val states = sectionSyncStates.value
+      val failedSections = requiredSections.filter { section ->
+        states[section]?.errorMessage != null ||
+          states[section]?.lastSuccessAt == null
+      }
+
+      if (failedSections.isEmpty()) {
+        showMessage("NextDNS profil ayarları sunucudan doğrulandı.")
+      } else {
+        showMessage(
+          "Bazı NextDNS bölümleri doğrulanamadı; ekrandaki güncellik durumunu kontrol edin.",
+          isError = true
+        )
+      }
     }
   }
 
