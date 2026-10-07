@@ -1,6 +1,5 @@
 package com.example.ui.screens
 
-import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.*
@@ -39,10 +38,19 @@ fun SettingsScreen(
   modifier: Modifier = Modifier
 ) {
   val context = LocalContext.current
+  val exportScope = rememberCoroutineScope()
   val exportLauncher = rememberLauncherForActivityResult(ActivityResultContracts.CreateDocument("text/csv")) { uri ->
     if (uri != null) {
-      viewModel.downloadLogs()
-      Toast.makeText(context, "Günlükler CSV olarak kaydedildi", Toast.LENGTH_SHORT).show()
+      exportScope.launch {
+        val output = context.contentResolver.openOutputStream(uri)
+        if (output == null) {
+          viewModel.showMessage("Seçilen dosya konumu açılamadı.", isError = true)
+        } else {
+          output.use { stream ->
+            viewModel.exportLogs(stream)
+          }
+        }
+      }
     }
   }
 
@@ -70,7 +78,6 @@ fun SettingsScreen(
         initialName = profileName,
         onSaveName = { newName ->
           viewModel.renameProfile(newName)
-          Toast.makeText(context, "Profil ismi güncellendi: $newName", Toast.LENGTH_SHORT).show()
         }
       )
     }
@@ -83,7 +90,6 @@ fun SettingsScreen(
         onExportClick = { exportLauncher.launch("nextdns_logs.csv") },
         onClearLogsClick = {
           viewModel.clearLogs()
-          Toast.makeText(context, "Kayıtlı tüm günlükler temizlendi", Toast.LENGTH_SHORT).show()
         }
       )
     }
