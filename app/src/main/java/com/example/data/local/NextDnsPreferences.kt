@@ -75,14 +75,30 @@ class NextDnsPreferences(
 
       val migrated = runCatching {
         apiKeyProtector.encrypt(legacyPlaintext)
-      }.getOrNull() ?: return ""
+      }.getOrNull()
+
+      if (migrated == null) {
+        prefs.edit()
+          .remove(KEY_API_KEY)
+          .remove(KEY_API_KEY_ENCRYPTED)
+          .commit()
+        return ""
+      }
 
       val committed = prefs.edit()
         .putString(KEY_API_KEY_ENCRYPTED, migrated)
         .remove(KEY_API_KEY)
         .commit()
 
-      return if (committed) legacyPlaintext else ""
+      if (!committed) {
+        prefs.edit()
+          .remove(KEY_API_KEY)
+          .remove(KEY_API_KEY_ENCRYPTED)
+          .commit()
+        return ""
+      }
+
+      return legacyPlaintext
     }
     set(value) {
       if (value.isBlank()) {
