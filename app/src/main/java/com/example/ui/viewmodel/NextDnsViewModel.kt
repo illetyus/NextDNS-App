@@ -272,38 +272,53 @@ class NextDnsViewModel(
   }
 
   fun updateUserEmail(email: String, name: String = "") {
-    repository.updateUserEmail(email, name)
-    showMessage("Hesap e-postası güncellendi: $email")
+    showMessage(
+      "NextDNS hesap e-postasını değiştiren doğrulanmış bir API endpointi yok; değişiklik yapılmadı.",
+      isError = true
+    )
   }
 
   fun createProfile(name: String) {
     viewModelScope.launch {
-      val res = repository.createProfileRemote(name)
-      if (res.isSuccess) {
+      val result = repository.createProfileRemote(name)
+      if (result.isSuccess) {
         showMessage("Yeni profil başarıyla oluşturuldu!")
       } else {
-        showMessage("Profil oluşturulamadı", isError = true)
+        showMessage(
+          result.exceptionOrNull()?.message ?: "Profil oluşturulamadı",
+          isError = true
+        )
       }
     }
   }
 
   fun deleteProfile(profileId: String) {
     viewModelScope.launch {
-      repository.deleteProfileRemote(profileId)
-      showMessage("Profil silindi")
+      reportMutationResult(
+        repository.deleteProfileRemote(profileId),
+        successMessage = "Profil silindi"
+      )
     }
   }
 
   fun renameProfile(newName: String) {
     activeProfile.value?.id?.let { pid ->
-      repository.renameProfile(pid, newName)
-      showMessage("Profil ismi güncellendi: $newName")
+      viewModelScope.launch {
+        reportMutationResult(
+          repository.renameProfile(pid, newName),
+          successMessage = "Profil ismi güncellendi: $newName"
+        )
+      }
     }
   }
 
   fun renameProfile(profileId: String, newName: String) {
-    repository.renameProfile(profileId, newName)
-    showMessage("Profil ismi güncellendi")
+    viewModelScope.launch {
+      reportMutationResult(
+        repository.renameProfile(profileId, newName),
+        successMessage = "Profil ismi güncellendi"
+      )
+    }
   }
 
   // Security
