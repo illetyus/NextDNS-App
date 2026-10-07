@@ -28,6 +28,7 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.compose.LocalLifecycleOwner
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.data.model.AnalyticsSummary
 import com.example.data.model.DeviceMetric
 import com.example.ui.components.*
@@ -41,12 +42,12 @@ fun AnalyticsScreen(
   viewModel: NextDnsViewModel,
   modifier: Modifier = Modifier
 ) {
-  val activeProfile by viewModel.activeProfile.collectAsState()
-  val analytics by viewModel.analytics.collectAsState()
-  val analyticsLastSuccessAt by viewModel.analyticsLastSuccessAt.collectAsState()
-  val analyticsErrorMessage by viewModel.analyticsErrorMessage.collectAsState()
-  val isAnalyticsLoading by viewModel.isAnalyticsLoading.collectAsState()
-  val allKnownDevices by viewModel.allKnownDevices.collectAsState()
+  val activeProfile by viewModel.activeProfile.collectAsStateWithLifecycle()
+  val analytics by viewModel.analytics.collectAsStateWithLifecycle()
+  val analyticsLastSuccessAt by viewModel.analyticsLastSuccessAt.collectAsStateWithLifecycle()
+  val analyticsErrorMessage by viewModel.analyticsErrorMessage.collectAsStateWithLifecycle()
+  val isAnalyticsLoading by viewModel.isAnalyticsLoading.collectAsStateWithLifecycle()
+  val allKnownDevices by viewModel.allKnownDevices.collectAsStateWithLifecycle()
 
   var selectedDeviceFilter by remember { mutableStateOf("Tüm cihazlar") }
   var selectedTimeFilter by remember { mutableStateOf("Son 30 gün") }
