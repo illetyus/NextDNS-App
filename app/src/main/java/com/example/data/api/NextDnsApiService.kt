@@ -215,6 +215,39 @@ data class AnalyticsProtocolItem(
   val queries: Long? = null
 )
 
+data class AnalyticsQueryTypeItem(
+  val type: Int? = null,
+  val name: String? = null,
+  val queries: Long? = null
+)
+
+data class AnalyticsIpVersionItem(
+  val version: Int? = null,
+  val queries: Long? = null
+)
+
+data class AnalyticsNetworkDto(
+  val cellular: Boolean? = null,
+  val vpn: Boolean? = null,
+  val isp: String? = null,
+  val asn: Long? = null
+)
+
+data class AnalyticsGeoDto(
+  val latitude: Double? = null,
+  val longitude: Double? = null,
+  val countryCode: String? = null,
+  val country: String? = null,
+  val city: String? = null
+)
+
+data class AnalyticsIpItem(
+  val ip: String? = null,
+  val network: AnalyticsNetworkDto? = null,
+  val geo: AnalyticsGeoDto? = null,
+  val queries: Long? = null
+)
+
 data class SettingsDto(
   val logs: SettingsLogsDto? = null,
   val blockPage: SettingsBlockPageDto? = null,
@@ -645,7 +678,10 @@ interface NextDnsApiService {
     @Header("X-Api-Key") apiKey: String,
     @Path("profileId") profileId: String,
     @Query("device") device: String? = null,
-    @Query("from") from: String? = null
+    @Query("from") from: String? = null,
+    @Query("to") to: String? = null,
+    @Query("limit") limit: Int? = null,
+    @Query("cursor") cursor: String? = null
   ): Response<NextDnsApiResponse<List<AnalyticsStatusItem>>>
 
   @GET("profiles/{profileId}/analytics/devices")
@@ -653,7 +689,10 @@ interface NextDnsApiService {
     @Header("X-Api-Key") apiKey: String,
     @Path("profileId") profileId: String,
     @Query("device") device: String? = null,
-    @Query("from") from: String? = null
+    @Query("from") from: String? = null,
+    @Query("to") to: String? = null,
+    @Query("limit") limit: Int? = null,
+    @Query("cursor") cursor: String? = null
   ): Response<NextDnsApiResponse<List<AnalyticsDeviceItem>>>
 
   @GET("profiles/{profileId}/analytics/domains")
@@ -662,7 +701,11 @@ interface NextDnsApiService {
     @Path("profileId") profileId: String,
     @Query("device") device: String? = null,
     @Query("from") from: String? = null,
-    @Query("status") status: String? = null
+    @Query("status") status: String? = null,
+    @Query("root") root: Boolean? = null,
+    @Query("to") to: String? = null,
+    @Query("limit") limit: Int? = null,
+    @Query("cursor") cursor: String? = null
   ): Response<NextDnsApiResponse<List<AnalyticsDomainItem>>>
 
   @GET("profiles/{profileId}/analytics/reasons")
@@ -670,7 +713,10 @@ interface NextDnsApiService {
     @Header("X-Api-Key") apiKey: String,
     @Path("profileId") profileId: String,
     @Query("device") device: String? = null,
-    @Query("from") from: String? = null
+    @Query("from") from: String? = null,
+    @Query("to") to: String? = null,
+    @Query("limit") limit: Int? = null,
+    @Query("cursor") cursor: String? = null
   ): Response<NextDnsApiResponse<List<AnalyticsReasonItem>>>
 
   
@@ -688,7 +734,10 @@ interface NextDnsApiService {
     @Path("profileId") profileId: String,
     @Query("device") device: String? = null,
     @Query("from") from: String? = null,
-    @Query("type") type: String? = null
+    @Query("type") type: String? = null,
+    @Query("to") to: String? = null,
+    @Query("limit") limit: Int? = null,
+    @Query("cursor") cursor: String? = null
   ): Response<NextDnsApiResponse<List<AnalyticsItemDto>>>
 
   @GET("profiles/{profileId}/analytics/dnssec")
@@ -696,7 +745,10 @@ interface NextDnsApiService {
     @Header("X-Api-Key") apiKey: String,
     @Path("profileId") profileId: String,
     @Query("device") device: String? = null,
-    @Query("from") from: String? = null
+    @Query("from") from: String? = null,
+    @Query("to") to: String? = null,
+    @Query("limit") limit: Int? = null,
+    @Query("cursor") cursor: String? = null
   ): Response<NextDnsApiResponse<List<AnalyticsItemDto>>>
 
   @GET("profiles/{profileId}/analytics/encryption")
@@ -704,7 +756,10 @@ interface NextDnsApiService {
     @Header("X-Api-Key") apiKey: String,
     @Path("profileId") profileId: String,
     @Query("device") device: String? = null,
-    @Query("from") from: String? = null
+    @Query("from") from: String? = null,
+    @Query("to") to: String? = null,
+    @Query("limit") limit: Int? = null,
+    @Query("cursor") cursor: String? = null
   ): Response<NextDnsApiResponse<List<AnalyticsItemDto>>>
 
   @GET("profiles/{profileId}/analytics/protocols")
@@ -712,8 +767,44 @@ interface NextDnsApiService {
     @Header("X-Api-Key") apiKey: String,
     @Path("profileId") profileId: String,
     @Query("device") device: String? = null,
-    @Query("from") from: String? = null
+    @Query("from") from: String? = null,
+    @Query("to") to: String? = null,
+    @Query("limit") limit: Int? = null,
+    @Query("cursor") cursor: String? = null
   ): Response<NextDnsApiResponse<List<AnalyticsProtocolItem>>>
+
+  @GET("profiles/{profileId}/analytics/ips")
+  suspend fun getAnalyticsIps(
+    @Header("X-Api-Key") apiKey: String,
+    @Path("profileId") profileId: String,
+    @Query("device") device: String? = null,
+    @Query("from") from: String? = null,
+    @Query("to") to: String? = null,
+    @Query("limit") limit: Int? = null,
+    @Query("cursor") cursor: String? = null
+  ): Response<NextDnsApiResponse<List<AnalyticsIpItem>>>
+
+  @GET("profiles/{profileId}/analytics/queryTypes")
+  suspend fun getAnalyticsQueryTypes(
+    @Header("X-Api-Key") apiKey: String,
+    @Path("profileId") profileId: String,
+    @Query("device") device: String? = null,
+    @Query("from") from: String? = null,
+    @Query("to") to: String? = null,
+    @Query("limit") limit: Int? = null,
+    @Query("cursor") cursor: String? = null
+  ): Response<NextDnsApiResponse<List<AnalyticsQueryTypeItem>>>
+
+  @GET("profiles/{profileId}/analytics/ipVersions")
+  suspend fun getAnalyticsIpVersions(
+    @Header("X-Api-Key") apiKey: String,
+    @Path("profileId") profileId: String,
+    @Query("device") device: String? = null,
+    @Query("from") from: String? = null,
+    @Query("to") to: String? = null,
+    @Query("limit") limit: Int? = null,
+    @Query("cursor") cursor: String? = null
+  ): Response<NextDnsApiResponse<List<AnalyticsIpVersionItem>>>
 
   // Settings
   @GET("profiles/{profileId}/settings")
