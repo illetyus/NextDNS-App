@@ -29,6 +29,7 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.compose.LocalLifecycleOwner
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.ui.components.NextDnsButton
 import com.example.ui.components.StatusBeacon
 import com.example.ui.components.bounceClick
@@ -42,12 +43,12 @@ fun HomeScreen(
   viewModel: NextDnsViewModel,
   modifier: Modifier = Modifier
 ) {
-  val currentTab by viewModel.currentTab.collectAsState()
-  val currentSectionSyncState by viewModel.currentSectionSyncState.collectAsState()
-  val activeProfile by viewModel.activeProfile.collectAsState()
-  val profiles by viewModel.profiles.collectAsState()
-  val hasApiKey by viewModel.hasApiKey.collectAsState()
-  val uiMessage by viewModel.uiMessage.collectAsState()
+  val currentTab by viewModel.currentTab.collectAsStateWithLifecycle()
+  val currentSectionSyncState by viewModel.currentSectionSyncState.collectAsStateWithLifecycle()
+  val activeProfile by viewModel.activeProfile.collectAsStateWithLifecycle()
+  val profiles by viewModel.profiles.collectAsStateWithLifecycle()
+  val hasApiKey by viewModel.hasApiKey.collectAsStateWithLifecycle()
+  val uiMessage by viewModel.uiMessage.collectAsStateWithLifecycle()
   val haptic = LocalHapticFeedback.current
 
   var showProfileMenu by remember { mutableStateOf(false) }
