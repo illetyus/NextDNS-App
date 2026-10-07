@@ -913,6 +913,11 @@ object NextDnsNetworkClient {
     .readTimeout(15, TimeUnit.SECONDS)
     .build()
 
+  val publicDownloadClient: OkHttpClient = OkHttpClient.Builder()
+    .connectTimeout(15, TimeUnit.SECONDS)
+    .readTimeout(60, TimeUnit.SECONDS)
+    .build()
+
   val moshi = Moshi.Builder()
     .add(KotlinJsonAdapterFactory())
     .build()
