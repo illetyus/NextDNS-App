@@ -18,6 +18,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.data.model.BlockedCategoryEntry
 import com.example.data.model.BlockedServiceEntry
 import com.example.ui.components.*
@@ -29,7 +30,7 @@ fun ParentalScreen(
   viewModel: NextDnsViewModel,
   modifier: Modifier = Modifier
 ) {
-  val settings by viewModel.parentalControlSettings.collectAsState()
+  val settings by viewModel.parentalControlSettings.collectAsStateWithLifecycle()
   var showAddServiceDialog by remember { mutableStateOf(false) }
   var showAddCategoryDialog by remember { mutableStateOf(false) }
 
