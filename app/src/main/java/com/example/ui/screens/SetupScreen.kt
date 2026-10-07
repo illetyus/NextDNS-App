@@ -186,8 +186,12 @@ private fun ConnectionStatusBanner(
     isTesting -> "Test Ediliyor"
     isUsingNextDns -> {
       val lat = if (testResult.latencyMs > 0) "${testResult.latencyMs} ms • " else ""
-      val proto = testResult.protocol.ifBlank { "DoH" }
-      "$lat$proto"
+      val proto = testResult.protocol.takeIf { it.isNotBlank() }
+      when {
+        proto != null -> "$lat$proto"
+        lat.isNotBlank() -> lat.removeSuffix(" • ")
+        else -> "Bağlı"
+      }
     }
     isOffline -> "Çevrimdışı"
     else -> "Yapılandırılmadı"
