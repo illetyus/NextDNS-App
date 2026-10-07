@@ -272,3 +272,10 @@ fun LoginScreen(
     }
   }
 }
+
+
+private tailrec fun Context.findActivityForSecureLogin(): Activity? = when (this) {
+  is Activity -> this
+  is ContextWrapper -> baseContext.findActivityForSecureLogin()
+  else -> null
+}
