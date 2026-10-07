@@ -272,13 +272,6 @@ class NextDnsViewModel(
     showMessage("Aktif Profil Değiştirildi: $profileId")
   }
 
-  fun updateUserEmail(email: String, name: String = "") {
-    showMessage(
-      "NextDNS hesap e-postasını değiştiren doğrulanmış bir API endpointi yok; değişiklik yapılmadı.",
-      isError = true
-    )
-  }
-
   fun createProfile(name: String) {
     viewModelScope.launch {
       val result = repository.createProfileRemote(name)
