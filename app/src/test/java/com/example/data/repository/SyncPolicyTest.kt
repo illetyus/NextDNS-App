@@ -44,6 +44,32 @@ class SyncPolicyTest {
   }
 
   @Test
+  fun analyticsPolling_backsOffAndResets() {
+    val firstFailure = SyncPolicy.nextDelay(
+      success = false,
+      currentDelayMs = SyncPolicy.ANALYTICS_POLL_MS,
+      baseDelayMs = SyncPolicy.ANALYTICS_POLL_MS,
+      maxDelayMs = SyncPolicy.ANALYTICS_MAX_BACKOFF_MS
+    )
+    val secondFailure = SyncPolicy.nextDelay(
+      success = false,
+      currentDelayMs = firstFailure,
+      baseDelayMs = SyncPolicy.ANALYTICS_POLL_MS,
+      maxDelayMs = SyncPolicy.ANALYTICS_MAX_BACKOFF_MS
+    )
+    val reset = SyncPolicy.nextDelay(
+      success = true,
+      currentDelayMs = secondFailure,
+      baseDelayMs = SyncPolicy.ANALYTICS_POLL_MS,
+      maxDelayMs = SyncPolicy.ANALYTICS_MAX_BACKOFF_MS
+    )
+
+    assertEquals(60_000L, firstFailure)
+    assertEquals(120_000L, secondFailure)
+    assertEquals(30_000L, reset)
+  }
+
+  @Test
   fun profilePolling_backsOffAndCapsAtFiveMinutes() {
     var delayMs = SyncPolicy.PROFILE_POLL_MS
     repeat(4) {
