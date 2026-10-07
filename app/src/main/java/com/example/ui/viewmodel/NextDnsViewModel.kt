@@ -1,6 +1,5 @@
 package com.example.ui.viewmodel
 
-import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.data.model.*
@@ -109,7 +108,6 @@ class NextDnsViewModel(
   val isInitializing = _isInitializing.asStateFlow()
 
   val isLoggedIn: StateFlow<Boolean?> = combine(apiStatus, _isGuestMode) { status, isGuest ->
-    Log.d("AUTH_DEBUG", "status: $status, isGuest: $isGuest")
     when (status) {
       is ApiConnectionStatus.Connected -> {
         _isInitializing.value = false
