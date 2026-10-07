@@ -1,6 +1,7 @@
 package com.example.data.repository
 
 import android.util.Log
+import com.example.BuildConfig
 import com.example.NextDnsApp
 import com.example.data.api.*
 import com.example.data.local.NextDnsPreferences
@@ -160,7 +161,7 @@ class NextDnsRepository(
     } catch (cancel: CancellationException) {
       throw cancel
     } catch (error: Exception) {
-      Log.e(TAG, "[refreshSection] error", error)
+      if (BuildConfig.DEBUG) Log.e(TAG, "[refreshSection] error", error)
       false
     }
 
@@ -286,7 +287,7 @@ class NextDnsRepository(
     } catch (e: CancellationException) {
       throw e
     } catch (e: Exception) {
-      Log.e(TAG, "[$operationName] error: ${e.message}", e)
+      if (BuildConfig.DEBUG) Log.e(TAG, "[$operationName] error: ${e.message}", e)
       null
     }
   }
@@ -375,7 +376,7 @@ class NextDnsRepository(
         _availableTldsCatalog.value = tlds
       }
     } catch (e: Exception) {
-      Log.e(TAG, "Error loading live catalogs: ${e.message}", e)
+      if (BuildConfig.DEBUG) Log.e(TAG, "Error loading live catalogs: ${e.message}", e)
     }
   }
 
@@ -1748,7 +1749,7 @@ class NextDnsRepository(
         } catch (e: CancellationException) {
           throw e
         } catch (e: Exception) {
-          Log.e(TAG, "Stream error: ${e.message}")
+          if (BuildConfig.DEBUG) Log.e(TAG, "Stream error: ${e.message}")
           delay(reconnectDelayMs)
           reconnectDelayMs = (reconnectDelayMs * 2).coerceAtMost(60_000L)
         }
