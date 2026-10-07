@@ -63,6 +63,22 @@ class NextDnsPreferencesSecurityTest {
   }
 
   @Test
+  fun legacyDnsLogCache_isPurgedOnInitialization() {
+    rawPrefs().edit()
+      .putString("saved_logs_profileA", "sensitive-query-history")
+      .putString("saved_sec_profileA", "non-log-cache")
+      .commit()
+
+    NextDnsPreferences(
+      context = context,
+      apiKeyProtector = FakeProtector()
+    )
+
+    assertFalse(rawPrefs().contains("saved_logs_profileA"))
+    assertTrue(rawPrefs().contains("saved_sec_profileA"))
+  }
+
+  @Test
   fun clearingApiKey_removesLegacyAndEncryptedValues() {
     rawPrefs().edit()
       .putString(LEGACY_KEY, "legacy-secret")
