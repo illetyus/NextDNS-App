@@ -174,6 +174,9 @@ data class DnsLogDto(
   val domain: String? = null,
   val root: String? = null,
   val rootDomain: String? = null,
+  val tracker: String? = null,
+  val encrypted: Boolean? = null,
+  val client: String? = null,
   val clientIp: String? = null,
   @Json(name = "client_ip") val clientIpSnake: String? = null,
   val deviceName: String? = null,
@@ -195,6 +198,8 @@ data class AnalyticsStatusItem(
 data class AnalyticsDeviceItem(
   val id: String? = null,
   val name: String? = null,
+  val model: String? = null,
+  val localIp: String? = null,
   val queries: Long? = null
 )
 
