@@ -506,8 +506,19 @@ class NextDnsRepository(
       return@withContext Result.failure(Exception(msg))
     }
 
+    val secureStorage = runCatching {
+      preferences.apiKey = key
+    }
+    if (secureStorage.isFailure) {
+      val message = "API anahtarı cihazın güvenli depolamasına kaydedilemedi."
+      _apiStatus.value = ApiConnectionStatus.Error(message)
+      _apiKey.value = ""
+      return@withContext Result.failure(
+        IllegalStateException(message, secureStorage.exceptionOrNull())
+      )
+    }
+
     _apiKey.value = key
-    preferences.apiKey = key
 
     val mapped = apiProfiles.map {
       NextDnsProfile(id = it.id, name = it.name, fingerprint = it.fingerprint ?: "")
