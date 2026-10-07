@@ -424,6 +424,7 @@ fun HomeScreen(
 
           currentSectionSyncState?.let { syncState ->
             val syncText = when {
+              syncState.isSaving -> "NextDNS'e kaydediliyor…"
               syncState.isRefreshing -> "Sunucuyla eşitleniyor…"
               syncState.errorMessage != null -> {
                 val lastOk = syncState.lastSuccessAt?.let(::formatSyncTime) ?: "yok"
@@ -435,7 +436,7 @@ fun HomeScreen(
 
             val syncColor = when {
               syncState.errorMessage != null -> MaterialTheme.colorScheme.error
-              syncState.isRefreshing -> MaterialTheme.colorScheme.primary
+              syncState.isSaving || syncState.isRefreshing -> MaterialTheme.colorScheme.primary
               else -> MaterialTheme.colorScheme.onSurfaceVariant
             }
 
@@ -446,7 +447,7 @@ fun HomeScreen(
               verticalAlignment = Alignment.CenterVertically,
               horizontalArrangement = Arrangement.spacedBy(6.dp)
             ) {
-              if (syncState.isRefreshing) {
+              if (syncState.isSaving || syncState.isRefreshing) {
                 CircularProgressIndicator(
                   modifier = Modifier.size(12.dp),
                   strokeWidth = 1.5.dp,
