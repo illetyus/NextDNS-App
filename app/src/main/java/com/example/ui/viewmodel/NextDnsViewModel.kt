@@ -131,6 +131,7 @@ class NextDnsViewModel(
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), null)
 
   private var visibleSectionSyncJob: Job? = null
+  private var foregroundProfileSyncJob: Job? = null
 
   private val _uiMessage = MutableStateFlow<UiMessage?>(null)
   val uiMessage = _uiMessage.asStateFlow()
@@ -156,21 +157,19 @@ class NextDnsViewModel(
     visibleSectionSyncJob = viewModelScope.launch {
       repository.refreshSection(section)
 
-      val intervalMs = when (tab) {
-        NavTab.SETUP, NavTab.ACCOUNT -> null
+      val intervalMs: Long = when (tab) {
+        NavTab.SETUP, NavTab.ACCOUNT -> return@launch
         else -> 30_000L
       }
 
-      if (intervalMs != null) {
-        var nextDelayMs = intervalMs
-        while (true) {
-          delay(nextDelayMs)
-          val success = repository.refreshSection(section)
-          nextDelayMs = if (success) {
-            intervalMs
-          } else {
-            (nextDelayMs * 2).coerceAtMost(120_000L)
-          }
+      var nextDelayMs = intervalMs
+      while (true) {
+        delay(nextDelayMs)
+        val success = repository.refreshSection(section)
+        nextDelayMs = if (success) {
+          intervalMs
+        } else {
+          (nextDelayMs * 2).coerceAtMost(120_000L)
         }
       }
     }
@@ -179,6 +178,30 @@ class NextDnsViewModel(
   fun stopVisibleTabSync() {
     visibleSectionSyncJob?.cancel()
     visibleSectionSyncJob = null
+  }
+
+  fun startForegroundProfileSync() {
+    foregroundProfileSyncJob?.cancel()
+    foregroundProfileSyncJob = viewModelScope.launch {
+      var nextDelayMs = 60_000L
+
+      repository.refreshProfilesFromApi()
+
+      while (true) {
+        delay(nextDelayMs)
+        val success = repository.refreshProfilesFromApi()
+        nextDelayMs = if (success) {
+          60_000L
+        } else {
+          (nextDelayMs * 2).coerceAtMost(300_000L)
+        }
+      }
+    }
+  }
+
+  fun stopForegroundProfileSync() {
+    foregroundProfileSyncJob?.cancel()
+    foregroundProfileSyncJob = null
   }
 
   fun dismissMessage() {
@@ -512,6 +535,7 @@ class NextDnsViewModel(
 
   override fun onCleared() {
     stopVisibleTabSync()
+    stopForegroundProfileSync()
     super.onCleared()
   }
 }
