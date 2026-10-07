@@ -186,6 +186,13 @@ class NextDnsRepository(
       )
     }
 
+    val currentSyncState = _sectionSyncStates.value[section] ?: SectionSyncState()
+    if (currentSyncState.isSaving) {
+      return Result.failure(
+        IllegalStateException("Bu bölümde başka bir NextDNS değişikliği hâlâ kaydediliyor.")
+      )
+    }
+
     updateSectionSyncState(section) {
       it.copy(isSaving = true, errorMessage = null)
     }
@@ -405,7 +412,7 @@ class NextDnsRepository(
 
       DiagnosticTestResult(
         status = rawStatus,
-        protocol = body.protocol ?: if (rawStatus == "ok") "DoH" else "",
+        protocol = body.protocol.orEmpty(),
         profileId = body.profile ?: "",
         clientIp = clientIp,
         resolver = body.resolver,
@@ -1295,12 +1302,7 @@ class NextDnsRepository(
       section = SyncSection.PARENTAL,
       operationName = "toggleParentalService"
     ) { key, pid ->
-      val patch = NextDnsNetworkClient.api.updateParentalService(
-        key, pid, serviceId, ParentalActiveRequest(active = activate)
-      )
-      if (patch.isMutationAccepted()) {
-        patch
-      } else if (activate) {
+      if (activate) {
         NextDnsNetworkClient.api.addParentalService(
           key, pid, ParentalItemRequest(id = serviceId, active = true)
         )
@@ -1319,12 +1321,7 @@ class NextDnsRepository(
       section = SyncSection.PARENTAL,
       operationName = "toggleParentalCategory"
     ) { key, pid ->
-      val patch = NextDnsNetworkClient.api.updateParentalCategory(
-        key, pid, categoryId, ParentalActiveRequest(active = activate)
-      )
-      if (patch.isMutationAccepted()) {
-        patch
-      } else if (activate) {
+      if (activate) {
         NextDnsNetworkClient.api.addParentalCategory(
           key, pid, ParentalItemRequest(id = categoryId, active = true)
         )
@@ -1365,16 +1362,9 @@ class NextDnsRepository(
       section = SyncSection.DENYLIST,
       operationName = "toggleDenylistItem"
     ) { key, pid ->
-      val patch = NextDnsNetworkClient.api.toggleDenylist(
+      NextDnsNetworkClient.api.toggleDenylist(
         key, pid, target.domain, AllowDenyActiveRequest(active = activate)
       )
-      if (patch.isMutationAccepted()) {
-        patch
-      } else {
-        NextDnsNetworkClient.api.addDenylist(
-          key, pid, AllowDenyItemRequest(id = target.domain, active = activate)
-        )
-      }
     }
   }
 
@@ -1405,16 +1395,9 @@ class NextDnsRepository(
       section = SyncSection.ALLOWLIST,
       operationName = "toggleAllowlistItem"
     ) { key, pid ->
-      val patch = NextDnsNetworkClient.api.toggleAllowlist(
+      NextDnsNetworkClient.api.toggleAllowlist(
         key, pid, target.domain, AllowDenyActiveRequest(active = activate)
       )
-      if (patch.isMutationAccepted()) {
-        patch
-      } else {
-        NextDnsNetworkClient.api.addAllowlist(
-          key, pid, AllowDenyItemRequest(id = target.domain, active = activate)
-        )
-      }
     }
   }
 
