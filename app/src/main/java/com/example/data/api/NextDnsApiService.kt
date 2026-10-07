@@ -440,7 +440,10 @@ interface NextDnsApiService {
   ): Response<NextDnsApiResponse<SecurityDto>>
 
   @GET("security/tlds")
-  suspend fun getAvailableTlds(): Response<NextDnsApiResponse<List<SecurityTldCatalogDto>>>
+  suspend fun getAvailableTlds(
+    @Query("limit") limit: Int? = null,
+    @Query("cursor") cursor: String? = null
+  ): Response<NextDnsApiResponse<List<SecurityTldCatalogDto>>>
 
   @PATCH("profiles/{profileId}/security")
   suspend fun updateSecurity(
@@ -473,22 +476,31 @@ interface NextDnsApiService {
   @GET("profiles/{profileId}/privacy/blocklists")
   suspend fun getProfileBlocklists(
     @Header("X-Api-Key") apiKey: String,
-    @Path("profileId") profileId: String
+    @Path("profileId") profileId: String,
+    @Query("limit") limit: Int? = null,
+    @Query("cursor") cursor: String? = null
   ): Response<NextDnsApiResponse<List<BlocklistDto>>>
 
   @GET("profiles/{profileId}/privacy/natives")
   suspend fun getProfileNatives(
     @Header("X-Api-Key") apiKey: String,
-    @Path("profileId") profileId: String
+    @Path("profileId") profileId: String,
+    @Query("limit") limit: Int? = null,
+    @Query("cursor") cursor: String? = null
   ): Response<NextDnsApiResponse<List<NativeTrackingDto>>>
 
   @GET("privacy/blocklists")
   suspend fun getAvailableBlocklists(
-    @Header("X-Api-Key") apiKey: String? = null
+    @Header("X-Api-Key") apiKey: String? = null,
+    @Query("limit") limit: Int? = null,
+    @Query("cursor") cursor: String? = null
   ): Response<NextDnsApiResponse<List<BlocklistDto>>>
 
   @GET("privacy/natives")
-  suspend fun getAvailableNatives(): Response<NextDnsApiResponse<List<NativeTrackingDto>>>
+  suspend fun getAvailableNatives(
+    @Query("limit") limit: Int? = null,
+    @Query("cursor") cursor: String? = null
+  ): Response<NextDnsApiResponse<List<NativeTrackingDto>>>
 
   @PATCH("profiles/{profileId}/privacy")
   suspend fun updatePrivacy(
@@ -527,10 +539,16 @@ interface NextDnsApiService {
 
   // Parental Control
   @GET("parentalControl/services")
-  suspend fun getAvailableParentalServices(): Response<NextDnsApiResponse<List<ParentalServiceCatalogDto>>>
+  suspend fun getAvailableParentalServices(
+    @Query("limit") limit: Int? = null,
+    @Query("cursor") cursor: String? = null
+  ): Response<NextDnsApiResponse<List<ParentalServiceCatalogDto>>>
 
   @GET("parentalControl/categories")
-  suspend fun getAvailableParentalCategories(): Response<NextDnsApiResponse<List<ParentalCategoryDto>>>
+  suspend fun getAvailableParentalCategories(
+    @Query("limit") limit: Int? = null,
+    @Query("cursor") cursor: String? = null
+  ): Response<NextDnsApiResponse<List<ParentalCategoryDto>>>
 
   @GET("profiles/{profileId}/parentalControl")
   suspend fun getParentalControl(
@@ -593,7 +611,9 @@ interface NextDnsApiService {
   @GET("profiles/{profileId}/denylist")
   suspend fun getDenylist(
     @Header("X-Api-Key") apiKey: String,
-    @Path("profileId") profileId: String
+    @Path("profileId") profileId: String,
+    @Query("limit") limit: Int? = null,
+    @Query("cursor") cursor: String? = null
   ): Response<NextDnsApiResponse<List<AllowDenyRuleDto>>>
 
   @POST("profiles/{profileId}/denylist")
@@ -622,7 +642,9 @@ interface NextDnsApiService {
   @GET("profiles/{profileId}/allowlist")
   suspend fun getAllowlist(
     @Header("X-Api-Key") apiKey: String,
-    @Path("profileId") profileId: String
+    @Path("profileId") profileId: String,
+    @Query("limit") limit: Int? = null,
+    @Query("cursor") cursor: String? = null
   ): Response<NextDnsApiResponse<List<AllowDenyRuleDto>>>
 
   @POST("profiles/{profileId}/allowlist")
