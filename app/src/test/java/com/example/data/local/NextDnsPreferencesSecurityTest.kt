@@ -79,9 +79,11 @@ class NextDnsPreferencesSecurityTest {
   }
 
   @Test
-  fun legacyDnsLogCache_isPurgedOnInitialization() {
+  fun legacySensitiveCaches_arePurgedOnInitialization() {
     rawPrefs().edit()
       .putString("saved_logs_profileA", "sensitive-query-history")
+      .putString("saved_user_email", "person@example.com")
+      .putString("saved_user_name", "Person")
       .putString("saved_sec_profileA", "non-log-cache")
       .commit()
 
@@ -91,6 +93,8 @@ class NextDnsPreferencesSecurityTest {
     )
 
     assertFalse(rawPrefs().contains("saved_logs_profileA"))
+    assertFalse(rawPrefs().contains("saved_user_email"))
+    assertFalse(rawPrefs().contains("saved_user_name"))
     assertTrue(rawPrefs().contains("saved_sec_profileA"))
   }
 
