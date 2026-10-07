@@ -19,6 +19,19 @@ class NextDnsPreferences(
     .add(KotlinJsonAdapterFactory())
     .build()
 
+  init {
+    purgeLegacyDnsLogCache()
+  }
+
+  private fun purgeLegacyDnsLogCache() {
+    val legacyLogKeys = prefs.all.keys.filter { it.startsWith("saved_logs_") }
+    if (legacyLogKeys.isEmpty()) return
+
+    val editor = prefs.edit()
+    legacyLogKeys.forEach { editor.remove(it) }
+    editor.apply()
+  }
+
   companion object {
     private const val KEY_API_KEY = "saved_api_key"
     private const val KEY_API_KEY_ENCRYPTED = "saved_api_key_encrypted_v1"
@@ -236,25 +249,6 @@ class NextDnsPreferences(
     val json = prefs.getString("saved_cfg_$profileId", null) ?: return null
     return try {
       moshi.adapter(ConfigSettings::class.java).fromJson(json)
-    } catch (_: Exception) {
-      null
-    }
-  }
-
-  fun saveLogs(profileId: String, logs: List<DnsLogEntry>) {
-    try {
-      val type = Types.newParameterizedType(List::class.java, DnsLogEntry::class.java)
-      val adapter = moshi.adapter<List<DnsLogEntry>>(type)
-      prefs.edit().putString("saved_logs_$profileId", adapter.toJson(logs)).apply()
-    } catch (_: Exception) {}
-  }
-
-  fun getLogs(profileId: String): List<DnsLogEntry>? {
-    val json = prefs.getString("saved_logs_$profileId", null) ?: return null
-    return try {
-      val type = Types.newParameterizedType(List::class.java, DnsLogEntry::class.java)
-      val adapter = moshi.adapter<List<DnsLogEntry>>(type)
-      adapter.fromJson(json)
     } catch (_: Exception) {
       null
     }
