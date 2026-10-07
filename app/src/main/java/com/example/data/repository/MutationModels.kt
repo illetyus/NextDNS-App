@@ -25,3 +25,9 @@ enum class ParentalFlag {
   YOUTUBE_RESTRICTED_MODE,
   BLOCK_BYPASS
 }
+
+enum class SettingsPerformanceFlag {
+  ECS,
+  CACHE_BOOST,
+  CNAME_FLATTENING
+}
