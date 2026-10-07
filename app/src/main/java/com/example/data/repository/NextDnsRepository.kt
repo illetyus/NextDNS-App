@@ -8,6 +8,7 @@ import com.example.data.model.*
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import java.io.OutputStream
 import java.util.UUID
 import java.util.Locale
 import okhttp3.Request
@@ -1536,6 +1537,62 @@ class NextDnsRepository(
         key, pid, SettingsUpdateRequest(web3 = enabled)
       )
     }
+
+  suspend fun exportLogs(outputStream: OutputStream): Result<Unit> = withContext(Dispatchers.IO) {
+    val key = _apiKey.value
+    val pid = _activeProfileId.value
+    if (key.isBlank() || pid.isBlank()) {
+      return@withContext Result.failure(
+        IllegalStateException("Aktif NextDNS profili veya API anahtarı bulunamadı.")
+      )
+    }
+
+    val response = safeApiCall("downloadLogsFile") {
+      NextDnsNetworkClient.api.downloadLogsFile(key, pid)
+    } ?: return@withContext Result.failure(
+      IllegalStateException("Log dosyası indirilemedi.")
+    )
+
+    if (!response.isSuccessful) {
+      return@withContext Result.failure(
+        IllegalStateException("Log dosyası indirilemedi (HTTP ${response.code()}).")
+      )
+    }
+
+    val body = response.body()
+      ?: return@withContext Result.failure(
+        IllegalStateException("NextDNS boş bir log dosyası döndürdü.")
+      )
+
+    val contentType = body.contentType()?.toString().orEmpty()
+    if (contentType.contains("json", ignoreCase = true)) {
+      val raw = body.string()
+      val error = runCatching {
+        NextDnsNetworkClient.moshi
+          .adapter(NextDnsMutationResponse::class.java)
+          .fromJson(raw)
+          ?.errors
+          ?.firstOrNull()
+          ?.detail
+      }.getOrNull()
+
+      return@withContext Result.failure(
+        IllegalStateException(error ?: "NextDNS log dosyası yerine beklenmeyen JSON yanıtı döndürdü.")
+      )
+    }
+
+    return@withContext try {
+      body.byteStream().use { input ->
+        input.copyTo(outputStream)
+      }
+      outputStream.flush()
+      Result.success(Unit)
+    } catch (error: Exception) {
+      Result.failure(
+        IllegalStateException("Log dosyası cihaza yazılamadı.", error)
+      )
+    }
+  }
 
   suspend fun clearLogs(): Result<Unit> {
     val key = _apiKey.value
