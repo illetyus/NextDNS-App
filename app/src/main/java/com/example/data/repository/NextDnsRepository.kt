@@ -874,7 +874,13 @@ class NextDnsRepository(
         _knownDeviceNameToId[name] = id
         _knownDeviceIdToName[id] = name
       }
-      DeviceMetric(id = id, name = name, queries = it.queries ?: 0L)
+      DeviceMetric(
+        id = id,
+        name = name,
+        queries = it.queries ?: 0L,
+        clientIp = it.localIp.orEmpty(),
+        model = it.model.orEmpty()
+      )
     }
     if (devItems.isNotEmpty()) {
       updateKnownDevices(devItems.map { it.name })
@@ -907,11 +913,16 @@ class NextDnsRepository(
         id = UUID.randomUUID().toString(),
         timestamp = l.timestamp?.toString() ?: "",
         domain = l.domain?.takeIf { it.isNotBlank() } ?: l.root?.takeIf { it.isNotBlank() } ?: l.rootDomain?.takeIf { it.isNotBlank() } ?: "",
+        rootDomain = l.root?.takeIf { it.isNotBlank() } ?: l.rootDomain?.takeIf { it.isNotBlank() } ?: l.domain.orEmpty(),
+        tracker = l.tracker,
+        encrypted = l.encrypted,
+        client = l.client,
         clientIp = l.clientIp ?: l.clientIpSnake,
         deviceName = devName,
         blocked = l.status == "blocked",
         blockReason = if (l.status == "blocked") blockReason else null,
         protocol = l.protocol ?: "",
+        dnssec = l.dnssec,
         responseTimeMs = l.responseTime ?: l.responseTimeSnake
       )
     }
@@ -1706,11 +1717,16 @@ class NextDnsRepository(
       id = UUID.randomUUID().toString(),
       timestamp = logDto.timestamp?.toString() ?: "",
       domain = logDto.domain?.takeIf { it.isNotBlank() } ?: logDto.root?.takeIf { it.isNotBlank() } ?: logDto.rootDomain?.takeIf { it.isNotBlank() } ?: "",
+      rootDomain = logDto.root?.takeIf { it.isNotBlank() } ?: logDto.rootDomain?.takeIf { it.isNotBlank() } ?: logDto.domain.orEmpty(),
+      tracker = logDto.tracker,
+      encrypted = logDto.encrypted,
+      client = logDto.client,
       clientIp = logDto.clientIp ?: logDto.clientIpSnake,
       deviceName = devName,
       blocked = logDto.status == "blocked",
       blockReason = if (logDto.status == "blocked") blockReason else null,
       protocol = logDto.protocol ?: "",
+      dnssec = logDto.dnssec,
       responseTimeMs = logDto.responseTime ?: logDto.responseTimeSnake
     )
   }
