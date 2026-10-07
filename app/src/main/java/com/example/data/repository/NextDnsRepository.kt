@@ -220,6 +220,9 @@ class NextDnsRepository(
     }
   }
 
+  private fun Response<NextDnsMutationResponse>.isMutationAccepted(): Boolean =
+    isSuccessful && body()?.errors.isNullOrEmpty()
+
   // Live NextDNS Public Catalogs & Account Metadata
   private val _availableBlocklistsCatalog = MutableStateFlow<List<BlocklistEntry>>(emptyList())
   val availableBlocklistsCatalog = _availableBlocklistsCatalog.asStateFlow()
@@ -1146,140 +1149,94 @@ class NextDnsRepository(
   // Security Updates
   // =========================================================================
 
-  fun updateSecurity(transform: (SecuritySettings) -> SecuritySettings) {
-    val updated = transform(_securitySettings.value)
-    _securitySettings.value = updated
-    preferences.saveSecuritySettings(_activeProfileId.value, updated)
-    pushSecurityToApi()
-  }
+  suspend fun setSecurityFlag(flag: SecurityFlag, enabled: Boolean): Result<Unit> {
+    val request = when (flag) {
+      SecurityFlag.THREAT_INTELLIGENCE_FEEDS -> SecurityUpdateRequest(threatIntelligenceFeeds = enabled)
+      SecurityFlag.AI_THREAT_DETECTION -> SecurityUpdateRequest(aiThreatDetection = enabled)
+      SecurityFlag.GOOGLE_SAFE_BROWSING -> SecurityUpdateRequest(googleSafeBrowsing = enabled)
+      SecurityFlag.CRYPTOJACKING -> SecurityUpdateRequest(cryptojacking = enabled)
+      SecurityFlag.DNS_REBINDING -> SecurityUpdateRequest(dnsRebinding = enabled)
+      SecurityFlag.IDN_HOMOGRAPHS -> SecurityUpdateRequest(idnHomographs = enabled)
+      SecurityFlag.TYPOSQUATTING -> SecurityUpdateRequest(typosquatting = enabled)
+      SecurityFlag.DGA -> SecurityUpdateRequest(dga = enabled)
+      SecurityFlag.NRD -> SecurityUpdateRequest(nrd = enabled)
+      SecurityFlag.DDNS -> SecurityUpdateRequest(ddns = enabled)
+      SecurityFlag.PARKING -> SecurityUpdateRequest(parking = enabled)
+      SecurityFlag.CSAM -> SecurityUpdateRequest(csam = enabled)
+    }
 
-  private fun pushSecurityToApi() {
-    val key = _apiKey.value
-    val pid = _activeProfileId.value
-    if (key.isBlank() || pid.isBlank()) return
-
-    repoScope.launch {
-      safeApiCall("pushSecurityToApi") {
-        val s = _securitySettings.value
-        val req = SecurityUpdateRequest(
-          threatIntelligenceFeeds = s.threatIntelligenceFeeds,
-          aiThreatDetection = s.aiThreatDetection,
-          googleSafeBrowsing = s.googleSafeBrowsing,
-          cryptojacking = s.cryptojacking,
-          dnsRebinding = s.dnsRebinding,
-          idnHomographs = s.idnHomographs,
-          typosquatting = s.typosquatting,
-          dga = s.dga,
-          nrd = s.nrd,
-          ddns = s.ddns,
-          parking = s.parkedDomains,
-          csam = s.csam
-        )
-        NextDnsNetworkClient.api.updateSecurity(key, pid, req)
-      }
+    return mutateSection(
+      section = SyncSection.SECURITY,
+      operationName = "setSecurityFlag"
+    ) { key, pid ->
+      NextDnsNetworkClient.api.updateSecurity(key, pid, request)
     }
   }
 
-  fun addBlockedTld(tld: String) {
-    val updated = _securitySettings.value.copy(
-      blockedTlds = (_securitySettings.value.blockedTlds + tld).distinct()
-    )
-    _securitySettings.value = updated
-    preferences.saveSecuritySettings(_activeProfileId.value, updated)
-
-    val key = _apiKey.value
-    val pid = _activeProfileId.value
-    if (key.isBlank() || pid.isBlank()) return
-
-    repoScope.launch {
-      safeApiCall("addBlockedTld") {
-        NextDnsNetworkClient.api.addSecurityTld(key, pid, IdRequest(id = tld))
-      }
+  suspend fun addBlockedTld(tld: String): Result<Unit> =
+    mutateSection(
+      section = SyncSection.SECURITY,
+      operationName = "addBlockedTld"
+    ) { key, pid ->
+      NextDnsNetworkClient.api.addSecurityTld(key, pid, IdRequest(id = tld))
     }
-  }
 
-  fun removeBlockedTld(tld: String) {
-    val updated = _securitySettings.value.copy(
-      blockedTlds = _securitySettings.value.blockedTlds.filter { it != tld }
-    )
-    _securitySettings.value = updated
-    preferences.saveSecuritySettings(_activeProfileId.value, updated)
-
-    val key = _apiKey.value
-    val pid = _activeProfileId.value
-    if (key.isBlank() || pid.isBlank()) return
-
-    repoScope.launch {
-      safeApiCall("removeBlockedTld") {
-        NextDnsNetworkClient.api.removeSecurityTld(key, pid, tld)
-      }
+  suspend fun removeBlockedTld(tld: String): Result<Unit> =
+    mutateSection(
+      section = SyncSection.SECURITY,
+      operationName = "removeBlockedTld"
+    ) { key, pid ->
+      NextDnsNetworkClient.api.removeSecurityTld(key, pid, tld)
     }
-  }
 
   // =========================================================================
   // Privacy Updates
   // =========================================================================
 
-  fun updatePrivacy(transform: (PrivacySettings) -> PrivacySettings) {
-    val updated = transform(_privacySettings.value)
-    _privacySettings.value = updated
-    preferences.savePrivacySettings(_activeProfileId.value, updated)
-    pushPrivacyToApi()
+  suspend fun setPrivacyFlag(flag: PrivacyFlag, enabled: Boolean): Result<Unit> {
+    val request = when (flag) {
+      PrivacyFlag.DISGUISED_TRACKERS -> PrivacyUpdateRequest(disguisedTrackers = enabled)
+      PrivacyFlag.ALLOW_AFFILIATE_LINKS -> PrivacyUpdateRequest(allowAffiliateLinks = enabled)
+    }
+
+    return mutateSection(
+      section = SyncSection.PRIVACY,
+      operationName = "setPrivacyFlag"
+    ) { key, pid ->
+      NextDnsNetworkClient.api.updatePrivacy(key, pid, request)
+    }
   }
 
-  private fun pushPrivacyToApi() {
-    val key = _apiKey.value
-    val pid = _activeProfileId.value
-    if (key.isBlank() || pid.isBlank()) return
+  suspend fun toggleBlocklist(blocklistId: String): Result<Unit> {
+    val target = _privacySettings.value.blocklists.firstOrNull { it.id == blocklistId }
+      ?: return Result.failure(IllegalArgumentException("Engelleme listesi bulunamadı."))
 
-    repoScope.launch {
-      safeApiCall("pushPrivacyToApi") {
-        val p = _privacySettings.value
-        val req = PrivacyUpdateRequest(
-          disguisedTrackers = p.disguisedTrackers,
-          allowAffiliateLinks = p.allowAffiliates
-        )
-        NextDnsNetworkClient.api.updatePrivacy(key, pid, req)
+    val activate = !target.active
+    return mutateSection(
+      section = SyncSection.PRIVACY,
+      operationName = "toggleBlocklist"
+    ) { key, pid ->
+      if (activate) {
+        NextDnsNetworkClient.api.addBlocklist(key, pid, IdRequest(id = blocklistId))
+      } else {
+        NextDnsNetworkClient.api.removeBlocklist(key, pid, blocklistId)
       }
     }
   }
 
-  fun toggleBlocklist(blocklistId: String) {
-    val updated = _privacySettings.value.blocklists.map {
-      if (it.id == blocklistId) it.copy(active = !it.active) else it
-    }
-    val newSettings = _privacySettings.value.copy(blocklists = updated)
-    _privacySettings.value = newSettings
-    preferences.savePrivacySettings(_activeProfileId.value, newSettings)
+  suspend fun toggleNativeTracking(nativeId: String): Result<Unit> {
+    val target = _privacySettings.value.nativeTracking.firstOrNull { it.id == nativeId }
+      ?: return Result.failure(IllegalArgumentException("Yerel izleme kaydı bulunamadı."))
 
-    val key = _apiKey.value
-    val pid = _activeProfileId.value
-    val target = updated.find { it.id == blocklistId } ?: return
-    if (key.isBlank() || pid.isBlank()) return
-
-    repoScope.launch {
-      safeApiCall("toggleBlocklist") {
-        syncBlocklistRemote(key, pid, blocklistId, target.active)
-      }
-    }
-  }
-
-  fun toggleNativeTracking(nativeId: String) {
-    val updated = _privacySettings.value.nativeTracking.map {
-      if (it.id == nativeId) it.copy(active = !it.active) else it
-    }
-    val newSettings = _privacySettings.value.copy(nativeTracking = updated)
-    _privacySettings.value = newSettings
-    preferences.savePrivacySettings(_activeProfileId.value, newSettings)
-
-    val key = _apiKey.value
-    val pid = _activeProfileId.value
-    val target = updated.find { it.id == nativeId } ?: return
-    if (key.isBlank() || pid.isBlank()) return
-
-    repoScope.launch {
-      safeApiCall("toggleNativeTracking") {
-        syncNativeTrackingRemote(key, pid, nativeId, target.active)
+    val activate = !target.active
+    return mutateSection(
+      section = SyncSection.PRIVACY,
+      operationName = "toggleNativeTracking"
+    ) { key, pid ->
+      if (activate) {
+        NextDnsNetworkClient.api.addNativeTracking(key, pid, IdRequest(id = nativeId))
+      } else {
+        NextDnsNetworkClient.api.removeNativeTracking(key, pid, nativeId)
       }
     }
   }
@@ -1288,67 +1245,65 @@ class NextDnsRepository(
   // Parental Updates
   // =========================================================================
 
-  fun updateParental(transform: (ParentalControlSettings) -> ParentalControlSettings) {
-    val updated = transform(_parentalControlSettings.value)
-    _parentalControlSettings.value = updated
-    preferences.saveParentalControlSettings(_activeProfileId.value, updated)
-    pushParentalToApi()
+  suspend fun setParentalFlag(flag: ParentalFlag, enabled: Boolean): Result<Unit> {
+    val request = when (flag) {
+      ParentalFlag.SAFE_SEARCH -> ParentalControlUpdateRequest(safeSearch = enabled)
+      ParentalFlag.YOUTUBE_RESTRICTED_MODE -> ParentalControlUpdateRequest(youtubeRestrictedMode = enabled)
+      ParentalFlag.BLOCK_BYPASS -> ParentalControlUpdateRequest(blockBypass = enabled)
+    }
+
+    return mutateSection(
+      section = SyncSection.PARENTAL,
+      operationName = "setParentalFlag"
+    ) { key, pid ->
+      NextDnsNetworkClient.api.updateParentalControl(key, pid, request)
+    }
   }
 
-  private fun pushParentalToApi() {
-    val key = _apiKey.value
-    val pid = _activeProfileId.value
-    if (key.isBlank() || pid.isBlank()) return
+  suspend fun toggleParentalService(serviceId: String): Result<Unit> {
+    val target = _parentalControlSettings.value.services.firstOrNull { it.id == serviceId }
+      ?: return Result.failure(IllegalArgumentException("Ebeveyn hizmeti bulunamadı."))
 
-    repoScope.launch {
-      safeApiCall("pushParentalToApi") {
-        val p = _parentalControlSettings.value
-        val req = ParentalControlUpdateRequest(
-          safeSearch = p.safeSearch,
-          youtubeRestrictedMode = p.youtubeRestrictedMode,
-          blockBypass = p.blockBypass
+    val activate = !target.active
+    return mutateSection(
+      section = SyncSection.PARENTAL,
+      operationName = "toggleParentalService"
+    ) { key, pid ->
+      val patch = NextDnsNetworkClient.api.updateParentalService(
+        key, pid, serviceId, ParentalActiveRequest(active = activate)
+      )
+      if (patch.isMutationAccepted()) {
+        patch
+      } else if (activate) {
+        NextDnsNetworkClient.api.addParentalService(
+          key, pid, ParentalItemRequest(id = serviceId, active = true)
         )
-        NextDnsNetworkClient.api.updateParentalControl(key, pid, req)
+      } else {
+        NextDnsNetworkClient.api.removeParentalService(key, pid, serviceId)
       }
     }
   }
 
-  fun toggleParentalService(serviceId: String) {
-    val updated = _parentalControlSettings.value.services.map {
-      if (it.id == serviceId) it.copy(active = !it.active) else it
-    }
-    val newSettings = _parentalControlSettings.value.copy(services = updated)
-    _parentalControlSettings.value = newSettings
-    preferences.saveParentalControlSettings(_activeProfileId.value, newSettings)
+  suspend fun toggleParentalCategory(categoryId: String): Result<Unit> {
+    val target = _parentalControlSettings.value.categories.firstOrNull { it.id == categoryId }
+      ?: return Result.failure(IllegalArgumentException("Ebeveyn kategorisi bulunamadı."))
 
-    val key = _apiKey.value
-    val pid = _activeProfileId.value
-    val target = updated.find { it.id == serviceId } ?: return
-    if (key.isBlank() || pid.isBlank()) return
-
-    repoScope.launch {
-      safeApiCall("toggleParentalService") {
-        syncParentalServiceRemote(key, pid, serviceId, target.active)
-      }
-    }
-  }
-
-  fun toggleParentalCategory(categoryId: String) {
-    val updated = _parentalControlSettings.value.categories.map {
-      if (it.id == categoryId) it.copy(active = !it.active) else it
-    }
-    val newSettings = _parentalControlSettings.value.copy(categories = updated)
-    _parentalControlSettings.value = newSettings
-    preferences.saveParentalControlSettings(_activeProfileId.value, newSettings)
-
-    val key = _apiKey.value
-    val pid = _activeProfileId.value
-    val target = updated.find { it.id == categoryId } ?: return
-    if (key.isBlank() || pid.isBlank()) return
-
-    repoScope.launch {
-      safeApiCall("toggleParentalCategory") {
-        syncParentalCategoryRemote(key, pid, categoryId, target.active)
+    val activate = !target.active
+    return mutateSection(
+      section = SyncSection.PARENTAL,
+      operationName = "toggleParentalCategory"
+    ) { key, pid ->
+      val patch = NextDnsNetworkClient.api.updateParentalCategory(
+        key, pid, categoryId, ParentalActiveRequest(active = activate)
+      )
+      if (patch.isMutationAccepted()) {
+        patch
+      } else if (activate) {
+        NextDnsNetworkClient.api.addParentalCategory(
+          key, pid, ParentalItemRequest(id = categoryId, active = true)
+        )
+      } else {
+        NextDnsNetworkClient.api.removeParentalCategory(key, pid, categoryId)
       }
     }
   }
