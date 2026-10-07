@@ -6,6 +6,9 @@ import androidx.lifecycle.viewModelScope
 import com.example.data.model.*
 import com.example.data.repository.ApiConnectionStatus
 import com.example.data.repository.NextDnsRepository
+import com.example.data.repository.ParentalFlag
+import com.example.data.repository.PrivacyFlag
+import com.example.data.repository.SecurityFlag
 import com.example.data.repository.SectionSyncState
 import com.example.data.repository.SyncPolicy
 import com.example.data.repository.SyncSection
@@ -215,6 +218,20 @@ class NextDnsViewModel(
     _uiMessage.value = UiMessage(text = msg, isError = isError)
   }
 
+  private fun reportMutationResult(
+    result: Result<Unit>,
+    successMessage: String? = null
+  ) {
+    if (result.isSuccess) {
+      if (!successMessage.isNullOrBlank()) showMessage(successMessage)
+    } else {
+      showMessage(
+        result.exceptionOrNull()?.message ?: "NextDNS işlemi tamamlanamadı.",
+        isError = true
+      )
+    }
+  }
+
   fun saveApiKey(key: String) {
     loginWithApiKey(key)
   }
@@ -290,75 +307,124 @@ class NextDnsViewModel(
 
   // Security
   fun toggleSecurityFeature(feature: String, enabled: Boolean) {
-    repository.updateSecurity { s ->
-      when (feature) {
-        "threatIntelligenceFeeds" -> s.copy(threatIntelligenceFeeds = enabled)
-        "aiThreatDetection" -> s.copy(aiThreatDetection = enabled)
-        "googleSafeBrowsing" -> s.copy(googleSafeBrowsing = enabled)
-        "cryptojacking" -> s.copy(cryptojacking = enabled)
-        "dnsRebinding" -> s.copy(dnsRebinding = enabled)
-        "idnHomographs" -> s.copy(idnHomographs = enabled)
-        "typosquatting" -> s.copy(typosquatting = enabled)
-        "dga" -> s.copy(dga = enabled)
-        "nrd" -> s.copy(nrd = enabled)
-        "ddns" -> s.copy(ddns = enabled)
-        "parkedDomains" -> s.copy(parkedDomains = enabled)
-        "csam" -> s.copy(csam = enabled)
-        else -> s
+    val flag = when (feature) {
+      "threatIntelligenceFeeds" -> SecurityFlag.THREAT_INTELLIGENCE_FEEDS
+      "aiThreatDetection" -> SecurityFlag.AI_THREAT_DETECTION
+      "googleSafeBrowsing" -> SecurityFlag.GOOGLE_SAFE_BROWSING
+      "cryptojacking" -> SecurityFlag.CRYPTOJACKING
+      "dnsRebinding" -> SecurityFlag.DNS_REBINDING
+      "idnHomographs" -> SecurityFlag.IDN_HOMOGRAPHS
+      "typosquatting" -> SecurityFlag.TYPOSQUATTING
+      "dga" -> SecurityFlag.DGA
+      "nrd" -> SecurityFlag.NRD
+      "ddns" -> SecurityFlag.DDNS
+      "parkedDomains" -> SecurityFlag.PARKING
+      "csam" -> SecurityFlag.CSAM
+      else -> {
+        showMessage("Bilinmeyen güvenlik ayarı: $feature", isError = true)
+        return
       }
+    }
+
+    viewModelScope.launch {
+      reportMutationResult(repository.setSecurityFlag(flag, enabled))
     }
   }
 
   fun addBlockedTld(tld: String) {
-    repository.addBlockedTld(tld)
-    showMessage(".$tld uzantısı engellendi")
+    viewModelScope.launch {
+      reportMutationResult(
+        repository.addBlockedTld(tld),
+        successMessage = ".$tld uzantısı engellendi"
+      )
+    }
   }
 
   fun removeBlockedTld(tld: String) {
-    repository.removeBlockedTld(tld)
-    showMessage(".$tld engeli kaldırıldı")
+    viewModelScope.launch {
+      reportMutationResult(
+        repository.removeBlockedTld(tld),
+        successMessage = ".$tld engeli kaldırıldı"
+      )
+    }
   }
 
   // Privacy
   fun toggleBlocklist(blocklistId: String) {
-    repository.toggleBlocklist(blocklistId)
-    showMessage("Engelleme listesi güncellendi")
+    viewModelScope.launch {
+      reportMutationResult(
+        repository.toggleBlocklist(blocklistId),
+        successMessage = "Engelleme listesi güncellendi"
+      )
+    }
   }
 
   fun toggleNativeTracking(nativeId: String) {
-    repository.toggleNativeTracking(nativeId)
-    showMessage("Yerel izleme koruması güncellendi")
+    viewModelScope.launch {
+      reportMutationResult(
+        repository.toggleNativeTracking(nativeId),
+        successMessage = "Yerel izleme koruması güncellendi"
+      )
+    }
   }
 
   fun toggleDisguisedTrackers(enabled: Boolean) {
-    repository.updatePrivacy { it.copy(disguisedTrackers = enabled) }
+    viewModelScope.launch {
+      reportMutationResult(
+        repository.setPrivacyFlag(PrivacyFlag.DISGUISED_TRACKERS, enabled)
+      )
+    }
   }
 
   fun toggleAllowAffiliates(enabled: Boolean) {
-    repository.updatePrivacy { it.copy(allowAffiliates = enabled) }
+    viewModelScope.launch {
+      reportMutationResult(
+        repository.setPrivacyFlag(PrivacyFlag.ALLOW_AFFILIATE_LINKS, enabled)
+      )
+    }
   }
 
   // Parental Control
   fun toggleParentalService(serviceId: String) {
-    repository.toggleParentalService(serviceId)
-    showMessage("Ebeveyn kontrolü kuralı güncellendi")
+    viewModelScope.launch {
+      reportMutationResult(
+        repository.toggleParentalService(serviceId),
+        successMessage = "Ebeveyn kontrolü kuralı güncellendi"
+      )
+    }
   }
 
   fun toggleParentalCategory(categoryId: String) {
-    repository.toggleParentalCategory(categoryId)
-    showMessage("Kategori engeli güncellendi")
+    viewModelScope.launch {
+      reportMutationResult(
+        repository.toggleParentalCategory(categoryId),
+        successMessage = "Kategori engeli güncellendi"
+      )
+    }
   }
 
   fun setSafeSearch(enabled: Boolean) {
-    repository.updateParental { it.copy(safeSearch = enabled) }
+    viewModelScope.launch {
+      reportMutationResult(
+        repository.setParentalFlag(ParentalFlag.SAFE_SEARCH, enabled)
+      )
+    }
   }
 
   fun setYoutubeRestricted(enabled: Boolean) {
-    repository.updateParental { it.copy(youtubeRestrictedMode = enabled) }
+    viewModelScope.launch {
+      reportMutationResult(
+        repository.setParentalFlag(ParentalFlag.YOUTUBE_RESTRICTED_MODE, enabled)
+      )
+    }
   }
 
   fun setBlockBypass(enabled: Boolean) {
-    repository.updateParental { it.copy(blockBypass = enabled) }
+    viewModelScope.launch {
+      reportMutationResult(
+        repository.setParentalFlag(ParentalFlag.BLOCK_BYPASS, enabled)
+      )
+    }
   }
 
   // Denylist
