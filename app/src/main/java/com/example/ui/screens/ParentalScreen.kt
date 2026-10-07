@@ -32,7 +32,6 @@ fun ParentalScreen(
   val settings by viewModel.parentalControlSettings.collectAsState()
   var showAddServiceDialog by remember { mutableStateOf(false) }
   var showAddCategoryDialog by remember { mutableStateOf(false) }
-  var showRecreationDialog by remember { mutableStateOf(false) }
 
   val activeServices = settings.services.filter { it.active }
   val activeCategories = settings.categories.filter { it.active }
@@ -57,12 +56,6 @@ fun ParentalScreen(
         activeCategories = activeCategories,
         onToggleCategory = { viewModel.toggleParentalCategory(it) },
         onOpenAddDialog = { showAddCategoryDialog = true }
-      )
-    }
-
-    item {
-      RecreationTimeSection(
-        onOpenDialog = { showRecreationDialog = true }
       )
     }
 
@@ -104,11 +97,6 @@ fun ParentalScreen(
     )
   }
 
-  if (showRecreationDialog) {
-    RecreationTimeDialog(
-      onDismiss = { showRecreationDialog = false }
-    )
-  }
 }
 
 // =========================================================================
@@ -330,39 +318,6 @@ private fun ParentalCategoryItemCard(
 }
 
 @Composable
-private fun RecreationTimeSection(
-  onOpenDialog: () -> Unit,
-  modifier: Modifier = Modifier
-) {
-  NextDnsCard(
-    modifier = modifier,
-    title = "Rekreasyon Süresi",
-    subtitle = "Haftanın her günü için, yukarıdaki web sitelerinin, uygulamaların, oyunların veya kategorilerin bazılarının engellenmeyeceği bir dönem belirleyin — örneğin, Facebook'a Pazartesi ve Salı günleri 18:00 ile 20:00 arasında izin verin."
-  ) {
-    Button(
-      onClick = onOpenDialog,
-      modifier = Modifier
-        .height(36.dp)
-        .bounceClick(onClick = onOpenDialog),
-      shape = RoundedCornerShape(10.dp),
-      colors = ButtonDefaults.buttonColors(
-        containerColor = Color(0xFF84CC16),
-        contentColor = Color.Black
-      ),
-      contentPadding = PaddingValues(horizontal = 14.dp, vertical = 0.dp)
-    ) {
-      Text(
-        text = "REKREASYON SÜRESİNİ AYARLA",
-        style = MaterialTheme.typography.labelMedium.copy(
-          fontWeight = FontWeight.Black,
-          fontSize = 11.sp
-        )
-      )
-    }
-  }
-}
-
-@Composable
 private fun ParentalSafeSearchSection(
   safeSearch: Boolean,
   onToggleSafeSearch: (Boolean) -> Unit,
@@ -556,31 +511,4 @@ private fun AddParentalCategoryDialog(
   )
 }
 
-@Composable
-private fun RecreationTimeDialog(
-  onDismiss: () -> Unit
-) {
-  AlertDialog(
-    onDismissRequest = onDismiss,
-    containerColor = MaterialTheme.colorScheme.surface,
-    shape = RoundedCornerShape(18.dp),
-    title = {
-      Text("Rekreasyon Süresi Ayarları", color = MaterialTheme.colorScheme.onSurface, fontWeight = FontWeight.Bold, fontSize = 16.sp)
-    },
-    text = {
-      Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-        Text("İzin verilen serbest saat aralığı:", color = MaterialTheme.colorScheme.onSurfaceVariant, fontSize = 12.sp)
-        Text("Hafta içi: 18:00 - 20:00 (Aktif)", color = MaterialTheme.colorScheme.tertiary, fontWeight = FontWeight.Bold, fontSize = 13.sp)
-        Text("Hafta sonu: 14:00 - 21:00 (Aktif)", color = MaterialTheme.colorScheme.tertiary, fontWeight = FontWeight.Bold, fontSize = 13.sp)
-      }
-    },
-    confirmButton = {
-      NextDnsButton(text = "Kaydet", onClick = onDismiss)
-    },
-    dismissButton = {
-      TextButton(onClick = onDismiss) {
-        Text("Kapat", color = MaterialTheme.colorScheme.onSurfaceVariant)
-      }
-    }
-  )
-}
+
