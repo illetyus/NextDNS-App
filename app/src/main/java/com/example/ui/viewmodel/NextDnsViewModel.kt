@@ -9,6 +9,7 @@ import com.example.data.repository.NextDnsRepository
 import com.example.data.repository.ParentalFlag
 import com.example.data.repository.PrivacyFlag
 import com.example.data.repository.SecurityFlag
+import com.example.data.repository.SettingsPerformanceFlag
 import com.example.data.repository.SectionSyncState
 import com.example.data.repository.SyncPolicy
 import com.example.data.repository.SyncSection
@@ -553,73 +554,112 @@ class NextDnsViewModel(
 
   // Settings
   fun toggleLogsEnabled(enabled: Boolean) {
-    repository.updateConfig { it.copy(logsEnabled = enabled) }
+    viewModelScope.launch {
+      reportMutationResult(repository.setLogsEnabled(enabled))
+    }
   }
 
   fun toggleLogClientIps(enabled: Boolean) {
-    repository.updateConfig { it.copy(logClientIps = enabled) }
+    viewModelScope.launch {
+      reportMutationResult(repository.setLogClientIps(enabled))
+    }
   }
 
   fun toggleLogDomains(enabled: Boolean) {
-    repository.updateConfig { it.copy(logDomains = enabled) }
+    viewModelScope.launch {
+      reportMutationResult(repository.setLogDomains(enabled))
+    }
   }
 
   fun setLogRetention(retention: String) {
-    repository.updateConfig { it.copy(logRetention = retention) }
-    showMessage("Saklama süresi: $retention")
+    viewModelScope.launch {
+      reportMutationResult(
+        repository.setLogRetention(retention),
+        successMessage = "Saklama süresi: $retention"
+      )
+    }
   }
 
   fun setLogStorageLocation(location: String) {
-    repository.updateConfig { it.copy(logStorageLocation = location) }
-    showMessage("Depolama konumu: $location")
+    viewModelScope.launch {
+      reportMutationResult(
+        repository.setLogStorageLocation(location),
+        successMessage = "Depolama konumu: $location"
+      )
+    }
   }
 
   fun downloadLogs() {
-    showMessage("Günlükler CSV olarak indirildi")
+    showMessage(
+      "CSV dışa aktarma henüz gerçek NextDNS indirme akışına bağlanmadı.",
+      isError = true
+    )
   }
 
   fun clearLogs() {
-    repository.clearLogs()
-    showMessage("Tüm günlükler temizlendi")
+    viewModelScope.launch {
+      reportMutationResult(
+        repository.clearLogs(),
+        successMessage = "Tüm günlükler temizlendi"
+      )
+    }
   }
 
   fun toggleBlockPage(enabled: Boolean) {
-    repository.updateConfig { it.copy(blockPage = enabled) }
+    viewModelScope.launch {
+      reportMutationResult(repository.setBlockPage(enabled))
+    }
   }
 
   fun toggleEdns(enabled: Boolean) {
-    repository.updateConfig { it.copy(ednsClientSubnet = enabled) }
+    viewModelScope.launch {
+      reportMutationResult(
+        repository.setPerformanceFlag(SettingsPerformanceFlag.ECS, enabled)
+      )
+    }
   }
 
   fun toggleCacheBoost(enabled: Boolean) {
-    repository.updateConfig { it.copy(cacheBoost = enabled) }
+    viewModelScope.launch {
+      reportMutationResult(
+        repository.setPerformanceFlag(SettingsPerformanceFlag.CACHE_BOOST, enabled)
+      )
+    }
   }
 
   fun toggleCnameFlattening(enabled: Boolean) {
-    repository.updateConfig { it.copy(cnameFlattening = enabled) }
+    viewModelScope.launch {
+      reportMutationResult(
+        repository.setPerformanceFlag(SettingsPerformanceFlag.CNAME_FLATTENING, enabled)
+      )
+    }
   }
 
   fun toggleBypassAgeVerification(enabled: Boolean) {
-    repository.updateConfig { it.copy(bypassAgeVerification = enabled) }
+    showMessage(
+      "Yaş doğrulamasını atlama ayarı güncel NextDNS API sözleşmesinde doğrulanmadı; değişiklik yapılmadı.",
+      isError = true
+    )
   }
 
   fun toggleWeb3(enabled: Boolean) {
-    repository.updateConfig { it.copy(web3 = enabled) }
-  }
-  fun addRewrite(domain: String, answer: String) {
-    repository.updateConfig { cfg ->
-      val updated = cfg.rewrites + RewriteItem(domain = domain, answer = answer)
-      cfg.copy(rewrites = updated)
+    viewModelScope.launch {
+      reportMutationResult(repository.setWeb3(enabled))
     }
-    showMessage("Yeniden yazma kuralı eklendi: $domain ➔ $answer")
+  }
+
+  fun addRewrite(domain: String, answer: String) {
+    showMessage(
+      "Rewrite desteği doğrulanmış sunucu entegrasyonu tamamlanana kadar devre dışı.",
+      isError = true
+    )
   }
 
   fun removeRewrite(id: String) {
-    repository.updateConfig { cfg ->
-      val updated = cfg.rewrites.filter { it.id != id }
-      cfg.copy(rewrites = updated)
-    }
-    showMessage("Yeniden yazma kuralı silindi")
+    showMessage(
+      "Rewrite desteği doğrulanmış sunucu entegrasyonu tamamlanana kadar devre dışı.",
+      isError = true
+    )
   }
 
   override fun onCleared() {
