@@ -171,6 +171,55 @@ class NextDnsRepository(
     return success
   }
 
+  private suspend fun mutateSection(
+    section: SyncSection,
+    operationName: String,
+    action: suspend (apiKey: String, profileId: String) -> Response<NextDnsMutationResponse>
+  ): Result<Unit> {
+    val key = _apiKey.value
+    val profileId = _activeProfileId.value
+
+    if (key.isBlank() || profileId.isBlank()) {
+      return Result.failure(
+        IllegalStateException("Aktif NextDNS profili veya API anahtarı bulunamadı.")
+      )
+    }
+
+    updateSectionSyncState(section) {
+      it.copy(isSaving = true, errorMessage = null)
+    }
+
+    return try {
+      val response = safeApiCall(operationName) {
+        action(key, profileId)
+      } ?: run {
+        val message = "NextDNS isteği tamamlanamadı."
+        updateSectionSyncState(section) { it.copy(errorMessage = message) }
+        return Result.failure(IllegalStateException(message))
+      }
+
+      val apiError = response.body()?.errors?.firstOrNull()?.detail
+      if (!response.isSuccessful || !response.body()?.errors.isNullOrEmpty()) {
+        val message = apiError ?: "NextDNS işlemi reddetti (HTTP ${response.code()})."
+        updateSectionSyncState(section) { it.copy(errorMessage = message) }
+        return Result.failure(IllegalStateException(message))
+      }
+
+      val verified = refreshSection(section)
+      if (!verified) {
+        val message = "İşlem gönderildi ancak güncel durum NextDNS'ten doğrulanamadı."
+        updateSectionSyncState(section) { it.copy(errorMessage = message) }
+        return Result.failure(IllegalStateException(message))
+      }
+
+      Result.success(Unit)
+    } finally {
+      updateSectionSyncState(section) {
+        it.copy(isSaving = false)
+      }
+    }
+  }
+
   // Live NextDNS Public Catalogs & Account Metadata
   private val _availableBlocklistsCatalog = MutableStateFlow<List<BlocklistEntry>>(emptyList())
   val availableBlocklistsCatalog = _availableBlocklistsCatalog.asStateFlow()
