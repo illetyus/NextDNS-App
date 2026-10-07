@@ -901,6 +901,8 @@ object NextDnsNetworkClient {
   }
 
   val client = OkHttpClient.Builder()
+    .followRedirects(false)
+    .followSslRedirects(false)
     .addInterceptor { chain ->
       val original = chain.request()
       val request = original.newBuilder()
