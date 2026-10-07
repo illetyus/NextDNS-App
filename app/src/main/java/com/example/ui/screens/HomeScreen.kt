@@ -46,7 +46,7 @@ fun HomeScreen(
   val currentSectionSyncState by viewModel.currentSectionSyncState.collectAsState()
   val activeProfile by viewModel.activeProfile.collectAsState()
   val profiles by viewModel.profiles.collectAsState()
-  val apiKey by viewModel.apiKey.collectAsState()
+  val hasApiKey by viewModel.hasApiKey.collectAsState()
   val uiMessage by viewModel.uiMessage.collectAsState()
   val haptic = LocalHapticFeedback.current
 
@@ -293,13 +293,13 @@ fun HomeScreen(
                   horizontalArrangement = Arrangement.spacedBy(4.dp)
                 ) {
                   Icon(
-                    imageVector = if (apiKey.isNotBlank()) Icons.Default.AccountCircle else Icons.Default.PersonOutline,
+                    imageVector = if (hasApiKey) Icons.Default.AccountCircle else Icons.Default.PersonOutline,
                     contentDescription = null,
-                    tint = if (apiKey.isNotBlank()) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant,
+                    tint = if (hasApiKey) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant,
                     modifier = Modifier.size(14.dp)
                   )
                   Text(
-                    text = if (apiKey.isNotBlank()) "Hesabım" else "Misafir",
+                    text = if (hasApiKey) "Hesabım" else "Misafir",
                     style = MaterialTheme.typography.bodySmall.copy(
                       fontWeight = FontWeight.Medium,
                       fontSize = 11.sp
