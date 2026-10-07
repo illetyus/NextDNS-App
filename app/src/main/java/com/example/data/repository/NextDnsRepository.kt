@@ -1705,12 +1705,12 @@ class NextDnsRepository(
     return DnsLogEntry(
       id = UUID.randomUUID().toString(),
       timestamp = logDto.timestamp?.toString() ?: "",
-      domain = logDto.domain?.takeIf { it.isNotBlank() } ?: logDto.root?.takeIf { it.isNotBlank() } ?: logDto.rootDomain?.takeIf { it.isNotBlank() } ?: "unknown.com",
+      domain = logDto.domain?.takeIf { it.isNotBlank() } ?: logDto.root?.takeIf { it.isNotBlank() } ?: logDto.rootDomain?.takeIf { it.isNotBlank() } ?: "",
       clientIp = logDto.clientIp ?: logDto.clientIpSnake,
       deviceName = devName,
       blocked = logDto.status == "blocked",
       blockReason = if (logDto.status == "blocked") blockReason else null,
-      protocol = logDto.protocol ?: "DoH",
+      protocol = logDto.protocol ?: "",
       responseTimeMs = logDto.responseTime ?: logDto.responseTimeSnake
     )
   }
