@@ -383,7 +383,7 @@ private fun AddParentalServiceDialog(
     shape = RoundedCornerShape(18.dp),
     title = {
       Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-        Text("Uygulama / Oyun Engelle (Canlı Katalog)", color = MaterialTheme.colorScheme.onSurface, fontWeight = FontWeight.Bold, fontSize = 16.sp)
+        Text("Uygulama / Oyun Engelle", color = MaterialTheme.colorScheme.onSurface, fontWeight = FontWeight.Bold, fontSize = 16.sp)
         OutlinedTextField(
           value = searchQuery,
           onValueChange = { searchQuery = it },
@@ -460,7 +460,7 @@ private fun AddParentalCategoryDialog(
     shape = RoundedCornerShape(18.dp),
     title = {
       Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-        Text("Kategori Engelle (Canlı Katalog)", color = MaterialTheme.colorScheme.onSurface, fontWeight = FontWeight.Bold, fontSize = 16.sp)
+        Text("Kategori Engelle", color = MaterialTheme.colorScheme.onSurface, fontWeight = FontWeight.Bold, fontSize = 16.sp)
         OutlinedTextField(
           value = searchQuery,
           onValueChange = { searchQuery = it },
