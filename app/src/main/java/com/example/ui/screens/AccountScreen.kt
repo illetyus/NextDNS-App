@@ -52,6 +52,12 @@ fun AccountScreen(
   var newProfileName by remember { mutableStateOf("") }
   var showApiKey by remember { mutableStateOf(false) }
 
+  LaunchedEffect(activeProfileId) {
+    if (activeProfileId.isNotBlank()) {
+      viewModel.refreshAnalytics(device = null, time = null)
+    }
+  }
+
   LazyColumn(
     modifier = modifier
       .fillMaxSize()
@@ -62,8 +68,8 @@ fun AccountScreen(
     // 2. Real Live Usage / Query Metrics Card
     item {
       NextDnsCard(
-        title = "Canlı Kullanım & DNS Metrikleri",
-        subtitle = "Aktif profil üzerinden gerçek zamanlı NextDNS sorgu istatistikleri."
+        title = "DNS Metrikleri",
+        subtitle = "Aktif profil için NextDNS API'sinden son alınan sorgu istatistikleri."
       ) {
         Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
           Row(
@@ -315,7 +321,7 @@ fun AccountScreen(
     // 4. Live DNS Diagnostics
     item {
       NextDnsCard(
-        title = "Canlı Ağ Teşhisi",
+        title = "Ağ Teşhisi",
         subtitle = "Cihazınızın NextDNS bağlantı durumu ve protokol parametreleri."
       ) {
         Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
