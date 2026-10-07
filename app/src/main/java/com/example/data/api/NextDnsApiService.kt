@@ -698,6 +698,13 @@ interface NextDnsApiService {
     @Query("raw") raw: Int? = 1
   ): Response<NextDnsApiResponse<List<DnsLogDto>>>
 
+  @Streaming
+  @GET("profiles/{profileId}/logs/download")
+  suspend fun downloadLogsFile(
+    @Header("X-Api-Key") apiKey: String,
+    @Path("profileId") profileId: String
+  ): Response<ResponseBody>
+
   @DELETE("profiles/{profileId}/logs")
   suspend fun clearLogs(
     @Header("X-Api-Key") apiKey: String,
