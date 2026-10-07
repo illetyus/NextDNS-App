@@ -1,5 +1,6 @@
 package com.example.data.api
 
+import com.example.BuildConfig
 import com.squareup.moshi.Json
 import com.squareup.moshi.Moshi
 import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
@@ -891,7 +892,12 @@ object NextDnsNetworkClient {
   private const val TEST_URL = "https://test.nextdns.io/"
 
   private val logging = HttpLoggingInterceptor().apply {
-    level = HttpLoggingInterceptor.Level.BASIC
+    redactHeader("X-Api-Key")
+    level = if (BuildConfig.DEBUG) {
+      HttpLoggingInterceptor.Level.BASIC
+    } else {
+      HttpLoggingInterceptor.Level.NONE
+    }
   }
 
   val client = OkHttpClient.Builder()
