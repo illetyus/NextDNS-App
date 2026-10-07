@@ -1,7 +1,11 @@
 package com.example.ui.screens
 
+import android.app.Activity
+import android.content.Context
+import android.content.ContextWrapper
 import android.content.Intent
 import android.net.Uri
+import android.view.WindowManager
 import androidx.compose.animation.*
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -40,6 +44,7 @@ fun LoginScreen(
   modifier: Modifier = Modifier
 ) {
   val context = LocalContext.current
+  val activity = remember(context) { context.findActivityForSecureLogin() }
   val clipboardManager = LocalClipboardManager.current
   val apiStatus by viewModel.apiStatus.collectAsState()
 
@@ -53,6 +58,14 @@ fun LoginScreen(
     if (apiStatus is ApiConnectionStatus.Connected) {
       apiKeyInput = ""
       isPasswordVisible = false
+    }
+  }
+
+  DisposableEffect(activity) {
+    activity?.window?.addFlags(WindowManager.LayoutParams.FLAG_SECURE)
+
+    onDispose {
+      activity?.window?.clearFlags(WindowManager.LayoutParams.FLAG_SECURE)
     }
   }
 
