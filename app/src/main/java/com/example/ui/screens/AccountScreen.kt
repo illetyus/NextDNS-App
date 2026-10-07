@@ -2,11 +2,16 @@ package com.example.ui.screens
 
 import android.content.ClipData
 import android.content.ClipboardManager
+import android.app.Activity
 import android.content.Context
+import android.content.ContextWrapper
 import android.content.Intent
 import android.net.Uri
 import android.os.Build
+import android.os.Handler
+import android.os.Looper
 import android.os.PersistableBundle
+import android.view.WindowManager
 import android.widget.Toast
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
@@ -34,7 +39,6 @@ import com.example.data.repository.ApiConnectionStatus
 import com.example.ui.components.*
 import com.example.ui.viewmodel.NextDnsViewModel
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
 
 @Composable
 fun AccountScreen(
@@ -42,7 +46,7 @@ fun AccountScreen(
   modifier: Modifier = Modifier
 ) {
   val context = LocalContext.current
-  val clipboardScope = rememberCoroutineScope()
+  val activity = remember(context) { context.findActivity() }
   val accountInfo by viewModel.accountInfo.collectAsState()
   val apiKey by viewModel.apiKey.collectAsState()
   val apiStatus by viewModel.apiStatus.collectAsState()
@@ -70,6 +74,18 @@ fun AccountScreen(
     if (showApiKey) {
       delay(10_000L)
       showApiKey = false
+    }
+  }
+
+  DisposableEffect(showApiKey, activity) {
+    if (showApiKey) {
+      activity?.window?.addFlags(WindowManager.LayoutParams.FLAG_SECURE)
+    }
+
+    onDispose {
+      if (showApiKey) {
+        activity?.window?.clearFlags(WindowManager.LayoutParams.FLAG_SECURE)
+      }
     }
   }
 
@@ -233,10 +249,7 @@ fun AccountScreen(
                   IconButton(
                     onClick = {
                       copySensitiveApiKey(context, apiKey)
-                      clipboardScope.launch {
-                        delay(30_000L)
-                        clearApiKeyClipboardIfUnchanged(context, apiKey)
-                      }
+                      scheduleApiKeyClipboardClear(context, apiKey)
                     },
                     modifier = Modifier.size(32.dp)
                   ) {
@@ -535,6 +548,23 @@ private fun copySensitiveApiKey(context: Context, apiKey: String) {
   if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.S_V2) {
     Toast.makeText(context, "API Anahtarı kopyalandı", Toast.LENGTH_SHORT).show()
   }
+}
+
+private fun scheduleApiKeyClipboardClear(
+  context: Context,
+  expectedApiKey: String
+) {
+  val appContext = context.applicationContext
+  Handler(Looper.getMainLooper()).postDelayed(
+    { clearApiKeyClipboardIfUnchanged(appContext, expectedApiKey) },
+    30_000L
+  )
+}
+
+private tailrec fun Context.findActivity(): Activity? = when (this) {
+  is Activity -> this
+  is ContextWrapper -> baseContext.findActivity()
+  else -> null
 }
 
 private fun clearApiKeyClipboardIfUnchanged(
