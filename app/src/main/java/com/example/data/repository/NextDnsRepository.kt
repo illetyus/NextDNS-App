@@ -71,6 +71,12 @@ class NextDnsRepository(
   private val _analytics = MutableStateFlow(AnalyticsSummary())
   val analytics = _analytics.asStateFlow()
 
+  private val _analyticsLastSuccessAt = MutableStateFlow<Long?>(null)
+  val analyticsLastSuccessAt = _analyticsLastSuccessAt.asStateFlow()
+
+  private val _analyticsErrorMessage = MutableStateFlow<String?>(null)
+  val analyticsErrorMessage = _analyticsErrorMessage.asStateFlow()
+
   private val _knownDeviceNameToId = java.util.concurrent.ConcurrentHashMap<String, String>()
   private val _knownDeviceIdToName = java.util.concurrent.ConcurrentHashMap<String, String>()
 
@@ -112,6 +118,9 @@ class NextDnsRepository(
     nextLogsCursor = null
     currentAnalyticsDevice = null
     currentAnalyticsTime = null
+    _analytics.value = AnalyticsSummary()
+    _analyticsLastSuccessAt.value = null
+    _analyticsErrorMessage.value = null
     _knownDeviceNameToId.clear()
     _knownDeviceIdToName.clear()
     _allKnownDevices.value = emptyList()
@@ -2116,6 +2125,7 @@ class NextDnsRepository(
     }
 
     if (!statusResp.isUsableApiResponse()) {
+      _analyticsErrorMessage.value = "NextDNS analiz verisi alınamadı."
       return false
     }
 
@@ -2162,6 +2172,8 @@ class NextDnsRepository(
     )
 
     _analytics.value = updatedAnalytics
+    _analyticsLastSuccessAt.value = System.currentTimeMillis()
+    _analyticsErrorMessage.value = null
     return true
   }
 
