@@ -556,7 +556,7 @@ class NextDnsViewModel(
       if (success) {
         showMessage("IP adresi başarıyla profile bağlandı.")
       } else {
-        showMessage("IP bağlama isteği tamamlandı.")
+        showMessage("IP adresi profile bağlanamadı.", isError = true)
       }
     }
   }
@@ -646,31 +646,10 @@ class NextDnsViewModel(
     }
   }
 
-  fun toggleBypassAgeVerification(enabled: Boolean) {
-    showMessage(
-      "Yaş doğrulamasını atlama ayarı güncel NextDNS API sözleşmesinde doğrulanmadı; değişiklik yapılmadı.",
-      isError = true
-    )
-  }
-
   fun toggleWeb3(enabled: Boolean) {
     viewModelScope.launch {
       reportMutationResult(repository.setWeb3(enabled))
     }
-  }
-
-  fun addRewrite(domain: String, answer: String) {
-    showMessage(
-      "Rewrite desteği doğrulanmış sunucu entegrasyonu tamamlanana kadar devre dışı.",
-      isError = true
-    )
-  }
-
-  fun removeRewrite(id: String) {
-    showMessage(
-      "Rewrite desteği doğrulanmış sunucu entegrasyonu tamamlanana kadar devre dışı.",
-      isError = true
-    )
   }
 
   override fun onCleared() {
