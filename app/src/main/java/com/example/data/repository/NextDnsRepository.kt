@@ -1396,85 +1396,137 @@ class NextDnsRepository(
   // Config & Logs
   // =========================================================================
 
-  fun updateConfig(transform: (ConfigSettings) -> ConfigSettings) {
-    val updated = transform(_configSettings.value)
-    _configSettings.value = updated
-    preferences.saveConfigSettings(_activeProfileId.value, updated)
-    pushConfigToApi()
-  }
+  suspend fun setLogsEnabled(enabled: Boolean): Result<Unit> =
+    mutateSection(
+      section = SyncSection.SETTINGS,
+      operationName = "setLogsEnabled"
+    ) { key, pid ->
+      NextDnsNetworkClient.api.updateSettingsLogs(
+        key, pid, SettingsLogsUpdateRequest(enabled = enabled)
+      )
+    }
 
-  private fun pushConfigToApi() {
-    val key = _apiKey.value
-    val pid = _activeProfileId.value
-    if (key.isBlank() || pid.isBlank()) return
-
-    repoScope.launch {
-      safeApiCall("pushConfigToApi") {
-        val cfg = _configSettings.value
-        val retSeconds = LogRetentionCodec.toSeconds(cfg.logRetention)
-        val locCode = when (cfg.logStorageLocation) {
-          "İsviçre (CH)" -> "ch"
-          "Avrupa Birliği (AB)" -> "eu"
-          else -> "us"
-        }
-
-        val logsDto = SettingsLogsDto(
-          enabled = cfg.logsEnabled,
-          retention = retSeconds,
-          location = locCode,
-          drop = SettingsLogsDropDto(ip = !cfg.logClientIps, domain = !cfg.logDomains)
+  suspend fun setLogClientIps(enabled: Boolean): Result<Unit> =
+    mutateSection(
+      section = SyncSection.SETTINGS,
+      operationName = "setLogClientIps"
+    ) { key, pid ->
+      NextDnsNetworkClient.api.updateSettingsLogs(
+        key, pid, SettingsLogsUpdateRequest(
+          drop = SettingsLogsDropDto(ip = !enabled)
         )
-        val blockPageDto = SettingsBlockPageDto(enabled = cfg.blockPage)
-        val perfDto = SettingsPerformanceDto(
-          ecs = cfg.ednsClientSubnet,
-          cacheBoost = cfg.cacheBoost,
-          cnameFlattening = cfg.cnameFlattening
-        )
+      )
+    }
 
-        val updateReq = SettingsUpdateRequest(
-          logs = logsDto,
-          blockPage = blockPageDto,
-          performance = perfDto,
-          web3 = cfg.web3
+  suspend fun setLogDomains(enabled: Boolean): Result<Unit> =
+    mutateSection(
+      section = SyncSection.SETTINGS,
+      operationName = "setLogDomains"
+    ) { key, pid ->
+      NextDnsNetworkClient.api.updateSettingsLogs(
+        key, pid, SettingsLogsUpdateRequest(
+          drop = SettingsLogsDropDto(domain = !enabled)
         )
+      )
+    }
 
-        val resp = NextDnsNetworkClient.api.updateSettings(key, pid, updateReq)
-        if (!resp.isSuccessful) {
-          NextDnsNetworkClient.api.updateSettingsPerformance(
-            key, pid, SettingsPerformanceUpdateRequest(
-              ecs = cfg.ednsClientSubnet,
-              cacheBoost = cfg.cacheBoost,
-              cnameFlattening = cfg.cnameFlattening
-            )
-          )
-          NextDnsNetworkClient.api.updateSettingsLogs(
-            key, pid, SettingsLogsUpdateRequest(
-              enabled = cfg.logsEnabled,
-              retention = retSeconds,
-              location = locCode,
-              drop = SettingsLogsDropDto(ip = !cfg.logClientIps, domain = !cfg.logDomains)
-            )
-          )
-          NextDnsNetworkClient.api.updateSettingsBlockPage(
-            key, pid, SettingsBlockPageUpdateRequest(enabled = cfg.blockPage)
-          )
-        }
-      }
+  suspend fun setLogRetention(retention: String): Result<Unit> {
+    val seconds = LogRetentionCodec.toSeconds(retention)
+      ?: return Result.failure(IllegalArgumentException("Geçersiz log saklama süresi."))
+
+    return mutateSection(
+      section = SyncSection.SETTINGS,
+      operationName = "setLogRetention"
+    ) { key, pid ->
+      NextDnsNetworkClient.api.updateSettingsLogs(
+        key, pid, SettingsLogsUpdateRequest(retention = seconds)
+      )
     }
   }
 
-  fun clearLogs() {
+  suspend fun setLogStorageLocation(location: String): Result<Unit> {
+    val code = when (location) {
+      "İsviçre (CH)" -> "ch"
+      "Avrupa Birliği (AB)" -> "eu"
+      "Amerika Birleşik Devletleri (ABD)" -> "us"
+      else -> return Result.failure(
+        IllegalArgumentException("Geçersiz log depolama konumu.")
+      )
+    }
+
+    return mutateSection(
+      section = SyncSection.SETTINGS,
+      operationName = "setLogStorageLocation"
+    ) { key, pid ->
+      NextDnsNetworkClient.api.updateSettingsLogs(
+        key, pid, SettingsLogsUpdateRequest(location = code)
+      )
+    }
+  }
+
+  suspend fun setBlockPage(enabled: Boolean): Result<Unit> =
+    mutateSection(
+      section = SyncSection.SETTINGS,
+      operationName = "setBlockPage"
+    ) { key, pid ->
+      NextDnsNetworkClient.api.updateSettingsBlockPage(
+        key, pid, SettingsBlockPageUpdateRequest(enabled = enabled)
+      )
+    }
+
+  suspend fun setPerformanceFlag(
+    flag: SettingsPerformanceFlag,
+    enabled: Boolean
+  ): Result<Unit> {
+    val request = when (flag) {
+      SettingsPerformanceFlag.ECS -> SettingsPerformanceUpdateRequest(ecs = enabled)
+      SettingsPerformanceFlag.CACHE_BOOST -> SettingsPerformanceUpdateRequest(cacheBoost = enabled)
+      SettingsPerformanceFlag.CNAME_FLATTENING -> SettingsPerformanceUpdateRequest(cnameFlattening = enabled)
+    }
+
+    return mutateSection(
+      section = SyncSection.SETTINGS,
+      operationName = "setPerformanceFlag"
+    ) { key, pid ->
+      NextDnsNetworkClient.api.updateSettingsPerformance(key, pid, request)
+    }
+  }
+
+  suspend fun setWeb3(enabled: Boolean): Result<Unit> =
+    mutateSection(
+      section = SyncSection.SETTINGS,
+      operationName = "setWeb3"
+    ) { key, pid ->
+      NextDnsNetworkClient.api.updateSettings(
+        key, pid, SettingsUpdateRequest(web3 = enabled)
+      )
+    }
+
+  suspend fun clearLogs(): Result<Unit> {
+    val key = _apiKey.value
+    val pid = _activeProfileId.value
+    if (key.isBlank() || pid.isBlank()) {
+      return Result.failure(
+        IllegalStateException("Aktif NextDNS profili veya API anahtarı bulunamadı.")
+      )
+    }
+
+    val response = safeApiCall("clearLogs") {
+      NextDnsNetworkClient.api.clearLogs(key, pid)
+    } ?: return Result.failure(
+      IllegalStateException("Günlükleri temizleme isteği tamamlanamadı.")
+    )
+
+    val apiError = response.body()?.errors?.firstOrNull()?.detail
+    if (!response.isMutationAccepted()) {
+      return Result.failure(
+        IllegalStateException(apiError ?: "NextDNS günlükleri temizlemeyi reddetti.")
+      )
+    }
+
     _logs.value = emptyList()
-    preferences.saveLogs(_activeProfileId.value, emptyList())
-    val key = _apiKey.value
-    val pid = _activeProfileId.value
-    if (key.isBlank() || pid.isBlank()) return
-
-    repoScope.launch {
-      safeApiCall("clearLogs") {
-        NextDnsNetworkClient.api.clearLogs(key, pid)
-      }
-    }
+    preferences.saveLogs(pid, emptyList())
+    return Result.success(Unit)
   }
 
   suspend fun refreshLogsFromApi(limit: Int = 100) {
