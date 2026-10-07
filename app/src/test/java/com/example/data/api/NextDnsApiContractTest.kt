@@ -200,6 +200,75 @@ class NextDnsApiContractTest {
   }
 
   @Test
+  fun securityMutation_sendsOnlyChangedField() = runTest {
+    server.enqueue(
+      MockResponse()
+        .setResponseCode(200)
+        .setBody("""{"data":null}""")
+    )
+
+    val response = api.updateSecurity(
+      apiKey = "test-key",
+      profileId = "profile-1",
+      body = SecurityUpdateRequest(googleSafeBrowsing = false)
+    )
+
+    assertTrue(response.isSuccessful)
+    assertTrue(response.body()?.errors.isNullOrEmpty())
+
+    val request = server.takeRequest()
+    val body = request.body.readUtf8()
+    assertTrue(body.contains("\"googleSafeBrowsing\":false"))
+    assertFalse(body.contains("threatIntelligenceFeeds"))
+    assertFalse(body.contains("aiThreatDetection"))
+    assertFalse(body.contains("cryptojacking"))
+  }
+
+  @Test
+  fun mutationHttp200WithErrors_isRejectedByContract() = runTest {
+    server.enqueue(
+      MockResponse()
+        .setResponseCode(200)
+        .setBody(
+          """{"errors":[{"code":"invalid","detail":"Setting cannot be changed","source":{"parameter":"safeSearch"}}]}"""
+        )
+    )
+
+    val response = api.updateParentalControl(
+      apiKey = "test-key",
+      profileId = "profile-1",
+      body = ParentalControlUpdateRequest(safeSearch = true)
+    )
+
+    assertTrue(response.isSuccessful)
+    assertEquals("Setting cannot be changed", response.body()?.errors?.firstOrNull()?.detail)
+    assertEquals("safeSearch", response.body()?.errors?.firstOrNull()?.source?.parameter)
+  }
+
+  @Test
+  fun settingsLogsMutation_doesNotOverwriteSiblingDropField() = runTest {
+    server.enqueue(
+      MockResponse()
+        .setResponseCode(200)
+        .setBody("""{"data":null}""")
+    )
+
+    api.updateSettingsLogs(
+      apiKey = "test-key",
+      profileId = "profile-1",
+      body = SettingsLogsUpdateRequest(
+        drop = SettingsLogsDropDto(ip = true)
+      )
+    )
+
+    val body = server.takeRequest().body.readUtf8()
+    assertTrue(body.contains("\"ip\":true"))
+    assertFalse(body.contains("\"domain\""))
+    assertFalse(body.contains("\"retention\""))
+    assertFalse(body.contains("\"location\""))
+  }
+
+  @Test
   fun retentionCodec_usesSecondsAtApiBoundary() {
     assertEquals(21_600, LogRetentionCodec.toSeconds("6 saat"))
     assertEquals(86_400, LogRetentionCodec.toSeconds("1 gün"))
