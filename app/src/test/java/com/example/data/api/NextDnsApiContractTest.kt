@@ -109,6 +109,25 @@ class NextDnsApiContractTest {
   }
 
   @Test
+  fun profilesRequest_supportsCursorPagination() = runTest {
+    server.enqueue(
+      MockResponse()
+        .setResponseCode(200)
+        .setBody(
+          """{"data":[{"id":"p2","name":"Second"}],"meta":{"pagination":{"cursor":null}}}"""
+        )
+    )
+
+    val response = api.getProfiles("test-key", cursor = "cursor-1")
+
+    assertTrue(response.isSuccessful)
+    assertEquals("p2", response.body()?.data?.firstOrNull()?.id)
+
+    val request = server.takeRequest()
+    assertTrue(request.path.orEmpty().contains("cursor=cursor-1"))
+  }
+
+  @Test
   fun retentionCodec_usesSecondsAtApiBoundary() {
     assertEquals(21_600, LogRetentionCodec.toSeconds("6 saat"))
     assertEquals(86_400, LogRetentionCodec.toSeconds("1 gün"))
