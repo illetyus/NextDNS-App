@@ -33,6 +33,7 @@ import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.data.repository.ApiConnectionStatus
 import com.example.ui.components.*
 import com.example.ui.theme.*
@@ -46,7 +47,7 @@ fun LoginScreen(
   val context = LocalContext.current
   val activity = remember(context) { context.findActivityForSecureLogin() }
   val clipboardManager = LocalClipboardManager.current
-  val apiStatus by viewModel.apiStatus.collectAsState()
+  val apiStatus by viewModel.apiStatus.collectAsStateWithLifecycle()
 
   var apiKeyInput by remember { mutableStateOf("") }
   var isPasswordVisible by remember { mutableStateOf(false) }
