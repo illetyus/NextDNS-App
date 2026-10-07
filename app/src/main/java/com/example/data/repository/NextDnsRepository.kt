@@ -465,14 +465,9 @@ class NextDnsRepository(
     _isSyncing.value = true
 
     try {
-      applyAccountFromApi(key)
-      applySetupFromApi(key, profileId)
-      applySecuritySettingsFromApi(key, profileId)
-      applyPrivacySettingsFromApi(key, profileId)
-      applyParentalSettingsFromApi(key, profileId)
-      applyDenylistFromApi(key, profileId)
-      applyAllowlistFromApi(key, profileId)
-      applyConfigSettingsFromApi(key, profileId)
+      SyncSection.values().forEach { section ->
+        refreshSection(section)
+      }
       applyLogsFromApi(key, profileId)
       applyDevicesAnalyticsFromApi(key, profileId)
     } finally {
