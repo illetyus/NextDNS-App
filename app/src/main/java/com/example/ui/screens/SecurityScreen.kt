@@ -251,7 +251,7 @@ fun SecurityScreen(
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
           ) {
-            Text("TLD Ekle (Canlı Liste)", color = MaterialTheme.colorScheme.onSurface, fontWeight = FontWeight.Bold, fontSize = 17.sp)
+            Text("TLD Ekle", color = MaterialTheme.colorScheme.onSurface, fontWeight = FontWeight.Bold, fontSize = 17.sp)
             IconButton(onClick = { showAddTldDialog = false }, modifier = Modifier.size(24.dp)) {
               Icon(Icons.Default.Close, contentDescription = "Kapat", tint = MaterialTheme.colorScheme.onSurfaceVariant)
             }
