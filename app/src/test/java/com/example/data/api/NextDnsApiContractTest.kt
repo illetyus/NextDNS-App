@@ -42,6 +42,12 @@ class NextDnsApiContractTest {
   }
 
   @Test
+  fun credentialedClient_doesNotFollowRedirects() {
+    assertFalse(NextDnsNetworkClient.client.followRedirects)
+    assertFalse(NextDnsNetworkClient.client.followSslRedirects)
+  }
+
+  @Test
   fun profileCreate_acceptsIdOnlyResponse() = runTest {
     server.enqueue(
       MockResponse()
