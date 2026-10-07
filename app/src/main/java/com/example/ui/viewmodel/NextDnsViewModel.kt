@@ -70,7 +70,19 @@ class NextDnsViewModel(
       }
   }
 
-  val apiKey = repository.apiKey
+  val hasApiKey: StateFlow<Boolean> = repository.apiKey
+    .map { it.isNotBlank() }
+    .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), repository.apiKey.value.isNotBlank())
+
+  fun maskedApiKey(): String {
+    val key = repository.apiKey.value
+    if (key.isBlank()) return ""
+    if (key.length <= 8) return "••••••••"
+    return key.take(4) + "••••••••••••••••" + key.takeLast(4)
+  }
+
+  fun currentApiKeyForSensitiveUse(): String = repository.apiKey.value
+
   val apiStatus = repository.apiStatus
   val profiles = repository.profiles
   val activeProfileId = repository.activeProfileId
