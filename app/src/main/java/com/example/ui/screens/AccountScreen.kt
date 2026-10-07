@@ -46,6 +46,9 @@ fun AccountScreen(
   val testResult by viewModel.testResult.collectAsState()
   val isSyncing by viewModel.isSyncing.collectAsState()
   val analytics by viewModel.analytics.collectAsState()
+  val analyticsLastSuccessAt by viewModel.analyticsLastSuccessAt.collectAsState()
+  val analyticsErrorMessage by viewModel.analyticsErrorMessage.collectAsState()
+  val isAnalyticsLoading by viewModel.isAnalyticsLoading.collectAsState()
 
   var showLogoutConfirm by remember { mutableStateOf(false) }
   var showNewProfileDialog by remember { mutableStateOf(false) }
@@ -89,7 +92,7 @@ fun AccountScreen(
                   fontSize = 11.sp
                 )
                 Text(
-                  text = "%,d".format(analytics.totalQueries),
+                  text = analyticsLastSuccessAt?.let { "%,d".format(analytics.totalQueries) } ?: "—",
                   color = MaterialTheme.colorScheme.onSurface,
                   fontSize = 16.sp,
                   fontWeight = FontWeight.Bold
@@ -110,7 +113,7 @@ fun AccountScreen(
                   fontSize = 11.sp
                 )
                 Text(
-                  text = "%,d".format(analytics.blockedQueries),
+                  text = analyticsLastSuccessAt?.let { "%,d".format(analytics.blockedQueries) } ?: "—",
                   color = Color(0xFFEF4444),
                   fontSize = 16.sp,
                   fontWeight = FontWeight.Bold
@@ -131,7 +134,7 @@ fun AccountScreen(
                   fontSize = 11.sp
                 )
                 Text(
-                  text = "%%%d".format(analytics.blockedPercentage.toInt()),
+                  text = analyticsLastSuccessAt?.let { "%%%d".format(analytics.blockedPercentage.toInt()) } ?: "—",
                   color = Color(0xFF10B981),
                   fontSize = 16.sp,
                   fontWeight = FontWeight.Bold
@@ -144,6 +147,22 @@ fun AccountScreen(
             Text(
               text = "Bağlı Aktif Cihazlar: ${analytics.topDevices.size} cihaz (${analytics.topDevices.take(3).joinToString { it.name }})",
               color = MaterialTheme.colorScheme.onSurfaceVariant,
+              fontSize = 11.5.sp
+            )
+          }
+
+          if (analyticsLastSuccessAt == null) {
+            Text(
+              text = when {
+                isAnalyticsLoading -> "NextDNS analiz verisi alınıyor…"
+                !analyticsErrorMessage.isNullOrBlank() -> analyticsErrorMessage!!
+                else -> "Henüz doğrulanmış analiz verisi alınmadı."
+              },
+              color = if (!analyticsErrorMessage.isNullOrBlank() && !isAnalyticsLoading) {
+                MaterialTheme.colorScheme.error
+              } else {
+                MaterialTheme.colorScheme.onSurfaceVariant
+              },
               fontSize = 11.5.sp
             )
           }
