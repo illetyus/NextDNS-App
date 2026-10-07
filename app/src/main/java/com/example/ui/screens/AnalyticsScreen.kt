@@ -28,7 +28,6 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.compose.LocalLifecycleOwner
-import coil.compose.AsyncImage
 import com.example.data.model.AnalyticsSummary
 import com.example.data.model.DeviceMetric
 import com.example.ui.components.*
@@ -641,10 +640,11 @@ private fun RootDomainsCard(
               horizontalArrangement = Arrangement.spacedBy(8.dp),
               modifier = Modifier.weight(1f)
             ) {
-              AsyncImage(
-                model = "https://icon.horse/icon/${dom.domain}",
+              Icon(
+                imageVector = Icons.Default.Language,
                 contentDescription = null,
-                modifier = Modifier.size(16.dp).clip(CircleShape)
+                tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                modifier = Modifier.size(16.dp)
               )
               Text(
                 text = dom.domain,
