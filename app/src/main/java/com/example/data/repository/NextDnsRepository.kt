@@ -376,6 +376,44 @@ class NextDnsRepository(
     Result.success(mapped.size)
   }
 
+  suspend fun refreshProfilesFromApi(): Boolean = withContext(Dispatchers.IO) {
+    val key = _apiKey.value
+    if (key.isBlank()) return@withContext false
+
+    val response = safeApiCall("refreshProfilesFromApi") {
+      NextDnsNetworkClient.api.getProfiles(key)
+    } ?: return@withContext false
+
+    val body = response.body()
+    if (!response.isSuccessful || body.hasApiErrors()) {
+      return@withContext false
+    }
+
+    val remoteProfiles = body?.data.orEmpty().map {
+      NextDnsProfile(
+        id = it.id,
+        name = it.name,
+        fingerprint = it.fingerprint ?: ""
+      )
+    }
+
+    if (remoteProfiles.isEmpty()) return@withContext false
+
+    val currentActiveId = _activeProfileId.value
+    _profiles.value = remoteProfiles
+    preferences.saveProfiles(remoteProfiles)
+
+    if (remoteProfiles.none { it.id == currentActiveId }) {
+      val replacement = remoteProfiles.first().id
+      _activeProfileId.value = replacement
+      preferences.activeProfileId = replacement
+      loadLocalProfileData(replacement)
+      loadActiveProfileDataFromApi(key, replacement)
+    }
+
+    true
+  }
+
   suspend fun loadActiveProfileDataFromApi(key: String = _apiKey.value, profileId: String = _activeProfileId.value) = withContext(Dispatchers.IO) {
     if (key.isBlank() || profileId.isBlank()) return@withContext
     _isSyncing.value = true
