@@ -27,6 +27,8 @@ class NextDnsRepository(
   private val repoScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
   private var streamJob: Job? = null
   private var analyticsPollingJob: Job? = null
+  @Volatile private var logsStreamSeedId: String? = null
+  @Volatile private var nextLogsCursor: String? = null
 
   private val _apiKey = MutableStateFlow(preferences.apiKey)
   val apiKey = _apiKey.asStateFlow()
@@ -273,12 +275,13 @@ class NextDnsRepository(
       NextDnsNetworkClient.api.getProfiles(key)
     }
 
-    if (response == null || !response.isSuccessful) {
+    if (response == null || !response.isSuccessful || response.body().hasApiErrors()) {
       val code = response?.code() ?: -1
+      val apiDetail = response?.body()?.errors?.firstOrNull()?.detail
       val errorMsg = when (code) {
         401 -> "API Anahtarı geçersiz (401 Yetkisiz). Lütfen my.nextdns.io/account adresinden anahtarınızı kontrol edin."
         403 -> "Erişim engellendi (403 Yasak). Lütfen API anahtarınızı kontrol edin."
-        else -> "NextDNS API sunucusuna bağlanılamadı (${if (code > 0) "HTTP $code" else "Ağ Bağlantısı Hatası"})."
+        else -> apiDetail ?: "NextDNS API sunucusuna bağlanılamadı (${if (code > 0) "HTTP $code" else "Ağ Bağlantısı Hatası"})."
       }
       _apiStatus.value = ApiConnectionStatus.Error(errorMsg)
       return@withContext Result.failure(Exception(errorMsg))
@@ -647,16 +650,7 @@ class NextDnsRepository(
       "eu" -> "Avrupa Birliği (AB)"
       else -> "Amerika Birleşik Devletleri (ABD)"
     }
-    val retName = when (s.logs?.retention) {
-      6 -> "6 saat"
-      24 -> "1 gün"
-      168 -> "1 hafta"
-      720 -> "1 ay"
-      2160 -> "3 ay"
-      4320 -> "6 ay"
-      8760 -> "1 yıl"
-      else -> "2 yıl"
-    }
+    val retName = LogRetentionCodec.toLabel(s.logs?.retention) ?: "Bilinmiyor"
 
     val updated = _configSettings.value.copy(
       logsEnabled = s.logs?.enabled ?: _configSettings.value.logsEnabled,
@@ -674,11 +668,16 @@ class NextDnsRepository(
   }
 
   private suspend fun applyLogsFromApi(key: String, profileId: String) {
-    val logsResp = safeApiCall("getLogs") { NextDnsNetworkClient.api.getLogs(key, profileId, limit = 100, raw = 1) } ?: return
-    val dtoList = logsResp.body()?.data ?: return
-    if (!logsResp.isSuccessful) return
+    val logsResp = safeApiCall("getLogs") {
+      NextDnsNetworkClient.api.getLogs(key, profileId, limit = 100, raw = 1)
+    } ?: return
+    val body = logsResp.body() ?: return
+    if (!logsResp.isSuccessful || body.hasApiErrors()) return
 
-    val fetchedLogs = parseLogsResponse(dtoList)
+    logsStreamSeedId = body.meta?.stream?.id
+    nextLogsCursor = body.meta?.pagination?.cursor
+
+    val fetchedLogs = parseLogsResponse(body.data.orEmpty())
     _logs.value = fetchedLogs
     preferences.saveLogs(profileId, fetchedLogs)
   }
@@ -727,13 +726,13 @@ class NextDnsRepository(
       DnsLogEntry(
         id = UUID.randomUUID().toString(),
         timestamp = l.timestamp?.toString() ?: "",
-        domain = l.domain?.takeIf { it.isNotBlank() } ?: l.root?.takeIf { it.isNotBlank() } ?: l.rootDomain?.takeIf { it.isNotBlank() } ?: "unknown.com",
+        domain = l.domain?.takeIf { it.isNotBlank() } ?: l.root?.takeIf { it.isNotBlank() } ?: l.rootDomain?.takeIf { it.isNotBlank() } ?: "",
         clientIp = l.clientIp ?: l.clientIpSnake,
         deviceName = devName,
         blocked = l.status == "blocked",
         blockReason = if (l.status == "blocked") blockReason else null,
-        protocol = l.protocol ?: "DoH",
-        responseTimeMs = l.responseTime ?: l.responseTimeSnake ?: 14
+        protocol = l.protocol ?: "",
+        responseTimeMs = l.responseTime ?: l.responseTimeSnake
       )
     }
     updateKnownDevices(parsedLogs.mapNotNull { it.deviceName })
@@ -778,33 +777,45 @@ class NextDnsRepository(
 
   suspend fun createProfileRemote(name: String): Result<NextDnsProfile> = withContext(Dispatchers.IO) {
     val key = _apiKey.value
-    val newId = UUID.randomUUID().toString().take(6)
-
-    if (key.isNotBlank()) {
-      val resp = safeApiCall("createProfile") {
-        NextDnsNetworkClient.api.createProfile(key, NameRequest(name = name))
-      }
-      val p = resp?.body()?.data
-      if (resp?.isSuccessful == true && p != null) {
-        val created = NextDnsProfile(id = p.id, name = p.name)
-        val updatedList = _profiles.value + created
-        _profiles.value = updatedList
-        preferences.saveProfiles(updatedList)
-        _activeProfileId.value = p.id
-        preferences.activeProfileId = p.id
-        loadLocalProfileData(p.id)
-        return@withContext Result.success(created)
-      }
+    if (key.isBlank()) {
+      return@withContext Result.failure(IllegalStateException("API anahtarı olmadan profil oluşturulamaz."))
     }
 
-    val fallback = NextDnsProfile(id = newId, name = name)
-    val updatedList = _profiles.value + fallback
+    val resp = safeApiCall("createProfile") {
+      NextDnsNetworkClient.api.createProfile(key, NameRequest(name = name))
+    } ?: return@withContext Result.failure(IllegalStateException("Profil oluşturma isteği tamamlanamadı."))
+
+    val body = resp.body()
+    if (!resp.isSuccessful || body.hasApiErrors()) {
+      val detail = body?.errors?.firstOrNull()?.detail ?: "Profil NextDNS tarafından oluşturulamadı."
+      return@withContext Result.failure(IllegalStateException(detail))
+    }
+
+    val newId = body?.data?.id?.takeIf { it.isNotBlank() }
+      ?: return@withContext Result.failure(IllegalStateException("NextDNS profil kimliği döndürmedi."))
+
+    val verified = safeApiCall("getCreatedProfile") {
+      NextDnsNetworkClient.api.getProfile(key, newId)
+    }
+    val verifiedBody = verified?.body()
+    val profileDto = if (verified?.isSuccessful == true && verifiedBody.isSemanticallySuccessful()) {
+      verifiedBody?.data
+    } else {
+      null
+    }
+
+    val created = NextDnsProfile(
+      id = newId,
+      name = profileDto?.name?.takeIf { it.isNotBlank() } ?: name,
+      fingerprint = profileDto?.fingerprint ?: ""
+    )
+    val updatedList = _profiles.value.filterNot { it.id == newId } + created
     _profiles.value = updatedList
     preferences.saveProfiles(updatedList)
     _activeProfileId.value = newId
     preferences.activeProfileId = newId
     loadLocalProfileData(newId)
-    Result.success(fallback)
+    Result.success(created)
   }
 
   suspend fun deleteProfileRemote(profileId: String) = withContext(Dispatchers.IO) {
@@ -1283,16 +1294,7 @@ class NextDnsRepository(
     repoScope.launch {
       safeApiCall("pushConfigToApi") {
         val cfg = _configSettings.value
-        val retHours = when (cfg.logRetention) {
-          "6 saat" -> 6
-          "1 gün" -> 24
-          "1 hafta" -> 168
-          "1 ay" -> 720
-          "3 ay" -> 2160
-          "6 ay" -> 4320
-          "1 yıl" -> 8760
-          else -> 17520
-        }
+        val retSeconds = LogRetentionCodec.toSeconds(cfg.logRetention)
         val locCode = when (cfg.logStorageLocation) {
           "İsviçre (CH)" -> "ch"
           "Avrupa Birliği (AB)" -> "eu"
@@ -1301,7 +1303,7 @@ class NextDnsRepository(
 
         val logsDto = SettingsLogsDto(
           enabled = cfg.logsEnabled,
-          retention = retHours,
+          retention = retSeconds,
           location = locCode,
           drop = SettingsLogsDropDto(ip = !cfg.logClientIps, domain = !cfg.logDomains)
         )
@@ -1331,7 +1333,7 @@ class NextDnsRepository(
           NextDnsNetworkClient.api.updateSettingsLogs(
             key, pid, SettingsLogsUpdateRequest(
               enabled = cfg.logsEnabled,
-              retention = retHours,
+              retention = retSeconds,
               location = locCode,
               drop = SettingsLogsDropDto(ip = !cfg.logClientIps, domain = !cfg.logDomains)
             )
@@ -1367,10 +1369,13 @@ class NextDnsRepository(
       NextDnsNetworkClient.api.getLogs(key, pid, limit = limit, raw = 1)
     } ?: return
 
-    val dtoList = logsResp.body()?.data ?: return
-    if (!logsResp.isSuccessful) return
+    val body = logsResp.body() ?: return
+    if (!logsResp.isSuccessful || body.hasApiErrors()) return
 
-    val fetchedLogs = parseLogsResponse(dtoList)
+    logsStreamSeedId = body.meta?.stream?.id ?: logsStreamSeedId
+    nextLogsCursor = body.meta?.pagination?.cursor
+
+    val fetchedLogs = parseLogsResponse(body.data.orEmpty())
     if (fetchedLogs.isNotEmpty()) {
       val existing = _logs.value
       val merged = (fetchedLogs + existing).distinctBy {
@@ -1413,7 +1418,23 @@ class NextDnsRepository(
     stopLogsStream()
 
     streamJob = repoScope.launch(Dispatchers.IO) {
-      var lastId: String? = null
+      var lastId: String? = logsStreamSeedId
+
+      if (lastId == null) {
+        val seedResp = safeApiCall("seedLogsStream") {
+          NextDnsNetworkClient.api.getLogs(key, pid, limit = 100, raw = 1)
+        }
+        val seedBody = seedResp?.body()
+        if (seedResp?.isSuccessful == true && seedBody.isSemanticallySuccessful()) {
+          val seededLogs = parseLogsResponse(seedBody?.data.orEmpty())
+          _logs.value = seededLogs
+          preferences.saveLogs(pid, seededLogs)
+          logsStreamSeedId = seedBody?.meta?.stream?.id
+          nextLogsCursor = seedBody?.meta?.pagination?.cursor
+          lastId = logsStreamSeedId
+        }
+      }
+
       while (isActive) {
         try {
           val req = buildLogsStreamRequest(pid, key, lastId)
@@ -1422,6 +1443,7 @@ class NextDnsRepository(
             val body = response.body ?: return@use
             consumeSseStream(body) { newId ->
               lastId = newId
+              logsStreamSeedId = newId
             }
           }
         } catch (e: CancellationException) {
