@@ -539,23 +539,25 @@ class NextDnsRepository(
     val secResp = safeApiCall("applySecuritySettings") {
       NextDnsNetworkClient.api.getSecurity(key, profileId)
     } ?: return false
-    if (!secResp.isSuccessful) return false
-    val d = secResp.body() ?: return false
+    val body = secResp.body() ?: return false
+    if (!secResp.isSuccessful || body.hasApiErrors()) return false
+    val d = body.data ?: return false
+    val previous = _securitySettings.value
 
-    val tldList = d.tlds?.map { it.id } ?: _securitySettings.value.blockedTlds
+    val tldList = d.tlds?.map { it.id } ?: previous.blockedTlds
     val updated = SecuritySettings(
-      threatIntelligenceFeeds = d.threatIntelligenceFeeds ?: true,
-      aiThreatDetection = d.aiThreatDetection ?: true,
-      googleSafeBrowsing = d.googleSafeBrowsing ?: true,
-      cryptojacking = d.cryptojacking ?: true,
-      dnsRebinding = d.dnsRebinding ?: true,
-      idnHomographs = d.idnHomographs ?: true,
-      typosquatting = d.typosquatting ?: true,
-      dga = d.dga ?: true,
-      nrd = d.nrd ?: true,
-      ddns = d.ddns ?: false,
-      parkedDomains = d.parking ?: true,
-      csam = d.csam ?: true,
+      threatIntelligenceFeeds = d.threatIntelligenceFeeds ?: previous.threatIntelligenceFeeds,
+      aiThreatDetection = d.aiThreatDetection ?: previous.aiThreatDetection,
+      googleSafeBrowsing = d.googleSafeBrowsing ?: previous.googleSafeBrowsing,
+      cryptojacking = d.cryptojacking ?: previous.cryptojacking,
+      dnsRebinding = d.dnsRebinding ?: previous.dnsRebinding,
+      idnHomographs = d.idnHomographs ?: previous.idnHomographs,
+      typosquatting = d.typosquatting ?: previous.typosquatting,
+      dga = d.dga ?: previous.dga,
+      nrd = d.nrd ?: previous.nrd,
+      ddns = d.ddns ?: previous.ddns,
+      parkedDomains = d.parking ?: previous.parkedDomains,
+      csam = d.csam ?: previous.csam,
       blockedTlds = tldList
     )
     _securitySettings.value = updated
@@ -570,26 +572,38 @@ class NextDnsRepository(
     var allowAffiliatesVal: Boolean? = null
 
     val bResp = safeApiCall("getProfileBlocklists") { NextDnsNetworkClient.api.getProfileBlocklists(key, profileId) }
-    if (bResp?.isSuccessful == true) {
+    if (bResp?.isSuccessful == true && bResp.body().isSemanticallySuccessful()) {
       activeBlocklistDtos = bResp.body()?.data
     }
 
     val nResp = safeApiCall("getProfileNatives") { NextDnsNetworkClient.api.getProfileNatives(key, profileId) }
-    if (nResp?.isSuccessful == true) {
+    if (nResp?.isSuccessful == true && nResp.body().isSemanticallySuccessful()) {
       activeNativeDtos = nResp.body()?.data
     }
 
-    val privResp = safeApiCall("getPrivacy") { NextDnsNetworkClient.api.getPrivacy(key, profileId) }
-    if (privResp?.isSuccessful == true && privResp.body() != null) {
-      val p = privResp.body()!!
-      if (activeBlocklistDtos == null) activeBlocklistDtos = p.blocklists
-      if (activeNativeDtos == null) activeNativeDtos = p.natives
-      disguisedTrackersVal = p.disguisedTrackers
-      allowAffiliatesVal = p.allowAffiliateLinks
+    val privResp = safeApiCall("getPrivacy") {
+      NextDnsNetworkClient.api.getPrivacy(key, profileId)
+    }
+    val privBody = privResp?.body()
+    if (privResp?.isSuccessful == true && privBody.isSemanticallySuccessful()) {
+      val p = privBody?.data
+      if (p != null) {
+        if (activeBlocklistDtos == null) activeBlocklistDtos = p.blocklists
+        if (activeNativeDtos == null) activeNativeDtos = p.natives
+        disguisedTrackersVal = p.disguisedTrackers
+        allowAffiliatesVal = p.allowAffiliateLinks
+      }
     }
 
     val availResp = safeApiCall("getAvailableBlocklists") { NextDnsNetworkClient.api.getAvailableBlocklists(key) }
-    var availableDtos = if (availResp?.isSuccessful == true) availResp.body()?.data else null
+    var availableDtos = if (
+      availResp?.isSuccessful == true &&
+      availResp.body().isSemanticallySuccessful()
+    ) {
+      availResp.body()?.data
+    } else {
+      null
+    }
     if (availableDtos.isNullOrEmpty()) {
       availableDtos = NextDnsNetworkClient.fetchAvailableBlocklistsDirect()
     }
@@ -695,15 +709,18 @@ class NextDnsRepository(
     )
     _privacySettings.value = updated
     preferences.savePrivacySettings(profileId, updated)
-    return privResp?.isSuccessful == true && privResp.body() != null
+    return privResp?.isSuccessful == true &&
+      privBody.isSemanticallySuccessful() &&
+      privBody?.data != null
   }
 
   private suspend fun applyParentalSettingsFromApi(key: String, profileId: String): Boolean {
     val parentResp = safeApiCall("getParentalControl") {
       NextDnsNetworkClient.api.getParentalControl(key, profileId)
     } ?: return false
-    if (!parentResp.isSuccessful) return false
-    val pc = parentResp.body() ?: return false
+    val body = parentResp.body() ?: return false
+    if (!parentResp.isSuccessful || body.hasApiErrors()) return false
+    val pc = body.data ?: return false
 
     var servCatalog = _availableParentalServicesCatalog.value
     if (servCatalog.isEmpty()) {
@@ -809,7 +826,8 @@ class NextDnsRepository(
     val locName = when (s.logs?.location) {
       "ch" -> "İsviçre (CH)"
       "eu" -> "Avrupa Birliği (AB)"
-      else -> "Amerika Birleşik Devletleri (ABD)"
+      "us" -> "Amerika Birleşik Devletleri (ABD)"
+      else -> _configSettings.value.logStorageLocation
     }
     val retName = LogRetentionCodec.toLabel(s.logs?.retention) ?: "Bilinmiyor"
 
