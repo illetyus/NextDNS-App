@@ -567,7 +567,15 @@ class NextDnsViewModel(
         val currentPid = activePid ?: ""
         val isUsingNextDns = res.status.equals("ok", ignoreCase = true) || res.status.equals("using-nextdns", ignoreCase = true)
         val msg = if (isUsingNextDns) {
-          "Harika! NextDNS koruması bu profille aktif (${res.latencyMs} ms • ${res.protocol})."
+          val details = buildList {
+            if (res.latencyMs > 0) add("${res.latencyMs} ms")
+            res.protocol.takeIf { it.isNotBlank() }?.let(::add)
+          }.joinToString(" • ")
+          if (details.isBlank()) {
+            "NextDNS koruması bu profille aktif."
+          } else {
+            "NextDNS koruması bu profille aktif ($details)."
+          }
         } else {
           "Bağlantı kontrol edildi: Bu cihaz şu anda NextDNS kullanmıyor."
         }
