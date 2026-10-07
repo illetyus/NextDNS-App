@@ -269,6 +269,30 @@ class NextDnsApiContractTest {
   }
 
   @Test
+  fun logDownload_streamsCsvResponseFromDocumentedEndpoint() = runTest {
+    server.enqueue(
+      MockResponse()
+        .setResponseCode(200)
+        .setHeader("Content-Type", "text/csv")
+        .setBody("timestamp,domain,status\n2026-10-07T19:00:00Z,example.com,default\n")
+    )
+
+    val response = api.downloadLogsFile(
+      apiKey = "test-key",
+      profileId = "profile-1"
+    )
+
+    assertTrue(response.isSuccessful)
+    assertTrue(
+      response.body()?.string()?.contains("example.com") == true
+    )
+
+    val request = server.takeRequest()
+    assertEquals("/profiles/profile-1/logs/download", request.path)
+    assertEquals("test-key", request.getHeader("X-Api-Key"))
+  }
+
+  @Test
   fun retentionCodec_usesSecondsAtApiBoundary() {
     assertEquals(21_600, LogRetentionCodec.toSeconds("6 saat"))
     assertEquals(86_400, LogRetentionCodec.toSeconds("1 gün"))
