@@ -1636,9 +1636,21 @@ class NextDnsRepository(
   fun startAnalyticsPolling() {
     analyticsPollingJob?.cancel()
     analyticsPollingJob = repoScope.launch {
+      var nextDelayMs = SyncPolicy.ANALYTICS_POLL_MS
       while (isActive) {
-        fetchAnalytics(_apiKey.value, _activeProfileId.value, currentAnalyticsDevice, currentAnalyticsTime)
-        delay(30000)
+        val success = fetchAnalytics(
+          _apiKey.value,
+          _activeProfileId.value,
+          currentAnalyticsDevice,
+          currentAnalyticsTime
+        )
+        nextDelayMs = SyncPolicy.nextDelay(
+          success = success,
+          currentDelayMs = nextDelayMs,
+          baseDelayMs = SyncPolicy.ANALYTICS_POLL_MS,
+          maxDelayMs = SyncPolicy.ANALYTICS_MAX_BACKOFF_MS
+        )
+        delay(nextDelayMs)
       }
     }
   }
@@ -1859,6 +1871,7 @@ class NextDnsRepository(
     response: Response<NextDnsApiResponse<List<AnalyticsItemDto>>>?,
     totalQueries: Long
   ): Map<String, Pair<Double, Long>> {
+    if (!response.isUsableApiResponse()) return _analytics.value.gafamMetrics
     val gafamMetrics = mutableMapOf<String, Pair<Double, Long>>()
     if (response.isUsableApiResponse()) {
       val data = response?.body()?.data ?: emptyList()
@@ -1876,6 +1889,7 @@ class NextDnsRepository(
     response: Response<NextDnsApiResponse<List<AnalyticsItemDto>>>?,
     totalQueries: Long
   ): List<Pair<String, Double>> {
+    if (!response.isUsableApiResponse()) return _analytics.value.topCountries
     val topCountries = mutableListOf<Pair<String, Double>>()
     if (response.isUsableApiResponse()) {
       response?.body()?.data?.forEach { item ->
@@ -1897,7 +1911,7 @@ class NextDnsRepository(
     response: Response<NextDnsApiResponse<List<AnalyticsItemDto>>>?,
     totalQueries: Long
   ): Double {
-    if (!response.isUsableApiResponse()) return 0.0
+    if (!response.isUsableApiResponse()) return _analytics.value.dnssecPercentage.toDouble()
     val items = response.body()?.data ?: emptyList()
     val validated = items.find { it.validated == true || it.id == "validated" || it.id == "true" }?.queries ?: 0L
     return if (totalQueries > 0) ((validated.toDouble() / totalQueries) * 100.0).coerceIn(0.0, 100.0) else 0.0
@@ -1907,7 +1921,7 @@ class NextDnsRepository(
     response: Response<NextDnsApiResponse<List<AnalyticsItemDto>>>?,
     totalQueries: Long
   ): Double {
-    if (!response.isUsableApiResponse()) return 0.0
+    if (!response.isUsableApiResponse()) return _analytics.value.encryptedDnsPercentage.toDouble()
     val items = response.body()?.data ?: emptyList()
     val encrypted = items.find { it.encrypted == true || it.id == "encrypted" || it.id == "true" }?.queries ?: 0L
     return if (totalQueries > 0) ((encrypted.toDouble() / totalQueries) * 100.0).coerceIn(0.0, 100.0) else 0.0
@@ -1969,8 +1983,8 @@ class NextDnsRepository(
   // Main Analytics Fetching Function
   // =========================================================================
 
-  suspend fun fetchAnalytics(key: String, profileId: String, device: String? = null, from: String? = null) {
-    if (key.isBlank() || profileId.isBlank()) return
+  suspend fun fetchAnalytics(key: String, profileId: String, device: String? = null, from: String? = null): Boolean {
+    if (key.isBlank() || profileId.isBlank()) return false
 
     currentAnalyticsDevice = device
     currentAnalyticsTime = from
@@ -2077,11 +2091,20 @@ class NextDnsRepository(
       )
     }
 
-    val (totalQueries, blockedQueries) = parseStatusMetrics(statusResp)
+    if (!statusResp.isUsableApiResponse()) {
+      return false
+    }
+
+    val previousAnalytics = _analytics.value
+    val (totalQueries, blockedQueries) = parseStatusMetrics(
+      statusResp,
+      fallbackTotal = previousAnalytics.totalQueries,
+      fallbackBlocked = previousAnalytics.blockedQueries
+    )
     val topDevices = parseTopDevices(devicesResp)
-    val topAllowedDomains = parseTopDomains(allowedDomainsResp, emptyList())
-    val topBlockedDomains = parseTopDomains(blockedDomainsResp, emptyList())
-    val topDomains = parseTopDomains(rootDomainsResp, emptyList())
+    val topAllowedDomains = parseTopDomains(allowedDomainsResp, previousAnalytics.topAllowedDomains)
+    val topBlockedDomains = parseTopDomains(blockedDomainsResp, previousAnalytics.topBlockedDomains)
+    val topDomains = parseTopDomains(rootDomainsResp, previousAnalytics.topDomains)
     val topBlockedReasons = parseBlockedReasons(reasonsResp)
     val protocols = parseProtocolMetrics(protocolsResp)
     val queryTypes = parseQueryTypeMetrics(queryTypesResp)
@@ -2115,6 +2138,7 @@ class NextDnsRepository(
     )
 
     _analytics.value = updatedAnalytics
+    return true
   }
 
   fun formatBlockReason(rawId: String?, rawName: String?): String {
