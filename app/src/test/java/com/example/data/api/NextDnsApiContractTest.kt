@@ -169,6 +169,37 @@ class NextDnsApiContractTest {
   }
 
   @Test
+  fun analyticsQueryTypes_supportsDocumentedWindowAndPaginationParams() = runTest {
+    server.enqueue(
+      MockResponse()
+        .setResponseCode(200)
+        .setBody(
+          """{"data":[{"type":28,"name":"AAAA","queries":356230}],"meta":{"pagination":{"cursor":"next-page"}}}"""
+        )
+    )
+
+    val response = api.getAnalyticsQueryTypes(
+      apiKey = "test-key",
+      profileId = "profile-1",
+      from = "-7d",
+      to = "now",
+      limit = 50,
+      cursor = "cursor-1"
+    )
+
+    assertTrue(response.isSuccessful)
+    assertEquals("AAAA", response.body()?.data?.firstOrNull()?.name)
+    assertEquals(28, response.body()?.data?.firstOrNull()?.type)
+    assertEquals("next-page", response.body()?.meta?.pagination?.cursor)
+
+    val path = server.takeRequest().path.orEmpty()
+    assertTrue(path.contains("from=-7d"))
+    assertTrue(path.contains("to=now"))
+    assertTrue(path.contains("limit=50"))
+    assertTrue(path.contains("cursor=cursor-1"))
+  }
+
+  @Test
   fun retentionCodec_usesSecondsAtApiBoundary() {
     assertEquals(21_600, LogRetentionCodec.toSeconds("6 saat"))
     assertEquals(86_400, LogRetentionCodec.toSeconds("1 gün"))
