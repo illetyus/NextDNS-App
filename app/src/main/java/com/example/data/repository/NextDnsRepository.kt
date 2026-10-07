@@ -606,8 +606,9 @@ class NextDnsRepository(
       if (accResp.isSuccessful && body.isSemanticallySuccessful()) {
         val d = body?.data
         if (d != null) {
-          val email = d.email?.takeIf { it.isNotBlank() } ?: preferences.userEmail.takeIf { it.isNotBlank() }
-          val name = d.name?.takeIf { it.isNotBlank() } ?: preferences.userName.takeIf { it.isNotBlank() } ?: email?.substringBefore("@")?.replaceFirstChar { it.uppercase() }
+          val email = d.email?.takeIf { it.isNotBlank() }
+          val name = d.name?.takeIf { it.isNotBlank() }
+            ?: email?.substringBefore("@")?.replaceFirstChar { it.uppercase() }
           _accountInfo.value = NextDnsAccountInfo(
             email = email,
             name = name,
@@ -622,11 +623,9 @@ class NextDnsRepository(
       // /account is undocumented/non-contractual; keep a local fallback.
     }
 
-    val email = preferences.userEmail.takeIf { it.isNotBlank() }
-    val name = preferences.userName.takeIf { it.isNotBlank() } ?: email?.substringBefore("@")?.replaceFirstChar { it.uppercase() }
     _accountInfo.value = NextDnsAccountInfo(
-      email = email,
-      name = name,
+      email = null,
+      name = null,
       plan = null,
       subscriptionStatus = null,
       subscriptionPeriod = null
