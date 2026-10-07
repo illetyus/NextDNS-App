@@ -18,6 +18,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.ui.components.*
 import com.example.ui.theme.*
 import com.example.ui.viewmodel.NextDnsViewModel
@@ -27,7 +28,7 @@ fun SecurityScreen(
   viewModel: NextDnsViewModel,
   modifier: Modifier = Modifier
 ) {
-  val settings by viewModel.securitySettings.collectAsState()
+  val settings by viewModel.securitySettings.collectAsStateWithLifecycle()
   var showAddTldDialog by remember { mutableStateOf(false) }
   var newTldInput by remember { mutableStateOf("") }
 
@@ -221,7 +222,7 @@ fun SecurityScreen(
 
   // TLD Ekle Dialog
   if (showAddTldDialog) {
-    val liveTldCatalog by viewModel.availableTldsCatalog.collectAsState()
+    val liveTldCatalog by viewModel.availableTldsCatalog.collectAsStateWithLifecycle()
     var tldSearchQuery by remember { mutableStateOf("") }
 
     val rawTldList = if (liveTldCatalog.isNotEmpty()) {
