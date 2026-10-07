@@ -105,6 +105,18 @@ class NextDnsRepository(
   )
   val sectionSyncStates = _sectionSyncStates.asStateFlow()
 
+  private fun resetProfileScopedRuntimeState() {
+    stopLogsStream()
+    logsStreamSeedId = null
+    nextLogsCursor = null
+    currentAnalyticsDevice = null
+    currentAnalyticsTime = null
+    _knownDeviceNameToId.clear()
+    _knownDeviceIdToName.clear()
+    _allKnownDevices.value = emptyList()
+    _sectionSyncStates.value = SyncSection.values().associateWith { SectionSyncState() }
+  }
+
   private fun updateSectionSyncState(
     section: SyncSection,
     transform: (SectionSyncState) -> SectionSyncState
@@ -399,6 +411,7 @@ class NextDnsRepository(
       mapped.first().id
     }
 
+    resetProfileScopedRuntimeState()
     _activeProfileId.value = targetProfileId
     preferences.activeProfileId = targetProfileId
     _apiStatus.value = ApiConnectionStatus.Connected(mapped.size)
@@ -429,6 +442,7 @@ class NextDnsRepository(
     _apiStatus.value = ApiConnectionStatus.Connected(remoteProfiles.size)
 
     if (remoteProfiles.isEmpty()) {
+      resetProfileScopedRuntimeState()
       _activeProfileId.value = ""
       preferences.activeProfileId = ""
       return@withContext true
@@ -436,6 +450,7 @@ class NextDnsRepository(
 
     if (remoteProfiles.none { it.id == currentActiveId }) {
       val replacement = remoteProfiles.first().id
+      resetProfileScopedRuntimeState()
       _activeProfileId.value = replacement
       preferences.activeProfileId = replacement
       loadLocalProfileData(replacement)
@@ -896,6 +911,7 @@ class NextDnsRepository(
   // =========================================================================
 
   fun logout() {
+    resetProfileScopedRuntimeState()
     preferences.clear()
     _apiKey.value = ""
     _activeProfileId.value = ""
@@ -913,6 +929,7 @@ class NextDnsRepository(
   }
 
   fun setActiveProfile(profileId: String) {
+    resetProfileScopedRuntimeState()
     _activeProfileId.value = profileId
     preferences.activeProfileId = profileId
     loadLocalProfileData(profileId)
@@ -1568,6 +1585,7 @@ class NextDnsRepository(
     if (key.isBlank() || pid.isBlank()) return
 
     stopLogsStream()
+    _isLiveStreaming.value = true
 
     streamJob = repoScope.launch(Dispatchers.IO) {
       var lastId: String? = logsStreamSeedId
@@ -1587,22 +1605,31 @@ class NextDnsRepository(
         }
       }
 
+      var reconnectDelayMs = 2_000L
       while (isActive) {
         try {
           val req = buildLogsStreamRequest(pid, key, lastId)
           NextDnsNetworkClient.client.newCall(req).execute().use { response ->
-            if (!response.isSuccessful) return@use
-            val body = response.body ?: return@use
+            if (!response.isSuccessful) {
+              throw java.io.IOException("Logs stream HTTP ${response.code}")
+            }
+            val body = response.body
+              ?: throw java.io.IOException("Logs stream body is empty")
+
+            reconnectDelayMs = 2_000L
             consumeSseStream(body) { newId ->
               lastId = newId
               logsStreamSeedId = newId
             }
           }
+
+          if (isActive) delay(500L)
         } catch (e: CancellationException) {
           throw e
         } catch (e: Exception) {
           Log.e(TAG, "Stream error: ${e.message}")
-          delay(2000)
+          delay(reconnectDelayMs)
+          reconnectDelayMs = (reconnectDelayMs * 2).coerceAtMost(60_000L)
         }
       }
     }
@@ -1690,6 +1717,7 @@ class NextDnsRepository(
   fun stopLogsStream() {
     streamJob?.cancel()
     streamJob = null
+    _isLiveStreaming.value = false
   }
 
   // =========================================================================
