@@ -15,17 +15,17 @@
 | A3 | General audience; not specifically directed at children. | Do not assert the service is 18+ or target children. Play Console target audience and content classification reviewed separately in Phase 9. |
 | A4 | No application-specific account ownership restriction. Users must obey NextDNS service terms and applicable law. | Do **not** assert users may only use their personally owned account. Terms prohibit unlawful/unauthorized access to the extent required by applicable law/NextDNS terms without inventing an additional ownership restriction. |
 | A5 | Logout removes API key, local account/profile caches and their notification tasks; preserves optional display/theme preferences. | Purge `NextDnsPreferences` profile settings and key; clear `NotificationPreferences` all account-scoped digests, timestamps, daily summary baseline, and selected account notification settings; cancel active WorkManager jobs; stop SSE/polling and invalidate in-flight calls before another account signs in. Exported documents written to user-chosen storage remain user-managed; NextDNS remote account and DNS logs **not** deleted by logout. |
-| A6 | Terms of Use and Privacy Policy documents only in English. | Both full legal documents maintained in English. If Turkish or other local-language privacy notices are necessary for applicable law/target territories, pause expansion until compliance solution is approved; do not pretend an English-only document always meets every country's transparency standard. Application UI translation is a separate product choice. |
+| A6 (revised after the language choice) | Five UI and Terms of Use languages: Turkish, English, German, French and Spanish. The Privacy Policy remains English-only for now. | Prepare five legally faithful Terms translations, retain one material revision across translations, and show the selected app language. English-only Privacy must be clearly labeled; determine whether local-language privacy notices are legally necessary before publication in target territories. |
 
 ## B. Delivery slices (phased)
 
 ### Slice 1 — Legal documents and publication metadata (Phase 8: drafts / Phase 9: final)
 
-1. Prepare authoritative English `Terms of Use` with sections on independent/unofficial client identity, API key and service functionality, proper/legal use and NextDNS terms, service updates/API outages, software AS-IS warranty limits only as permitted by law, data deletion distinctions, relevant contact details, changes and effective date, applicable law/dispute terms after review.
+1. Prepare an English drafting master for `Terms of Use` and legally reviewed Turkish, German, French and Spanish translations of the **same revision**. All five should cover independent/unofficial client identity, API key and service functionality, proper/legal use and NextDNS terms, service updates/API outages, software AS-IS warranty limits only as permitted by law, data deletion distinctions, relevant contact details, changes and effective date, applicable law/dispute terms after review.
 2. Prepare separate English `Privacy Policy` describing: key encryption Android Keystore AES-GCM; what profile/config, DNS logs/IP/device information the app reads; local plaintext profile cache that is inside a backup-excluded preferences file; NextDNS API transfers; NextDNS-provided URL used for log exports; user-created files saved outside the application's sandbox; optional background notification polling; notification settings DataStore; exact retention/deletion behavior; absence of developer-controlled telemetry/ad SDK in launch design, subject to final APK check; data requests and developer privacy contact.
 3. Do not place a blanket `I consent to processing` in the Terms checkbox. For processing needing specific consent (if ever present), use a separate optional or required-before-feature disclosure/consent tied to the processing.
 4. Complete before publication: **verified developer legal/display name, support & privacy contact, final app/store name, canonical HTTPS URLs, policy effective date, policy change log, NextDNS trademark/IP review, per-territory legal check**. No made-up contacts/URLs or blanket liability waiver.
-5. Host the final English Privacy Policy on an **active publicly accessible, non-geofenced, read-only/non-editable HTTPS web page (not PDF)** and link it in-app and in Play Console; make Terms equally easy to read. Consider static hosting (GitHub Pages or other controlled HTTPS pages), do not require GitHub login.
+5. Host the final English Privacy Policy on an **active publicly accessible, non-geofenced, read-only/non-editable HTTPS web page (not PDF)** and link it in-app and in Play Console; host or bundle all five Terms translations with clear language selectors. Consider static hosting (GitHub Pages or other controlled HTTPS pages), do not require GitHub login.
 6. Ensure Play Console Data Safety and user-facing notices agree with tested release APK's actual data flows and SDKs.
 
 ### Slice 2 — Consent/version gating (Phase 9 implementation, before release)
@@ -70,7 +70,7 @@ Required automated tests:
 - Logout with notifications enabled and populated caches: API key removed; cached records and notification DataStore removed; workers cancelled; theme remains.
 - Logout then login to a different NextDNS profile: no stale notifications, SSE, DNS log or previous user's cached settings.
 - Exported user file remains outside app deletion (accurately disclosed).
-- Strings, links, HTML rendering and screen-reader accessibility in English; reject missing/offline URL by providing bundled content.
+- Localized Terms reading/acceptance, user-facing links, HTML rendering and screen-reader accessibility in Turkish, English, German, French and Spanish; label the separate English Privacy Policy clearly. Reject missing/offline URLs by providing bundled offline document content.
 - Terms of Use is a product agreement only; Privacy Policy is available without treating its display as independent legal consent.
 
 Manual/device release tests (Phase 9):
@@ -80,7 +80,7 @@ Manual/device release tests (Phase 9):
 ### Slice 5 — Shipping approval and maintenance (Phase 9 / Faz 10)
 
 Acceptance criteria:
-- [ ] English Terms and Privacy Policy texts completed, peer-reviewed for clarity, legally reviewed in relevant jurisdictions; validated developer/support identity and working URLs.
+- [ ] English Privacy Policy and five matching Terms of Use language versions completed, peer-reviewed for clarity and legally reviewed in relevant jurisdictions; validated developer/support identity and working URLs.
 - [ ] User can read both texts without sign-in or live API key and may decline Terms (no hidden backend requests).
 - [ ] Only Terms checkbox governs agreement; distinct privacy consent/disclosure handled independently if applicable.
 - [ ] Relevant revisions are stored locally, enforced consistently across process restarts/upgrades and remain offline-capable.
@@ -99,3 +99,7 @@ Acceptance criteria:
 ## D. Status / no premature implementation claim
 
 This commit **documents** the approved design and required changes. It does **not** add a consent screen, publish final terms, finalize the developer identity, change the Android logout implementation, or constitute a legal compliance certification.
+
+### Localization addendum (2026-10-08)
+
+After the original six questionnaire answers, the developer selected **five launch UI languages** and authorized **Terms of Use in those same languages**. This amends only the language portion of A6: the Privacy Policy remains English-only unless changed by a later decision or a legally required local disclosure. See [PHASE9_LOCALIZATION_PLAN.md](PHASE9_LOCALIZATION_PLAN.md). The five Terms translations must be aligned to the same reviewed version; language switching alone must not trigger a new acceptance for unchanged material terms.
