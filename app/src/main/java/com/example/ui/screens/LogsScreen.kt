@@ -252,7 +252,8 @@ private fun LogsHeaderControls(
         modifier = Modifier
           .clip(RoundedCornerShape(10.dp))
           .border(1.dp, MaterialTheme.colorScheme.outline, RoundedCornerShape(10.dp))
-          .bounceClick { onToggleDeviceMenu(true) },
+          .heightIn(min = 48.dp)
+          .bounceClick(scaleDown = 0.99f) { onToggleDeviceMenu(true) },
         color = MaterialTheme.colorScheme.surface,
         shape = RoundedCornerShape(10.dp)
       ) {
@@ -520,7 +521,8 @@ private fun LogItemRow(
                 if (isCopied) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.outline.copy(alpha = 0.6f),
                 RoundedCornerShape(6.dp)
               )
-              .bounceClick {
+              .sizeIn(minWidth = 48.dp, minHeight = 48.dp)
+              .bounceClick(scaleDown = 0.99f) {
                 copyToClipboard(context, log.domain, "Alan adı")
                 isCopied = true
               },
