@@ -268,8 +268,7 @@ class NextDnsPreferences(
     }
   }
 
-  fun clear() {
-    prefs.edit().clear().apply()
-  }
+  /** Synchronous deletion result is required before reporting a successful sign-out. */
+  fun clear(): Boolean = prefs.edit().clear().commit()
 }
 
