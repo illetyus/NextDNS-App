@@ -60,7 +60,15 @@ Google Play'in Data Safety beyanı, **uygulamanın gerçekten topladığı ve pa
 - **Güncellenen dil kararı (8 Ekim 2026):** Terms of Use beş dilde (Türkçe, İngilizce, Almanca, Fransızca, İspanyolca) hazırlanacak; Privacy Policy tam metni **şimdilik yalnızca İngilizce**. Yerel mevzuatın ayrıca bilgilendirme/yerel dil gereklilikleri yayın kapısıdır. Ayrıntılar: [PHASE9_LOCALIZATION_PLAN.md](PHASE9_LOCALIZATION_PLAN.md).
 - **Ayrıntılı teknik plan ve kabul testleri:** [TERMS_PRIVACY_IMPLEMENTATION_PLAN.md](TERMS_PRIVACY_IMPLEMENTATION_PLAN.md).
 
-## 5. Açık yayın maddeleri
+## 5. Bağımsız istemci ve üçüncü taraf API beyanı — ek karar (8 Ekim 2026)
+
+- Uygulamanın **bağımsız/resmî olmayan bir NextDNS hesap yönetim istemcisi** olduğu; NextDNS tarafından geliştirilmediği, işletilmediği, desteklenmediği veya onaylanmadığı (gerçek durum değişmedikçe) mağaza sayfasında ve ilk kullanımda açıklanacak.
+- NextDNS'e ait DNS altyapısı, hesaplar, abonelikler, API'nin kullanılabilirliği ve sunucu tarafındaki DNS/günlük süreçleri NextDNS'in kendi hizmet alanıdır. Ancak geliştirici, **uygulamanın kodu, API istekleri, cihazda saklanan veriler, güvenlik ve doğru bilgilendirme** konusundaki uygulanabilir yükümlülüklerinden feragat edemez. "Hiçbir sorumluluğumuz yoktur" gibi toptan hükümler yazılmayacak.
+- Mevcut uygulama kodunun doğrudan bağımlılık listesinde Firebase, AdMob, Google Sign-In, Google Cloud API veya Billing entegrasyonu görünmüyor. AndroidX/KSP kullanımı tek başına Google çevrim içi servis entegrasyonu değildir; NextDNS içindeki `googleSafeBrowsing` alanı Google API istemcisi kanıtı değildir. Son derleme, transitive bağımlılıklar ve gerçek ağ bağlantıları yayın öncesi doğrulanacak.
+- Google Play'in **Data safety** alanında NextDNS'e cihazdan yapılan aktarım da değerlendirilir; "geliştirici sunucusuna gitmiyor" gerekçesiyle otomatik **veri toplanmıyor** denmez. Bağımsız istemci etiketi Google Play veri/SDK/marka yükümlülüklerinden muafiyet sağlamaz.
+- Ayrıntılı metin ve Play açıklama matrisi: [INDEPENDENT_CLIENT_AND_GOOGLE_PLAY_DISCLOSURE_PLAN.md](INDEPENDENT_CLIENT_AND_GOOGLE_PLAY_DISCLOSURE_PLAN.md).
+
+## 6. Açık yayın maddeleri
 
 - [ ] Geliştirici adı, destek e-postası ve privacy URL doğrulandı (Play listede geliştirici/uygulama adı eşleşiyor).
 - [ ] Gerçek uygulama mağaza başlığı ve logo/NextDNS izni çözülmüş.
