@@ -81,6 +81,7 @@ class NextDnsNotificationWorker(
         if (!isCurrentSession(apiKey, profileId)) return Result.success()
         handleConfigSnapshot(
           preferences = preferences,
+          apiKey = apiKey,
           profileId = profileId,
           digest = ConfigSnapshotHasher.digest(snapshot),
           now = now
@@ -106,7 +107,7 @@ class NextDnsNotificationWorker(
             blockedQueries = summary.blockedQueries
           )
 
-          if (posted) {
+          if (posted && isCurrentSession(apiKey, profileId)) {
             preferences.markSummaryDay(today)
           }
         }
@@ -124,11 +125,14 @@ class NextDnsNotificationWorker(
 
   private suspend fun handleConfigSnapshot(
     preferences: NotificationPreferences,
+    apiKey: String,
     profileId: String,
     digest: String,
     now: Long
   ) {
     val state = preferences.configState(profileId)
+    // An async request may finish after sign-out or after account switching.
+    if (!isCurrentSession(apiKey, profileId)) return
 
     if (
       NotificationPolicy.isLocalMutationSuppressed(
@@ -168,6 +172,8 @@ class NextDnsNotificationWorker(
       return
     }
 
+    if (!isCurrentSession(apiKey, profileId)) return
+
     if (
       NotificationPolicy.shouldNotifyConfigChange(
         currentDigest = digest,
@@ -177,7 +183,9 @@ class NextDnsNotificationWorker(
       ) &&
       NotificationCenter.postConfigChanged(applicationContext)
     ) {
-      preferences.markConfigNotified(profileId, digest, now)
+      if (isCurrentSession(apiKey, profileId)) {
+        preferences.markConfigNotified(profileId, digest, now)
+      }
     }
   }
 
