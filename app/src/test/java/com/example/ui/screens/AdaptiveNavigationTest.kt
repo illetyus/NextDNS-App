@@ -1,5 +1,6 @@
 package com.example.ui.screens
 
+import com.example.ui.viewmodel.NavTab
 import org.junit.Assert.assertEquals
 import org.junit.Test
 
