@@ -27,7 +27,7 @@ The `app/src/main/res/values/strings.xml` file currently contains only the app l
 5. **Translation and legal QA.** Terms translations must preserve legal intent, notices, rights and limitations; they require qualified review for jurisdictions where distributed. Avoid claiming one language overrides locally mandatory consumer/protection rules. Track matching document revision/date and translations for every updated Terms edition. Accessibility and readable offline Terms also need testing.
 6. **Privacy Policy.** Publish the English Privacy Policy with clear localized links marked `Privacy Policy (English)`. Legal review of whether privacy notice/local language is required in any target territory is a **release gate**. If needed, arrange compliant translation/additional notices instead of claiming English alone necessarily suffices.
 7. **Tests and release.** Automated tests for missing/invalid resource keys, placeholder/plural mismatches, unsupported-locale fallback, saved manual preference, locale change with API session and Terms acceptance preserved, English-only Privacy Policy link, and material Terms change. BrowserStack manual/automated tests across 5 locales, large fonts, rotation, long German/French text, Turkish `I/İ/ı/i`, diacritics, notifications and RTL-compatible structure (without committing RTL as a launch language). English legal document content remains inspectable offline when bundled.
-8. **Play listing.** Whether store descriptions/screenshots are localized to all five languages is a separate **Phase 9 store-marketing decision**; do not silently settle it by the UI-language choice. Final app name, icon and brand disclaimer also remain Phase 9 decisions.
+8. **Play listing.** Whether store descriptions/screenshots are localized to all five languages is a separate **Phase 9 store-marketing decision**; do not silently settle it by the UI-language choice. The app name is **Open Source Client for NextDNS**; the original icon and brand disclaimer remain Phase 9 decisions.
 
 ## Binding legal-writing style decision — all five languages (2026-10-08)
 
@@ -64,3 +64,8 @@ The next legal-document drafting milestone has been executed in the same branch:
 - [Conditional Turkish KVKK aydınlatma template](legal/KVKK_AYDINLATMA_TR_TASLAK.md) — activity-specific inventory, not a consent agreement; requires controller-role and concrete legal-basis analysis before publication.
 
 **Not completed:** identity/support and effective dates; independent API/trademark terms confirmation; reviewed legal equivalence across locales; role/transfer assessment; tested signed AAB, storage/logout behavior; publication URLs; legal expert review; any live screen implementation. These remain release blockers.
+
+
+## 2026-10-08 — Confirmed app name and GitHub repository rename
+
+The application name was agreed as **Open Source Client for NextDNS** and has now been applied to Android `app_name`, the login wordmark, project README/NOTICE, offline legal drafts and metadata. The intended GitHub repository slug is `illetyus/open-source-client-for-nextdns`. No rename of Android `applicationId` or NextDNS provider/API identifiers was requested. **The launcher icon is not yet cleared for public release**, and five-language translation of all UI text remains outstanding.
