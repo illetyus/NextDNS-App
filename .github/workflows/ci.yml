@@ -2,7 +2,7 @@ name: Android CI & Security
 
 on:
   push:
-    branches: [ "main", "phase8-compliance" ]
+    branches: [ "main" ]
   pull_request:
     branches: [ "main", "phase7-ci-quality" ]
 
