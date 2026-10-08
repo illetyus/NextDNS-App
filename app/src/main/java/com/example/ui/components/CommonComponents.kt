@@ -38,12 +38,12 @@ import androidx.compose.ui.unit.sp
 import com.example.ui.theme.*
 
 /**
- * Android 16 Tactile Spring Bounce Modifier:
- * Provides fluid squishy spring feedback and haptic vibration on touch.
+ * Subtle press feedback for custom clickable surfaces.
+ * Uses a non-bouncy spring and keeps motion intentionally small.
  */
 @Composable
 fun Modifier.bounceClick(
-  scaleDown: Float = 0.94f,
+  scaleDown: Float = 0.98f,
   enabled: Boolean = true,
   onClick: (() -> Unit)? = null
 ): Modifier {
