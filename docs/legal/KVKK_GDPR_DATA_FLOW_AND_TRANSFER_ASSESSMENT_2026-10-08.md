@@ -6,7 +6,7 @@
 
 ## 1. Ürün modeli ve hukuki inceleme yöntemi
 
-NextDNS-App bağımsız, resmî olmayan Android hesap-yönetim istemcisidir; DNS çözümleme sunucusu, VPN, abonelik satıcısı veya NextDNS altyapısının işletmecisi değildir. Amaçlanan ilk sürümde uygulama verileri geliştiricinin sunucusuna iletilmemekte; cihaz, NextDNS API uçlarına doğrudan bağlanmaktadır. Bu iddia son imzalı AAB/APK'nın ağ trafiği ile ayrıca doğrulanacaktır.
+Open Source Client for NextDNS bağımsız, resmî olmayan Android hesap-yönetim istemcisidir; DNS çözümleme sunucusu, VPN, abonelik satıcısı veya NextDNS altyapısının işletmecisi değildir. Amaçlanan ilk sürümde uygulama verileri geliştiricinin sunucusuna iletilmemekte; cihaz, NextDNS API uçlarına doğrudan bağlanmaktadır. Bu iddia son imzalı AAB/APK'nın ağ trafiği ile ayrıca doğrulanacaktır.
 
 **Sözleşme veya aydınlatmadaki etiket tek başına belirleyici değildir.** KVKK/GDPR veri sorumlusu, veri işleyen ve bağımsız sağlayıcı sıfatları her işlem için amaç ve esaslı vasıtaları fiilen kimin belirlediğine göre ayrılır. NextDNS sunucu hizmeti ile geliştiricinin cihazda çalışan yazılımı aynı faaliyet değildir. Kullanıcının NextDNS'e doğrudan veri göndermesi de geliştiricinin GDPR/KVKK yurt dışı veri aktaran tarafı olduğu veya olmadığı yönünde kendiliğinden kesin hüküm kurdurmaz.
 

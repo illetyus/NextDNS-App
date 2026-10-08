@@ -956,7 +956,7 @@ object NextDnsNetworkClient {
       val request = Request.Builder()
         .url(testUrl)
         .header("Accept", "application/json")
-        .header("User-Agent", "Mozilla/5.0 (Linux; Android 14) NextDNS/App")
+        .header("User-Agent", "Mozilla/5.0 (Linux; Android 14) OpenSourceClientForNextDNS/1.0")
         .build()
       val response = client.newCall(request).execute()
       val bodyStr = response.body?.string() ?: return null

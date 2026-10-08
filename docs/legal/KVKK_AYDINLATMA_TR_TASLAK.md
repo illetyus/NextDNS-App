@@ -1,4 +1,4 @@
-# [UYGULAMANIN NİHAİ ADI] — Türkiye KVKK Aydınlatma Metni (koşullu taslak)
+# Open Source Client for NextDNS — Türkiye KVKK Aydınlatma Metni (koşullu taslak)
 
 **DURUM: YAYINLANMAYACAK ÇALIŞMA TASLAĞI — 8 Ekim 2026.**  
 Bu metin "KVKK sözleşmesi" veya genel açık rıza belgesi değildir. 6698 sayılı Kanun m.10 uyarınca **uygulama geliştiricisinin veri sorumlusu sıfatını taşıdığı belirlenen somut işlemler** için hazırlanacak aydınlatmanın taslak iskeletidir. Veri sorumlusu sıfatı, işleme faaliyeti bazında ayrıca doğrulanmadan bu belge uygulamaya veya internet sitesine konulamaz. NextDNS'e ait veri işleme faaliyetleri, otomatik olarak uygulama geliştiricisine atfedilemez.
@@ -10,7 +10,7 @@ Bu metin "KVKK sözleşmesi" veya genel açık rıza belgesi değildir. 6698 say
 
 ## 1. Aydınlatmanın kapsamı
 
-[UYGULAMANIN NİHAİ ADI], NextDNS hizmetinin bağımsız ve resmî olmayan Android yönetim istemcisidir. NextDNS, hesapların, DNS altyapısının, sunucu ortamının, hizmete ait kayıtların ve abonelik işlemlerinin ayrı sağlayıcısıdır. Bu metin, yalnızca uygulama geliştiricisinin veri sorumlusu sıfatıyla gerçekleştirdiği tespit edilen işlem ve veri kategorilerini kapsar; NextDNS'in kendi sunucularındaki işlemlerinin tümünü kapsadığı iddia edilmez.
+Open Source Client for NextDNS, NextDNS hizmetinin bağımsız ve resmî olmayan Android yönetim istemcisidir. NextDNS, hesapların, DNS altyapısının, sunucu ortamının, hizmete ait kayıtların ve abonelik işlemlerinin ayrı sağlayıcısıdır. Bu metin, yalnızca uygulama geliştiricisinin veri sorumlusu sıfatıyla gerçekleştirdiği tespit edilen işlem ve veri kategorilerini kapsar; NextDNS'in kendi sunucularındaki işlemlerinin tümünü kapsadığı iddia edilmez.
 
 ## 2. İşleme faaliyetleri, kişisel veri kategorileri, amaçlar ve hukuki sebepler
 

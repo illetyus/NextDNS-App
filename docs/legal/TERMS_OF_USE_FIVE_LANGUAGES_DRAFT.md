@@ -1,8 +1,8 @@
-# NextDNS-App — Terms of Use / Kullanım Koşulları / Nutzungsbedingungen / Conditions d’utilisation / Condiciones de uso
+# Open Source Client for NextDNS — Terms of Use / Kullanım Koşulları / Nutzungsbedingungen / Conditions d’utilisation / Condiciones de uso
 
 **DOCUMENT STATUS: LEGAL DRAFT — NOT FOR PUBLICATION OR IN-APP DISPLAY.**  
 **Draft revision:** 0.1; **draft date:** 2026-10-08.  
-**Final application name:** [FINAL APP NAME — UNDECIDED].  
+**Final application name:** Open Source Client for NextDNS (selected product title; trademark suitability remains under review).  
 **Developer/legal publisher:** [VERIFIED DEVELOPER LEGAL IDENTITY].  
 **Support and legal contact:** [VERIFIED SUPPORT/PRIVACY CONTACT].  
 **Effective date:** [PUBLICATION DATE].  
@@ -15,7 +15,7 @@
 ## TR — Kullanım Koşulları
 
 ### 1. Uygulamanın hukuki niteliği ve bağımsızlığı
-[UYGULAMANIN NİHAİ ADI] ("Uygulama"), NextDNS uygulama programlama arayüzü (API) aracılığıyla belirli hesap ve yapılandırma yönetimi işlevlerine erişim sağlamak amacıyla bağımsız biçimde geliştirilen, resmî olmayan bir üçüncü taraf yazılım istemcisidir. Uygulamanın NextDNS ile herhangi bir kurumsal ortaklığı, temsil ilişkisi, sponsorluk bağlantısı veya resmî onay ve destek ilişkisi bulunmamaktadır.
+Open Source Client for NextDNS ("Uygulama"), NextDNS uygulama programlama arayüzü (API) aracılığıyla belirli hesap ve yapılandırma yönetimi işlevlerine erişim sağlamak amacıyla bağımsız biçimde geliştirilen, resmî olmayan bir üçüncü taraf yazılım istemcisidir. Uygulamanın NextDNS ile herhangi bir kurumsal ortaklığı, temsil ilişkisi, sponsorluk bağlantısı veya resmî onay ve destek ilişkisi bulunmamaktadır.
 
 ### 2. Hizmetin kapsamı
 Uygulama; NextDNS hesabında erişime açılmış profillerin, ayarların, güvenlik ve gizlilik tercihlerinin, kural listelerinin, günlüklerin ve analizlerin, API tarafından desteklenen ölçüde görüntülenmesini veya yönetilmesini sağlayan bir arayüzdür. Uygulama, DNS çözümleme altyapısı, VPN, NextDNS aboneliği yahut bağımsız bir DNS hizmeti sunmaz.
@@ -55,7 +55,7 @@ Bu metnin yürürlük tarihi, gerçek uygulama yayıncısının kimliği ve ilet
 ## EN — Terms of Use
 
 ### 1. Legal character and independence
-[FINAL APPLICATION NAME] (the "Application") is an independently developed, unofficial third-party software client intended to facilitate access to selected NextDNS account and configuration management functions through the NextDNS application programming interface (API). The Application is not affiliated with, representative of, sponsored, endorsed or officially supported by NextDNS.
+Open Source Client for NextDNS (the "Application") is an independently developed, unofficial third-party software client intended to facilitate access to selected NextDNS account and configuration management functions through the NextDNS application programming interface (API). The Application is not affiliated with, representative of, sponsored, endorsed or officially supported by NextDNS.
 
 ### 2. Scope of functionality
 The Application provides an interface for viewing or managing profiles, configuration settings, security and privacy preferences, allow and deny rules, logs and analytics made available through the NextDNS API. It does not operate DNS resolution infrastructure, provide a VPN, sell NextDNS subscriptions or independently supply DNS services.
@@ -95,7 +95,7 @@ The effective date, verified legal identity of the publisher and support contact
 ## DE — Nutzungsbedingungen
 
 ### 1. Rechtsnatur und Unabhängigkeit der Anwendung
-[ENDGÜLTIGER APP-NAME] (die „Anwendung“) ist eine unabhängig entwickelte, nicht offizielle Software eines Drittanbieters. Sie dient dem Zugriff auf ausgewählte Funktionen zur Konto- und Konfigurationsverwaltung über die Programmierschnittstelle (API) von NextDNS. Zwischen der Anwendung und NextDNS besteht weder eine gesellschaftsrechtliche oder vertragliche Partnerschaft noch eine Vertretungs-, Sponsoring-, Genehmigungs- oder offizielle Unterstützungsbeziehung.
+Open Source Client for NextDNS (die „Anwendung“) ist eine unabhängig entwickelte, nicht offizielle Software eines Drittanbieters. Sie dient dem Zugriff auf ausgewählte Funktionen zur Konto- und Konfigurationsverwaltung über die Programmierschnittstelle (API) von NextDNS. Zwischen der Anwendung und NextDNS besteht weder eine gesellschaftsrechtliche oder vertragliche Partnerschaft noch eine Vertretungs-, Sponsoring-, Genehmigungs- oder offizielle Unterstützungsbeziehung.
 
 ### 2. Funktionsumfang
 Die Anwendung stellt eine Benutzeroberfläche bereit, über die mittels der NextDNS-API verfügbare Profile, Konfigurationen, Sicherheits- und Datenschutzeinstellungen, Freigabe- und Sperrregeln sowie Protokolle und Auswertungen eingesehen oder verwaltet werden können. Sie betreibt keine eigene DNS-Auflösungsinfrastruktur, bietet keinen VPN-Dienst an und vertreibt weder NextDNS-Abonnements noch eigenständige DNS-Dienste.
@@ -135,7 +135,7 @@ Das Datum des Inkrafttretens sowie die verifizierte rechtliche Identität des He
 ## FR — Conditions d’utilisation
 
 ### 1. Nature juridique et indépendance de l’application
-[NOM DÉFINITIF DE L’APPLICATION] (l’« Application ») est un logiciel client tiers, indépendant et non officiel, destiné à donner accès à certaines fonctionnalités de gestion des comptes et des configurations NextDNS par l’intermédiaire de son interface de programmation (API). L’Application n’entretient avec NextDNS aucun lien d’affiliation, de représentation, de parrainage, d’approbation ou de soutien officiel.
+Open Source Client for NextDNS (l’« Application ») est un logiciel client tiers, indépendant et non officiel, destiné à donner accès à certaines fonctionnalités de gestion des comptes et des configurations NextDNS par l’intermédiaire de son interface de programmation (API). L’Application n’entretient avec NextDNS aucun lien d’affiliation, de représentation, de parrainage, d’approbation ou de soutien officiel.
 
 ### 2. Périmètre fonctionnel
 L’Application constitue une interface permettant de consulter ou de gérer, dans les limites des fonctions mises à disposition par l’API NextDNS, les profils, paramètres, préférences de sécurité et de confidentialité, règles d’autorisation ou de blocage, journaux et données analytiques. Elle n’exploite aucune infrastructure de résolution DNS, ne fournit aucun service VPN et ne commercialise ni abonnement NextDNS ni service DNS autonome.
@@ -175,7 +175,7 @@ La date d’entrée en vigueur, l’identité juridique vérifiée de l’édite
 ## ES — Condiciones de uso
 
 ### 1. Naturaleza jurídica e independencia de la aplicación
-[NOMBRE DEFINITIVO DE LA APLICACIÓN] (la «Aplicación») es un cliente de software de terceros, desarrollado de forma independiente y de carácter no oficial, destinado a facilitar el acceso a determinadas funciones de gestión de cuentas y configuraciones mediante la interfaz de programación de aplicaciones (API) de NextDNS. La Aplicación no mantiene con NextDNS relación societaria, de representación, patrocinio, autorización o respaldo oficial.
+Open Source Client for NextDNS (la «Aplicación») es un cliente de software de terceros, desarrollado de forma independiente y de carácter no oficial, destinado a facilitar el acceso a determinadas funciones de gestión de cuentas y configuraciones mediante la interfaz de programación de aplicaciones (API) de NextDNS. La Aplicación no mantiene con NextDNS relación societaria, de representación, patrocinio, autorización o respaldo oficial.
 
 ### 2. Alcance funcional
 La Aplicación proporciona una interfaz para consultar o administrar perfiles, configuraciones, preferencias de seguridad y privacidad, reglas de autorización y bloqueo, registros y datos analíticos disponibles a través de la API de NextDNS. No explota infraestructura de resolución DNS, no presta servicios VPN ni comercializa suscripciones de NextDNS o servicios DNS independientes.

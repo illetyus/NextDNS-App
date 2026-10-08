@@ -1,12 +1,12 @@
-# NextDNS-App (development repository)
+# Open Source Client for NextDNS (development repository)
 
 An **independent, unofficial** native Android client for managing a user's own
 NextDNS account through the [documented NextDNS API](https://nextdns.github.io/api/).
 
 > **Development status:** The application is not ready for public Google Play
-> release. The final application name, icon and Play Store description will be
-> decided in Phase 9. This repository is not affiliated with or endorsed by
-> NextDNS.
+> release. The selected name is **Open Source Client for NextDNS**. The original
+> icon and Play Store description still require Phase 9 review. This repository
+> is not affiliated with or endorsed by NextDNS.
 
 ## Features in development
 
@@ -66,7 +66,7 @@ artwork requires a separate asset/brand review before any public release.
 ## Release process
 
 1. Phase 8: legal, privacy, provenance and third-party license review.
-2. Phase 9: decide the final app name and store text; prepare signing,
+2. Phase 9: apply the selected app name and finalize store text; prepare signing,
    distribution and final privacy disclosures.
 3. **Mandatory BrowserStack real-device tests** before Google Play public
    release; see [the release gate](docs/PHASE9_BROWSERSTACK_RELEASE_GATE.md).
@@ -77,7 +77,7 @@ successful unit-test run a public release approval.
 
 ## Source and feedback
 
-Repository: https://github.com/illetyus/NextDNS-App
+Repository: https://github.com/illetyus/open-source-client-for-nextdns
 
 Security, policy and API issues should be reported without disclosing live
 API credentials, profile identifiers, or DNS logs.

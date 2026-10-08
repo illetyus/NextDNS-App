@@ -3,7 +3,7 @@ DRAFT — LEGAL REVIEW AND DEVELOPER IDENTITY PENDING — DO NOT PUBLISH
 TR — Kullanım Koşulları
 
 ### 1. Uygulamanın hukuki niteliği ve bağımsızlığı
-[UYGULAMANIN NİHAİ ADI] ("Uygulama"), NextDNS uygulama programlama arayüzü (API) aracılığıyla belirli hesap ve yapılandırma yönetimi işlevlerine erişim sağlamak amacıyla bağımsız biçimde geliştirilen, resmî olmayan bir üçüncü taraf yazılım istemcisidir. Uygulamanın NextDNS ile herhangi bir kurumsal ortaklığı, temsil ilişkisi, sponsorluk bağlantısı veya resmî onay ve destek ilişkisi bulunmamaktadır.
+Open Source Client for NextDNS ("Uygulama"), NextDNS uygulama programlama arayüzü (API) aracılığıyla belirli hesap ve yapılandırma yönetimi işlevlerine erişim sağlamak amacıyla bağımsız biçimde geliştirilen, resmî olmayan bir üçüncü taraf yazılım istemcisidir. Uygulamanın NextDNS ile herhangi bir kurumsal ortaklığı, temsil ilişkisi, sponsorluk bağlantısı veya resmî onay ve destek ilişkisi bulunmamaktadır.
 
 ### 2. Hizmetin kapsamı
 Uygulama; NextDNS hesabında erişime açılmış profillerin, ayarların, güvenlik ve gizlilik tercihlerinin, kural listelerinin, günlüklerin ve analizlerin, API tarafından desteklenen ölçüde görüntülenmesini veya yönetilmesini sağlayan bir arayüzdür. Uygulama, DNS çözümleme altyapısı, VPN, NextDNS aboneliği yahut bağımsız bir DNS hizmeti sunmaz.

@@ -6,6 +6,8 @@ import android.content.ContextWrapper
 import android.content.Intent
 import android.net.Uri
 import android.view.WindowManager
+import androidx.compose.ui.res.stringResource
+import com.example.R
 import androidx.compose.animation.*
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -84,22 +86,23 @@ fun LoginScreen(
       horizontalAlignment = Alignment.CenterHorizontally,
       verticalArrangement = Arrangement.Center
     ) {
-      // NextDNS Shield Logo + Brand
+      // Independent client title and decorative shield (not a NextDNS logo)
       Row(
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(8.dp)
       ) {
         Icon(
           imageVector = Icons.Default.Shield,
-          contentDescription = "NextDNS Logo",
+          contentDescription = null,
           tint = MaterialTheme.colorScheme.primary,
           modifier = Modifier.size(36.dp)
         )
         Text(
-          text = "NextDNS",
+          text = stringResource(id = R.string.app_name),
           style = MaterialTheme.typography.headlineMedium.copy(
             fontWeight = FontWeight.Bold,
-            fontSize = 28.sp,
+            fontSize = 20.sp,
+            lineHeight = 24.sp,
             letterSpacing = (-0.5).sp
           ),
           color = MaterialTheme.colorScheme.onSurface
@@ -109,7 +112,7 @@ fun LoginScreen(
       Spacer(modifier = Modifier.height(10.dp))
 
       Text(
-        text = "NextDNS Yönetim Paneli",
+        text = "Bağımsız NextDNS hesap yönetimi",
         style = MaterialTheme.typography.bodyMedium,
         color = MaterialTheme.colorScheme.onSurfaceVariant
       )

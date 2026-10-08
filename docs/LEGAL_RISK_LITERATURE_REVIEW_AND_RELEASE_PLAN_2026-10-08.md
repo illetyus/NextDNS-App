@@ -1,4 +1,4 @@
-# NextDNS-App — 8 Ekim 2026 hukuki risk araştırması ve güncellenmiş yayın planı
+# Open Source Client for NextDNS — 8 Ekim 2026 hukuki risk araştırması ve güncellenmiş yayın planı
 
 **Statü: Araştırma ve ürün gereksinimi. Hukuk mütalaası, NextDNS izni veya Google Play onayı DEĞİLDİR.** İncelenen taslak dal: phase8-compliance; PR #9.
 
@@ -104,3 +104,8 @@
 - Henüz yapılmadı: Consent UI, production privacy URL, tam logout, özgün marka, BrowserStack release testi ve Play gönderimi.
 
 **Bu rapor yeni sorumsuzluk iddiası üretmez; belirsiz ve hukuken riskli alanları yayın kararından önce doğrulanacak durdurma şartları hâline getirir.**
+
+
+### 8 Ekim 2026 — Marka adı uygulama durum güncellemesi
+
+Kararlaştırılan uygulama adı **Open Source Client for NextDNS** olarak kaynaklara uygulanmıştır; `app_name=NextDNS` tespiti bu belgenin önceki kaynak durumu için geçerlidir. Özgün uygulama simgesi, NextDNS marka/hizmet şartları ve mağaza açıklamaları **ayrıca** onaylanacaktır. Repo adı `illetyus/open-source-client-for-nextdns` olacaktır.

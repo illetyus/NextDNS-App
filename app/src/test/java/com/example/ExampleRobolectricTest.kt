@@ -16,6 +16,6 @@ class ExampleRobolectricTest {
   fun testReadStringFromContext() {
     val context = ApplicationProvider.getApplicationContext<Context>()
     val appName = context.getString(R.string.app_name)
-    assertEquals("NextDNS", appName)
+    assertEquals("Open Source Client for NextDNS", appName)
   }
 }
