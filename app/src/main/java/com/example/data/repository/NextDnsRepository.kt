@@ -557,6 +557,11 @@ class NextDnsRepository(
 
     loadLocalProfileData(targetProfileId)
     loadActiveProfileDataFromApi(key, targetProfileId)
+
+    runCatching {
+      NotificationWorkScheduler.reconcile(NextDnsApp.instance)
+    }
+
     Result.success(mapped.size)
   }
 
@@ -1068,6 +1073,7 @@ class NextDnsRepository(
   // =========================================================================
 
   fun logout() {
+    NotificationWorkScheduler.cancel(NextDnsApp.instance)
     resetProfileScopedRuntimeState()
     preferences.clear()
     _apiKey.value = ""
