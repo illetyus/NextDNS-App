@@ -6,6 +6,7 @@ import com.example.NextDnsApp
 import com.example.data.api.*
 import com.example.data.local.NextDnsPreferences
 import com.example.data.model.*
+import com.example.data.notifications.NotificationWorkScheduler
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -228,6 +229,21 @@ class NextDnsRepository(
         val message = "İşlem gönderildi ancak güncel durum NextDNS'ten doğrulanamadı."
         updateSectionSyncState(section) { it.copy(errorMessage = message) }
         return Result.failure(IllegalStateException(message))
+      }
+
+      if (
+        section == SyncSection.SECURITY ||
+        section == SyncSection.PRIVACY ||
+        section == SyncSection.PARENTAL ||
+        section == SyncSection.DENYLIST ||
+        section == SyncSection.ALLOWLIST ||
+        section == SyncSection.SETTINGS
+      ) {
+        runCatching {
+          NotificationWorkScheduler.refreshConfigBaselineIfEnabled(
+            NextDnsApp.instance
+          )
+        }
       }
 
       Result.success(Unit)
