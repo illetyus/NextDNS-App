@@ -77,3 +77,7 @@ Checked `app/build.gradle.kts`, `gradle/libs.versions.toml`, `app/src/main/Andro
 - NextDNS Privacy: https://nextdns.io/privacy
 
 **Draft only:** Do not mistake this document for legal clearance, NextDNS permission or Google Play approval.
+
+## 8. Deep literature review and updated release gates (2026-10-08)
+
+The detailed legal research and reprioritized release gates are documented in [LEGAL_RISK_LITERATURE_REVIEW_AND_RELEASE_PLAN_2026-10-08.md](LEGAL_RISK_LITERATURE_REVIEW_AND_RELEASE_PLAN_2026-10-08.md). Key changes: identify the NextDNS Help Center's Forumbee Terms as **not the general DNS service agreement**, require authoritative API/trademark scope review, forbid relying on disclaimer to excuse the app's own bugs, prioritize destructive API safeguards, Google Play Data Safety collection to NextDNS, and issue-by-issue KVKK controller/cross-border mapping.
