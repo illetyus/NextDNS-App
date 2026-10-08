@@ -4,9 +4,9 @@ An **independent, unofficial** native Android client for managing a user's own
 NextDNS account through the [documented NextDNS API](https://nextdns.github.io/api/).
 
 > **Development status:** The application is not ready for public Google Play
-> release. The final application name, icon and Play Store description will be
-> decided in Phase 9. This repository is not affiliated with or endorsed by
-> NextDNS.
+> release. The selected name is **Open Source Client for NextDNS**. The original
+> icon and Play Store description still require Phase 9 review. This repository
+> is not affiliated with or endorsed by NextDNS.
 
 ## Features in development
 
