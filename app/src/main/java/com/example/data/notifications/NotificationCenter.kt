@@ -85,9 +85,11 @@ object NotificationCenter {
       priority = NotificationCompat.PRIORITY_DEFAULT
     ).build()
 
-    NotificationManagerCompat.from(context)
-      .notify(NOTIFICATION_CONFIG_CHANGED, notification)
-    return true
+    return notifySafely(
+      context = context,
+      notificationId = NOTIFICATION_CONFIG_CHANGED,
+      notification = notification
+    )
   }
 
   fun postDailySummary(
@@ -108,9 +110,35 @@ object NotificationCenter {
       priority = NotificationCompat.PRIORITY_LOW
     ).build()
 
-    NotificationManagerCompat.from(context)
-      .notify(NOTIFICATION_DAILY_SUMMARY, notification)
-    return true
+    return notifySafely(
+      context = context,
+      notificationId = NOTIFICATION_DAILY_SUMMARY,
+      notification = notification
+    )
+  }
+
+  private fun notifySafely(
+    context: Context,
+    notificationId: Int,
+    notification: Notification
+  ): Boolean {
+    if (
+      Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU &&
+      ContextCompat.checkSelfPermission(
+        context,
+        Manifest.permission.POST_NOTIFICATIONS
+      ) != PackageManager.PERMISSION_GRANTED
+    ) {
+      return false
+    }
+
+    return try {
+      NotificationManagerCompat.from(context)
+        .notify(notificationId, notification)
+      true
+    } catch (_: SecurityException) {
+      false
+    }
   }
 
   private fun baseBuilder(
