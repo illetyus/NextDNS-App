@@ -27,6 +27,7 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.compose.LocalLifecycleOwner
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.data.model.DnsLogEntry
 import com.example.ui.components.*
 import com.example.ui.theme.*
@@ -78,9 +79,9 @@ fun LogsScreen(
   viewModel: NextDnsViewModel,
   modifier: Modifier = Modifier
 ) {
-  val activeProfile by viewModel.activeProfile.collectAsState()
-  val logs by viewModel.logs.collectAsState()
-  val allKnownDevices by viewModel.allKnownDevices.collectAsState()
+  val activeProfile by viewModel.activeProfile.collectAsStateWithLifecycle()
+  val logs by viewModel.logs.collectAsStateWithLifecycle()
+  val allKnownDevices by viewModel.allKnownDevices.collectAsStateWithLifecycle()
   val lifecycleOwner = LocalLifecycleOwner.current
   LaunchedEffect(activeProfile?.id) {
     viewModel.refreshLogs(showToast = false)
@@ -106,8 +107,8 @@ fun LogsScreen(
     }
   }
 
-  val analytics by viewModel.analytics.collectAsState()
-  val isLiveStreaming by viewModel.isLiveStreaming.collectAsState()
+  val analytics by viewModel.analytics.collectAsStateWithLifecycle()
+  val isLiveStreaming by viewModel.isLiveStreaming.collectAsStateWithLifecycle()
 
   var searchQuery by remember { mutableStateOf("") }
   var selectedDeviceFilter by remember { mutableStateOf("Tüm cihazlar") }
