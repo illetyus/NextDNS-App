@@ -49,10 +49,27 @@ class NextDnsNotificationWorker(
       return Result.success()
     }
 
+    val canPostConfig =
+      settings.configChangeAlertsEnabled &&
+        NotificationCenter.canPost(
+          applicationContext,
+          NotificationCenter.CHANNEL_CONFIG_CHANGES
+        )
+    val canPostSummary =
+      settings.dailySummaryEnabled &&
+        NotificationCenter.canPost(
+          applicationContext,
+          NotificationCenter.CHANNEL_DAILY_SUMMARY
+        )
+
+    if (!canPostConfig && !canPostSummary) {
+      return Result.success()
+    }
+
     var shouldRetry = false
     val now = System.currentTimeMillis()
 
-    if (settings.configChangeAlertsEnabled) {
+    if (canPostConfig) {
       val snapshot = fetchConfigSnapshot(apiKey, profileId)
       if (snapshot == null) {
         shouldRetry = true
@@ -66,7 +83,7 @@ class NextDnsNotificationWorker(
       }
     }
 
-    if (settings.dailySummaryEnabled) {
+    if (canPostSummary) {
       val today = NotificationPolicy.localDayKey(now)
       val lastSummaryDay = runCatching {
         preferences.lastSummaryDay()
@@ -77,15 +94,15 @@ class NextDnsNotificationWorker(
         if (summary == null) {
           shouldRetry = true
         } else {
-          NotificationCenter.postDailySummary(
+          val posted = NotificationCenter.postDailySummary(
             context = applicationContext,
             totalQueries = summary.totalQueries,
             blockedQueries = summary.blockedQueries
           )
 
-          // Whether system notifications are enabled or not, don't queue a
-          // stale daily summary for later delivery.
-          preferences.markSummaryDay(today)
+          if (posted) {
+            preferences.markSummaryDay(today)
+          }
         }
       }
     }
