@@ -94,3 +94,8 @@ Kaynak kodu ve bağımlılık taramasıyla yapılanlar:
 - [ ] İkon/mağaza adı, Play açıklaması ve Google Play Data Safety beyanı Faz 9'da kesinleşecek.
 
 **Dikkat:** Faz 8'in kaynak denetimi ve lisans seçimi ile Faz 9'un gerçek cihaz/Google Play yayın kabulü birbirinden ayrıdır. Bu doküman, NextDNS marka izni veya yayın onayı değildir.
+
+
+## 8 Ekim 2026 — Marka uygulama ek kaydı
+
+Uygulamanın seçilmiş adı **Open Source Client for NextDNS** Android `app_name` kaynağına, giriş başlığına ve proje bildirimlerine uygulanmıştır. Yukarıdaki `app_name=NextDNS` ve 'final name undecided' kayıtları bu değişiklik öncesi tarihsel denetim bulgularıdır. Bağımsız simge/launcher mipmap varlıkları hâlâ incelenmelidir; bu işlem NextDNS marka kullanım izni sağlamaz. Yeni depo bağlantısı: https://github.com/illetyus/open-source-client-for-nextdns.
