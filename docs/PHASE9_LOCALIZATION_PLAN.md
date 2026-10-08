@@ -54,3 +54,13 @@ The `app/src/main/res/values/strings.xml` file currently contains only the app l
 - [ ] Final documents include verified developer identity, contact address and public non-login URLs.
 
 **This file documents the plan only. It does not assert that translation files or multilingual legal agreements already exist.**
+
+## 2026-10-08 — substantive legal drafts prepared (pending review)
+
+The next legal-document drafting milestone has been executed in the same branch:
+
+- [Five-language Terms of Use, 12 parallel clauses per locale](legal/TERMS_OF_USE_FIVE_LANGUAGES_DRAFT.md) — TR/EN/DE/FR/ES in formal legal/academic register; includes independent NextDNS client scope, user-approved external API-change responsibility clause, sign-out and data processing boundaries.
+- [English Privacy Policy substantive draft](legal/PRIVACY_POLICY_EN_DRAFT.md) — based on inspected Android design: API key, direct NextDNS transmissions, profile caches, notifications, log exports, deletion.
+- [Conditional Turkish KVKK aydınlatma template](legal/KVKK_AYDINLATMA_TR_TASLAK.md) — activity-specific inventory, not a consent agreement; requires controller-role and concrete legal-basis analysis before publication.
+
+**Not completed:** identity/support and effective dates; independent API/trademark terms confirmation; reviewed legal equivalence across locales; role/transfer assessment; tested signed AAB, storage/logout behavior; publication URLs; legal expert review; any live screen implementation. These remain release blockers.
