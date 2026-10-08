@@ -91,11 +91,11 @@ fun LegalWelcomeScreen(
       style = MaterialTheme.typography.labelMedium
     )
 
-    Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-      OutlinedButton(onClick = { selectedTerms = true }) {
+    Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
+      OutlinedButton(onClick = { selectedTerms = true }, modifier = Modifier.fillMaxWidth()) {
         Text(labels.terms)
       }
-      OutlinedButton(onClick = { selectedTerms = false }) {
+      OutlinedButton(onClick = { selectedTerms = false }, modifier = Modifier.fillMaxWidth()) {
         Text(labels.privacy)
       }
     }
