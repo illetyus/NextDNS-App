@@ -35,6 +35,7 @@ class NextDnsRepository(
   private val repoScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
   private var streamJob: Job? = null
   private var analyticsPollingJob: Job? = null
+  private val mutationGate = SectionMutationGate()
   @Volatile private var logsStreamSeedId: String? = null
   @Volatile private var nextLogsCursor: String? = null
 
@@ -197,8 +198,7 @@ class NextDnsRepository(
       )
     }
 
-    val currentSyncState = _sectionSyncStates.value[section] ?: SectionSyncState()
-    if (currentSyncState.isSaving) {
+    if (!mutationGate.tryAcquire(section)) {
       return Result.failure(
         IllegalStateException("Bu bölümde başka bir NextDNS değişikliği hâlâ kaydediliyor.")
       )
@@ -251,6 +251,7 @@ class NextDnsRepository(
       updateSectionSyncState(section) {
         it.copy(isSaving = false)
       }
+      mutationGate.release(section)
     }
   }
 
