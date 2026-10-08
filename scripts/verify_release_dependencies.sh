@@ -28,4 +28,5 @@ if grep -En -- 'com\.google\.firebase:|com\.google\.android\.gms:play-services-a
 fi
 
 echo "PASS: release dependency graph resolved; no named disallowed SDK groups found."
-echo "Inspect $report for the complete graph and verify each artifact's license separately."
+./gradlew -I scripts/release_inventory.init.gradle :app:releaseDependencyEvidence --no-daemon
+python3 scripts/verify_release_inventory.py
