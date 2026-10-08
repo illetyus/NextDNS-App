@@ -272,16 +272,22 @@ class NextDnsViewModel(
     loginWithApiKey(key)
   }
 
+  fun resumeAfterTermsAccepted() {
+    repository.resumeAfterTermsAccepted()
+  }
+
   fun enterGuestMode() {
     continueAsGuest()
   }
 
   fun continueAsGuest() {
+    if (!repository.termsAccepted()) return
     _isGuestMode.value = true
     showMessage("Demo / Misafir Modunda başlatıldı")
   }
 
   fun loginWithApiKey(key: String) {
+    if (!repository.termsAccepted()) return
     viewModelScope.launch {
       val result = repository.loginWithApiKey(key)
       if (result.isSuccess) {
@@ -296,9 +302,20 @@ class NextDnsViewModel(
   }
 
   fun logout() {
+    stopVisibleTabSync()
+    stopForegroundProfileSync()
     _isGuestMode.value = false
-    repository.logout()
-    showMessage("Oturum kapatıldı. API Giriş ekranına dönüldü.")
+    viewModelScope.launch {
+      val result = repository.logout()
+      if (result.isSuccess) {
+        showMessage("Oturum kapatıldı. Yerel hesap ve bildirim verileri silindi.")
+      } else {
+        showMessage(
+          result.exceptionOrNull()?.message ?: "Yerel veriler tam olarak temizlenemedi.",
+          isError = true
+        )
+      }
+    }
   }
 
   fun switchProfile(profileId: String) {
