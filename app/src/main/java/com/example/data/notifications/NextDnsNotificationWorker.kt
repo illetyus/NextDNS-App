@@ -124,6 +124,11 @@ class NextDnsNotificationWorker(
         now = now
       )
     ) {
+      // The first observation after an app-originated mutation becomes the
+      // new baseline. This prevents a delayed baseline worker from turning
+      // our own successful write into a later "external change" alert.
+      preferences.suppressConfigBacklog(profileId, digest)
+      preferences.clearLocalMutationSuppression(profileId)
       return
     }
 
