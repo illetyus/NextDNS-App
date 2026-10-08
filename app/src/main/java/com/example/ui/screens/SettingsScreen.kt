@@ -160,6 +160,8 @@ fun SettingsScreen(
       AppearanceSection()
     }
 
+    item { LegalDocumentLinks() }
+
     item {
       NotificationSettingsSection(
         settings = notificationSettings,

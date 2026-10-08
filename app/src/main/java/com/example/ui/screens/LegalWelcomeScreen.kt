@@ -12,6 +12,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.unit.dp
 import java.util.Locale
+import com.example.data.legal.LegalDocuments
 
 private data class LegalLabels(
   val title: String,
@@ -64,16 +65,9 @@ fun LegalWelcomeScreen(
   }
   val labels = remember(language) { legalLabels(language) }
 
-  val terms = remember(language) {
-    runCatching {
-      context.assets.open("legal/terms_${language}.txt").bufferedReader(Charsets.UTF_8).use { it.readText() }
-    }.getOrNull()
-  }
-  val privacy = remember {
-    runCatching {
-      context.assets.open("legal/privacy_en.txt").bufferedReader(Charsets.UTF_8).use { it.readText() }
-    }.getOrNull()
-  }
+  val bundle = remember(context, language) { LegalDocuments.load(context, language).getOrNull() }
+  val terms = bundle?.terms
+  val privacy = bundle?.privacy
 
   var selectedTerms by remember { mutableStateOf(true) }
   var checked by remember { mutableStateOf(false) }

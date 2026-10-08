@@ -95,3 +95,9 @@ Mevcut hazırlık: docs/legal/KVKK_AYDINLATMA_TR_TASLAK.md; gerçek geliştirici
 - Google Play Data Safety: https://support.google.com/googleplay/android-developer/answer/10787469?hl=en
 - NextDNS API: https://nextdns.github.io/api/
 - NextDNS Privacy: https://nextdns.io/privacy
+
+## 9 Ekim 2026 — kaynak davranışı güncellemesi
+
+Faz 9'un ilk teknik dilimi ana dala alınmıştır. Yukarıdaki 8 Ekim tespitlerinden “kabul ekranı henüz yok”, “kabul şartına bağlanmadı” ve “logout bildirim deposunun tamamını temizlemiyor” ifadeleri tarihsel başlangıç durumunu anlatır. Güncel kaynakta ilk kullanım için açık Terms kabul kapısı, repository/scheduler erişim kontrolü ve hesap kapsamlı bildirim deposu temizliği bulunmaktadır. Ana dalın 17eb30e sürümündeki CI 37851315911 geçmiştir; son imzalı paket ve gerçek cihaz veri akışı kanıtı ayrı aşamadır.
+
+Güncel mevzuat, yargısal emsaller ve akademik araştırmalar [9 Ekim araştırma dosyasında](LITERATURE_REVIEW_TR_EU_2026-10-09_DRAFT.md) değerlendirilmiştir. Geliştirici sıfatı veya aktarım hukuki sebebi, yalnızca bu teknik güncellemeyle kesinleştirilmemiştir.
