@@ -3,7 +3,7 @@ DRAFT — LEGAL REVIEW AND DEVELOPER IDENTITY PENDING — DO NOT PUBLISH
 DE — Nutzungsbedingungen
 
 ### 1. Rechtsnatur und Unabhängigkeit der Anwendung
-[ENDGÜLTIGER APP-NAME] (die „Anwendung“) ist eine unabhängig entwickelte, nicht offizielle Software eines Drittanbieters. Sie dient dem Zugriff auf ausgewählte Funktionen zur Konto- und Konfigurationsverwaltung über die Programmierschnittstelle (API) von NextDNS. Zwischen der Anwendung und NextDNS besteht weder eine gesellschaftsrechtliche oder vertragliche Partnerschaft noch eine Vertretungs-, Sponsoring-, Genehmigungs- oder offizielle Unterstützungsbeziehung.
+Open Source Client for NextDNS (die „Anwendung“) ist eine unabhängig entwickelte, nicht offizielle Software eines Drittanbieters. Sie dient dem Zugriff auf ausgewählte Funktionen zur Konto- und Konfigurationsverwaltung über die Programmierschnittstelle (API) von NextDNS. Zwischen der Anwendung und NextDNS besteht weder eine gesellschaftsrechtliche oder vertragliche Partnerschaft noch eine Vertretungs-, Sponsoring-, Genehmigungs- oder offizielle Unterstützungsbeziehung.
 
 ### 2. Funktionsumfang
 Die Anwendung stellt eine Benutzeroberfläche bereit, über die mittels der NextDNS-API verfügbare Profile, Konfigurationen, Sicherheits- und Datenschutzeinstellungen, Freigabe- und Sperrregeln sowie Protokolle und Auswertungen eingesehen oder verwaltet werden können. Sie betreibt keine eigene DNS-Auflösungsinfrastruktur, bietet keinen VPN-Dienst an und vertreibt weder NextDNS-Abonnements noch eigenständige DNS-Dienste.
