@@ -1,0 +1,67 @@
+# Bağımsız NextDNS istemcisinde sözleşme, veri işleme ve yazılım sorumluluğu
+
+**Durum: DRAFT — nihai yayıncı incelemesine sunulacak araştırma dosyası.**
+**Kaynakların kontrol tarihi:** 9 Ekim 2026. **İnceleme alanı:** Türkiye ve Avrupa Birliği; ücretsiz, reklamsız, Apache-2.0 lisanslı Android istemcisi. Bu çalışma yeni bir bakım, destek, tazmin veya hizmet sürekliliği taahhüdü oluşturmaz.
+
+## 1. Yöntem ve kanıtın sınırları
+
+Çalışma, normatif metinleri, düzenleyici kurum rehberlerini, yargısal emsalleri ve hakemli literatürü birlikte değerlendiren kapsamlı bir doktrinel kaynak taramasıdır; sistematik derleme veya tüm üye devlet iç hukuklarını kapsayan bir mütalaa değildir. Kaynak hiyerarşisinde yürürlükteki mevzuat, resmî politika ve nihai rehberler önceliklidir. Akademik görüşler yorumlayıcı niteliktedir. Basın duyurusu ile karar metni; lisans ile hizmet sözleşmesi; kaynak kodu ile imzalı yayın dosyası birbirinin yerine kullanılmamıştır.
+
+Teknik değerlendirme, ana dalın `17eb30ed90f4534606b31bea38108d4fd068f24e` sürümündeki kaynak davranışına dayanır. Faz 9.2 yerelleştirme ayrı PR'da incelenmektedir. Yayıncı kimliği, kamuya açık iletişim kanalı, nihai imzalı paket trafiği ve marka izni bu incelemede doğrulanmış olgular değildir. Bunlara ilişkin alanlar boş/yer tutucu bırakılmıştır.
+
+## 2. Sözleşmenin konusu ve sorumluluğun faaliyet temelinde ayrılması
+
+Uygulamanın sözleşmesel konusu, NextDNS API'sinin sunduğu hesap ve profil yönetimine erişim sağlayan yazılım arayüzüdür. DNS çözümleme, abonelik, ödeme ve NextDNS sunucularındaki saklama işlemleri bu arayüzün sunduğu hizmet olarak tanımlanmamıştır. Resmî API belgesi, beta niteliğini ve bildirim yapılmadan uyumsuz değişiklik ihtimalini açıklar. Bu nedenle sürekli API uyumluluğu garanti edilen bir özellik olarak yazılmamıştır. [NextDNS API belgesi](https://nextdns.github.io/api/)
+
+Mevcut beş dilli Koşulların 4. maddesindeki dış hizmet/API değişikliklerine ilişkin sorumluluk ayrımı korunmuştur. Bu hükmün analitik dayanağı, zararın nedeni ve ilgili faaliyetin denetimidir. Salt bir sorumsuzluk ibaresi, geliştiricinin kendi yazılım fiilleri ile NextDNS'in bağımsız işlemlerini aynılaştırmaz; emredici hukuk karşısında genel bağışıklık sonucu da üretmez. TBK m.114 ücretsizliğin değerlendirmedeki etkisini, m.115 ağır kusura ilişkin önceden feragatin sınırını ortaya koyar. m.20–25 kapsamında standart koşulların anlaşılabilirliği ve içerik denetimi ayrıca önem taşır. TBMM metni kabul edildiği hâliyle yayımlandığından konsolide mevzuat kontrolünün yerine geçmez. [TBK resmî kabul metni](https://cdn.tbmm.gov.tr/KKBSPublicFile/D23/Y2/T1/KanunMetni/a657b33d-109c-473d-9266-5aa48d603ab2.html), [konsolide mevzuat](https://www.mevzuat.gov.tr/mevzuatmetin/1.5.6098.pdf)
+
+AB tüketici sözleşmeleri açısından uygulanabilirlik, tarafların fiilî sıfatı ve ilişki temelinde belirlenir. Ücretsiz dağıtım, bütün tüketici hukuku hükümlerinin otomatik biçimde dışlandığı anlamına gelmez. Tek taraflı genel sorumsuzluk, münhasır yabancı mahkeme veya kullanıcıya sınırsız tazmin yükleyen hükümler bu taslağa eklenmemiştir. [Avrupa Komisyonu, haksız sözleşme koşulları açıklaması](https://commission.europa.eu/law/law-topic/consumer-protection-law/consumer-contract-law/unfair-contract-terms-directive_en)
+
+## 3. Açık kaynak lisansı ve ürün sorumluluğu
+
+Apache-2.0 §§7–8 garanti ve sorumluluk sınırlamalarını uygulanabilir hukuk istisnasıyla düzenler; §9 ek garanti üstlenilmesini ayrı bir tercih olarak ele alır. §6 ise marka lisansı sağlamaz. Lisans metni değiştirilmemiş; uygulama Koşulları yazılımı yeniden dağıtma haklarını daraltan ayrı bir kapalı lisans olarak kurulmamıştır. [Apache-2.0](https://apache.org/licenses/LICENSE-2.0)
+
+2024/2853 sayılı Direktif yazılımı ürün tanımına alır; ticari faaliyet dışında geliştirilen veya tedarik edilen özgür/açık kaynak yazılım için kapsam istisnası içerir. Yeni rejimin 9 Aralık 2026 sonrasındaki ürünlere ilişkin zaman kapsamı ile 9 Ekim 2026 değerlendirme tarihi ayrıdır. İstisna, tüm sözleşme, haksız fiil veya veri koruma rejimlerinin dışlanması olarak yorumlanmamıştır. Ücretsiz/reklamsız model ticari nitelik analizini destekler; gelecekte ücretli destek, reklam veya ticari bütünleştirme olması değerlendirmeyi değiştirebilir. [2024/2853 resmî metni](https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=CELEX%3A32024L2853)
+
+CRA bakımından da açık kaynak niteliği ve ticari faaliyet ölçütü birlikte incelenir. Komisyonun açıklaması, üreticisi tarafından parasallaştırılmayan açık kaynak ürünleri ile ticari faaliyet kapsamında piyasaya sunulan ürünleri ayırır. Genel uygulama tarihi 11 Aralık 2027; m.14 için tarih 11 Eylül 2026'dır. Bu takvim, uygulamanın ilgili rejime tabi olduğu yönünde otomatik bir kabul içermez. [Komisyonun açık kaynak açıklaması](https://digital-strategy.ec.europa.eu/en/policies/cra-open-source), [CRA m.71](https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=CELEX%3A32024R2847)
+
+## 4. Veri işleme rollerinin belirlenmesi ve emsaller
+
+Geliştiriciye ait bir hesap/log toplama sunucusu bulunmaması, amaç ve esaslı vasıtalar analizinde önemli bir teknik olgudur. Bununla birlikte hukuki sıfat, sözleşmedeki adlandırmayla kesinleşmez; her işleme faaliyeti için ayrı değerlendirilir. NextDNS'in kendi sunucu işleme amaçları ile uygulamanın cihazdaki erişim, gösterim ve dışa aktarma işlemleri bu nedenle ayrı satırlarda ele alınmıştır. [EDPB 07/2020, nihai sürüm](https://www.edpb.europa.eu/documents/guideline/guidelines-072020-on-the-concepts-of-controller-and-processor-in-the-gdpr_en)
+
+**Fashion ID, C-40/17 (29.07.2019):** Mahkemenin resmî duyurusu, veri toplama/iletme ile sonraki bağımsız işlemleri ayırır. Sosyal eklenti ve ticari yarar içeren somut olay, bu ücretsiz API istemcisinin hukuki sıfatının doğrudan belirlenmesi için yeterli değildir. Buradan yapılan çıkarım yalnızca faaliyete özgü rol analizi yöntemidir. [ABAD duyurusu 99/19](https://curia.europa.eu/jcms/upload/docs/application/pdf/2019-07/cp190099en.pdf)
+
+**Österreichische Post, C-300/21 (04.05.2023):** Resmî duyuru, GDPR ihlali, zarar ve nedensellik arasındaki birlikte gerçekleşme koşulunu; manevi zarar için genel bir ağırlık eşiği öngörülemeyeceğini açıklar. Bu sonuç ne her teknik hatanın otomatik tazminat olduğu ne de bir feragat metninin GDPR m.82'yi ortadan kaldırdığı anlamına gelir. Duyurular mahkemenin bağlayıcı karar metninin yerine geçmez. [ABAD duyurusu 72/23](https://curia.europa.eu/jcms/upload/docs/application/pdf/2023-05/cp230072en.pdf), [GDPR m.82](https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=CELEX%3A32016R0679)
+
+## 5. KVKK, GDPR ve sınır ötesi akış
+
+KVKK m.9'un 2024'te değişen yapısı dikkate alınmıştır. Düzenli API iletişimi için arızi aktarım istisnasını genel bir çözüm saymak, bütün olası işleme şartlarını tek kalıpta sıralamak veya doğrulanmamış standart sözleşme/uygunluk kararı varmış gibi yazmak uygun bir yöntem değildir. Aktaran, alıcı, veri kategorisi ve işleme amacı somut akış üzerinden belirlenir. [Kurumun güncel kanun çevirisi, m.9](https://www.kvkk.gov.tr/Icerik/6649/Personal-Data-Protection-Law)
+
+Kullanıcının bir veriyi doğrudan üçüncü ülkedeki alıcıya göndermesi ile GDPR kapsamındaki bir aktaranın veriyi başka tarafa açması aynı analiz değildir. EDPB rehberindeki üç ölçüt, bu ayrımı incelemek için kullanılmıştır; Türk aktarım rejimi için kendiliğinden bir muafiyet olarak alınmamıştır. [EDPB 05/2021, nihai sürüm](https://www.edpb.europa.eu/system/files/2023-02/edpb_guidelines_05-2021_interplay_between_the_application_of_art3-chapter_v_of_the_gdpr_v2_en_0.pdf)
+
+2026/347 sayılı KVKK ilke kararı, aydınlatma ile açık rızanın ayrılmasını ve faaliyetle ilgisi bulunmayan genel ifadelerden kaçınılmasını vurgular. Uygulamadaki onay kutusu yalnızca Kullanım Koşullarına ilişkindir. Gizlilik belgesini açmak, Android bildirim izni vermek veya dil değiştirmek genel bir kişisel veri rızası olarak kaydedilmez. Akademik araştırma dosyası ile kullanıcıya sunulan kısa aydınlatma aynı metin olarak kullanılmaz. [Kurumun resmî duyurusu](https://www.kvkk.gov.tr/Icerik/8710/veri-sorumlulari-tarafindan-acik-riza-ve-aydinlatma-metinlerinin-ayri-ayri-duzenlenmesi-gerektigi-hakkinda-kisisel-verileri-koruma-kurulunun-18-02-2026-tarihli-ve-2026-347-sayili-ilke-kararina-iliskin-kamuoyu-duyurusu)
+
+## 6. Google Play ve NextDNS belgelerinin birlikte okunması
+
+30 Eylül 2026 yürürlük tarihli Google politika metni esas alınmıştır. İngilizce ayrı Privacy Policy, herkese açık HTTPS adresi ve uygulama içinden erişim taslağın yapılandırmasında korunmuştur. Politika, doğru geliştirici tanımlaması ve gerçek veri uygulamalarıyla uyumlu açıklamaları esas alır; bu araştırma geliştirici adına doğrulanmamış kimlik veya iletişim kanalı üretmez. [Google Developer Program Policy](https://support.google.com/googleplay/android-developer/answer/18258653?hl=en&rd=5)
+
+Data safety'de cihaz dışına iletim, geliştirici sunucusuna iletimle sınırlı değildir. Buna karşılık kullanıcı tarafından başlatılan/öngörülen üçüncü taraf iletimlerinin “sharing” istisnası ve “collection” değerlendirmesi aynı soru değildir. API anahtarı, profil/rule istekleri, bağlı IP ve dışa aktarma akışları son paket trafiğiyle ayrı sınıflandırılır; DNS günlüklerinin sunucudan cihaza okunması, uygulamanın kendisinin DNS geçmişini geliştiriciye topladığı biçiminde yazılmaz. [Google Data safety açıklaması](https://support.google.com/googleplay/android-developer/answer/10787469?hl=en)
+
+NextDNS'in gizlilik beyanı kendi hizmetine aittir. Bu beyanın saklama/silme veya paylaşım ifadeleri geliştirici adına benimsenmemiştir. Uygulamanın çıkış işlemi, NextDNS hesabını kapatma veya NextDNS sunucularındaki logları silme işlemi olarak tanımlanmamıştır. [NextDNS Privacy Policy](https://nextdns.io/privacy)
+
+Başlık, ikon ve mağaza görsellerinin ilişki izlenimi birlikte incelenir. “Bağımsız” açıklaması tek başına başkasına ait ikon kullanım izni sağlamaz. Kaynaktaki NextDNS kalkanını andıran mevcut görsel ayrı bir risk bulgusudur; özgün ağ düğümleri ikonu Faz 9.3'te ele alınmaktadır. NextDNS'e ait kapsamlı bir genel hizmet/marka lisansı bu taramada doğrulanamamıştır; erişilemeyen `/terms` adresi mevcut bir sözleşmenin kanıtı sayılmamıştır. [Google impersonation politikası](https://support.google.com/googleplay/android-developer/answer/9888374?hl=en)
+
+## 7. Akademik literatürün karşılaştırmalı değerlendirmesi
+
+| Kaynak | Okunan bölüm / erişim | İncelemeye katkısı ve sınırı |
+|---|---|---|
+| Ayşe Arat (2025), *2024/2853 Sayılı AB Direktifi Çerçevesinde Yazılımdan Kaynaklanan Ürün Sorumluluğu ve Bunun Sınırları*, SÜHFD 33(2), 1321–1350, DOI 10.15337/suhfd.1660921 | Açık tam metin; yazılım niteliği ve açık kaynak/sorumluluk sınırlarına ilişkin bölümler | Yazılımın ürün olarak ele alınmasını, güncellemeleri ve istisnaları birlikte inceler. Açık kaynak yazılımın telifsiz olduğu yönündeki genel bir ifade Apache lisansının hak sahipliği yapısına taşınmamıştır. [Yayıncı PDF'si](https://dergipark.org.tr/tr/download/article-file/4704517) |
+| Mattis van 't Schip (2025), *The Cyber Resilience Act and Open-Source Software: A Fine Balancing Act*, JIPITEC 16, 73 vd. | Açık tam metin; kapsam, ticari faaliyet ve açık kaynak bölümünün ilgili paragrafları | Açık kaynak ile ticari dağıtım arasındaki sınır ve katkıcı/üretici ayrımını tartışır. Nihai uygulama takvimi makale yerine resmî CRA'dan alınmıştır. [Dergi sayı PDF'si, s.73–87](https://www.jipitec.eu/jipitec/issue/download/54/76) |
+| Monika Zalnieriute (2020), *When a ‘Like’ Is Not a ‘Like’: A New Fragmented Approach to Data Controllership*, DOI 10.1111/1468-2230.12537 | Yayıncı özeti; tam metin okunduğu iddia edilmez | Fashion ID'deki işlem aşamalarına ayrılan rol yorumunu tartışır. Uygulamanın rolü hakkında otomatik sonuç çıkarılmamıştır. [Yayıncı sayfası](https://onlinelibrary.wiley.com/doi/abs/10.1111/1468-2230.12537) |
+| *The end of open source? Regulating open source under the cyber resilience act and the new product liability directive*, DOI 10.1016/j.clsr.2024.106105 | Bibliyografik tespit; yayıncı tam metni 403 ile erişilemedi | İleri inceleme kaydıdır; okunmuş kaynak veya normatif dayanak olarak kullanılmamıştır. [Yayıncı kaydı](https://www.sciencedirect.com/science/article/pii/S0267364924001705) |
+
+## 8. Taslaklara uygulanan sonuç
+
+Beş dilde aynı bölüm yapısı korunur. NextDNS API/hizmet kaynaklı sorunlara ilişkin mevcut sınırlandırma muhafaza edilir; ek SLA, sürekli bakım, kişisel tazmin, kullanıcı yaş eşiği veya münhasır hesap sahipliği şartı eklenmez. Apache hakları ve emredici hükümlerle uyumlu okuma, kaynak davranışına dayalı yerel silme açıklaması ve sözleşme kabulü/rıza ayrımı tercih edilir.
+
+Araştırma sonucu “her tür hukuki sorumluluk ortadan kaldırılmıştır” şeklinde raporlanamaz. Dosya, gönüllü biçimde üstlenilen taahhütleri genişletmeden faaliyet kapsamını doğru tanımlar. DRAFT statüsü korunur; nihai yayıncı incelemesi bu dosyanın tamamlanmasıyla gerçekleşmiş sayılmaz.

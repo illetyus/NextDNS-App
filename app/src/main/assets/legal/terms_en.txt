@@ -1,4 +1,5 @@
 DRAFT — LEGAL REVIEW AND DEVELOPER IDENTITY PENDING — DO NOT PUBLISH
+Revision: terms-2026-10-DRAFT-2
 
 EN — Terms of Use
 
@@ -38,4 +39,4 @@ These Terms are accepted through a separate affirmative checkbox at first use. M
 ### 12. Effective date, contact and applicable provisions
 The effective date, verified legal identity of the publisher and support contact information shall be completed before publication. Any jurisdiction-specific provisions governing disputes or mandatory legal requirements are reserved for legal review before release.
 
----
+The original Application source code is made available under Apache-2.0. To the extent permitted by applicable law, the software is supplied as is, without an additional warranty or undertaking of uninterrupted service. These Terms do not remove rights granted by Apache-2.0 or override applicable mandatory provisions.

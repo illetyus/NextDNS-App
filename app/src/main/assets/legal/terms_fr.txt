@@ -1,4 +1,5 @@
 DRAFT — LEGAL REVIEW AND DEVELOPER IDENTITY PENDING — DO NOT PUBLISH
+Revision: terms-2026-10-DRAFT-2
 
 FR — Conditions d’utilisation
 
@@ -38,4 +39,4 @@ Les présentes Conditions sont acceptées lors de la première utilisation au mo
 ### 12. Entrée en vigueur, contact et dispositions applicables
 La date d’entrée en vigueur, l’identité juridique vérifiée de l’éditeur ainsi que les coordonnées d’assistance seront précisées avant publication. Les dispositions propres aux juridictions concernées et aux règles impératives applicables feront l’objet d’un examen juridique préalable à la diffusion.
 
----
+Le code source original de l’Application est proposé sous Apache-2.0. Dans les limites du droit applicable, le logiciel est fourni en l’état, sans garantie supplémentaire ni engagement de disponibilité ininterrompue. Ces Conditions ne suppriment pas les droits accordés par Apache-2.0 et ne dérogent pas aux dispositions impératives applicables.

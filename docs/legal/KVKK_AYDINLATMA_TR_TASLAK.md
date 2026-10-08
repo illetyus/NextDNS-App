@@ -44,7 +44,7 @@ Bu alanlar çözülmeden "yurt dışına hiçbir veri aktarılmıyor" veya "büt
 
 ## 5. Saklama ve silme
 
-Uygulamada çıkış yapılması üzerine yerel API anahtarının, ilgili hesap/profil kayıtlarının ve hesapla bağlantılı bildirim görevlerinin kaldırılması planlanmaktadır. Bu işlem henüz son sürümde doğrulanmamış olup uygulama yayımlanmadan önce test edilmelidir. Kullanıcı tarafından seçilen konuma dışa aktarılan dosyalar, NextDNS sunucularındaki günlükler ve NextDNS hesabı, uygulamadaki çıkış işleminden kendiliğinden etkilenmez. Nihai aydınlatma, gerçekten uygulanan saklama sürelerini veya bu süreleri belirleyen objektif kriterleri açıkça bildirmelidir.
+Kaynak kodunda çıkış işlemi, yerel API anahtarının, ilgili hesap/profil kayıtlarının ve hesapla bağlantılı bildirim verilerinin ve görevlerinin kaldırılmasını uygular. Bu işlem henüz son sürümde doğrulanmamış olup uygulama yayımlanmadan önce test edilmelidir. Kullanıcı tarafından seçilen konuma dışa aktarılan dosyalar, NextDNS sunucularındaki günlükler ve NextDNS hesabı, uygulamadaki çıkış işleminden kendiliğinden etkilenmez. Nihai aydınlatma, gerçekten uygulanan saklama sürelerini veya bu süreleri belirleyen objektif kriterleri açıkça bildirmelidir.
 
 ## 6. İlgili kişi hakları ve başvuru kanalı
 
@@ -79,3 +79,5 @@ Kanun'un 11. maddesindeki hakların ilgili veri sorumlusuna yöneltilmesi için 
 ## 8 Ekim 2026 — Veri akışı ve aktarım matrisi
 
 [D01–D12 veri akışı, KVKK/GDPR sıfat değerlendirmesi ve aktarım hukuku kontrolü](KVKK_GDPR_DATA_FLOW_AND_TRANSFER_ASSESSMENT_2026-10-08.md) hazırlanmıştır. Belge, hukuki sıfatları kesinleştirmez; sonraki denetim/test gereksinimlerini ayrı listeler.
+
+Güncel araştırma: [Türkiye/AB literatür taraması — 9 Ekim 2026, DRAFT](LITERATURE_REVIEW_TR_EU_2026-10-09_DRAFT.md).
