@@ -78,6 +78,12 @@ object NotificationWorkScheduler {
     }
   }
 
+  fun cancel(context: Context) {
+    val workManager = WorkManager.getInstance(context.applicationContext)
+    workManager.cancelUniqueWork(PERIODIC_WORK_NAME)
+    workManager.cancelUniqueWork(IMMEDIATE_WORK_NAME)
+  }
+
   suspend fun refreshConfigBaselineIfEnabled(context: Context) {
     val appContext = context.applicationContext
     val settings = NotificationPreferences(appContext).currentSettings()
