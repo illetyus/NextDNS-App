@@ -204,6 +204,27 @@ class NextDnsRepository(
       )
     }
 
+    val affectsConfigNotifications =
+      section == SyncSection.SECURITY ||
+        section == SyncSection.PRIVACY ||
+        section == SyncSection.PARENTAL ||
+        section == SyncSection.DENYLIST ||
+        section == SyncSection.ALLOWLIST ||
+        section == SyncSection.SETTINGS
+
+    val localNotificationSuppression = if (affectsConfigNotifications) {
+      runCatching {
+        NotificationWorkScheduler.beginLocalConfigMutation(
+          context = NextDnsApp.instance,
+          profileId = profileId
+        )
+      }.getOrDefault(false)
+    } else {
+      false
+    }
+
+    var mutationVerified = false
+
     updateSectionSyncState(section) {
       it.copy(isSaving = true, errorMessage = null)
     }
@@ -231,14 +252,9 @@ class NextDnsRepository(
         return Result.failure(IllegalStateException(message))
       }
 
-      if (
-        section == SyncSection.SECURITY ||
-        section == SyncSection.PRIVACY ||
-        section == SyncSection.PARENTAL ||
-        section == SyncSection.DENYLIST ||
-        section == SyncSection.ALLOWLIST ||
-        section == SyncSection.SETTINGS
-      ) {
+      mutationVerified = true
+
+      if (affectsConfigNotifications) {
         runCatching {
           NotificationWorkScheduler.refreshConfigBaselineIfEnabled(
             NextDnsApp.instance
@@ -248,6 +264,15 @@ class NextDnsRepository(
 
       Result.success(Unit)
     } finally {
+      if (localNotificationSuppression && !mutationVerified) {
+        runCatching {
+          NotificationWorkScheduler.abortLocalConfigMutation(
+            context = NextDnsApp.instance,
+            profileId = profileId
+          )
+        }
+      }
+
       updateSectionSyncState(section) {
         it.copy(isSaving = false)
       }
