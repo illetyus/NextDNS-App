@@ -101,6 +101,19 @@ class NextDnsNotificationWorker(
   ) {
     val state = preferences.configState(profileId)
 
+    if (
+      NotificationPolicy.isLocalMutationSuppressed(
+        suppressUntil = state.localMutationSuppressUntil,
+        now = now
+      )
+    ) {
+      return
+    }
+
+    if (state.localMutationSuppressUntil > 0L) {
+      preferences.clearLocalMutationSuppression(profileId)
+    }
+
     if (state.observedDigest == null) {
       preferences.establishConfigBaseline(profileId, digest)
       return
