@@ -1,7 +1,7 @@
 # Open Source Client for NextDNS — Privacy Policy (English draft)
 
 **DRAFT FOR TECHNICAL/LEGAL REVIEW — DO NOT PUBLISH YET**  
-Document revision: 0.1 (8 October 2026). Effective date: [DATE OF FIRST PUBLIC RELEASE].  
+Document revision: 0.2 (9 October 2026). Effective date: [DATE OF FIRST PUBLIC RELEASE].  
 Developer/publisher: [VERIFIED LEGAL OR TRADING NAME].  
 Support and privacy inquiries: [WORKING CONTACT / HTTPS PAGE].  
 Public policy URL: [PUBLIC ACCESSIBLE NON-PDF HTTPS URL].  
@@ -21,7 +21,7 @@ Subject to the user's account, NextDNS settings and features used, the Applicati
 - **Account details:** Information returned by NextDNS such as display name, account email or subscription/plan status.
 - **Profile and configuration data:** Profile identifiers/names, security, privacy and parental-control settings, allow and deny lists, linked-IP settings and relevant management state.
 - **DNS logs and usage analytics:** Domain names, query times, connection-related or device-related indicators, query counts, protection status, IP information and other fields available from NextDNS. Logs may reflect network activity involving people other than the account holder.
-- **Local operational preferences:** Selected profile, UI theme, optional notification settings, related state or deduplication information and timestamps.
+- **Local operational preferences:** Selected profile, UI theme, app language, accepted Terms revision and device-local acceptance time, optional notification settings, related state or deduplication information and timestamps.
 - **Log exports:** A file requested by the user through NextDNS's export mechanisms and saved to a location selected by the user.
 
 Only information necessary for the requested account-management function should be accessed. Actual categories and access patterns must be checked against the final release binary and observed requests.
@@ -56,7 +56,7 @@ A user may ask the Application to download or save DNS log files supplied by Nex
 
 ## 8. Retention, sign-out and deletion
 
-The designed sign-out flow removes the locally stored API key, account/profile caches and account-scoped notification state while cancelling account-related background work. General appearance preferences may remain. These operations are **planned release requirements** and must be functionally verified before this document is published as a statement of deployed behavior.
+The source sign-out flow removes the locally stored API key, account/profile caches and account-scoped notification state while cancelling account-related background work. General appearance and language preferences and the local Terms acceptance record may remain. Source implementation and CI tests are distinct from verification of the final signed release binary; this document remains DRAFT pending that verification.
 
 Signing out does not close or delete the user's NextDNS account, revoke the API key on NextDNS servers, or delete DNS histories stored by NextDNS. Users should consult the relevant NextDNS account controls and provider policy for remote deletion and retention settings. If local cleanup fails, the Application must not claim that deletion has succeeded.
 
@@ -70,7 +70,7 @@ Using Google's Android development libraries or publishing on Google Play does n
 
 ## 10. Legal rights, requests and contact
 
-Questions regarding **this Application's locally held data and data-handling practices** may be directed to [VERIFIED SUPPORT/PRIVACY CONTACT]. Any legally required data-subject rights notices, grounds for processing, processing-party roles and jurisdiction-specific information will be determined after reviewing the actual processing activities and distribution territories.
+Questions regarding **this Application's locally held data and data-handling practices** may be directed to [VERIFIED SUPPORT/PRIVACY CONTACT]. Where applicable, data-subject rights may include access, rectification, erasure, restriction, objection and portability, and recourse to the competent supervisory authority. Their application depends on the relevant processing and legal basis. The final identification of processing-party roles, specific grounds and jurisdiction notices remains under review; no blanket role or consent is presumed.
 
 Requests concerning NextDNS accounts, remote DNS log retention and NextDNS server-side services must be addressed through the applicable NextDNS account/service channels. This distinction must not prevent the user from exercising rights against the legally responsible party in any particular situation.
 
@@ -78,7 +78,7 @@ Requests concerning NextDNS accounts, remote DNS log retention and NextDNS serve
 
 This Policy will be accessible within the Application before account connection and at a public, non-geofenced, non-editable web page that is not a PDF. Material changes to data handling will be reflected in updated notices and, where required, separate consent mechanisms. Acceptance of the Application's Terms of Use is not an all-purpose privacy consent.
 
-The approved initial Privacy Policy is in English. A separate Turkish KVKK notice and any legally required local-language disclosures will be evaluated before distributing in the relevant territories.
+The selected initial Privacy Policy language is English; this text has not received final publication approval. A separate Turkish KVKK notice and any legally required local-language disclosures will be evaluated before distributing in the relevant territories.
 
 ## 12. Technical and legal release conditions — editorial; REMOVE FROM PUBLIC DOCUMENT
 
@@ -93,7 +93,7 @@ The approved initial Privacy Policy is in English. A separate Turkish KVKK notic
 
 ## Sources — editorial; REMOVE FROM PUBLIC DOCUMENT
 
-- https://support.google.com/googleplay/android-developer/answer/10144311?hl=en
+- https://support.google.com/googleplay/android-developer/answer/18258653?hl=en&rd=5
 - https://support.google.com/googleplay/android-developer/answer/10787469?hl=en
 - https://nextdns.io/privacy
 - https://nextdns.github.io/api/

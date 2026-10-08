@@ -5,6 +5,7 @@ import androidx.test.core.app.ApplicationProvider
 import org.junit.After
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
+import org.junit.Assert.assertEquals
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -42,6 +43,20 @@ class LegalAcceptanceStoreTest {
   @Test fun outdatedRevisionDoesNotUnlockGate() {
     context.getSharedPreferences("legal_acceptance", Context.MODE_PRIVATE)
       .edit().putString("accepted_terms_revision", "older-material-revision").commit()
+    assertFalse(LegalAcceptanceStore(context).isAccepted())
+  }
+
+  @Test fun acceptanceRecordsOnlyRevisionAndDeviceLocalTime() {
+    val store = LegalAcceptanceStore(context) { 1_791_500_000_000L }
+    assertTrue(store.acceptCurrentTerms())
+    assertEquals(1_791_500_000_000L, store.acceptedAtEpochMillis())
+    val saved = context.getSharedPreferences("legal_acceptance", Context.MODE_PRIVATE).all
+    assertEquals(setOf("accepted_terms_revision", "accepted_at_epoch_millis"), saved.keys)
+  }
+
+  @Test fun revisionWithoutAcceptanceTimeDoesNotUnlockGate() {
+    context.getSharedPreferences("legal_acceptance", Context.MODE_PRIVATE).edit()
+      .putString("accepted_terms_revision", LegalAcceptanceStore.CURRENT_TERMS_REVISION).commit()
     assertFalse(LegalAcceptanceStore(context).isAccepted())
   }
 }

@@ -1,0 +1,42 @@
+{
+  "status": "DRAFT",
+  "terms_revision": "terms-2026-10-DRAFT-2",
+  "privacy_revision": "privacy-2026-10-DRAFT-2",
+  "review_date": "2026-10-09",
+  "publisher": null,
+  "contact": null,
+  "public_policy_url": null,
+  "documents": [
+    {
+      "path": "privacy_en.txt",
+      "sha256": "b82747d14ce6393b47a2275cc297891c1c93bd66f39b6a01a6eee7ff86191513",
+      "status": "DRAFT"
+    },
+    {
+      "path": "terms_de.txt",
+      "sha256": "112e646eb60f2600b9ec4430cd8dbbec70c1ac1d1b718c16549aee0e4f386d05",
+      "status": "DRAFT"
+    },
+    {
+      "path": "terms_en.txt",
+      "sha256": "c261e48c452f710c4ab153ccb71780964058c95c0de2b2d2f33284b06156f47b",
+      "status": "DRAFT"
+    },
+    {
+      "path": "terms_es.txt",
+      "sha256": "023d1fdcd8d98ebdf5505732b7f3e8eb18692b5d67c23a2b812932b8bf6b4475",
+      "status": "DRAFT"
+    },
+    {
+      "path": "terms_fr.txt",
+      "sha256": "2d811280432f311f34ae3cd12b88979752961e42a0277c4ae6851c2ea5743641",
+      "status": "DRAFT"
+    },
+    {
+      "path": "terms_tr.txt",
+      "sha256": "bea49b28ca0a6eca490b8ae58ebc57a9a58b408718431147d60c8dfd27422e10",
+      "status": "DRAFT"
+    }
+  ],
+  "digest_format": "sha256-utf8-lf"
+}

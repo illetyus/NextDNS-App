@@ -1,4 +1,5 @@
 DRAFT — LEGAL REVIEW AND DEVELOPER IDENTITY PENDING — DO NOT PUBLISH
+Revision: terms-2026-10-DRAFT-2
 
 TR — Kullanım Koşulları
 
@@ -38,4 +39,4 @@ Kullanım Koşulları, ilk kullanımda kullanıcı tarafından ayrıca işaretle
 ### 12. Yürürlük, iletişim ve uygulanacak hükümler
 Bu metnin yürürlük tarihi, gerçek uygulama yayıncısının kimliği ve iletişim kanalları yayımdan önce tamamlanacaktır. Uyuşmazlıklar ve uygulanacak mevzuat hakkında ülkeye özgü gerekli hükümler ayrı hukuki inceleme sonucunda belirlenecektir.
 
----
+Uygulamanın özgün kaynak kodu Apache-2.0 lisansı kapsamında sunulur. Uygulanabilir hukukun izin verdiği ölçüde yazılım mevcut hâliyle, ek garanti veya kesintisiz hizmet taahhüdü olmaksızın sağlanır. Bu Koşullar, Apache-2.0 kapsamında verilen hakları veya uygulanabilir emredici hükümleri ortadan kaldıracak biçimde yorumlanamaz.

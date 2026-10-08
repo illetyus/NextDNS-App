@@ -1,7 +1,7 @@
 # Open Source Client for NextDNS — Terms of Use / Kullanım Koşulları / Nutzungsbedingungen / Conditions d’utilisation / Condiciones de uso
 
-**DOCUMENT STATUS: LEGAL DRAFT — NOT FOR PUBLICATION OR IN-APP DISPLAY.**  
-**Draft revision:** 0.1; **draft date:** 2026-10-08.  
+**DOCUMENT STATUS: LEGAL DRAFT — NOT FOR PUBLIC RELEASE. Development builds display explicit DRAFT notices.**  
+**Draft revision:** 0.2; **draft date:** 2026-10-09. **Bundled revision:** terms-2026-10-DRAFT-2.  
 **Final application name:** Open Source Client for NextDNS (selected product title; trademark suitability remains under review).  
 **Developer/legal publisher:** [VERIFIED DEVELOPER LEGAL IDENTITY].  
 **Support and legal contact:** [VERIFIED SUPPORT/PRIVACY CONTACT].  
@@ -50,6 +50,8 @@ Kullanım Koşulları, ilk kullanımda kullanıcı tarafından ayrıca işaretle
 ### 12. Yürürlük, iletişim ve uygulanacak hükümler
 Bu metnin yürürlük tarihi, gerçek uygulama yayıncısının kimliği ve iletişim kanalları yayımdan önce tamamlanacaktır. Uyuşmazlıklar ve uygulanacak mevzuat hakkında ülkeye özgü gerekli hükümler ayrı hukuki inceleme sonucunda belirlenecektir.
 
+Uygulamanın özgün kaynak kodu Apache-2.0 lisansı kapsamında sunulur. Uygulanabilir hukukun izin verdiği ölçüde yazılım mevcut hâliyle, ek garanti veya kesintisiz hizmet taahhüdü olmaksızın sağlanır. Bu Koşullar, Apache-2.0 kapsamında verilen hakları veya uygulanabilir emredici hükümleri ortadan kaldıracak biçimde yorumlanamaz.
+
 ---
 
 ## EN — Terms of Use
@@ -89,6 +91,8 @@ These Terms are accepted through a separate affirmative checkbox at first use. M
 
 ### 12. Effective date, contact and applicable provisions
 The effective date, verified legal identity of the publisher and support contact information shall be completed before publication. Any jurisdiction-specific provisions governing disputes or mandatory legal requirements are reserved for legal review before release.
+
+The original Application source code is made available under Apache-2.0. To the extent permitted by applicable law, the software is supplied as is, without an additional warranty or undertaking of uninterrupted service. These Terms do not remove rights granted by Apache-2.0 or override applicable mandatory provisions.
 
 ---
 
@@ -130,6 +134,8 @@ Die Annahme dieser Bedingungen erfolgt bei der erstmaligen Nutzung durch eine ge
 ### 12. Inkrafttreten, Kontakt und anwendbare Vorschriften
 Das Datum des Inkrafttretens sowie die verifizierte rechtliche Identität des Herausgebers und seine Kontaktangaben sind vor der Veröffentlichung einzutragen. Zuständigkeits- und länderspezifische Bestimmungen bedürfen einer gesonderten rechtlichen Prüfung vor der Freigabe.
 
+Der originäre Quellcode der Anwendung wird unter Apache-2.0 bereitgestellt. Soweit das anwendbare Recht dies zulässt, wird die Software in ihrem bestehenden Zustand ohne zusätzliche Garantie oder Zusage ununterbrochener Verfügbarkeit bereitgestellt. Diese Bedingungen beseitigen weder Rechte aus Apache-2.0 noch zwingende gesetzliche Bestimmungen.
+
 ---
 
 ## FR — Conditions d’utilisation
@@ -170,6 +176,8 @@ Les présentes Conditions sont acceptées lors de la première utilisation au mo
 ### 12. Entrée en vigueur, contact et dispositions applicables
 La date d’entrée en vigueur, l’identité juridique vérifiée de l’éditeur ainsi que les coordonnées d’assistance seront précisées avant publication. Les dispositions propres aux juridictions concernées et aux règles impératives applicables feront l’objet d’un examen juridique préalable à la diffusion.
 
+Le code source original de l’Application est proposé sous Apache-2.0. Dans les limites du droit applicable, le logiciel est fourni en l’état, sans garantie supplémentaire ni engagement de disponibilité ininterrompue. Ces Conditions ne suppriment pas les droits accordés par Apache-2.0 et ne dérogent pas aux dispositions impératives applicables.
+
 ---
 
 ## ES — Condiciones de uso
@@ -209,6 +217,8 @@ Estas Condiciones se aceptarán en el primer uso mediante una casilla independie
 
 ### 12. Entrada en vigor, contacto y disposiciones aplicables
 La fecha de entrada en vigor, la identidad jurídica verificada del editor y los datos de contacto se completarán antes de la publicación. Las disposiciones particulares sobre controversias y normas imperativas aplicables en cada jurisdicción se determinarán tras la revisión jurídica correspondiente.
+
+El código fuente original de la Aplicación se ofrece bajo Apache-2.0. En la medida permitida por la legislación aplicable, el software se proporciona tal cual, sin garantías adicionales ni compromiso de disponibilidad ininterrumpida. Estas Condiciones no eliminan los derechos de Apache-2.0 ni prevalecen sobre disposiciones imperativas aplicables.
 
 ---
 
