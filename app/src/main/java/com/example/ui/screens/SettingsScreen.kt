@@ -164,7 +164,7 @@ fun AppearanceSection(
 ) {
   val context = LocalContext.current
   val themePrefs = remember { ThemePreferences(context) }
-  val themeMode by themePrefs.themeMode.collectAsState(initial = ThemeMode.SYSTEM)
+  val themeMode by themePrefs.themeMode.collectAsStateWithLifecycle(initialValue = ThemeMode.SYSTEM)
   val scope = rememberCoroutineScope()
 
   NextDnsCard(title = "Görünüm", modifier = modifier) {
