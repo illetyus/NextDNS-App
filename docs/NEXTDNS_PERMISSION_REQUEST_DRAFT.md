@@ -26,7 +26,7 @@ Thank you for providing the applicable written terms, guidelines or an authorize
 
 Best regards,
 [DEVELOPER NAME / CONTACT — supply before sending]
-[REPOSITORY URL: https://github.com/illetyus/NextDNS-App]
+[REPOSITORY URL: https://github.com/illetyus/open-source-client-for-nextdns]
 
 ## İç takip / karar
 
