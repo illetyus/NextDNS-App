@@ -4,7 +4,7 @@
 
 ## 1. Privacy Policy — çerçeve
 
-**Başlık:** [FINAL APP NAME] Privacy Policy (**English only — approved initial document language**)
+**Başlık:** Open Source Client for NextDNS Privacy Policy (**English only — approved initial document language**)
 
 **Geliştirici / sorumlu:** [DOĞRULANMIŞ GERÇEK GELİŞTİRİCİ ADI]  
 **İletişim ve talepler:** [GERÇEK DESTEK E-POSTASI/URL]  
