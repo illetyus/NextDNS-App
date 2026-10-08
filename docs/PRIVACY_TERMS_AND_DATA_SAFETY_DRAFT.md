@@ -57,7 +57,7 @@ Google Play'in Data Safety beyanı, **uygulamanın gerçekten topladığı ve pa
 - Genel kullanıcı kitlesi, çocukları özellikle hedeflemez.
 - NextDNS hizmet koşullarına ve hukuka uyulmasını şart koşar; ayrıca yalnız kendi hesabına erişim kısıtı koymaz.
 - Logout: API key, yerel hesap/önbellek ve bildirim ayarları/görevleri silinir; tema korunabilir. NextDNS sunucu verileri ve dışa aktarılmış kullanıcı dosyaları etkilenmez.
-- Terms of Use ve Privacy Policy tam metinleri **yalnızca İngilizce**; ülke bazlı mevzuatın ayrıca bilgilendirme/yerel dil gereklilikleri yayın kapısıdır.
+- **Güncellenen dil kararı (8 Ekim 2026):** Terms of Use beş dilde (Türkçe, İngilizce, Almanca, Fransızca, İspanyolca) hazırlanacak; Privacy Policy tam metni **şimdilik yalnızca İngilizce**. Yerel mevzuatın ayrıca bilgilendirme/yerel dil gereklilikleri yayın kapısıdır. Ayrıntılar: [PHASE9_LOCALIZATION_PLAN.md](PHASE9_LOCALIZATION_PLAN.md).
 - **Ayrıntılı teknik plan ve kabul testleri:** [TERMS_PRIVACY_IMPLEMENTATION_PLAN.md](TERMS_PRIVACY_IMPLEMENTATION_PLAN.md).
 
 ## 5. Açık yayın maddeleri
