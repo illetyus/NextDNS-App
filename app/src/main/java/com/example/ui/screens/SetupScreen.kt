@@ -144,7 +144,7 @@ fun SetupScreen(
 // =========================================================================
 
 @Composable
-private fun ConnectionStatusBanner(
+internal fun ConnectionStatusBanner(
   activeProfile: NextDnsProfile?,
   testResult: DiagnosticTestResult,
   isDiagnosticRunning: Boolean,

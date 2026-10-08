@@ -19,15 +19,17 @@ assert tests > 0 and failures == 0 and skipped == 0, (tests, failures, skipped)
 for name in ("greeting_screenshot", "homeTitleFitsCompactDisplayWithLargeText"):
     assert ("com.example.GreetingScreenshotTest", name) in cases, f"Branding test was not executed: {name}"
 assert ("com.example.i18n.LocaleRenderingTest", "homeRendersInEveryLanguageAtLargeFontScale") in cases
+assert ("com.example.i18n.LocaleRenderingTest", "connectionStatusTextWrapsBetweenWordsInEveryLanguage") in cases
 
 screenshots = ["branding/greeting.png", "branding/greeting-compact-large-font.png"]
 screenshots += [f"localization/home-{language}.png" for language in ("tr", "en", "de", "fr", "es")]
+screenshots += [f"localization/connection-{language}.png" for language in ("tr", "en", "de", "fr", "es")]
 for name in screenshots:
     path = root / "app/build/outputs/roborazzi" / name
     data = path.read_bytes()
     assert data[:8] == b"\x89PNG\r\n\x1a\n", f"Invalid generated PNG: {path}"
     width, height = struct.unpack(">II", data[16:24])
-    assert width >= 300 and height >= 300, f"Incomplete screen capture: {width}x{height}"
+    assert width >= 300 and height >= (100 if 'connection-' in name else 300), f"Incomplete screen capture: {width}x{height}"
     offset = 8
     image_data = bytearray()
     while offset < len(data):

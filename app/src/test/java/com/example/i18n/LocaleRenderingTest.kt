@@ -14,6 +14,8 @@ import androidx.test.core.app.ApplicationProvider
 import com.example.NextDnsApp
 import com.example.R
 import com.example.ui.screens.HomeScreen
+import com.example.ui.screens.ConnectionStatusBanner
+import com.example.data.model.DiagnosticTestResult
 import com.example.ui.theme.AppTheme
 import com.example.ui.viewmodel.NextDnsViewModel
 import com.github.takahirom.roborazzi.captureRoboImage
@@ -53,6 +55,26 @@ class LocaleRenderingTest {
       rule.onNodeWithText("Open Source Client for NextDNS").assertIsDisplayed()
       rule.onNodeWithText(AppStrings.get(R.string.ui_18d49619ba)).assertIsDisplayed()
       rule.onRoot().captureRoboImage(filePath = "build/outputs/roborazzi/localization/home-$choice.png")
+    }
+  }
+
+  @Test fun connectionStatusTextWrapsBetweenWordsInEveryLanguage() {
+    val context = ApplicationProvider.getApplicationContext<NextDnsApp>()
+    var language by mutableStateOf("en")
+    rule.setContent {
+      key(language) {
+        val density = LocalDensity.current
+        CompositionLocalProvider(LocalDensity provides Density(density.density, 1.5f)) {
+          AppTheme {
+            ConnectionStatusBanner(null, DiagnosticTestResult(), true, {}, {})
+          }
+        }
+      }
+    }
+    LocalePreferences.supportedLanguages.forEach { choice ->
+      rule.runOnIdle { LocalePreferences.setSelection(context, choice); language = choice }
+      rule.waitForIdle()
+      rule.onRoot().captureRoboImage(filePath = "build/outputs/roborazzi/localization/connection-$choice.png")
       val connectionTitle = rule.onNodeWithText(AppStrings.get(R.string.ui_5ed3c5cf66), useUnmergedTree = true)
         .assertIsDisplayed()
       val layouts = mutableListOf<TextLayoutResult>()
