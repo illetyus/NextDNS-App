@@ -548,4 +548,6 @@
     <string name="rules_updated">"Rules: %1$s • %2$s"</string>
     <string name="entries_count">"Entries: %1$s"</string>
     <string name="percentage_queries">%1$s (%2$s queries)</string>
+    <string name="privacy">Privacy</string>
 </resources>
+<!-- Locale-only presentation; API privacy fields remain unchanged. -->

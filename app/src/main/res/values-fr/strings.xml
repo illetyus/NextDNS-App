@@ -547,4 +547,5 @@
     <string name="rules_updated">"Règles : %1$s • %2$s"</string>
     <string name="entries_count">"Entrées : %1$s"</string>
     <string name="percentage_queries">%1$s (%2$s requêtes)</string>
+    <string name="privacy">Confidentialité</string>
 </resources>

@@ -547,4 +547,5 @@
     <string name="rules_updated">"%1$s kural • %2$s"</string>
     <string name="entries_count">"Girdi sayısı: %1$s"</string>
     <string name="percentage_queries">%1$s (%2$s sorgu)</string>
+    <string name="privacy">Gizlilik</string>
 </resources>

@@ -218,7 +218,7 @@ private fun BlocklistItemCard(
           }
           val updateInfo = if (item.updatedTime.isNotBlank()) AppStrings.get(R.string.last_updated, item.updatedTime) else AppStrings.get(R.string.ui_f4435d51ea)
           val formattedEntries = try {
-            java.text.NumberFormat.getInstance(java.util.AppStrings.locale).format(item.entriesCount)
+            java.text.NumberFormat.getInstance(AppStrings.locale).format(item.entriesCount)
           } catch (_: Exception) {
             item.entriesCount.toString()
           }
@@ -559,7 +559,7 @@ private fun AddBlocklistCatalogDialog(
                   modifier = Modifier.padding(top = 4.dp, bottom = 4.dp)
                 )
                 val formattedEntries = try {
-                  java.text.NumberFormat.getInstance(java.util.AppStrings.locale).format(catItem.entriesCount)
+                  java.text.NumberFormat.getInstance(AppStrings.locale).format(catItem.entriesCount)
                 } catch (_: Exception) {
                   catItem.entriesCount.toString()
                 }

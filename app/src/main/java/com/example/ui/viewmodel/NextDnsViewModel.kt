@@ -28,7 +28,7 @@ import java.util.UUID
 enum class NavTab(val titleResource: Int, val iconName: String) {
   SETUP(R.string.ui_daee5e5093, "dns"),
   SECURITY(R.string.ui_bde6632ed8, "security"),
-  PRIVACY("Gizlilik", "visibility_off"),
+  PRIVACY(R.string.privacy, "visibility_off"),
   PARENTAL(R.string.ui_c8073d04ad, "family_restroom"),
   DENYLIST(R.string.ui_8aa4ccc961, "block"),
   ALLOWLIST(R.string.ui_6419e29c88, "check_circle"),
