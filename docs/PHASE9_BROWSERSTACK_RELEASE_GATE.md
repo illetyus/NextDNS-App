@@ -55,6 +55,9 @@ Gerçek cihaz modeli ve Android sürümü **test anındaki BrowserStack katalogu
 | B14 | İmzasız/üretim varyantı test eşdeğerliği | Paket, applicationId, imza, min/targetSDK ve Crash/ANR kontrol |
 | B15 | Güncelleme / eski sürümden veri migrasyonu | Anahtar düz metin bırakılmaz; kayıp profile sahte success yok |
 | B16 | Düşük bellek/uygulama tekrar açma | Kalıcı işlem kaybı, çökme veya boş başarı bildirimi yok |
+| B17 | **Beş dil**: Türkçe, İngilizce, Almanca, Fransızca, İspanyolca; sistem dili veya kullanıcı seçimi | Sabit arayüz metinleri tamamen çevrili, metin taşması veya karışık dil yok; erişilebilirlik ve bildirimler de çevrili |
+| B18 | **Beş dilde Terms of Use**, **İngilizce Privacy Policy**; ilk kabul, güncelleme ve dil değiştirme | İlk checkbox boş; materyal değişiklikte yeniden onay; yalnız dil değişiminde gereksiz yeniden onay yok; gizlilik metni İngilizce olduğu açık; yerel hukuk incelemesi tamam |
+
 
 ## 5. Gerçek cihaz otomasyonu ve güvenlik
 
@@ -65,10 +68,14 @@ Gerçek cihaz modeli ve Android sürümü **test anındaki BrowserStack katalogu
 
 ## 6. Yayın kararı
 
-**PASS için:** B01–B16 içindeki geçerli senaryolar tamamlanmış olmalı; P0/P1 kritik/yüksek açık **0**; güvenlik ve API anahtarının yanlış aktarılması **0**; tüm zorunlu cihaz sınıfları test edilmiş; bulgular ve düzeltme sonrası tekrar testler aynı release adayıyla tutarlı olmalı.
+**PASS için:** B01–B18 içindeki geçerli senaryolar tamamlanmış olmalı; P0/P1 kritik/yüksek açık **0**; güvenlik ve API anahtarının yanlış aktarılması **0**; tüm zorunlu cihaz sınıfları test edilmiş; bulgular ve düzeltme sonrası tekrar testler aynı release adayıyla tutarlı olmalı.
 
 **FAIL/BLOCK:** Kritik crash/ANR, izinsiz veri aktarımı, hatalı ayarın başarılı gösterilmesi, başka profil verisinin görünmesi, gizli API key sızıntısı, ciddi a11y/OS çökmesi veya marka/lisans izni eksikliği.
 
 **Son sıra:** Faz 8 uygunluk -> entegre paket -> BrowserStack App Live + App Automate -> düzeltmeler ve yeniden test -> Play internal/closed testing + prelaunch -> kademeli prod yayın.
 
 **Durum:** **NOT RUN — yayın kapısı açık.**
+
+## 7. Faz 9 dil kapsamı
+
+İlk sürümde `tr`, `en`, `de`, `fr`, `es` desteklenecek. Kullanım Koşulları da beş dilde; Gizlilik Politikası şimdilik İngilizce. Dil değiştirmenin sözleşme onayına, oturuma, bildirimlere ve logout veri temizliğine etkisi için B17–B18 zorunludur. Ayrıntılar: [PHASE9_LOCALIZATION_PLAN.md](PHASE9_LOCALIZATION_PLAN.md).
