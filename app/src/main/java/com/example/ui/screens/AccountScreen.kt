@@ -236,7 +236,7 @@ fun AccountScreen(
               Row(horizontalArrangement = Arrangement.spacedBy(4.dp)) {
                 IconButton(
                   onClick = { showApiKey = !showApiKey },
-                  modifier = Modifier.size(32.dp)
+                  modifier = Modifier.size(48.dp)
                 ) {
                   Icon(
                     imageVector = if (showApiKey) Icons.Default.VisibilityOff else Icons.Default.Visibility,
@@ -253,7 +253,7 @@ fun AccountScreen(
                       copySensitiveApiKey(context, apiKey)
                       scheduleApiKeyClipboardClear(context, apiKey)
                     },
-                    modifier = Modifier.size(32.dp)
+                    modifier = Modifier.size(48.dp)
                   ) {
                     Icon(
                       imageVector = Icons.Default.ContentCopy,
