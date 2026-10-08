@@ -3,11 +3,11 @@ Revision: privacy-2026-10-DRAFT-2
 
 # Open Source Client for NextDNS — Privacy Policy (English draft)
 
-**DRAFT FOR TECHNICAL/LEGAL REVIEW — DO NOT PUBLISH YET**  
-Document revision: 0.2 (9 October 2026). Effective date: [DATE OF FIRST PUBLIC RELEASE].  
-Developer/publisher: [VERIFIED LEGAL OR TRADING NAME].  
-Support and privacy inquiries: [WORKING CONTACT / HTTPS PAGE].  
-Public policy URL: [PUBLIC ACCESSIBLE NON-PDF HTTPS URL].  
+**DRAFT FOR TECHNICAL/LEGAL REVIEW — DO NOT PUBLISH YET**
+Document revision: 0.2 (9 October 2026). Effective date: [DATE OF FIRST PUBLIC RELEASE].
+Developer/publisher: [VERIFIED LEGAL OR TRADING NAME].
+Support and privacy inquiries: [WORKING CONTACT / HTTPS PAGE].
+Public policy URL: [PUBLIC ACCESSIBLE NON-PDF HTTPS URL].
 Scope: The independent, unofficial Android client, not the NextDNS-operated DNS service.
 
 ## 1. Application identity and separation from NextDNS

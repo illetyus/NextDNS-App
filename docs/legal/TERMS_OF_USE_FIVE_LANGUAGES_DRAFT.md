@@ -1,13 +1,13 @@
 # Open Source Client for NextDNS — Terms of Use / Kullanım Koşulları / Nutzungsbedingungen / Conditions d’utilisation / Condiciones de uso
 
-**DOCUMENT STATUS: LEGAL DRAFT — NOT FOR PUBLIC RELEASE. Development builds display explicit DRAFT notices.**  
-**Draft revision:** 0.2; **draft date:** 2026-10-09. **Bundled revision:** terms-2026-10-DRAFT-2.  
-**Final application name:** Open Source Client for NextDNS (selected product title; trademark suitability remains under review).  
-**Developer/legal publisher:** [VERIFIED DEVELOPER LEGAL IDENTITY].  
-**Support and legal contact:** [VERIFIED SUPPORT/PRIVACY CONTACT].  
-**Effective date:** [PUBLICATION DATE].  
-**Jurisdiction / mandatory local rules:** [JURISDICTION-SPECIFIC LEGAL REVIEW].  
-**Dependencies:** verified actual app/Android behavior; verified NextDNS API/brand conditions; approved Privacy Policy and relevant local notices.  
+**DOCUMENT STATUS: LEGAL DRAFT — NOT FOR PUBLIC RELEASE. Development builds display explicit DRAFT notices.**
+**Draft revision:** 0.2; **draft date:** 2026-10-09. **Bundled revision:** terms-2026-10-DRAFT-2.
+**Final application name:** Open Source Client for NextDNS (selected product title; trademark suitability remains under review).
+**Developer/legal publisher:** [VERIFIED DEVELOPER LEGAL IDENTITY].
+**Support and legal contact:** [VERIFIED SUPPORT/PRIVACY CONTACT].
+**Effective date:** [PUBLICATION DATE].
+**Jurisdiction / mandatory local rules:** [JURISDICTION-SPECIFIC LEGAL REVIEW].
+**Dependencies:** verified actual app/Android behavior; verified NextDNS API/brand conditions; approved Privacy Policy and relevant local notices.
 **Translation status:** parallel editorial drafts, **not** professional legal-equivalence certification. Sections 1–12 use identical structure and scope. A change to one normative provision must be checked across all five versions. No locale has been designated an overriding language.
 
 ---
