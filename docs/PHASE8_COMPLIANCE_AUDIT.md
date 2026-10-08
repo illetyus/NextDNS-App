@@ -77,3 +77,20 @@ Depoda görülen uygulama izinleri: `INTERNET`, `ACCESS_NETWORK_STATE`, `POST_NO
 - [ ] Faz 9: BrowserStack gerçek cihaz + Google Play dahili/kapalı test kapıları
 
 **Risk değerlendirmesi:** Araştırma tamamlandı ancak Faz 8 **yayın için henüz kabul edilmiş değildir**. Hukuki değerlendirme kesin izin/lisans yerine geçmez.
+
+
+## 6. Faz 8 teknik denetiminin devamı (2026-10-08)
+
+Kaynak kodu ve bağımlılık taramasıyla yapılanlar:
+
+- [x] Apache-2.0 LICENSE resmi SPDX metniyle karşılaştırıldı; NOTICE ve README mevcut.
+- [x] Doğrudan bağımlılık ailelerinin üst proje lisans kaynakları `docs/THIRD_PARTY_LICENSE_REVIEW.md` içinde kaydedildi.
+- [x] `scripts/verify_release_dependencies.sh`: Gradle `releaseRuntimeClasspath` bağımlılık raporu ve reklam/telemetri/billing SDK koordinatları için negatif test eklendi.
+- [x] `docs/PHASE8_PRIVACY_SOURCE_AUDIT.md`: gerçek API/host kodu, Keystore, backup, notification DataStore ve log-export yönlendirmeleri incelendi.
+- [x] NextDNS public log export istemcisi HTTPS'den şifresiz HTTP'ye yönlendirmeleri takip etmeyecek şekilde sertleştirildi (`followSslRedirects(false)`).
+- [ ] CI'nin **yeni HEAD** üzerinde yeşil olduğu doğrulanacak.
+- [ ] Nihai AAB/APK ve **resolved** transitif paket lisansları/POM kontrol edilecek; üst proje lisansı bunu otomatik karşılamaz.
+- [ ] BrowserStack üzerinde export HTTP redirect, şifreli veri, izinler, network hostları ve data backup/restore davranışları test edilecek.
+- [ ] İkon/mağaza adı, Play açıklaması ve Google Play Data Safety beyanı Faz 9'da kesinleşecek.
+
+**Dikkat:** Faz 8'in kaynak denetimi ve lisans seçimi ile Faz 9'un gerçek cihaz/Google Play yayın kabulü birbirinden ayrıdır. Bu doküman, NextDNS marka izni veya yayın onayı değildir.
