@@ -143,7 +143,7 @@ fun AccountScreen(
                 )
                 Text(
                   text = analyticsLastSuccessAt?.let { "%,d".format(analytics.blockedQueries) } ?: "—",
-                  color = Color(0xFFEF4444),
+                  color = MaterialTheme.colorScheme.error,
                   fontSize = 16.sp,
                   fontWeight = FontWeight.Bold
                 )
@@ -164,7 +164,7 @@ fun AccountScreen(
                 )
                 Text(
                   text = analyticsLastSuccessAt?.let { "%%%d".format(analytics.blockedPercentage.toInt()) } ?: "—",
-                  color = Color(0xFF10B981),
+                  color = MaterialTheme.colorScheme.tertiary,
                   fontSize = 16.sp,
                   fontWeight = FontWeight.Bold
                 )
@@ -319,7 +319,7 @@ fun AccountScreen(
                     modifier = Modifier
                       .size(8.dp)
                       .background(
-                        if (isActive) Color(0xFF10B981) else MaterialTheme.colorScheme.outline,
+                        if (isActive) MaterialTheme.colorScheme.tertiary else MaterialTheme.colorScheme.outline,
                         CircleShape
                       )
                   )
@@ -341,12 +341,12 @@ fun AccountScreen(
 
                 if (isActive) {
                   Surface(
-                    color = Color(0xFF10B981).copy(alpha = 0.12f),
+                    color = MaterialTheme.colorScheme.tertiary.copy(alpha = 0.12f),
                     shape = RoundedCornerShape(6.dp)
                   ) {
                     Text(
                       text = "AKTİF",
-                      color = Color(0xFF10B981),
+                      color = MaterialTheme.colorScheme.tertiary,
                       fontSize = 10.sp,
                       fontWeight = FontWeight.Bold,
                       modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp)
@@ -385,7 +385,7 @@ fun AccountScreen(
             Column {
               Text(
                 text = if (isUsingNextDns) "Bu cihaz NextDNS kullanıyor" else "NextDNS aktif değil",
-                color = if (isUsingNextDns) Color(0xFF10B981) else MaterialTheme.colorScheme.error,
+                color = if (isUsingNextDns) MaterialTheme.colorScheme.tertiary else MaterialTheme.colorScheme.error,
                 fontWeight = FontWeight.Bold,
                 fontSize = 13.5.sp
               )
