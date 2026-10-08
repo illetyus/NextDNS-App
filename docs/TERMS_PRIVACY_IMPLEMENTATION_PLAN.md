@@ -113,3 +113,8 @@ The next legal-document drafting milestone has been executed in the same branch:
 - [Conditional Turkish KVKK aydınlatma template](legal/KVKK_AYDINLATMA_TR_TASLAK.md) — activity-specific inventory, not a consent agreement; requires controller-role and concrete legal-basis analysis before publication.
 
 **Not completed:** identity/support and effective dates; independent API/trademark terms confirmation; reviewed legal equivalence across locales; role/transfer assessment; tested signed AAB, storage/logout behavior; publication URLs; legal expert review; any live screen implementation. These remain release blockers.
+
+
+## Confirmed title / source integration (8 October 2026)
+
+The product-title decision is **Open Source Client for NextDNS**; it is no longer an open naming decision. That selected title has been propagated to the five Terms drafts, English Privacy draft, Turkish KVKK template, and offline test assets. Legal review, public policy URLs, publisher identity and consent testing remain mandatory.
