@@ -124,6 +124,8 @@ class NextDnsNotificationWorker(
         now = now
       )
     ) {
+      preferences.suppressConfigBacklog(profileId, digest)
+      preferences.clearLocalMutationSuppression(profileId)
       return
     }
 
