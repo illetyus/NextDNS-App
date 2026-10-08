@@ -244,11 +244,13 @@ internal fun ConnectionStatusBanner(
         Column(modifier = Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(6.dp)) {
           Text(
             text = title,
+            modifier = Modifier.fillMaxWidth(),
             style = MaterialTheme.typography.titleSmall.copy(fontWeight = FontWeight.Bold, fontSize = 14.sp),
             color = MaterialTheme.colorScheme.onSurface
           )
           Text(
             text = subtitle,
+            modifier = Modifier.fillMaxWidth(),
             style = MaterialTheme.typography.bodySmall.copy(fontSize = 11.5.sp, lineHeight = 15.sp),
             color = MaterialTheme.colorScheme.onSurfaceVariant
           )
