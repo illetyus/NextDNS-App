@@ -7,6 +7,9 @@ import com.example.data.api.*
 import com.example.data.local.NextDnsPreferences
 import com.example.data.model.*
 import com.example.data.notifications.NotificationWorkScheduler
+import com.example.data.notifications.NotificationPreferences
+import com.example.data.legal.LegalAcceptanceStore
+import java.util.concurrent.atomic.AtomicBoolean
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -33,6 +36,10 @@ class NextDnsRepository(
 ) {
   private val TAG = "NextDnsRepo"
   private val repoScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
+  private val legalAcceptanceStore = LegalAcceptanceStore(NextDnsApp.instance)
+  private val startupInitialized = AtomicBoolean(false)
+
+  fun termsAccepted(): Boolean = legalAcceptanceStore.isAccepted()
   private var streamJob: Job? = null
   private var analyticsPollingJob: Job? = null
   private val mutationCoordinator = SectionMutationCoordinator()
@@ -43,7 +50,7 @@ class NextDnsRepository(
   val apiKey = _apiKey.asStateFlow()
 
   private val _apiStatus = MutableStateFlow<ApiConnectionStatus>(
-    if (preferences.apiKey.isNotBlank()) ApiConnectionStatus.Connecting else ApiConnectionStatus.Disconnected
+    if (legalAcceptanceStore.isAccepted() && preferences.apiKey.isNotBlank()) ApiConnectionStatus.Connecting else ApiConnectionStatus.Disconnected
   )
   val apiStatus = _apiStatus.asStateFlow()
 
@@ -306,6 +313,17 @@ class NextDnsRepository(
   val profileSetup = _profileSetup.asStateFlow()
 
   init {
+    resumeAfterTermsAccepted()
+  }
+
+  /**
+   * Never start catalogs, diagnostics, credential restoration or account calls
+   * before an explicit current Terms revision is durably accepted.
+   */
+  fun resumeAfterTermsAccepted() {
+    if (!legalAcceptanceStore.isAccepted()) return
+    if (!startupInitialized.compareAndSet(false, true)) return
+
     repoScope.launch {
       loadAllLiveCatalogs()
       runDiagnosticTest()
@@ -527,6 +545,9 @@ class NextDnsRepository(
   }
 
   suspend fun loginWithApiKey(key: String, restoreProfileId: String? = null): Result<Int> = withContext(Dispatchers.IO) {
+    if (!legalAcceptanceStore.isAccepted()) {
+      return@withContext Result.failure(IllegalStateException("Kullanım Koşulları henüz kabul edilmedi."))
+    }
     _apiStatus.value = ApiConnectionStatus.Connecting
 
     val profilesResult = fetchAllProfilesFromApi(key)
@@ -1098,10 +1119,12 @@ class NextDnsRepository(
   // Profile Management
   // =========================================================================
 
-  fun logout() {
+  suspend fun logout(): Result<Unit> {
+    // Shut down account-scoped work before clearing its credentials.
     NotificationWorkScheduler.cancel(NextDnsApp.instance)
+    repoScope.coroutineContext.cancelChildren()
     resetProfileScopedRuntimeState()
-    preferences.clear()
+    val localDataCleared = preferences.clear()
     _apiKey.value = ""
     _activeProfileId.value = ""
     _profiles.value = emptyList()
@@ -1115,6 +1138,14 @@ class NextDnsRepository(
     _parentalControlSettings.value = ParentalControlSettings()
     _configSettings.value = ConfigSettings()
     _apiStatus.value = ApiConnectionStatus.Disconnected
+
+    if (!localDataCleared) {
+      return Result.failure(IllegalStateException("Yerel hesap verileri silinemedi."))
+    }
+
+    return runCatching {
+      NotificationPreferences(NextDnsApp.instance).clearAccountState()
+    }
   }
 
   fun setActiveProfile(profileId: String) {
