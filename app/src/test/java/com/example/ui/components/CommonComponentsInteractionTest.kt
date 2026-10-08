@@ -1,5 +1,9 @@
 package com.example.ui.components
 
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.unit.dp
@@ -49,11 +53,15 @@ class CommonComponentsInteractionTest {
     var changes = 0
 
     composeTestRule.setContent {
+      var checked by remember { mutableStateOf(false) }
       AppTheme {
         NextDnsSettingToggleRow(
           title = "Koruma",
-          checked = false,
-          onCheckedChange = { changes += 1 },
+          checked = checked,
+          onCheckedChange = { value ->
+            checked = value
+            changes += 1
+          },
           modifier = Modifier.testTag("setting_toggle_row")
         )
       }
