@@ -1,8 +1,9 @@
 package com.example.ui.components
 
-import androidx.compose.ui.test.hasClickAction
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.test.junit4.createComposeRule
-import androidx.compose.ui.test.onNode
+import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import com.example.ui.theme.AppTheme
@@ -47,12 +48,13 @@ class CommonComponentsInteractionTest {
         NextDnsSettingToggleRow(
           title = "Koruma",
           checked = false,
-          onCheckedChange = { changes += 1 }
+          onCheckedChange = { changes += 1 },
+          modifier = Modifier.testTag("setting_toggle_row")
         )
       }
     }
 
-    composeTestRule.onNode(hasClickAction()).performClick()
+    composeTestRule.onNodeWithTag("setting_toggle_row").performClick()
 
     assertEquals(1, changes)
   }
