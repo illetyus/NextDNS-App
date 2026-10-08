@@ -8,6 +8,7 @@ import com.example.data.api.NextDnsApiResponse
 import com.example.data.api.NextDnsNetworkClient
 import com.example.data.api.hasApiErrors
 import com.example.data.local.NextDnsPreferences
+import com.example.data.legal.LegalAcceptanceStore
 import retrofit2.Response
 
 class NextDnsNotificationWorker(
@@ -16,6 +17,8 @@ class NextDnsNotificationWorker(
 ) : CoroutineWorker(appContext, params) {
 
   override suspend fun doWork(): Result {
+    if (!LegalAcceptanceStore(applicationContext).isAccepted()) return Result.success()
+
     val preferences = NotificationPreferences(applicationContext)
     val settings = runCatching {
       preferences.currentSettings()
@@ -41,6 +44,7 @@ class NextDnsNotificationWorker(
 
       val snapshot = fetchConfigSnapshot(apiKey, profileId)
         ?: return Result.retry()
+      if (!isCurrentSession(apiKey, profileId)) return Result.success()
 
       preferences.establishConfigBaseline(
         profileId = profileId,
@@ -74,6 +78,7 @@ class NextDnsNotificationWorker(
       if (snapshot == null) {
         shouldRetry = true
       } else {
+        if (!isCurrentSession(apiKey, profileId)) return Result.success()
         handleConfigSnapshot(
           preferences = preferences,
           profileId = profileId,
@@ -94,6 +99,7 @@ class NextDnsNotificationWorker(
         if (summary == null) {
           shouldRetry = true
         } else {
+          if (!isCurrentSession(apiKey, profileId)) return Result.success()
           val posted = NotificationCenter.postDailySummary(
             context = applicationContext,
             totalQueries = summary.totalQueries,
@@ -108,6 +114,12 @@ class NextDnsNotificationWorker(
     }
 
     return if (shouldRetry) Result.retry() else Result.success()
+  }
+
+  private fun isCurrentSession(key: String, profileId: String): Boolean {
+    if (!LegalAcceptanceStore(applicationContext).isAccepted()) return false
+    val stored = NextDnsPreferences.getInstance(applicationContext)
+    return stored.apiKey == key && stored.activeProfileId == profileId
   }
 
   private suspend fun handleConfigSnapshot(
