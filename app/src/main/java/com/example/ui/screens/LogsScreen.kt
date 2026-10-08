@@ -336,7 +336,7 @@ private fun LogsHeaderControls(
 
     IconButton(
       onClick = onToggleLiveStreamInfo,
-      modifier = Modifier.size(34.dp)
+      modifier = Modifier.size(48.dp)
     ) {
       Icon(
         imageVector = Icons.Default.Info,
@@ -400,7 +400,7 @@ private fun LogsSearchField(
     },
     trailingIcon = {
       if (searchQuery.isNotBlank()) {
-        IconButton(onClick = { onQueryChange("") }, modifier = Modifier.size(22.dp)) {
+        IconButton(onClick = { onQueryChange("") }, modifier = Modifier.size(48.dp)) {
           Icon(Icons.Default.Close, contentDescription = "Temizle", tint = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.size(14.dp))
         }
       }
