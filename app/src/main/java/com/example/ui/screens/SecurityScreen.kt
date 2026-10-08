@@ -186,7 +186,7 @@ fun SecurityScreen(
                   )
                   IconButton(
                     onClick = { viewModel.removeBlockedTld(tld) },
-                    modifier = Modifier.size(28.dp)
+                    modifier = Modifier.size(48.dp)
                   ) {
                     Icon(
                       imageVector = Icons.Default.Close,
@@ -253,7 +253,7 @@ fun SecurityScreen(
             verticalAlignment = Alignment.CenterVertically
           ) {
             Text("TLD Ekle", color = MaterialTheme.colorScheme.onSurface, fontWeight = FontWeight.Bold, fontSize = 17.sp)
-            IconButton(onClick = { showAddTldDialog = false }, modifier = Modifier.size(24.dp)) {
+            IconButton(onClick = { showAddTldDialog = false }, modifier = Modifier.size(48.dp)) {
               Icon(Icons.Default.Close, contentDescription = "Kapat", tint = MaterialTheme.colorScheme.onSurfaceVariant)
             }
           }
