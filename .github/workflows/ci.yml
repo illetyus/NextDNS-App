@@ -45,7 +45,19 @@ jobs:
         shell: bash
 
       - name: Android Lint
-        run: gradle :app:lintDebug --no-daemon
+        run: |
+          set +e
+          gradle :app:lintDebug --no-daemon
+          status=$?
+          if [ "$status" -ne 0 ]; then
+            report="app/build/intermediates/lint_intermediate_text_report/debug/lintReportDebug/lint-results-debug.txt"
+            if [ -f "$report" ]; then
+              echo "::group::Full Android Lint report"
+              cat "$report"
+              echo "::endgroup::"
+            fi
+          fi
+          exit "$status"
         shell: bash
 
       - name: Unit Tests & Coverage
