@@ -9,6 +9,15 @@ import java.util.concurrent.TimeUnit
 object NotificationPolicy {
   const val PERIODIC_INTERVAL_MINUTES = 30L
   const val CHANGE_COOLDOWN_MS = 2L * 60L * 60L * 1000L
+  const val LOCAL_MUTATION_SUPPRESSION_MS = 10L * 60L * 1000L
+
+  fun localMutationSuppressionUntil(now: Long): Long =
+    now + LOCAL_MUTATION_SUPPRESSION_MS
+
+  fun isLocalMutationSuppressed(
+    suppressUntil: Long,
+    now: Long
+  ): Boolean = suppressUntil > now
 
   fun shouldNotifyConfigChange(
     currentDigest: String,
