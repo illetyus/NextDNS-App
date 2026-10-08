@@ -4,7 +4,7 @@
 
 ## 1. Doğrudan kod kökeni
 
-- Kullanıcı deposu: https://github.com/illetyus/NextDNS-App
+- Kullanıcı deposu: https://github.com/illetyus/open-source-client-for-nextdns
 - İlk `main` commit tarihi: **31 Ağustos 2026** (`7e3bfae`); Faz 7 geliştirmeleri ayrı PR/dallarda.
 - Faz 8 öncesinde kök `LICENSE`, `NOTICE`, `README` yoktu. **Faz 8 dalında artık resmî Apache-2.0 `LICENSE`, `NOTICE` ve bağımsızlık/gizlilik konulu `README.md` bulunuyor.**
 - **Geliştiricinin beyanı (8 Ekim 2026):** İlk uygulama kaynakları AI araçlarıyla sıfırdan üretildi; başka projelerden kod veya görsel alınmadı; başka hak sahibi veya katkıcı bulunmuyor; lisans tercihi **Apache-2.0**. Bu beyan, otomatik telif/benzerlik denetimi veya gelecekteki marka onayının yerine geçmez.
