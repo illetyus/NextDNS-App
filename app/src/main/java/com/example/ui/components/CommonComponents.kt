@@ -338,7 +338,7 @@ fun NextDnsSettingToggle(
           )
           Spacer(modifier = Modifier.width(12.dp))
           Text(
-            text = if (checked) "$title etkin" else AppStrings.get(R.string.enable_setting, title),
+            text = if (checked) AppStrings.get(R.string.setting_enabled, title) else AppStrings.get(R.string.enable_setting, title),
             style = MaterialTheme.typography.bodySmall.copy(
               fontSize = 12.5.sp,
               fontWeight = if (checked) FontWeight.SemiBold else FontWeight.Medium

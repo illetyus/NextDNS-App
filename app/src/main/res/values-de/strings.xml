@@ -548,4 +548,20 @@
     <string name="entries_count">"Einträge: %1$s"</string>
     <string name="percentage_queries">%1$s (%2$s Abfragen)</string>
     <string name="privacy">Datenschutz</string>
+    <string name="theme_dark">"Dunkel"</string>
+    <string name="theme_system">"System"</string>
+    <string name="help_here">" hier"</string>
+    <string name="help_end">"."</string>
+    <string name="delete_profile_button">"Löschen: %1$s"</string>
+    <string name="setting_enabled">"%1$s aktiviert"</string>
+    <string name="denylist_added">"%1$s zur Sperrliste hinzugefügt"</string>
+    <string name="allowlist_added">"%1$s zur Freigabeliste hinzugefügt"</string>
+    <string name="location_updated">"Speicherort: %1$s"</string>
+    <string name="refresh_failed">"NextDNS-Daten konnten nicht aktualisiert werden."</string>
+    <string name="local_clear_failed">"Lokale Kontodaten konnten nicht gelöscht werden."</string>
+    <string name="copy_dot">"DoT-Adresse"</string>
+    <string name="copy_doh">"DoH-URL"</string>
+    <string name="copy_dns">"DNS-Server"</string>
+    <string name="copy_ddns">"DDNS-URL"</string>
+    <string name="copy_chromeos_doh">"ChromeOS-DoH-Adresse"</string>
 </resources>

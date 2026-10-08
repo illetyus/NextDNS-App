@@ -548,4 +548,20 @@
     <string name="entries_count">"Girdi sayısı: %1$s"</string>
     <string name="percentage_queries">%1$s (%2$s sorgu)</string>
     <string name="privacy">Gizlilik</string>
+    <string name="theme_dark">"Koyu"</string>
+    <string name="theme_system">"Sistem"</string>
+    <string name="help_here">" buradan"</string>
+    <string name="help_end">" okuyun."</string>
+    <string name="delete_profile_button">"Sil: %1$s"</string>
+    <string name="setting_enabled">"%1$s etkin"</string>
+    <string name="denylist_added">"%1$s kara listeye eklendi"</string>
+    <string name="allowlist_added">"%1$s beyaz listeye eklendi"</string>
+    <string name="location_updated">"Depolama konumu: %1$s"</string>
+    <string name="refresh_failed">"NextDNS verisi yenilenemedi."</string>
+    <string name="local_clear_failed">"Yerel hesap verileri silinemedi."</string>
+    <string name="copy_dot">"DoT adresi"</string>
+    <string name="copy_doh">"DoH URL"</string>
+    <string name="copy_dns">"DNS sunucusu"</string>
+    <string name="copy_ddns">"DDNS URL"</string>
+    <string name="copy_chromeos_doh">"ChromeOS DoH adresi"</string>
 </resources>

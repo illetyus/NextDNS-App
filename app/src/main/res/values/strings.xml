@@ -549,5 +549,21 @@
     <string name="entries_count">"Entries: %1$s"</string>
     <string name="percentage_queries">%1$s (%2$s queries)</string>
     <string name="privacy">Privacy</string>
+    <string name="theme_dark">"Dark"</string>
+    <string name="theme_system">"System"</string>
+    <string name="help_here">" here"</string>
+    <string name="help_end">"."</string>
+    <string name="delete_profile_button">"Delete: %1$s"</string>
+    <string name="setting_enabled">"%1$s enabled"</string>
+    <string name="denylist_added">"%1$s added to denylist"</string>
+    <string name="allowlist_added">"%1$s added to allowlist"</string>
+    <string name="location_updated">"Storage location: %1$s"</string>
+    <string name="refresh_failed">"Could not refresh NextDNS data."</string>
+    <string name="local_clear_failed">"Could not clear local account data."</string>
+    <string name="copy_dot">"DoT address"</string>
+    <string name="copy_doh">"DoH URL"</string>
+    <string name="copy_dns">"DNS server"</string>
+    <string name="copy_ddns">"DDNS URL"</string>
+    <string name="copy_chromeos_doh">"ChromeOS DoH address"</string>
 </resources>
 <!-- Locale-only presentation; API privacy fields remain unchanged. -->

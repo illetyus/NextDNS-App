@@ -187,7 +187,7 @@ class NextDnsRepository(
       } else {
         previous.copy(
           isRefreshing = false,
-          errorMessage = "NextDNS verisi yenilenemedi."
+          errorMessage = AppStrings.get(R.string.refresh_failed)
         )
       }
     }
@@ -1143,7 +1143,7 @@ class NextDnsRepository(
     _apiStatus.value = ApiConnectionStatus.Disconnected
 
     if (!localDataCleared) {
-      return Result.failure(IllegalStateException("Yerel hesap verileri silinemedi."))
+      return Result.failure(IllegalStateException(AppStrings.get(R.string.local_clear_failed)))
     }
 
     return runCatching {
@@ -2276,8 +2276,8 @@ class NextDnsRepository(
         name.equals("NextDNS Ads & Trackers Blocklist", ignoreCase = true) -> return AppStrings.get(R.string.ui_890f81a670)
         name.equals("Disguised Third-Party Trackers", ignoreCase = true) || name.equals("Disguised Trackers", ignoreCase = true) -> return AppStrings.get(R.string.ui_63f2dd13cc)
         name.equals("Block Bypass Methods", ignoreCase = true) || name.equals("Bypass Methods", ignoreCase = true) -> return AppStrings.get(R.string.ui_7396ea2940)
-        name.equals("Denylist", ignoreCase = true) || name.equals("Blacklist", ignoreCase = true) -> return "Kara Liste"
-        name.equals("Allowlist", ignoreCase = true) || name.equals("Whitelist", ignoreCase = true) -> return "Beyaz Liste"
+        name.equals("Denylist", ignoreCase = true) || name.equals("Blacklist", ignoreCase = true) -> return AppStrings.get(R.string.ui_8aa4ccc961)
+        name.equals("Allowlist", ignoreCase = true) || name.equals("Whitelist", ignoreCase = true) -> return AppStrings.get(R.string.ui_6419e29c88)
         name.equals("Threat Intelligence Feeds", ignoreCase = true) -> return AppStrings.get(R.string.ui_2a58359877)
         name.equals("AI Threat Detection", ignoreCase = true) -> return AppStrings.get(R.string.ui_ee6d30b548)
         name.equals("Google Safe Browsing", ignoreCase = true) -> return AppStrings.get(R.string.ui_b6b6e376c7)
@@ -2303,8 +2303,8 @@ class NextDnsRepository(
     val cleanId = id.removePrefix("blocklist:").removePrefix("parentalcontrol:").trim()
 
     return when {
-      cleanId == "denylist" || cleanId == "blacklist" -> "Kara Liste"
-      cleanId == "allowlist" || cleanId == "whitelist" -> "Beyaz Liste"
+      cleanId == "denylist" || cleanId == "blacklist" -> AppStrings.get(R.string.ui_8aa4ccc961)
+      cleanId == "allowlist" || cleanId == "whitelist" -> AppStrings.get(R.string.ui_6419e29c88)
       cleanId == "block-bypass" || cleanId == "bypass" -> AppStrings.get(R.string.ui_7396ea2940)
       cleanId == "disguised-trackers" || cleanId == "cname-flattening" -> AppStrings.get(R.string.ui_63f2dd13cc)
       cleanId == "nextdns-recommended" -> AppStrings.get(R.string.ui_890f81a670)

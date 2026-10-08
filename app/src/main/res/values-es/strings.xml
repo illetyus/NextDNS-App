@@ -548,4 +548,20 @@
     <string name="entries_count">"Entradas: %1$s"</string>
     <string name="percentage_queries">%1$s (%2$s consultas)</string>
     <string name="privacy">Privacidad</string>
+    <string name="theme_dark">"Oscuro"</string>
+    <string name="theme_system">"Sistema"</string>
+    <string name="help_here">" aquí"</string>
+    <string name="help_end">"."</string>
+    <string name="delete_profile_button">"Eliminar: %1$s"</string>
+    <string name="setting_enabled">"%1$s activado"</string>
+    <string name="denylist_added">"%1$s añadido a la lista de bloqueo"</string>
+    <string name="allowlist_added">"%1$s añadido a la lista de permitidos"</string>
+    <string name="location_updated">"Ubicación de almacenamiento: %1$s"</string>
+    <string name="refresh_failed">"No se pudieron actualizar los datos de NextDNS."</string>
+    <string name="local_clear_failed">"No se pudieron borrar los datos locales de la cuenta."</string>
+    <string name="copy_dot">"Dirección DoT"</string>
+    <string name="copy_doh">"URL DoH"</string>
+    <string name="copy_dns">"Servidor DNS"</string>
+    <string name="copy_ddns">"URL DDNS"</string>
+    <string name="copy_chromeos_doh">"Dirección DoH de ChromeOS"</string>
 </resources>

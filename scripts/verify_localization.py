@@ -52,9 +52,11 @@ for path in (root / 'app/src/main/java/com/example/ui').rglob('*.kt'):
         if not match.group().startswith('"'): continue
         value = match.group()[1:-1]
         prefix = source[max(0, match.start()-100):match.start()]
-        supplied = re.search(r'(?:text|title|subtitle|contentDescription|placeholder|description|label)\s*=\s*$', prefix) or re.search(r'(?:Text|showMessage)\s*\(\s*$', prefix)
+        supplied = re.search(r'(?:text|title|subtitle|contentDescription|placeholder|description|label|buttonText|copyLabel|successMessage)\s*=\s*$', prefix) or re.search(r'(?:Text|showMessage|append)\s*\(\s*$', prefix)
         if not supplied or value in allowed: continue
         if value.startswith(('ID: ${', '.$', 'https://', '%${')): continue
         raise AssertionError(f'{path.relative_to(root)}: hardcoded label {value!r}')
+    assert not re.search(r'ThemeMode\.\w+\s*->\s*"', source), f'{path}: hardcoded theme label'
+    assert not re.search(r'if\s*\(checked\)\s*"', source), f'{path}: hardcoded enabled state'
 
 print(f'Localization verified: {len(catalogs["en"])} resources in all five locales; format and UI-label checks passed.')

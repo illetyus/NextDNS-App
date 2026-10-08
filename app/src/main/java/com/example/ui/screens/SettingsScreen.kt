@@ -329,8 +329,8 @@ fun AppearanceSection(
             Text(
               text = when (mode) {
                 ThemeMode.LIGHT -> AppStrings.get(R.string.ui_bbb1132f30)
-                ThemeMode.DARK -> "Koyu"
-                ThemeMode.SYSTEM -> "Otomatik"
+                ThemeMode.DARK -> AppStrings.get(R.string.theme_dark)
+                ThemeMode.SYSTEM -> AppStrings.get(R.string.theme_system)
               },
               maxLines = 1
             )
@@ -592,10 +592,10 @@ fun BlockPageSection(
             append(AppStrings.get(R.string.ui_f1aa098317))
             pushStringAnnotation("help", "https://help.nextdns.io/t/x2hmvas/how-to-install-and-trust-nextdns-root-ca")
             withStyle(SpanStyle(color = MaterialTheme.colorScheme.primary)) {
-              append("buradan")
+              append(AppStrings.get(R.string.help_here))
             }
             pop()
-            append(" okuyun.")
+            append(AppStrings.get(R.string.help_end))
           }
           androidx.compose.foundation.text.ClickableText(
             text = annotatedText,
@@ -856,7 +856,7 @@ fun ProfileActionsSection(
     verticalArrangement = Arrangement.spacedBy(14.dp)
   ) {
     NextDnsActionCard(
-      buttonText = "Sil: $profileName",
+      buttonText = AppStrings.get(R.string.delete_profile_button, profileName),
       description = AppStrings.get(R.string.ui_df88ac14a6),
       onButtonClick = onDeleteProfile,
       isDanger = true

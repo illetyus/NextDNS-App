@@ -237,100 +237,51 @@ private fun ConnectionStatusBanner(
     Column(modifier = Modifier.padding(16.dp)) {
       Row(
         modifier = Modifier.fillMaxWidth(),
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.SpaceBetween
+        verticalAlignment = Alignment.Top,
+        horizontalArrangement = Arrangement.spacedBy(12.dp)
       ) {
-        Row(
-          verticalAlignment = Alignment.CenterVertically,
-          horizontalArrangement = Arrangement.spacedBy(12.dp),
-          modifier = Modifier.weight(1f)
-        ) {
-          StatusBeacon(
-            color = beaconColor,
-            size = 10.dp,
-            isPulsing = isUsingNextDns || isTesting
+        StatusBeacon(color = beaconColor, size = 10.dp, isPulsing = isUsingNextDns || isTesting)
+        Column(modifier = Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(6.dp)) {
+          Text(
+            text = title,
+            style = MaterialTheme.typography.titleSmall.copy(fontWeight = FontWeight.Bold, fontSize = 14.sp),
+            color = MaterialTheme.colorScheme.onSurface
           )
-          Column(verticalArrangement = Arrangement.spacedBy(2.dp)) {
-            Row(
-              verticalAlignment = Alignment.CenterVertically,
-              horizontalArrangement = Arrangement.spacedBy(6.dp)
-            ) {
-              Text(
-                text = title,
-                style = MaterialTheme.typography.titleSmall.copy(
-                  fontWeight = FontWeight.Bold,
-                  fontSize = 14.sp
-                ),
-                color = MaterialTheme.colorScheme.onSurface
-              )
-              Surface(
-                color = badgeBg,
-                shape = RoundedCornerShape(6.dp)
-              ) {
-                Text(
-                  text = badgeText,
-                  color = badgeTextColor,
-                  fontSize = 10.sp,
-                  fontWeight = FontWeight.Bold,
-                  modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp)
-                )
-              }
-            }
-            Text(
-              text = subtitle,
-              style = MaterialTheme.typography.bodySmall.copy(
-                fontSize = 11.5.sp,
-                lineHeight = 15.sp
-              ),
-              color = MaterialTheme.colorScheme.onSurfaceVariant
-            )
+          Text(
+            text = subtitle,
+            style = MaterialTheme.typography.bodySmall.copy(fontSize = 11.5.sp, lineHeight = 15.sp),
+            color = MaterialTheme.colorScheme.onSurfaceVariant
+          )
+        }
+      }
+      Row(
+        modifier = Modifier.fillMaxWidth(),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(8.dp)
+      ) {
+        if (isUsingNextDns) {
+          Surface(color = badgeBg, shape = RoundedCornerShape(6.dp), modifier = Modifier.weight(1f)) {
+            Text(badgeText, color = badgeTextColor, fontSize = 10.sp, fontWeight = FontWeight.Bold,
+              modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp))
+          }
+        } else {
+          Spacer(Modifier.weight(1f))
+        }
+        Surface(color = badgeBg, shape = RoundedCornerShape(12.dp)) {
+          Row(
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(4.dp),
+            modifier = Modifier.padding(horizontal = 6.dp, vertical = 3.dp)
+          ) {
+            Box(Modifier.size(6.dp).background(beaconColor, CircleShape))
+            Text(AppStrings.get(R.string.ui_447d7bdd67), fontSize = 9.sp,
+              fontWeight = FontWeight.Bold, color = badgeTextColor)
           }
         }
-
-        Row(
-          verticalAlignment = Alignment.CenterVertically,
-          horizontalArrangement = Arrangement.spacedBy(4.dp)
-        ) {
-          Surface(
-            color = if (isUsingNextDns) MaterialTheme.colorScheme.tertiary.copy(alpha = 0.12f) else MaterialTheme.colorScheme.primary.copy(alpha = 0.12f),
-            shape = RoundedCornerShape(12.dp)
-          ) {
-            Row(
-              verticalAlignment = Alignment.CenterVertically,
-              horizontalArrangement = Arrangement.spacedBy(4.dp),
-              modifier = Modifier.padding(horizontal = 6.dp, vertical = 3.dp)
-            ) {
-              Box(
-                modifier = Modifier
-                  .size(6.dp)
-                  .background(
-                    if (isUsingNextDns) MaterialTheme.colorScheme.tertiary else MaterialTheme.colorScheme.primary,
-                    CircleShape
-                  )
-              )
-              Text(
-                text = AppStrings.get(R.string.ui_447d7bdd67),
-                fontSize = 9.sp,
-                fontWeight = FontWeight.Bold,
-                color = if (isUsingNextDns) MaterialTheme.colorScheme.tertiary else MaterialTheme.colorScheme.primary
-              )
-            }
-          }
-
-          IconButton(
-            onClick = onRefreshDiagnostic,
-            enabled = !isTesting,
-            modifier = Modifier.size(48.dp)
-          ) {
-            Icon(
-              imageVector = Icons.Default.Refresh,
-              contentDescription = AppStrings.get(R.string.ui_3bb3f8b024),
-              tint = MaterialTheme.colorScheme.primary,
-              modifier = Modifier
-                .size(18.dp)
-                .then(if (isTesting) Modifier.graphicsLayer { rotationZ = rotation } else Modifier)
-            )
-          }
+        IconButton(onClick = onRefreshDiagnostic, enabled = !isTesting, modifier = Modifier.size(48.dp)) {
+          Icon(Icons.Default.Refresh, contentDescription = AppStrings.get(R.string.ui_3bb3f8b024),
+            tint = MaterialTheme.colorScheme.primary,
+            modifier = Modifier.size(18.dp).then(if (isTesting) Modifier.graphicsLayer { rotationZ = rotation } else Modifier))
         }
       }
 
@@ -399,11 +350,11 @@ private fun EndpointsSection(
       EndpointTableRow("ID", profileId) { copyToClipboard(context, profileId, "ID") }
       HorizontalDivider(color = MaterialTheme.colorScheme.outline)
       EndpointTableRow("DNS-over-TLS/QUIC", "$profileId.dns.nextdns.io") {
-        copyToClipboard(context, "$profileId.dns.nextdns.io", "DoT Adresi")
+        copyToClipboard(context, "$profileId.dns.nextdns.io", AppStrings.get(R.string.copy_dot))
       }
       HorizontalDivider(color = MaterialTheme.colorScheme.outline)
       EndpointTableRow("DNS-over-HTTPS", "https://dns.nextdns.io/$profileId") {
-        copyToClipboard(context, "https://dns.nextdns.io/$profileId", "DoH URL")
+        copyToClipboard(context, "https://dns.nextdns.io/$profileId", AppStrings.get(R.string.copy_doh))
       }
       HorizontalDivider(color = MaterialTheme.colorScheme.outline)
       EndpointTableRow("IPv6", "2a07:a8c0::$profileId\n2a07:a8c1::$profileId") {
@@ -442,7 +393,7 @@ private fun LinkedIpSection(
     ) {
       val ipv4List = setup?.ipv4 ?: listOf("45.90.28.234", "45.90.30.234")
       EndpointTableRow(AppStrings.get(R.string.ui_e0b841095a), ipv4List.joinToString("\n")) {
-        copyToClipboard(context, ipv4List.firstOrNull() ?: "", "DNS Sunucusu")
+        copyToClipboard(context, ipv4List.firstOrNull() ?: "", AppStrings.get(R.string.copy_dns))
       }
       HorizontalDivider(color = MaterialTheme.colorScheme.outline)
       Row(
@@ -562,7 +513,7 @@ private fun LinkedIpSection(
               .heightIn(min = 48.dp)
               .padding(horizontal = 4.dp)
               .bounceClick(scaleDown = 0.99f) {
-                copyToClipboard(context, "https://link-ip.nextdns.io/$profileId/update", "DDNS URL")
+                copyToClipboard(context, "https://link-ip.nextdns.io/$profileId/update", AppStrings.get(R.string.copy_ddns))
               }
           )
         }
@@ -1148,7 +1099,7 @@ private fun ChromeOsSetupGuide(profileId: String, context: Context) {
         label = AppStrings.get(R.string.ui_5de4f38861),
         value = "https://dns.nextdns.io/$profileId",
         context = context,
-        copyLabel = "ChromeOS DoH Adresi"
+        copyLabel = AppStrings.get(R.string.copy_chromeos_doh)
       )
     }
   }

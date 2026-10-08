@@ -507,7 +507,7 @@ class NextDnsViewModel(
     viewModelScope.launch {
       reportMutationResult(
         repository.addToDenylist(domain),
-        successMessage = "$domain kara listeye eklendi"
+        successMessage = AppStrings.get(R.string.denylist_added, domain)
       )
     }
   }
@@ -532,7 +532,7 @@ class NextDnsViewModel(
     viewModelScope.launch {
       reportMutationResult(
         repository.addToAllowlist(domain),
-        successMessage = "$domain beyaz listeye eklendi"
+        successMessage = AppStrings.get(R.string.allowlist_added, domain)
       )
     }
   }
@@ -670,7 +670,7 @@ class NextDnsViewModel(
     viewModelScope.launch {
       reportMutationResult(
         repository.setLogStorageLocation(location),
-        successMessage = "Depolama konumu: $location"
+        successMessage = AppStrings.get(R.string.location_updated, UiLabels.canonical(location))
       )
     }
   }

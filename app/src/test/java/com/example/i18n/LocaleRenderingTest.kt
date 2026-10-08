@@ -6,6 +6,9 @@ import androidx.compose.ui.unit.Density
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.onRoot
+import androidx.compose.ui.test.performSemanticsAction
+import androidx.compose.ui.semantics.SemanticsActions
+import androidx.compose.ui.text.TextLayoutResult
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.test.core.app.ApplicationProvider
 import com.example.NextDnsApp
@@ -16,6 +19,8 @@ import com.example.ui.viewmodel.NextDnsViewModel
 import com.github.takahirom.roborazzi.captureRoboImage
 import org.junit.Rule
 import org.junit.Test
+import org.junit.Assert.assertFalse
+import org.junit.Assert.assertTrue
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
@@ -47,6 +52,18 @@ class LocaleRenderingTest {
       rule.waitForIdle()
       rule.onNodeWithText("Open Source Client for NextDNS").assertIsDisplayed()
       rule.onNodeWithText(AppStrings.get(R.string.ui_18d49619ba)).assertIsDisplayed()
+      val connectionTitle = rule.onNodeWithText(AppStrings.get(R.string.ui_5ed3c5cf66), useUnmergedTree = true)
+        .assertIsDisplayed()
+      val layouts = mutableListOf<TextLayoutResult>()
+      connectionTitle.performSemanticsAction(SemanticsActions.GetTextLayoutResult) { it(layouts) }
+      val layout = layouts.single()
+      assertFalse("Connection title must fit in $choice", layout.hasVisualOverflow)
+      for (line in 0 until layout.lineCount - 1) {
+        val end = layout.getLineEnd(line, visibleEnd = true)
+        val text = layout.layoutInput.text.text
+        assertTrue("Connection title must wrap between words in $choice", end >= text.length ||
+          text[end].isWhitespace() || text[end - 1].isWhitespace() || text[end - 1] == '-')
+      }
       rule.onRoot().captureRoboImage(filePath = "build/outputs/roborazzi/localization/home-$choice.png")
     }
   }

@@ -552,7 +552,7 @@ private fun LogItemRow(
       ) {
         if (!log.deviceName.isNullOrBlank()) {
           Text(
-            text = log.deviceName,
+            text = UiLabels.canonical(log.deviceName),
             color = MaterialTheme.colorScheme.onSurfaceVariant,
             fontSize = 11.sp,
             fontWeight = FontWeight.Medium

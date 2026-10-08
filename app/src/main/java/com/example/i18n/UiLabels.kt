@@ -23,6 +23,7 @@ object UiLabels {
     "İsviçre (CH)" to R.string.storage_ch,
     "Avrupa Birliği (AB)" to R.string.storage_eu,
     "Amerika Birleşik Devletleri (ABD)" to R.string.storage_us,
+    "Bilinmeyen Cihaz" to R.string.ui_571961518d,
     "Genel" to R.string.ui_0f1322006d
   )
 
