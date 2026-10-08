@@ -75,3 +75,7 @@ Kanun'un 11. maddesindeki hakların ilgili veri sorumlusuna yöneltilmesi için 
 - 18 Şubat 2026, Kurul 2026/347: https://www.kvkk.gov.tr/Icerik/8710/veri-sorumlulari-tarafindan-acik-riza-ve-aydinlatma-metinlerinin-ayri-ayri-duzenlenmesi-gerektigi-hakkinda-kisisel-verileri-koruma-kurulunun-18-02-2026-tarihli-ve-2026-347-sayili-ilke-kararina-iliskin-kamuoyu-duyurusu
 - KVKK veri sorumlusu kimdir?: https://www.kvkk.gov.tr/Icerik/2032/Veri-Sorumlusu-Kimdir
 - NextDNS ayrı hizmet gizliliği: https://nextdns.io/privacy
+
+## 8 Ekim 2026 — Veri akışı ve aktarım matrisi
+
+[D01–D12 veri akışı, KVKK/GDPR sıfat değerlendirmesi ve aktarım hukuku kontrolü](KVKK_GDPR_DATA_FLOW_AND_TRANSFER_ASSESSMENT_2026-10-08.md) hazırlanmıştır. Belge, hukuki sıfatları kesinleştirmez; sonraki denetim/test gereksinimlerini ayrı listeler.
