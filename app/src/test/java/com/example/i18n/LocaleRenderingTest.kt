@@ -3,6 +3,9 @@ package com.example.i18n
 import androidx.compose.runtime.*
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.Density
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.Modifier
+import androidx.compose.foundation.layout.padding
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.onRoot
@@ -61,12 +64,13 @@ class LocaleRenderingTest {
   @Test fun connectionStatusTextWrapsBetweenWordsInEveryLanguage() {
     val context = ApplicationProvider.getApplicationContext<NextDnsApp>()
     var language by mutableStateOf("en")
+    LocalePreferences.setSelection(context, language)
     rule.setContent {
       key(language) {
         val density = LocalDensity.current
         CompositionLocalProvider(LocalDensity provides Density(density.density, 1.5f)) {
           AppTheme {
-            ConnectionStatusBanner(null, DiagnosticTestResult(), true, {}, {})
+            ConnectionStatusBanner(null, DiagnosticTestResult(), true, {}, {}, Modifier.padding(horizontal = 16.dp))
           }
         }
       }

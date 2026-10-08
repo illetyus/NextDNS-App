@@ -29,6 +29,7 @@ import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.LineBreak
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -245,13 +246,13 @@ internal fun ConnectionStatusBanner(
           Text(
             text = title,
             modifier = Modifier.fillMaxWidth(),
-            style = MaterialTheme.typography.titleSmall.copy(fontWeight = FontWeight.Bold, fontSize = 14.sp),
+            style = MaterialTheme.typography.titleSmall.copy(fontWeight = FontWeight.Bold, fontSize = 14.sp, lineBreak = LineBreak.Heading),
             color = MaterialTheme.colorScheme.onSurface
           )
           Text(
             text = subtitle,
             modifier = Modifier.fillMaxWidth(),
-            style = MaterialTheme.typography.bodySmall.copy(fontSize = 11.5.sp, lineHeight = 15.sp),
+            style = MaterialTheme.typography.bodySmall.copy(fontSize = 11.5.sp, lineHeight = 15.sp, lineBreak = LineBreak.Paragraph),
             color = MaterialTheme.colorScheme.onSurfaceVariant
           )
         }
