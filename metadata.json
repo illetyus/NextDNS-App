@@ -1,6 +1,6 @@
 {
-  "name": "NextDNS",
-  "description": "NextDNS modern mobil kontrol paneli: Güvenlik, Gizlilik, Ebeveyn Denetimi, İzin/Engelleme Listeleri, Canlı DNS Logları ve Analizler",
+  "name": "Open Source Client for NextDNS",
+  "description": "Bağımsız ve resmî olmayan açık kaynak NextDNS Android hesap yönetim istemcisi: profiller, güvenlik, gizlilik, ebeveyn denetimi, izin/engelleme listeleri, DNS günlükleri ve analizler.",
   "requestFramePermissions": [],
-  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+  "majorCapabilities": []
 }
