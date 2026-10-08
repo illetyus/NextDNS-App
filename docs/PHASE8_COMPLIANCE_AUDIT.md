@@ -2,7 +2,7 @@
 
 **Tarih:** 2026-10-08  
 **İncelenen kaynak dalı:** `phase7-ci-quality`, HEAD `16256c86721b5f376dc1a13ec4bc63a22fc0fe5d`  
-**Durum:** Araştırma ve risk kaydı tamamlandı; haricî izin, eser kökeni ve yayın belgeleri kesinleşmeden release onayı verilmez.  
+**Durum:** Teknik/hukuki riskler kaydedildi; özgün kod için Apache-2.0 lisansı ve proje bildirimleri eklendi. API kullanım şartları, marka/görsel, bağımlılık lisansları ve yayın belgeleri tamamlanmadan release onayı verilmez.  
 **Nitelik:** Teknik uyumluluk denetimi; hukuk mütalaası veya NextDNS tarafından verilmiş izin değildir.
 
 ## 1. Kararlar ve engeller
@@ -11,9 +11,9 @@
 |---|---|---|---|
 | NextDNS marka/uygulama adı | `app/src/main/res/values/strings.xml` içindeki `app_name=NextDNS` | Resmî sahiplik izlenimi önlenmeli; yazılı onay veya özgün uygulama adı gerekir | **Evet** |
 | Uygulama simgesi | `ic_launcher_foreground.xml` yorumunda `NextDNS Blue Shield Logo` yazıyor; mipmap PNG/WEBP türevleri de mevcut | Lisans/izin doğrulanmalı; aksi halde özgün simgeye geçilip bütün çözünürlükler güncellenmeli | **Evet** |
-| NextDNS API | https://nextdns.github.io/api/ API'yi beta olarak tanımlar | Kullanımın teknik olarak mümkün olması marka/ticari kullanım izni sayılamaz; NextDNS'e yazılı kapsamlı soru gönderilecek | **Evet: ticari/marka kararı için** |
+| NextDNS API | https://nextdns.github.io/api/ API'yi beta olarak tanımlar | Bağımsız istemci için yazılı ön izin otomatik zorunlu sayılmayacak; API/hizmet şartları kontrol edilecek. Marka varlıkları için ayrıca hak/izin veya özgün tasarım gerekir. Olası monetizasyon ayrıca incelenecek | **Geçerli şartların kontrolü** |
 | GPL kod kökeni | https://github.com/doubleangels/nextdnsmanager GPL-3.0; ağırlıkla Java+WebView. Bizim kaynak ağaç Kotlin+Compose/API'dir | Mimari fark kod türetimi olmadığını kanıtlamaz. Yazar, önceki kaynaklar, varlıklar ve başlangıç dosyaları tek tek teyit edilecek | **Evet** |
-| Kök lisans | `LICENSE` yok | Provenance doğrulanmadan varsayılan Apache-2.0/GPLv3 eklenmeyecek | **Evet** |
+| Kök lisans | **Apache-2.0 `LICENSE` ve `NOTICE` eklendi**; özgün kod/belgeler için | 8 Ekim 2026 itibarıyla geliştiricinin AI ile sıfırdan geliştirme / tek hak sahibi beyanına dayanılarak seçildi; ikon/marka ile üçüncü taraf lisansları ayrı değerlendirilecek | **Lisans seçimi tamam; üçüncü taraf varlık/bağımlılık incelemesi açık** |
 | Gelir modeli | Google Play tek seferlik tüketilemeyen ürün olarak reklam kaldırmayı destekler | İlk üretim sürümü **reklamsız, ücretsiz, satın alma ve reklam SDK'sız**. İzin ve politika sonrasında reklamlı + bir defalık `remove_ads` ayrıca değerlendirilecek | **Hayır: reklamsız çıkış için** |
 | Gizlilik | Faz 4 şifreleme/backup/PII azaltma, Faz 6 opt-in arka plan sorgusu mevcut | Uygulama içi ve herkesin erişebildiği Privacy Policy ile gerçek Data Safety eşleştirmesi zorunlu | **Evet** |
 | Yayın hazırlığı | `applicationId=com.aistudio.nextdns.mgrqvt`, `namespace=com.example`, `versionCode=1` | Kalıcı paket kimliği, geliştirici açıklamaları ve mağaza varlıkları Faz 9'da netleşmeli | **Evet** |
@@ -22,13 +22,13 @@
 
 ## 2. NextDNS izin sorusunun kapsamı
 
-Yazılı olarak ayrı ayrı doğrulanacak maddeler:
+**Not:** Kullanıcının kendi API anahtarıyla çalışan bağımsız istemcisi için NextDNS'ten yazılı ön izin alınması **tek başına otomatik yayın şartı değildir**. Hizmet/API şartları ve Google Play'in fikrî mülkiyet kuralları ayrıca uygulanır. Aşağıdaki başlıklar belirsizlik halinde NextDNS'e isteğe bağlı yazılı başvuruda sorulabilecek konulardır:
 1. Kullanıcının **kendi API anahtarıyla** çalışan bağımsız Android istemcisinin Google Play'de dağıtımı.
 2. Uygulama adı ve arama/listing açıklamasında açıklayıcı şekilde “NextDNS” kullanımı; yanlış resmî ilişki iddiası olmadan kullanım sınırları.
 3. NextDNS resmî logo/renk/ikon kullanımının ayrıca izne tabi olup olmadığı.
 4. API'nin ücretsiz, reklamlı ve ücretli uygulamalarda kullanım şartları, limitleri ve varsa iptal koşulları.
 5. “Unofficial / NextDNS ile bağlantısızdır” açıklamasının kabulü ve gerekli atıf dili.
-6. Yanıt alınamaması halinde *izin verilmiş kabul edilmeyecek.* Yayın öncesinde özgün marka/ikon ve ayrıca API sözleşmesi/şartları doğrulama kararı gerekecek.
+6. Yanıt alınamazsa yanıtın yokluğu genel bir API kullanımı yasağı gibi yorumlanmaz; fakat logo/marka üzerinde otomatik hak da varsayılmaz. Bağımsız kimlik, özgün simge ve güncel API/hizmet şartlarına uyum değerlendirilerek karar alınır.
 
 Not: https://help.nextdns.io/terms destek sitesinin şartlarını gösterebilir; bu belgenin API ticari lisansı olduğunu varsaymayın. İlgili güncel yazılı yetki yoksa “API ticari kullanımı izinli” şeklinde beyanda bulunmayın.
 
@@ -64,11 +64,13 @@ Depoda görülen uygulama izinleri: `INTERNET`, `ACCESS_NETWORK_STATE`, `POST_NO
 - [x] GPLv3 referans proje mimarisi ile genel fark kaydedildi
 - [x] Reklamsız ilk sürüm ve gelecekteki `remove_ads` için koşullu karar kaydedildi
 - [x] BrowserStack'in Faz 9 yayın kapısı olması benimsendi
+- [x] Hak sahibi beyanı: AI ile özgün üretim, başka kaynaklardan kod/görsel alınmaması, tek hak sahipliği ve Apache-2.0 seçimi kaydedildi
 
 **Açık yayın kapıları**
-- [ ] NextDNS'ten kapsamı belirli yazılı yanıt **veya** bağımsız marka/ikonla geçerli API kullanım dayanağı
+- [ ] Güncel API/hizmet şartları ve bağımsız marka/özgün ikon uygunluğu son kez doğrulandı (NextDNS'ten yazılı yanıt **isteğe bağlı**, özel hak gerekiyorsa zorunlu).
 - [ ] Bütün proje kaynaklarının ve görsellerin provenance onayı; GPL türetim kararı
-- [ ] Bu karar üzerine gerçek `LICENSE`, uygun `NOTICE` / `THIRD_PARTY_NOTICES` ve gerekiyorsa kaynak sunumu
+- [x] Özgün uygulama kodu/belgeleri için Apache-2.0 `LICENSE`, `NOTICE` ve `README.md` eklendi.
+- [ ] Nihai build'in transitif bağımlılık lisansları, gerekiyorsa üçüncü taraf atıfları ve gerçek dağıtım belgeleri tamamlandı.
 - [ ] Geliştirici kimliği/iletişim ile nihai Privacy Policy/Terms, uygulama içi bağlantılar, Data Safety
 - [ ] Ad/icon/listing'de resmî bağlantı ima edilmediğinin son kontrolü
 - [ ] Faz 2–8 entegrasyonu ve başarılı ana dal CI
