@@ -75,6 +75,14 @@ android {
   }
 }
 
+tasks.withType<Test>().configureEach {
+  extensions.configure<org.gradle.testing.jacoco.plugins.JacocoTaskExtension> {
+    // Robolectric loads Android application classes without a source location.
+    isIncludeNoLocationClasses = true
+    excludes = listOf("jdk.internal.*")
+  }
+}
+
 tasks.register<JacocoReport>("jacocoTestReport") {
   dependsOn("testDebugUnitTest")
   reports {

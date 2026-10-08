@@ -58,5 +58,15 @@ class LegalAcceptanceStoreTest {
     context.getSharedPreferences("legal_acceptance", Context.MODE_PRIVATE).edit()
       .putString("accepted_terms_revision", LegalAcceptanceStore.CURRENT_TERMS_REVISION).commit()
     assertFalse(LegalAcceptanceStore(context).isAccepted())
+    assertEquals(null, LegalAcceptanceStore(context).acceptedAtEpochMillis())
+  }
+
+  @Test fun invalidClockDoesNotWriteAcceptance() {
+    for (time in listOf(0L, -1L)) {
+      val store = LegalAcceptanceStore(context) { time }
+      assertFalse(store.acceptCurrentTerms())
+      assertFalse(store.isAccepted())
+      assertEquals(emptyMap<String, Any>(), context.getSharedPreferences("legal_acceptance", Context.MODE_PRIVATE).all)
+    }
   }
 }
