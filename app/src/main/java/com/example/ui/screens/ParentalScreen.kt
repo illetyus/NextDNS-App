@@ -197,7 +197,7 @@ private fun ParentalServiceItemCard(
         )
         IconButton(
           onClick = onRemove,
-          modifier = Modifier.size(28.dp)
+          modifier = Modifier.size(48.dp)
         ) {
           Icon(
             imageVector = Icons.Default.Close,
@@ -304,7 +304,7 @@ private fun ParentalCategoryItemCard(
         )
         IconButton(
           onClick = onRemove,
-          modifier = Modifier.size(28.dp)
+          modifier = Modifier.size(48.dp)
         ) {
           Icon(
             imageVector = Icons.Default.Close,
