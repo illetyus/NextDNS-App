@@ -57,6 +57,7 @@ Gerçek cihaz modeli ve Android sürümü **test anındaki BrowserStack katalogu
 | B16 | Düşük bellek/uygulama tekrar açma | Kalıcı işlem kaybı, çökme veya boş başarı bildirimi yok |
 | B17 | **Beş dil**: Türkçe, İngilizce, Almanca, Fransızca, İspanyolca; sistem dili veya kullanıcı seçimi | Sabit arayüz metinleri tamamen çevrili, metin taşması veya karışık dil yok; erişilebilirlik ve bildirimler de çevrili |
 | B18 | **Beş dilde Terms of Use**, **İngilizce Privacy Policy**; ilk kabul, güncelleme ve dil değiştirme | İlk checkbox boş; materyal değişiklikte yeniden onay; yalnız dil değişiminde gereksiz yeniden onay yok; gizlilik metni İngilizce olduğu açık; yerel hukuk incelemesi tamam |
+| B19 | NextDNS API değişikliği/kesintisi: kaldırılan JSON alanı, hatalı tür, 401/403/404/429/5xx, timeout, eski endpoint | Uygulama çökmez; hata açıkça gösterilir, eski veri canlı olarak sunulmaz, yanlış profil silme/düzenleme gerçekleşmez, API onayı olmadan başarı bildirilmez; API değişikliği uyarısı doğru |
 
 
 ## 5. Gerçek cihaz otomasyonu ve güvenlik
@@ -68,7 +69,7 @@ Gerçek cihaz modeli ve Android sürümü **test anındaki BrowserStack katalogu
 
 ## 6. Yayın kararı
 
-**PASS için:** B01–B18 içindeki geçerli senaryolar tamamlanmış olmalı; P0/P1 kritik/yüksek açık **0**; güvenlik ve API anahtarının yanlış aktarılması **0**; tüm zorunlu cihaz sınıfları test edilmiş; bulgular ve düzeltme sonrası tekrar testler aynı release adayıyla tutarlı olmalı.
+**PASS için:** B01–B19 içindeki geçerli senaryolar tamamlanmış olmalı; P0/P1 kritik/yüksek açık **0**; güvenlik ve API anahtarının yanlış aktarılması **0**; tüm zorunlu cihaz sınıfları test edilmiş; bulgular ve düzeltme sonrası tekrar testler aynı release adayıyla tutarlı olmalı.
 
 **FAIL/BLOCK:** Kritik crash/ANR, izinsiz veri aktarımı, hatalı ayarın başarılı gösterilmesi, başka profil verisinin görünmesi, gizli API key sızıntısı, ciddi a11y/OS çökmesi veya marka/lisans izni eksikliği.
 
