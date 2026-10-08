@@ -9,6 +9,7 @@ import androidx.work.NetworkType
 import androidx.work.OneTimeWorkRequestBuilder
 import androidx.work.PeriodicWorkRequestBuilder
 import androidx.work.WorkManager
+import androidx.work.workDataOf
 import java.util.concurrent.TimeUnit
 
 object NotificationWorkScheduler {
@@ -17,7 +18,8 @@ object NotificationWorkScheduler {
 
   suspend fun reconcile(
     context: Context,
-    runImmediately: Boolean = false
+    runImmediately: Boolean = false,
+    baselineConfig: Boolean = false
   ) {
     val appContext = context.applicationContext
     val preferences = NotificationPreferences(appContext)
@@ -55,6 +57,11 @@ object NotificationWorkScheduler {
 
     if (runImmediately) {
       val immediate = OneTimeWorkRequestBuilder<NextDnsNotificationWorker>()
+        .setInputData(
+          workDataOf(
+            NextDnsNotificationWorker.KEY_BASELINE_ONLY to baselineConfig
+          )
+        )
         .setConstraints(constraints)
         .setBackoffCriteria(
           BackoffPolicy.EXPONENTIAL,
@@ -69,5 +76,36 @@ object NotificationWorkScheduler {
         immediate
       )
     }
+  }
+
+  suspend fun refreshConfigBaselineIfEnabled(context: Context) {
+    val appContext = context.applicationContext
+    val settings = NotificationPreferences(appContext).currentSettings()
+    if (!settings.configChangeAlertsEnabled) return
+
+    val constraints = Constraints.Builder()
+      .setRequiredNetworkType(NetworkType.CONNECTED)
+      .setRequiresBatteryNotLow(true)
+      .build()
+
+    val request = OneTimeWorkRequestBuilder<NextDnsNotificationWorker>()
+      .setInputData(
+        workDataOf(
+          NextDnsNotificationWorker.KEY_BASELINE_ONLY to true
+        )
+      )
+      .setConstraints(constraints)
+      .setBackoffCriteria(
+        BackoffPolicy.EXPONENTIAL,
+        10,
+        TimeUnit.MINUTES
+      )
+      .build()
+
+    WorkManager.getInstance(appContext).enqueueUniqueWork(
+      IMMEDIATE_WORK_NAME,
+      ExistingWorkPolicy.REPLACE,
+      request
+    )
   }
 }
