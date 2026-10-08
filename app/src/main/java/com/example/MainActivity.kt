@@ -6,15 +6,16 @@ import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.viewModels
 import androidx.compose.animation.*
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.data.preferences.ThemePreferences
 import com.example.ui.screens.HomeScreen
 import com.example.ui.screens.LoginScreen
@@ -38,10 +39,10 @@ class MainActivity : ComponentActivity() {
     setContent {
         val context = LocalContext.current
         val themePrefs = remember { ThemePreferences(context) }
-        val themeMode by themePrefs.themeMode.collectAsState(initial = ThemeMode.SYSTEM)
+        val themeMode by themePrefs.themeMode.collectAsStateWithLifecycle(initialValue = ThemeMode.SYSTEM)
 
         AppTheme(themeMode = themeMode) {
-            val isLoggedIn by viewModel.isLoggedIn.collectAsState()
+            val isLoggedIn by viewModel.isLoggedIn.collectAsStateWithLifecycle()
 
         Surface(
           modifier = Modifier.fillMaxSize(),
@@ -51,15 +52,8 @@ class MainActivity : ComponentActivity() {
             AnimatedContent(
               targetState = isLoggedIn == true,
               transitionSpec = {
-                if (targetState) {
-                  (slideInVertically { height -> height } + fadeIn()).togetherWith(
-                    slideOutVertically { height -> -height } + fadeOut()
-                  )
-                } else {
-                  (slideInVertically { height -> -height } + fadeIn()).togetherWith(
-                    slideOutVertically { height -> height } + fadeOut()
-                  )
-                }
+                fadeIn(animationSpec = tween(160))
+                  .togetherWith(fadeOut(animationSpec = tween(120)))
               },
               label = "auth_navigation"
             ) { loggedIn ->

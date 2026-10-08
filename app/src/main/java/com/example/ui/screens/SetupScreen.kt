@@ -28,6 +28,7 @@ import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.isActive
 import com.example.data.model.DiagnosticTestResult
@@ -42,11 +43,11 @@ fun SetupScreen(
   modifier: Modifier = Modifier
 ) {
   val context = LocalContext.current
-  val activeProfile by viewModel.activeProfile.collectAsState()
-  val testResult by viewModel.testResult.collectAsState()
-  val isDiagnosticRunning by viewModel.isDiagnosticRunning.collectAsState()
+  val activeProfile by viewModel.activeProfile.collectAsStateWithLifecycle()
+  val testResult by viewModel.testResult.collectAsStateWithLifecycle()
+  val isDiagnosticRunning by viewModel.isDiagnosticRunning.collectAsStateWithLifecycle()
 
-  val profileSetup by viewModel.profileSetup.collectAsState()
+  val profileSetup by viewModel.profileSetup.collectAsStateWithLifecycle()
 
   var selectedPlatform by remember { mutableStateOf("Android") }
   var showAdvancedIpSettings by remember { mutableStateOf(false) }
@@ -186,8 +187,12 @@ private fun ConnectionStatusBanner(
     isTesting -> "Test Ediliyor"
     isUsingNextDns -> {
       val lat = if (testResult.latencyMs > 0) "${testResult.latencyMs} ms • " else ""
-      val proto = testResult.protocol.ifBlank { "DoH" }
-      "$lat$proto"
+      val proto = testResult.protocol.takeIf { it.isNotBlank() }
+      when {
+        proto != null -> "$lat$proto"
+        lat.isNotBlank() -> lat.removeSuffix(" • ")
+        else -> "Bağlı"
+      }
     }
     isOffline -> "Çevrimdışı"
     else -> "Yapılandırılmadı"
@@ -312,9 +317,7 @@ private fun ConnectionStatusBanner(
           IconButton(
             onClick = onRefreshDiagnostic,
             enabled = !isTesting,
-            modifier = Modifier
-              .size(36.dp)
-              .bounceClick(scaleDown = 0.88f, onClick = onRefreshDiagnostic)
+            modifier = Modifier.size(48.dp)
           ) {
             Icon(
               imageVector = Icons.Default.Refresh,
@@ -337,7 +340,8 @@ private fun ConnectionStatusBanner(
             .fillMaxWidth()
             .clip(RoundedCornerShape(10.dp))
             .background(MaterialTheme.colorScheme.primary.copy(alpha = 0.08f))
-            .bounceClick(onClick = onOpenDnsSettings)
+            .heightIn(min = 48.dp)
+            .bounceClick(scaleDown = 0.98f, onClick = onOpenDnsSettings)
             .padding(horizontal = 12.dp, vertical = 8.dp),
           verticalAlignment = Alignment.CenterVertically,
           horizontalArrangement = Arrangement.SpaceBetween
@@ -462,8 +466,10 @@ private fun LinkedIpSection(
             fontFamily = FontFamily.Monospace,
             fontSize = 12.sp,
             modifier = Modifier
-              .clip(RoundedCornerShape(4.dp))
-              .bounceClick {
+              .clip(RoundedCornerShape(6.dp))
+              .heightIn(min = 48.dp)
+              .padding(horizontal = 4.dp)
+              .bounceClick(scaleDown = 0.99f) {
                 if (detectedIp.isNotBlank()) {
                   copyToClipboard(context, detectedIp, "IP Adresi")
                 }
@@ -479,8 +485,9 @@ private fun LinkedIpSection(
           } else {
             Surface(
               modifier = Modifier
-                .clip(RoundedCornerShape(6.dp))
-                .bounceClick(scaleDown = 0.92f, onClick = onLinkIp),
+                .clip(RoundedCornerShape(8.dp))
+                .heightIn(min = 48.dp)
+                .bounceClick(scaleDown = 0.98f, onClick = onLinkIp),
               color = MaterialTheme.colorScheme.primary.copy(alpha = 0.12f),
               shape = RoundedCornerShape(6.dp)
             ) {
@@ -513,8 +520,9 @@ private fun LinkedIpSection(
     Row(
       modifier = Modifier
         .clip(RoundedCornerShape(8.dp))
-        .bounceClick(scaleDown = 0.96f, onClick = onToggleAdvanced)
-        .padding(vertical = 6.dp, horizontal = 4.dp),
+        .heightIn(min = 48.dp)
+        .bounceClick(scaleDown = 0.98f, onClick = onToggleAdvanced)
+        .padding(vertical = 6.dp, horizontal = 6.dp),
       verticalAlignment = Alignment.CenterVertically
     ) {
       Text(
@@ -548,7 +556,9 @@ private fun LinkedIpSection(
             fontSize = 11.5.sp,
             modifier = Modifier
               .clip(RoundedCornerShape(6.dp))
-              .bounceClick {
+              .heightIn(min = 48.dp)
+              .padding(horizontal = 4.dp)
+              .bounceClick(scaleDown = 0.99f) {
                 copyToClipboard(context, "https://link-ip.nextdns.io/$profileId/update", "DDNS URL")
               }
           )
@@ -586,7 +596,8 @@ private fun SetupGuideSection(
         Surface(
           modifier = Modifier
             .clip(RoundedCornerShape(12.dp))
-            .bounceClick(scaleDown = 0.93f) { onPlatformSelected(plat) },
+            .heightIn(min = 48.dp)
+            .bounceClick(scaleDown = 0.98f) { onPlatformSelected(plat) },
           shape = RoundedCornerShape(12.dp),
           color = if (isPlatSelected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.surface,
           border = BorderStroke(
@@ -641,7 +652,8 @@ private fun EndpointTableRow(
   Row(
     modifier = Modifier
       .fillMaxWidth()
-      .bounceClick(scaleDown = 0.98f) {
+      .heightIn(min = 48.dp)
+      .bounceClick(scaleDown = 0.99f) {
         onCopy()
         isCopied = true
       }
@@ -755,7 +767,8 @@ private fun CopyableValueBox(
       ),
       modifier = Modifier
         .fillMaxWidth()
-        .bounceClick(scaleDown = 0.98f) {
+        .heightIn(min = 48.dp)
+        .bounceClick(scaleDown = 0.99f) {
           copyToClipboard(context, value, copyLabel)
           isCopied = true
         }

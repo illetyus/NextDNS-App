@@ -1,7 +1,11 @@
 package com.example.ui.screens
 
+import android.app.Activity
+import android.content.Context
+import android.content.ContextWrapper
 import android.content.Intent
 import android.net.Uri
+import android.view.WindowManager
 import androidx.compose.animation.*
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -24,10 +28,12 @@ import androidx.compose.ui.platform.LocalClipboardManager
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.data.repository.ApiConnectionStatus
 import com.example.ui.components.*
 import com.example.ui.theme.*
@@ -39,14 +45,30 @@ fun LoginScreen(
   modifier: Modifier = Modifier
 ) {
   val context = LocalContext.current
+  val activity = remember(context) { context.findActivityForSecureLogin() }
   val clipboardManager = LocalClipboardManager.current
-  val apiStatus by viewModel.apiStatus.collectAsState()
+  val apiStatus by viewModel.apiStatus.collectAsStateWithLifecycle()
 
   var apiKeyInput by remember { mutableStateOf("") }
   var isPasswordVisible by remember { mutableStateOf(false) }
 
   val isLoading = apiStatus is ApiConnectionStatus.Connecting
   val scrollState = rememberScrollState()
+
+  LaunchedEffect(apiStatus) {
+    if (apiStatus is ApiConnectionStatus.Connected) {
+      apiKeyInput = ""
+      isPasswordVisible = false
+    }
+  }
+
+  DisposableEffect(activity) {
+    activity?.window?.addFlags(WindowManager.LayoutParams.FLAG_SECURE)
+
+    onDispose {
+      activity?.window?.clearFlags(WindowManager.LayoutParams.FLAG_SECURE)
+    }
+  }
 
   Surface(
     modifier = modifier.fillMaxSize(),
@@ -134,7 +156,10 @@ fun LoginScreen(
             placeholder = { Text("örn. 28df1993bf40d5885cfa", color = MaterialTheme.colorScheme.outline, fontSize = 12.sp) },
             singleLine = true,
             visualTransformation = if (isPasswordVisible) VisualTransformation.None else PasswordVisualTransformation(),
-            keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
+            keyboardOptions = KeyboardOptions(
+              keyboardType = KeyboardType.Password,
+              imeAction = ImeAction.Done
+            ),
             keyboardActions = KeyboardActions(onDone = {
               if (apiKeyInput.isNotBlank()) viewModel.saveApiKey(apiKeyInput.trim())
             }),
@@ -190,10 +215,7 @@ fun LoginScreen(
             },
             modifier = Modifier
               .fillMaxWidth()
-              .height(46.dp)
-              .bounceClick {
-                if (apiKeyInput.isNotBlank()) viewModel.saveApiKey(apiKeyInput.trim())
-              },
+              .height(46.dp),
             shape = RoundedCornerShape(12.dp),
             colors = ButtonDefaults.buttonColors(
               containerColor = MaterialTheme.colorScheme.primary,
@@ -213,8 +235,7 @@ fun LoginScreen(
             onClick = { viewModel.enterGuestMode() },
             modifier = Modifier
               .fillMaxWidth()
-              .height(42.dp)
-              .bounceClick { viewModel.enterGuestMode() },
+              .height(42.dp),
             shape = RoundedCornerShape(12.dp),
             border = androidx.compose.foundation.BorderStroke(1.dp, MaterialTheme.colorScheme.outline),
             colors = ButtonDefaults.outlinedButtonColors(
@@ -251,4 +272,11 @@ fun LoginScreen(
       }
     }
   }
+}
+
+
+private tailrec fun Context.findActivityForSecureLogin(): Activity? = when (this) {
+  is Activity -> this
+  is ContextWrapper -> baseContext.findActivityForSecureLogin()
+  else -> null
 }

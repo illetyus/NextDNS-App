@@ -28,7 +28,7 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.compose.LocalLifecycleOwner
-import coil.compose.AsyncImage
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.data.model.AnalyticsSummary
 import com.example.data.model.DeviceMetric
 import com.example.ui.components.*
@@ -42,10 +42,12 @@ fun AnalyticsScreen(
   viewModel: NextDnsViewModel,
   modifier: Modifier = Modifier
 ) {
-  val activeProfile by viewModel.activeProfile.collectAsState()
-  val analytics by viewModel.analytics.collectAsState()
-  val isAnalyticsLoading by viewModel.isAnalyticsLoading.collectAsState()
-  val allKnownDevices by viewModel.allKnownDevices.collectAsState()
+  val activeProfile by viewModel.activeProfile.collectAsStateWithLifecycle()
+  val analytics by viewModel.analytics.collectAsStateWithLifecycle()
+  val analyticsLastSuccessAt by viewModel.analyticsLastSuccessAt.collectAsStateWithLifecycle()
+  val analyticsErrorMessage by viewModel.analyticsErrorMessage.collectAsStateWithLifecycle()
+  val isAnalyticsLoading by viewModel.isAnalyticsLoading.collectAsStateWithLifecycle()
+  val allKnownDevices by viewModel.allKnownDevices.collectAsStateWithLifecycle()
 
   var selectedDeviceFilter by remember { mutableStateOf("Tüm cihazlar") }
   var selectedTimeFilter by remember { mutableStateOf("Son 30 gün") }
@@ -56,15 +58,22 @@ fun AnalyticsScreen(
     viewModel.refreshAnalytics(selectedDeviceFilter, selectedTimeFilter)
   }
 
-  DisposableEffect(lifecycleOwner) {
-    viewModel.startAnalyticsPolling()
-
+  DisposableEffect(lifecycleOwner, activeProfile?.id) {
     val observer = LifecycleEventObserver { _, event ->
-      if (event == Lifecycle.Event.ON_RESUME) {
-        viewModel.refreshAnalytics(selectedDeviceFilter, selectedTimeFilter)
+      when (event) {
+        Lifecycle.Event.ON_RESUME -> {
+          viewModel.refreshAnalytics(selectedDeviceFilter, selectedTimeFilter)
+          viewModel.startAnalyticsPolling()
+        }
+        Lifecycle.Event.ON_PAUSE -> viewModel.stopAnalyticsPolling()
+        else -> Unit
       }
     }
     lifecycleOwner.lifecycle.addObserver(observer)
+
+    if (lifecycleOwner.lifecycle.currentState.isAtLeast(Lifecycle.State.RESUMED)) {
+      viewModel.startAnalyticsPolling()
+    }
 
     onDispose {
       viewModel.stopAnalyticsPolling()
@@ -127,6 +136,49 @@ fun AnalyticsScreen(
       )
     }
 
+    if (analyticsLastSuccessAt == null) {
+      item {
+        NextDnsCard(
+          title = "Analiz Verisi",
+          subtitle = "Aktif profil için NextDNS API durumu."
+        ) {
+          Row(
+            modifier = Modifier
+              .fillMaxWidth()
+              .padding(vertical = 8.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(10.dp)
+          ) {
+            if (isAnalyticsLoading) {
+              CircularProgressIndicator(
+                modifier = Modifier.size(18.dp),
+                strokeWidth = 2.dp
+              )
+            } else {
+              Icon(
+                imageVector = Icons.Default.Info,
+                contentDescription = null,
+                tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                modifier = Modifier.size(18.dp)
+              )
+            }
+            Text(
+              text = when {
+                isAnalyticsLoading -> "NextDNS analiz verisi alınıyor…"
+                !analyticsErrorMessage.isNullOrBlank() -> analyticsErrorMessage!!
+                else -> "Henüz doğrulanmış analiz verisi alınmadı."
+              },
+              color = if (!analyticsErrorMessage.isNullOrBlank() && !isAnalyticsLoading) {
+                MaterialTheme.colorScheme.error
+              } else {
+                MaterialTheme.colorScheme.onSurfaceVariant
+              },
+              fontSize = 12.5.sp
+            )
+          }
+        }
+      }
+    } else {
     item {
       Box(modifier = Modifier.alpha(contentAlpha)) {
         AnalyticsOverviewCards(
@@ -204,6 +256,8 @@ fun AnalyticsScreen(
           analytics = analytics
         )
       }
+    }
+
     }
   }
 }
@@ -587,10 +641,11 @@ private fun RootDomainsCard(
               horizontalArrangement = Arrangement.spacedBy(8.dp),
               modifier = Modifier.weight(1f)
             ) {
-              AsyncImage(
-                model = "https://icon.horse/icon/${dom.domain}",
+              Icon(
+                imageVector = Icons.Default.Language,
                 contentDescription = null,
-                modifier = Modifier.size(16.dp).clip(CircleShape)
+                tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                modifier = Modifier.size(16.dp)
               )
               Text(
                 text = dom.domain,

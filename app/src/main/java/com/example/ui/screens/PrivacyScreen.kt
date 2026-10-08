@@ -20,6 +20,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.data.model.BlocklistEntry
 import com.example.data.model.NativeTrackingEntry
 import com.example.data.model.PrivacySettings
@@ -32,7 +33,7 @@ fun PrivacyScreen(
   viewModel: NextDnsViewModel,
   modifier: Modifier = Modifier
 ) {
-  val settings by viewModel.privacySettings.collectAsState()
+  val settings by viewModel.privacySettings.collectAsStateWithLifecycle()
   var showAddBlocklistDialog by remember { mutableStateOf(false) }
   var showAddNativeDialog by remember { mutableStateOf(false) }
 
@@ -108,7 +109,7 @@ private fun BlocklistsSection(
   NextDnsCard(
     modifier = modifier,
     title = "Engelleme Listeleri",
-    subtitle = "Tümü gerçek zamanlı olarak güncellenen mevcut en popüler engelleme listelerini kullanarak reklamları ve izleyicileri engelleyin."
+    subtitle = "NextDNS tarafından sunulan engelleme listelerini kullanarak reklamları ve izleyicileri engelleyin."
   ) {
     if (activeBlocklists.isNotEmpty()) {
       Column(
@@ -212,7 +213,7 @@ private fun BlocklistItemCard(
               fontSize = 11.sp
             )
           }
-          val updateInfo = if (item.updatedTime.isNotBlank()) "Son güncelleme: ${item.updatedTime}" else "Gerçek zamanlı senkronize"
+          val updateInfo = if (item.updatedTime.isNotBlank()) "Son güncelleme: ${item.updatedTime}" else "Güncelleme zamanı sağlanmadı"
           val formattedEntries = try {
             java.text.NumberFormat.getInstance(java.util.Locale("tr", "TR")).format(item.entriesCount)
           } catch (_: Exception) {
@@ -228,7 +229,7 @@ private fun BlocklistItemCard(
 
       IconButton(
         onClick = onRemove,
-        modifier = Modifier.size(32.dp)
+        modifier = Modifier.size(48.dp)
       ) {
         Icon(
           imageVector = Icons.Default.Close,
@@ -318,7 +319,7 @@ private fun NativeTrackingItemCard(
         )
         FaviconImage(
           domain = domain,
-          modifier = Modifier.size(24.dp).clip(RoundedCornerShape(4.dp))
+          modifier = Modifier.size(48.dp).clip(RoundedCornerShape(4.dp))
         )
         Column {
           Text(
@@ -337,7 +338,7 @@ private fun NativeTrackingItemCard(
 
       IconButton(
         onClick = onRemove,
-        modifier = Modifier.size(32.dp)
+        modifier = Modifier.size(48.dp)
       ) {
         Icon(
           imageVector = Icons.Default.Close,
@@ -377,9 +378,9 @@ private fun AffiliatesSection(
     subtitle = "Fırsat web sitelerinde, e-postalarda veya arama sonuçlarında yaygın olan satış ortağı ve izleme alanlarına izin verin. Bunlar genellikle yalnızca bir bağlantıya elle tıklandıktan sonra aranır."
   ) {
     Surface(
-      color = Color(0xFF2E1065).copy(alpha = 0.4f),
+      color = MaterialTheme.colorScheme.secondaryContainer.copy(alpha = 0.55f),
       shape = RoundedCornerShape(8.dp),
-      border = BorderStroke(1.dp, Color(0xFFA855F7).copy(alpha = 0.3f)),
+      border = BorderStroke(1.dp, MaterialTheme.colorScheme.secondary.copy(alpha = 0.35f)),
       modifier = Modifier
         .fillMaxWidth()
         .padding(bottom = 12.dp)
@@ -392,12 +393,12 @@ private fun AffiliatesSection(
         Icon(
           imageVector = Icons.Default.Lock,
           contentDescription = null,
-          tint = Color(0xFFA855F7),
+          tint = MaterialTheme.colorScheme.secondary,
           modifier = Modifier.size(16.dp)
         )
         Text(
           text = "IP adresiniz, gizliliğinizi korumak için bu web sitelerinden otomatik olarak gizlenecektir.",
-          color = Color(0xFFE9D5FF),
+          color = MaterialTheme.colorScheme.onSecondaryContainer,
           fontSize = 11.5.sp,
           fontWeight = FontWeight.Medium
         )
@@ -664,7 +665,7 @@ private fun AddNativeTrackingDialog(
                 ) {
                   FaviconImage(
                     domain = domain,
-                    modifier = Modifier.size(24.dp).clip(RoundedCornerShape(4.dp))
+                    modifier = Modifier.size(48.dp).clip(RoundedCornerShape(4.dp))
                   )
                   Column {
                     Text(nat.name, color = MaterialTheme.colorScheme.onSurface, fontWeight = FontWeight.Bold, fontSize = 13.sp)

@@ -8,6 +8,8 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.selection.selectable
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -19,13 +21,20 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.hapticfeedback.HapticFeedbackType
-import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.semantics.LiveRegionMode
+import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.clearAndSetSemantics
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.liveRegion
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleEventObserver
+import androidx.lifecycle.compose.LocalLifecycleOwner
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.ui.components.NextDnsButton
 import com.example.ui.components.StatusBeacon
 import com.example.ui.components.bounceClick
@@ -39,18 +48,59 @@ fun HomeScreen(
   viewModel: NextDnsViewModel,
   modifier: Modifier = Modifier
 ) {
-  val currentTab by viewModel.currentTab.collectAsState()
-  val activeProfile by viewModel.activeProfile.collectAsState()
-  val profiles by viewModel.profiles.collectAsState()
-  val apiKey by viewModel.apiKey.collectAsState()
-  val uiMessage by viewModel.uiMessage.collectAsState()
-  val haptic = LocalHapticFeedback.current
+  val currentTab by viewModel.currentTab.collectAsStateWithLifecycle()
+  val currentSectionSyncState by viewModel.currentSectionSyncState.collectAsStateWithLifecycle()
+  val activeProfile by viewModel.activeProfile.collectAsStateWithLifecycle()
+  val profiles by viewModel.profiles.collectAsStateWithLifecycle()
+  val hasApiKey by viewModel.hasApiKey.collectAsStateWithLifecycle()
+  val uiMessage by viewModel.uiMessage.collectAsStateWithLifecycle()
 
   var showProfileMenu by remember { mutableStateOf(false) }
   var showAccountMenu by remember { mutableStateOf(false) }
   var showNewProfileDialog by remember { mutableStateOf(false) }
   var newProfileNameInput by remember { mutableStateOf("") }
   val snackbarHostState = remember { SnackbarHostState() }
+  val lifecycleOwner = LocalLifecycleOwner.current
+
+  DisposableEffect(lifecycleOwner) {
+    val observer = LifecycleEventObserver { _, event ->
+      when (event) {
+        Lifecycle.Event.ON_RESUME -> viewModel.startForegroundProfileSync()
+        Lifecycle.Event.ON_PAUSE -> viewModel.stopForegroundProfileSync()
+        else -> Unit
+      }
+    }
+
+    lifecycleOwner.lifecycle.addObserver(observer)
+    if (lifecycleOwner.lifecycle.currentState.isAtLeast(Lifecycle.State.RESUMED)) {
+      viewModel.startForegroundProfileSync()
+    }
+
+    onDispose {
+      lifecycleOwner.lifecycle.removeObserver(observer)
+      viewModel.stopForegroundProfileSync()
+    }
+  }
+
+  DisposableEffect(lifecycleOwner, currentTab) {
+    val observer = LifecycleEventObserver { _, event ->
+      when (event) {
+        Lifecycle.Event.ON_RESUME -> viewModel.startVisibleTabSync(currentTab)
+        Lifecycle.Event.ON_PAUSE -> viewModel.stopVisibleTabSync()
+        else -> Unit
+      }
+    }
+
+    lifecycleOwner.lifecycle.addObserver(observer)
+    if (lifecycleOwner.lifecycle.currentState.isAtLeast(Lifecycle.State.RESUMED)) {
+      viewModel.startVisibleTabSync(currentTab)
+    }
+
+    onDispose {
+      lifecycleOwner.lifecycle.removeObserver(observer)
+      viewModel.stopVisibleTabSync()
+    }
+  }
 
   LaunchedEffect(uiMessage) {
     uiMessage?.let {
@@ -62,8 +112,11 @@ fun HomeScreen(
     }
   }
 
-  Scaffold(
-    modifier = modifier.fillMaxSize(),
+  BoxWithConstraints(modifier = modifier.fillMaxSize()) {
+    val navigationMode = navigationLayoutForWidth(maxWidth.value)
+
+    Scaffold(
+      modifier = Modifier.fillMaxSize(),
     containerColor = MaterialTheme.colorScheme.background,
     topBar = {
       Surface(
@@ -90,13 +143,18 @@ fun HomeScreen(
                 horizontalArrangement = Arrangement.spacedBy(6.dp),
                 modifier = Modifier
                   .clip(RoundedCornerShape(12.dp))
-                  .bounceClick(scaleDown = 0.95f) {
+                  .heightIn(min = 48.dp)
+                  .bounceClick(scaleDown = 0.97f) {
                     viewModel.syncAllData()
                   }
-                  .padding(vertical = 4.dp, horizontal = 2.dp)
+                  .padding(horizontal = 4.dp)
               ) {
                 Box(contentAlignment = Alignment.Center) {
-                  StatusBeacon(color = MaterialTheme.colorScheme.primary, size = 12.dp, isPulsing = true)
+                  StatusBeacon(
+                    color = MaterialTheme.colorScheme.primary,
+                    size = 12.dp,
+                    isPulsing = currentSectionSyncState?.isRefreshing == true || currentSectionSyncState?.isSaving == true
+                  )
                   Icon(
                     imageVector = Icons.Default.Shield,
                     contentDescription = "NextDNS Logo",
@@ -121,7 +179,8 @@ fun HomeScreen(
                   modifier = Modifier
                     .clip(RoundedCornerShape(10.dp))
                     .border(1.dp, MaterialTheme.colorScheme.outline, RoundedCornerShape(10.dp))
-                    .bounceClick(scaleDown = 0.94f) { showProfileMenu = true },
+                    .heightIn(min = 48.dp)
+                    .bounceClick(scaleDown = 0.97f) { showProfileMenu = true },
                   color = MaterialTheme.colorScheme.surfaceVariant,
                   shape = RoundedCornerShape(10.dp)
                 ) {
@@ -238,7 +297,8 @@ fun HomeScreen(
                 modifier = Modifier
                   .clip(RoundedCornerShape(10.dp))
                   .border(1.dp, MaterialTheme.colorScheme.outline, RoundedCornerShape(10.dp))
-                  .bounceClick(scaleDown = 0.94f) { showAccountMenu = true },
+                  .heightIn(min = 48.dp)
+                  .bounceClick(scaleDown = 0.97f) { showAccountMenu = true },
                 color = MaterialTheme.colorScheme.surfaceVariant,
                 shape = RoundedCornerShape(10.dp)
               ) {
@@ -248,13 +308,13 @@ fun HomeScreen(
                   horizontalArrangement = Arrangement.spacedBy(4.dp)
                 ) {
                   Icon(
-                    imageVector = if (apiKey.isNotBlank()) Icons.Default.AccountCircle else Icons.Default.PersonOutline,
+                    imageVector = if (hasApiKey) Icons.Default.AccountCircle else Icons.Default.PersonOutline,
                     contentDescription = null,
-                    tint = if (apiKey.isNotBlank()) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant,
+                    tint = if (hasApiKey) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant,
                     modifier = Modifier.size(14.dp)
                   )
                   Text(
-                    text = if (apiKey.isNotBlank()) "Hesabım" else "Misafir",
+                    text = if (hasApiKey) "Hesabım" else "Misafir",
                     style = MaterialTheme.typography.bodySmall.copy(
                       fontWeight = FontWeight.Medium,
                       fontSize = 11.sp
@@ -319,6 +379,7 @@ fun HomeScreen(
             }
           }
 
+          if (navigationMode == NavigationLayoutMode.COMPACT) {
           // --- Android 16 Expressive Segmented Navigation Tabs ---
           val tabScrollState = rememberScrollState()
           Row(
@@ -346,9 +407,12 @@ fun HomeScreen(
                 modifier = Modifier
                   .clip(RoundedCornerShape(12.dp))
                   .border(1.dp, tabBorderColor, RoundedCornerShape(12.dp))
-                  .bounceClick(scaleDown = 0.94f) {
-                    viewModel.selectTab(tab)
-                  }
+                  .heightIn(min = 48.dp)
+                  .selectable(
+                    selected = isSelected,
+                    role = Role.Tab,
+                    onClick = { viewModel.selectTab(tab) }
+                  )
                   .testTag("tab_${tab.name.lowercase()}"),
                 color = tabBgColor,
                 shape = RoundedCornerShape(12.dp)
@@ -377,6 +441,61 @@ fun HomeScreen(
             }
           }
 
+          }
+
+          currentSectionSyncState?.let { syncState ->
+            val syncText = when {
+              syncState.isSaving -> "NextDNS'e kaydediliyor…"
+              syncState.isRefreshing -> "Sunucuyla eşitleniyor…"
+              syncState.errorMessage != null -> {
+                val lastOk = syncState.lastSuccessAt?.let(::formatSyncTime) ?: "yok"
+                "Eşitleme başarısız • son başarılı: $lastOk"
+              }
+              syncState.lastSuccessAt != null -> "Sunucudan güncel • ${formatSyncTime(syncState.lastSuccessAt)}"
+              else -> "Henüz sunucudan doğrulanmadı"
+            }
+
+            val syncColor = when {
+              syncState.errorMessage != null -> MaterialTheme.colorScheme.error
+              syncState.isSaving || syncState.isRefreshing -> MaterialTheme.colorScheme.primary
+              else -> MaterialTheme.colorScheme.onSurfaceVariant
+            }
+
+            Row(
+              modifier = Modifier
+                .fillMaxWidth()
+                .clearAndSetSemantics {
+                  contentDescription = syncText
+                  liveRegion = LiveRegionMode.Polite
+                }
+                .padding(horizontal = 16.dp, vertical = 3.dp),
+              verticalAlignment = Alignment.CenterVertically,
+              horizontalArrangement = Arrangement.spacedBy(6.dp)
+            ) {
+              if (syncState.isSaving || syncState.isRefreshing) {
+                CircularProgressIndicator(
+                  modifier = Modifier.size(12.dp),
+                  strokeWidth = 1.5.dp,
+                  color = MaterialTheme.colorScheme.primary
+                )
+              } else {
+                Icon(
+                  imageVector = if (syncState.errorMessage != null) Icons.Default.Warning else Icons.Default.CloudDone,
+                  contentDescription = null,
+                  tint = syncColor,
+                  modifier = Modifier.size(13.dp)
+                )
+              }
+              Text(
+                text = syncText,
+                color = syncColor,
+                fontSize = 10.sp,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis
+              )
+            }
+          }
+
           HorizontalDivider(color = MaterialTheme.colorScheme.outline, thickness = 1.dp)
         }
       }
@@ -395,13 +514,30 @@ fun HomeScreen(
       }
     }
   ) { paddingValues ->
-    Box(
+    Row(
       modifier = Modifier
         .fillMaxSize()
         .background(MaterialTheme.colorScheme.background)
         .padding(paddingValues)
     ) {
-      AnimatedContent(
+      when (navigationMode) {
+        NavigationLayoutMode.COMPACT -> Unit
+        NavigationLayoutMode.MEDIUM -> MediumNavigationRail(
+          currentTab = currentTab,
+          onTabSelected = viewModel::selectTab
+        )
+        NavigationLayoutMode.EXPANDED -> ExpandedNavigationSidebar(
+          currentTab = currentTab,
+          onTabSelected = viewModel::selectTab
+        )
+      }
+
+      Box(
+        modifier = Modifier
+          .weight(1f)
+          .fillMaxHeight()
+      ) {
+        AnimatedContent(
         targetState = currentTab,
         transitionSpec = {
           if (targetState.ordinal > initialState.ordinal) {
@@ -426,8 +562,10 @@ fun HomeScreen(
           NavTab.SETTINGS -> SettingsScreen(viewModel)
           NavTab.ACCOUNT -> AccountScreen(viewModel)
         }
+        }
       }
     }
+  }
   }
 
   // Dialog: Yeni Profil Oluştur
@@ -486,6 +624,143 @@ fun HomeScreen(
     )
   }
 }
+
+@Composable
+private fun MediumNavigationRail(
+  currentTab: NavTab,
+  onTabSelected: (NavTab) -> Unit
+) {
+  Surface(
+    modifier = Modifier
+      .width(88.dp)
+      .fillMaxHeight(),
+    color = MaterialTheme.colorScheme.surface,
+    tonalElevation = 1.dp
+  ) {
+    Column(
+      modifier = Modifier
+        .fillMaxHeight()
+        .verticalScroll(rememberScrollState())
+        .padding(horizontal = 8.dp, vertical = 10.dp),
+      verticalArrangement = Arrangement.spacedBy(4.dp)
+    ) {
+      nextDnsNavigationGroups
+        .flatMap { it.tabs }
+        .forEach { tab ->
+          val selected = currentTab == tab
+          Column(
+            modifier = Modifier
+              .fillMaxWidth()
+              .heightIn(min = 56.dp)
+              .clip(RoundedCornerShape(14.dp))
+              .selectable(
+                selected = selected,
+                role = Role.Tab,
+                onClick = { onTabSelected(tab) }
+              )
+              .testTag("rail_${tab.name.lowercase()}")
+              .background(
+                if (selected) {
+                  MaterialTheme.colorScheme.primaryContainer
+                } else {
+                  Color.Transparent
+                }
+              )
+              .padding(horizontal = 6.dp, vertical = 8.dp),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Center
+          ) {
+            Icon(
+              imageVector = getTabIcon(tab),
+              contentDescription = null,
+              tint = if (selected) {
+                MaterialTheme.colorScheme.onPrimaryContainer
+              } else {
+                MaterialTheme.colorScheme.onSurfaceVariant
+              },
+              modifier = Modifier.size(20.dp)
+            )
+            Spacer(modifier = Modifier.height(4.dp))
+            Text(
+              text = tab.title,
+              style = MaterialTheme.typography.labelSmall,
+              color = if (selected) {
+                MaterialTheme.colorScheme.onPrimaryContainer
+              } else {
+                MaterialTheme.colorScheme.onSurfaceVariant
+              },
+              maxLines = 1,
+              overflow = TextOverflow.Ellipsis
+            )
+          }
+        }
+    }
+  }
+}
+
+@Composable
+private fun ExpandedNavigationSidebar(
+  currentTab: NavTab,
+  onTabSelected: (NavTab) -> Unit
+) {
+  Surface(
+    modifier = Modifier
+      .width(236.dp)
+      .fillMaxHeight(),
+    color = MaterialTheme.colorScheme.surface,
+    tonalElevation = 1.dp
+  ) {
+    Column(
+      modifier = Modifier
+        .fillMaxHeight()
+        .verticalScroll(rememberScrollState())
+        .padding(horizontal = 12.dp, vertical = 12.dp),
+      verticalArrangement = Arrangement.spacedBy(4.dp)
+    ) {
+      nextDnsNavigationGroups.forEachIndexed { groupIndex, group ->
+        if (groupIndex > 0) {
+          Spacer(modifier = Modifier.height(6.dp))
+        }
+
+        Text(
+          text = group.title,
+          style = MaterialTheme.typography.labelMedium,
+          color = MaterialTheme.colorScheme.onSurfaceVariant,
+          modifier = Modifier.padding(horizontal = 12.dp, vertical = 4.dp)
+        )
+
+        group.tabs.forEach { tab ->
+          NavigationDrawerItem(
+            label = {
+              Text(
+                text = tab.title,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis
+              )
+            },
+            selected = currentTab == tab,
+            onClick = { onTabSelected(tab) },
+            icon = {
+              Icon(
+                imageVector = getTabIcon(tab),
+                contentDescription = null
+              )
+            },
+            modifier = Modifier
+              .fillMaxWidth()
+              .heightIn(min = 48.dp)
+              .testTag("drawer_${tab.name.lowercase()}"),
+            shape = RoundedCornerShape(14.dp)
+          )
+        }
+      }
+    }
+  }
+}
+
+private fun formatSyncTime(epochMillis: Long): String =
+  java.text.SimpleDateFormat("HH:mm:ss", java.util.Locale.getDefault())
+    .format(java.util.Date(epochMillis))
 
 private fun getTabIcon(tab: NavTab): ImageVector {
   return when (tab) {

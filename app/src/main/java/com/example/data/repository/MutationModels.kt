@@ -1,0 +1,33 @@
+package com.example.data.repository
+
+enum class SecurityFlag {
+  THREAT_INTELLIGENCE_FEEDS,
+  AI_THREAT_DETECTION,
+  GOOGLE_SAFE_BROWSING,
+  CRYPTOJACKING,
+  DNS_REBINDING,
+  IDN_HOMOGRAPHS,
+  TYPOSQUATTING,
+  DGA,
+  NRD,
+  DDNS,
+  PARKING,
+  CSAM
+}
+
+enum class PrivacyFlag {
+  DISGUISED_TRACKERS,
+  ALLOW_AFFILIATE_LINKS
+}
+
+enum class ParentalFlag {
+  SAFE_SEARCH,
+  YOUTUBE_RESTRICTED_MODE,
+  BLOCK_BYPASS
+}
+
+enum class SettingsPerformanceFlag {
+  ECS,
+  CACHE_BOOST,
+  CNAME_FLATTENING
+}

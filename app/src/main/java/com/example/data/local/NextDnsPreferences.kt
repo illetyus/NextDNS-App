@@ -3,25 +3,50 @@ package com.example.data.local
 import android.content.Context
 import android.content.SharedPreferences
 import com.example.data.model.*
+import com.example.data.security.AndroidKeystoreApiKeyProtector
+import com.example.data.security.ApiKeyProtector
 import com.squareup.moshi.Moshi
 import com.squareup.moshi.Types
 import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
 
-class NextDnsPreferences(context: Context) {
+class NextDnsPreferences(
+  context: Context,
+  private val apiKeyProtector: ApiKeyProtector = AndroidKeystoreApiKeyProtector()
+) {
   private val prefs: SharedPreferences = context.getSharedPreferences("nextdns_secure_prefs", Context.MODE_PRIVATE)
 
   private val moshi = Moshi.Builder()
     .add(KotlinJsonAdapterFactory())
     .build()
 
+  init {
+    purgeLegacyDnsLogCache()
+    purgeLegacyLocalAccountMetadata()
+  }
+
+  private fun purgeLegacyLocalAccountMetadata() {
+    prefs.edit()
+      .remove("saved_user_email")
+      .remove("saved_user_name")
+      .apply()
+  }
+
+  private fun purgeLegacyDnsLogCache() {
+    val legacyLogKeys = prefs.all.keys.filter { it.startsWith("saved_logs_") }
+    if (legacyLogKeys.isEmpty()) return
+
+    val editor = prefs.edit()
+    legacyLogKeys.forEach { editor.remove(it) }
+    editor.apply()
+  }
+
   companion object {
     private const val KEY_API_KEY = "saved_api_key"
+    private const val KEY_API_KEY_ENCRYPTED = "saved_api_key_encrypted_v1"
     private const val KEY_ACTIVE_PROFILE_ID = "saved_active_profile_id"
     private const val KEY_GUEST_MODE = "saved_guest_mode"
     private const val KEY_AUTO_SYNC_INTERVAL = "saved_auto_sync_interval"
     private const val KEY_PROFILES = "saved_profiles_json"
-    private const val KEY_USER_EMAIL = "saved_user_email"
-    private const val KEY_USER_NAME = "saved_user_name"
 
     @Volatile
     private var INSTANCE: NextDnsPreferences? = null
@@ -34,8 +59,81 @@ class NextDnsPreferences(context: Context) {
   }
 
   var apiKey: String
-    get() = prefs.getString(KEY_API_KEY, "") ?: ""
-    set(value) = prefs.edit().putString(KEY_API_KEY, value).apply()
+    get() {
+      val encrypted = prefs.getString(KEY_API_KEY_ENCRYPTED, null)
+      if (!encrypted.isNullOrBlank()) {
+        val decrypted = runCatching {
+          apiKeyProtector.decrypt(encrypted)
+        }.getOrNull()
+
+        if (!decrypted.isNullOrBlank()) {
+          return decrypted
+        }
+
+        // Corrupt or non-decryptable ciphertext must never fall back to being
+        // interpreted as a credential. Remove it, then try a legacy plaintext
+        // value only if an upgrade was interrupted before migration completed.
+        prefs.edit().remove(KEY_API_KEY_ENCRYPTED).commit()
+      }
+
+      val legacyPlaintext = prefs.getString(KEY_API_KEY, null).orEmpty()
+      if (legacyPlaintext.isBlank()) return ""
+
+      val migrated = runCatching {
+        apiKeyProtector.encrypt(legacyPlaintext)
+      }.getOrNull()
+
+      if (migrated == null) {
+        prefs.edit()
+          .remove(KEY_API_KEY)
+          .remove(KEY_API_KEY_ENCRYPTED)
+          .commit()
+        return ""
+      }
+
+      val committed = prefs.edit()
+        .putString(KEY_API_KEY_ENCRYPTED, migrated)
+        .remove(KEY_API_KEY)
+        .commit()
+
+      if (!committed) {
+        prefs.edit()
+          .remove(KEY_API_KEY)
+          .remove(KEY_API_KEY_ENCRYPTED)
+          .commit()
+        return ""
+      }
+
+      return legacyPlaintext
+    }
+    set(value) {
+      if (value.isBlank()) {
+        prefs.edit()
+          .remove(KEY_API_KEY_ENCRYPTED)
+          .remove(KEY_API_KEY)
+          .commit()
+        return
+      }
+
+      val encrypted = runCatching {
+        apiKeyProtector.encrypt(value)
+      }.getOrElse {
+        prefs.edit()
+          .remove(KEY_API_KEY_ENCRYPTED)
+          .remove(KEY_API_KEY)
+          .commit()
+        throw IllegalStateException("API anahtarı güvenli biçimde saklanamadı.", it)
+      }
+
+      val committed = prefs.edit()
+        .putString(KEY_API_KEY_ENCRYPTED, encrypted)
+        .remove(KEY_API_KEY)
+        .commit()
+
+      check(committed) {
+        "API anahtarı güvenli depolamaya yazılamadı."
+      }
+    }
 
   var activeProfileId: String
     get() = prefs.getString(KEY_ACTIVE_PROFILE_ID, "") ?: ""
@@ -48,14 +146,6 @@ class NextDnsPreferences(context: Context) {
   var autoSyncIntervalSec: Int
     get() = prefs.getInt(KEY_AUTO_SYNC_INTERVAL, 15)
     set(value) = prefs.edit().putInt(KEY_AUTO_SYNC_INTERVAL, value).apply()
-
-  var userEmail: String
-    get() = prefs.getString(KEY_USER_EMAIL, "") ?: ""
-    set(value) = prefs.edit().putString(KEY_USER_EMAIL, value).apply()
-
-  var userName: String
-    get() = prefs.getString(KEY_USER_NAME, "") ?: ""
-    set(value) = prefs.edit().putString(KEY_USER_NAME, value).apply()
 
   fun saveProfiles(profiles: List<NextDnsProfile>) {
     try {
@@ -173,25 +263,6 @@ class NextDnsPreferences(context: Context) {
     val json = prefs.getString("saved_cfg_$profileId", null) ?: return null
     return try {
       moshi.adapter(ConfigSettings::class.java).fromJson(json)
-    } catch (_: Exception) {
-      null
-    }
-  }
-
-  fun saveLogs(profileId: String, logs: List<DnsLogEntry>) {
-    try {
-      val type = Types.newParameterizedType(List::class.java, DnsLogEntry::class.java)
-      val adapter = moshi.adapter<List<DnsLogEntry>>(type)
-      prefs.edit().putString("saved_logs_$profileId", adapter.toJson(logs)).apply()
-    } catch (_: Exception) {}
-  }
-
-  fun getLogs(profileId: String): List<DnsLogEntry>? {
-    val json = prefs.getString("saved_logs_$profileId", null) ?: return null
-    return try {
-      val type = Types.newParameterizedType(List::class.java, DnsLogEntry::class.java)
-      val adapter = moshi.adapter<List<DnsLogEntry>>(type)
-      adapter.fromJson(json)
     } catch (_: Exception) {
       null
     }

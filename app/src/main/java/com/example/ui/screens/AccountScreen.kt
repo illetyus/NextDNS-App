@@ -1,7 +1,17 @@
 package com.example.ui.screens
 
+import android.content.ClipData
+import android.content.ClipboardManager
+import android.app.Activity
+import android.content.Context
+import android.content.ContextWrapper
 import android.content.Intent
 import android.net.Uri
+import android.os.Build
+import android.os.Handler
+import android.os.Looper
+import android.os.PersistableBundle
+import android.view.WindowManager
 import android.widget.Toast
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
@@ -19,17 +29,17 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalClipboardManager
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.data.model.NextDnsProfile
 import com.example.data.repository.ApiConnectionStatus
 import com.example.ui.components.*
 import com.example.ui.viewmodel.NextDnsViewModel
+import kotlinx.coroutines.delay
 
 @Composable
 fun AccountScreen(
@@ -37,22 +47,48 @@ fun AccountScreen(
   modifier: Modifier = Modifier
 ) {
   val context = LocalContext.current
-  val clipboardManager = LocalClipboardManager.current
-  val accountInfo by viewModel.accountInfo.collectAsState()
-  val apiKey by viewModel.apiKey.collectAsState()
-  val apiStatus by viewModel.apiStatus.collectAsState()
-  val profiles by viewModel.profiles.collectAsState()
-  val activeProfileId by viewModel.activeProfileId.collectAsState()
-  val testResult by viewModel.testResult.collectAsState()
-  val isSyncing by viewModel.isSyncing.collectAsState()
-  val analytics by viewModel.analytics.collectAsState()
+  val activity = remember(context) { context.findActivity() }
+  val accountInfo by viewModel.accountInfo.collectAsStateWithLifecycle()
+  val hasApiKey by viewModel.hasApiKey.collectAsStateWithLifecycle()
+  val apiStatus by viewModel.apiStatus.collectAsStateWithLifecycle()
+  val profiles by viewModel.profiles.collectAsStateWithLifecycle()
+  val activeProfileId by viewModel.activeProfileId.collectAsStateWithLifecycle()
+  val testResult by viewModel.testResult.collectAsStateWithLifecycle()
+  val isSyncing by viewModel.isSyncing.collectAsStateWithLifecycle()
+  val analytics by viewModel.analytics.collectAsStateWithLifecycle()
+  val analyticsLastSuccessAt by viewModel.analyticsLastSuccessAt.collectAsStateWithLifecycle()
+  val analyticsErrorMessage by viewModel.analyticsErrorMessage.collectAsStateWithLifecycle()
+  val isAnalyticsLoading by viewModel.isAnalyticsLoading.collectAsStateWithLifecycle()
 
   var showLogoutConfirm by remember { mutableStateOf(false) }
   var showNewProfileDialog by remember { mutableStateOf(false) }
-  var showEditEmailDialog by remember { mutableStateOf(false) }
-  var editEmailInput by remember { mutableStateOf("") }
   var newProfileName by remember { mutableStateOf("") }
   var showApiKey by remember { mutableStateOf(false) }
+
+  LaunchedEffect(activeProfileId) {
+    if (activeProfileId.isNotBlank()) {
+      viewModel.refreshAnalytics(device = null, time = null)
+    }
+  }
+
+  LaunchedEffect(showApiKey) {
+    if (showApiKey) {
+      delay(10_000L)
+      showApiKey = false
+    }
+  }
+
+  DisposableEffect(showApiKey, activity) {
+    if (showApiKey) {
+      activity?.window?.addFlags(WindowManager.LayoutParams.FLAG_SECURE)
+    }
+
+    onDispose {
+      if (showApiKey) {
+        activity?.window?.clearFlags(WindowManager.LayoutParams.FLAG_SECURE)
+      }
+    }
+  }
 
   LazyColumn(
     modifier = modifier
@@ -64,8 +100,8 @@ fun AccountScreen(
     // 2. Real Live Usage / Query Metrics Card
     item {
       NextDnsCard(
-        title = "Canlı Kullanım & DNS Metrikleri",
-        subtitle = "Aktif profil üzerinden gerçek zamanlı NextDNS sorgu istatistikleri."
+        title = "DNS Metrikleri",
+        subtitle = "Aktif profil için NextDNS API'sinden son alınan sorgu istatistikleri."
       ) {
         Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
           Row(
@@ -85,7 +121,7 @@ fun AccountScreen(
                   fontSize = 11.sp
                 )
                 Text(
-                  text = "%,d".format(analytics.totalQueries),
+                  text = analyticsLastSuccessAt?.let { "%,d".format(analytics.totalQueries) } ?: "—",
                   color = MaterialTheme.colorScheme.onSurface,
                   fontSize = 16.sp,
                   fontWeight = FontWeight.Bold
@@ -106,8 +142,8 @@ fun AccountScreen(
                   fontSize = 11.sp
                 )
                 Text(
-                  text = "%,d".format(analytics.blockedQueries),
-                  color = Color(0xFFEF4444),
+                  text = analyticsLastSuccessAt?.let { "%,d".format(analytics.blockedQueries) } ?: "—",
+                  color = MaterialTheme.colorScheme.error,
                   fontSize = 16.sp,
                   fontWeight = FontWeight.Bold
                 )
@@ -127,8 +163,8 @@ fun AccountScreen(
                   fontSize = 11.sp
                 )
                 Text(
-                  text = "%%%d".format(analytics.blockedPercentage.toInt()),
-                  color = Color(0xFF10B981),
+                  text = analyticsLastSuccessAt?.let { "%%%d".format(analytics.blockedPercentage.toInt()) } ?: "—",
+                  color = MaterialTheme.colorScheme.tertiary,
                   fontSize = 16.sp,
                   fontWeight = FontWeight.Bold
                 )
@@ -140,6 +176,22 @@ fun AccountScreen(
             Text(
               text = "Bağlı Aktif Cihazlar: ${analytics.topDevices.size} cihaz (${analytics.topDevices.take(3).joinToString { it.name }})",
               color = MaterialTheme.colorScheme.onSurfaceVariant,
+              fontSize = 11.5.sp
+            )
+          }
+
+          if (analyticsLastSuccessAt == null) {
+            Text(
+              text = when {
+                isAnalyticsLoading -> "NextDNS analiz verisi alınıyor…"
+                !analyticsErrorMessage.isNullOrBlank() -> analyticsErrorMessage!!
+                else -> "Henüz doğrulanmış analiz verisi alınmadı."
+              },
+              color = if (!analyticsErrorMessage.isNullOrBlank() && !isAnalyticsLoading) {
+                MaterialTheme.colorScheme.error
+              } else {
+                MaterialTheme.colorScheme.onSurfaceVariant
+              },
               fontSize = 11.5.sp
             )
           }
@@ -168,12 +220,12 @@ fun AccountScreen(
               horizontalArrangement = Arrangement.SpaceBetween
             ) {
               Text(
-                text = if (apiKey.isBlank()) {
+                text = if (!hasApiKey) {
                   "Anahtar girilmedi"
                 } else if (showApiKey) {
-                  apiKey
+                  viewModel.currentApiKeyForSensitiveUse()
                 } else {
-                  apiKey.take(4) + "••••••••••••••••" + apiKey.takeLast(4)
+                  viewModel.maskedApiKey()
                 },
                 fontFamily = FontFamily.Monospace,
                 fontSize = 12.5.sp,
@@ -184,7 +236,7 @@ fun AccountScreen(
               Row(horizontalArrangement = Arrangement.spacedBy(4.dp)) {
                 IconButton(
                   onClick = { showApiKey = !showApiKey },
-                  modifier = Modifier.size(32.dp)
+                  modifier = Modifier.size(48.dp)
                 ) {
                   Icon(
                     imageVector = if (showApiKey) Icons.Default.VisibilityOff else Icons.Default.Visibility,
@@ -194,13 +246,14 @@ fun AccountScreen(
                   )
                 }
 
-                if (apiKey.isNotBlank()) {
+                if (hasApiKey) {
                   IconButton(
                     onClick = {
-                      clipboardManager.setText(AnnotatedString(apiKey))
-                      Toast.makeText(context, "API Anahtarı kopyalandı", Toast.LENGTH_SHORT).show()
+                      val apiKey = viewModel.currentApiKeyForSensitiveUse()
+                      copySensitiveApiKey(context, apiKey)
+                      scheduleApiKeyClipboardClear(context, apiKey)
                     },
-                    modifier = Modifier.size(32.dp)
+                    modifier = Modifier.size(48.dp)
                   ) {
                     Icon(
                       imageVector = Icons.Default.ContentCopy,
@@ -266,7 +319,7 @@ fun AccountScreen(
                     modifier = Modifier
                       .size(8.dp)
                       .background(
-                        if (isActive) Color(0xFF10B981) else MaterialTheme.colorScheme.outline,
+                        if (isActive) MaterialTheme.colorScheme.tertiary else MaterialTheme.colorScheme.outline,
                         CircleShape
                       )
                   )
@@ -288,12 +341,12 @@ fun AccountScreen(
 
                 if (isActive) {
                   Surface(
-                    color = Color(0xFF10B981).copy(alpha = 0.12f),
+                    color = MaterialTheme.colorScheme.tertiary.copy(alpha = 0.12f),
                     shape = RoundedCornerShape(6.dp)
                   ) {
                     Text(
                       text = "AKTİF",
-                      color = Color(0xFF10B981),
+                      color = MaterialTheme.colorScheme.tertiary,
                       fontSize = 10.sp,
                       fontWeight = FontWeight.Bold,
                       modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp)
@@ -317,7 +370,7 @@ fun AccountScreen(
     // 4. Live DNS Diagnostics
     item {
       NextDnsCard(
-        title = "Canlı Ağ Teşhisi",
+        title = "Ağ Teşhisi",
         subtitle = "Cihazınızın NextDNS bağlantı durumu ve protokol parametreleri."
       ) {
         Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
@@ -332,7 +385,7 @@ fun AccountScreen(
             Column {
               Text(
                 text = if (isUsingNextDns) "Bu cihaz NextDNS kullanıyor" else "NextDNS aktif değil",
-                color = if (isUsingNextDns) Color(0xFF10B981) else MaterialTheme.colorScheme.error,
+                color = if (isUsingNextDns) MaterialTheme.colorScheme.tertiary else MaterialTheme.colorScheme.error,
                 fontWeight = FontWeight.Bold,
                 fontSize = 13.5.sp
               )
@@ -481,50 +534,57 @@ fun AccountScreen(
     )
   }
 
-  // Edit Email Dialog
-  if (showEditEmailDialog) {
-    AlertDialog(
-      onDismissRequest = { showEditEmailDialog = false },
-      containerColor = MaterialTheme.colorScheme.surface,
-      shape = RoundedCornerShape(16.dp),
-      title = {
-        Text("Hesap E-postasını Güncelle", color = MaterialTheme.colorScheme.onSurface, fontWeight = FontWeight.Bold)
-      },
-      text = {
-        Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-          Text(
-            "NextDNS hesabınızla ilişkili e-posta adresinizi girin:",
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
-            fontSize = 12.5.sp
-          )
-          OutlinedTextField(
-            value = editEmailInput,
-            onValueChange = { editEmailInput = it },
-            label = { Text("E-posta Adresi") },
-            placeholder = { Text("ornek@eposta.com") },
-            singleLine = true,
-            modifier = Modifier.fillMaxWidth()
-          )
-        }
-      },
-      confirmButton = {
-        Button(
-          onClick = {
-            if (editEmailInput.isNotBlank()) {
-              viewModel.updateUserEmail(editEmailInput.trim())
-              showEditEmailDialog = false
-            }
-          },
-          enabled = editEmailInput.isNotBlank()
-        ) {
-          Text("Kaydet")
-        }
-      },
-      dismissButton = {
-        TextButton(onClick = { showEditEmailDialog = false }) {
-          Text("İptal", color = MaterialTheme.colorScheme.onSurfaceVariant)
-        }
-      }
-    )
+}
+
+
+private fun copySensitiveApiKey(context: Context, apiKey: String) {
+  val clipboard = context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
+  val clip = ClipData.newPlainText("NextDNS API key", apiKey)
+
+  clip.description.extras = PersistableBundle().apply {
+    putBoolean("android.content.extra.IS_SENSITIVE", true)
+  }
+
+  clipboard.setPrimaryClip(clip)
+
+  if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.S_V2) {
+    Toast.makeText(context, "API Anahtarı kopyalandı", Toast.LENGTH_SHORT).show()
+  }
+}
+
+private fun scheduleApiKeyClipboardClear(
+  context: Context,
+  expectedApiKey: String
+) {
+  val appContext = context.applicationContext
+  Handler(Looper.getMainLooper()).postDelayed(
+    { clearApiKeyClipboardIfUnchanged(appContext, expectedApiKey) },
+    30_000L
+  )
+}
+
+private tailrec fun Context.findActivity(): Activity? = when (this) {
+  is Activity -> this
+  is ContextWrapper -> baseContext.findActivity()
+  else -> null
+}
+
+private fun clearApiKeyClipboardIfUnchanged(
+  context: Context,
+  expectedApiKey: String
+) {
+  val clipboard = context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
+  val current = clipboard.primaryClip
+    ?.takeIf { it.itemCount > 0 }
+    ?.getItemAt(0)
+    ?.coerceToText(context)
+    ?.toString()
+
+  if (current != expectedApiKey) return
+
+  if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+    clipboard.clearPrimaryClip()
+  } else {
+    clipboard.setPrimaryClip(ClipData.newPlainText("", ""))
   }
 }

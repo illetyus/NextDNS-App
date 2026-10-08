@@ -24,6 +24,10 @@ import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleEventObserver
+import androidx.lifecycle.compose.LocalLifecycleOwner
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.data.model.DnsLogEntry
 import com.example.ui.components.*
 import com.example.ui.theme.*
@@ -75,28 +79,36 @@ fun LogsScreen(
   viewModel: NextDnsViewModel,
   modifier: Modifier = Modifier
 ) {
-  val activeProfile by viewModel.activeProfile.collectAsState()
-  val logs by viewModel.logs.collectAsState()
-  val allKnownDevices by viewModel.allKnownDevices.collectAsState()
-  var currentTick by remember { mutableStateOf(0L) }
-
+  val activeProfile by viewModel.activeProfile.collectAsStateWithLifecycle()
+  val logs by viewModel.logs.collectAsStateWithLifecycle()
+  val allKnownDevices by viewModel.allKnownDevices.collectAsStateWithLifecycle()
+  val lifecycleOwner = LocalLifecycleOwner.current
   LaunchedEffect(activeProfile?.id) {
     viewModel.refreshLogs(showToast = false)
-    while (true) {
-      delay(5000)
-      currentTick++
-    }
   }
 
-  DisposableEffect(Unit) {
-    viewModel.startLogsStream()
+  DisposableEffect(lifecycleOwner, activeProfile?.id) {
+    val observer = LifecycleEventObserver { _, event ->
+      when (event) {
+        Lifecycle.Event.ON_RESUME -> viewModel.startLogsStream()
+        Lifecycle.Event.ON_PAUSE -> viewModel.stopLogsStream()
+        else -> Unit
+      }
+    }
+
+    lifecycleOwner.lifecycle.addObserver(observer)
+    if (lifecycleOwner.lifecycle.currentState.isAtLeast(Lifecycle.State.RESUMED)) {
+      viewModel.startLogsStream()
+    }
+
     onDispose {
+      lifecycleOwner.lifecycle.removeObserver(observer)
       viewModel.stopLogsStream()
     }
   }
 
-  val analytics by viewModel.analytics.collectAsState()
-  val isLiveStreaming by viewModel.isLiveStreaming.collectAsState()
+  val analytics by viewModel.analytics.collectAsStateWithLifecycle()
+  val isLiveStreaming by viewModel.isLiveStreaming.collectAsStateWithLifecycle()
 
   var searchQuery by remember { mutableStateOf("") }
   var selectedDeviceFilter by remember { mutableStateOf("Tüm cihazlar") }
@@ -240,7 +252,8 @@ private fun LogsHeaderControls(
         modifier = Modifier
           .clip(RoundedCornerShape(10.dp))
           .border(1.dp, MaterialTheme.colorScheme.outline, RoundedCornerShape(10.dp))
-          .bounceClick { onToggleDeviceMenu(true) },
+          .heightIn(min = 48.dp)
+          .bounceClick(scaleDown = 0.99f) { onToggleDeviceMenu(true) },
         color = MaterialTheme.colorScheme.surface,
         shape = RoundedCornerShape(10.dp)
       ) {
@@ -297,7 +310,8 @@ private fun LogsHeaderControls(
           if (isLiveStreaming) MaterialTheme.colorScheme.primary.copy(alpha = 0.6f) else MaterialTheme.colorScheme.outline,
           RoundedCornerShape(10.dp)
         )
-        .bounceClick(onClick = onToggleLiveStream),
+        .heightIn(min = 48.dp)
+        .bounceClick(scaleDown = 0.98f, onClick = onToggleLiveStream),
       color = if (isLiveStreaming) MaterialTheme.colorScheme.primary.copy(alpha = 0.15f) else MaterialTheme.colorScheme.surface,
       shape = RoundedCornerShape(10.dp)
     ) {
@@ -323,7 +337,7 @@ private fun LogsHeaderControls(
 
     IconButton(
       onClick = onToggleLiveStreamInfo,
-      modifier = Modifier.size(34.dp)
+      modifier = Modifier.size(48.dp)
     ) {
       Icon(
         imageVector = Icons.Default.Info,
@@ -337,9 +351,7 @@ private fun LogsHeaderControls(
 
     IconButton(
       onClick = onRefreshLogs,
-      modifier = Modifier
-        .size(38.dp)
-        .bounceClick(onClick = onRefreshLogs)
+      modifier = Modifier.size(48.dp)
     ) {
       Icon(
         imageVector = Icons.Default.Refresh,
@@ -365,7 +377,7 @@ private fun LiveStreamInfoCard(modifier: Modifier = Modifier) {
         Text("Canlı Günlük Akışı Nedir?", color = MaterialTheme.colorScheme.primary, fontWeight = FontWeight.Bold, fontSize = 12.sp)
       }
       Text(
-        text = "• AÇIK olduğunda: Cihazlarınızdan gelen yeni DNS sorguları her 2.5 saniyede bir otomatik olarak ekranınıza gerçek zamanlı akar.\n• KAPALI olduğunda: Günlükler sabit kalır, yalnızca 'Yenile' butonuna bastığınızda güncellenir.",
+        text = "• AÇIK olduğunda: NextDNS yeni DNS olaylarını SSE canlı akışı üzerinden geldikçe ekrana iletir.\n• KAPALI olduğunda: Canlı bağlantı kapatılır; kayıtları 'Yenile' butonuyla yeniden alabilirsiniz.",
         color = MaterialTheme.colorScheme.onSurface,
         fontSize = 11.sp,
         lineHeight = 15.sp
@@ -389,7 +401,7 @@ private fun LogsSearchField(
     },
     trailingIcon = {
       if (searchQuery.isNotBlank()) {
-        IconButton(onClick = { onQueryChange("") }, modifier = Modifier.size(22.dp)) {
+        IconButton(onClick = { onQueryChange("") }, modifier = Modifier.size(48.dp)) {
           Icon(Icons.Default.Close, contentDescription = "Temizle", tint = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.size(14.dp))
         }
       }
@@ -509,7 +521,8 @@ private fun LogItemRow(
                 if (isCopied) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.outline.copy(alpha = 0.6f),
                 RoundedCornerShape(6.dp)
               )
-              .bounceClick {
+              .sizeIn(minWidth = 48.dp, minHeight = 48.dp)
+              .bounceClick(scaleDown = 0.99f) {
                 copyToClipboard(context, log.domain, "Alan adı")
                 isCopied = true
               },

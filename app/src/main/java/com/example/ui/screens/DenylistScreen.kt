@@ -16,12 +16,12 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import coil.compose.AsyncImage
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.ui.components.*
 import com.example.ui.theme.*
 import com.example.ui.viewmodel.NextDnsViewModel
@@ -31,7 +31,7 @@ fun DenylistScreen(
   viewModel: NextDnsViewModel,
   modifier: Modifier = Modifier
 ) {
-  val denylist by viewModel.denylist.collectAsState()
+  val denylist by viewModel.denylist.collectAsStateWithLifecycle()
   var domainInput by remember { mutableStateOf("") }
   var isError by remember { mutableStateOf(false) }
   var errorMessage by remember { mutableStateOf("") }
@@ -141,7 +141,7 @@ fun DenylistScreen(
                   .background(MaterialTheme.colorScheme.error, RoundedCornerShape(2.dp))
               )
               
-              FaviconImage(domain = item.domain, modifier = Modifier.size(24.dp).clip(RoundedCornerShape(4.dp))
+              FaviconImage(domain = item.domain, modifier = Modifier.size(48.dp).clip(RoundedCornerShape(4.dp))
               )
               
               Text(
@@ -162,7 +162,7 @@ fun DenylistScreen(
               )
               IconButton(
                 onClick = { viewModel.removeFromDenylist(item.id) },
-                modifier = Modifier.size(28.dp)
+                modifier = Modifier.size(48.dp)
               ) {
                 Icon(
                   imageVector = Icons.Default.Close,

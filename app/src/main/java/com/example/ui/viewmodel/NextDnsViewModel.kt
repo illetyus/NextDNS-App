@@ -1,16 +1,23 @@
 package com.example.ui.viewmodel
 
-import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.data.model.*
 import com.example.data.repository.ApiConnectionStatus
 import com.example.data.repository.NextDnsRepository
+import com.example.data.repository.ParentalFlag
+import com.example.data.repository.PrivacyFlag
+import com.example.data.repository.SecurityFlag
+import com.example.data.repository.SettingsPerformanceFlag
+import com.example.data.repository.SectionSyncState
+import com.example.data.repository.SyncPolicy
+import com.example.data.repository.SyncSection
 import com.example.ui.theme.ThemeMode
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
+import java.io.OutputStream
 import java.util.UUID
 
 enum class NavTab(val title: String, val iconName: String) {
@@ -24,6 +31,18 @@ enum class NavTab(val title: String, val iconName: String) {
   LOGS("Günlükler", "format_list_bulleted"),
   SETTINGS("Ayarlar", "settings"),
   ACCOUNT("Hesap", "account_circle")
+}
+
+private fun NavTab.toSyncSection(): SyncSection? = when (this) {
+  NavTab.SETUP -> SyncSection.SETUP
+  NavTab.SECURITY -> SyncSection.SECURITY
+  NavTab.PRIVACY -> SyncSection.PRIVACY
+  NavTab.PARENTAL -> SyncSection.PARENTAL
+  NavTab.DENYLIST -> SyncSection.DENYLIST
+  NavTab.ALLOWLIST -> SyncSection.ALLOWLIST
+  NavTab.SETTINGS -> SyncSection.SETTINGS
+  NavTab.ACCOUNT -> SyncSection.ACCOUNT
+  NavTab.ANALYTICS, NavTab.LOGS -> null
 }
 
 data class UiMessage(
@@ -51,7 +70,19 @@ class NextDnsViewModel(
       }
   }
 
-  val apiKey = repository.apiKey
+  val hasApiKey: StateFlow<Boolean> = repository.apiKey
+    .map { it.isNotBlank() }
+    .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), repository.apiKey.value.isNotBlank())
+
+  fun maskedApiKey(): String {
+    val key = repository.apiKey.value
+    if (key.isBlank()) return ""
+    if (key.length <= 8) return "••••••••"
+    return key.take(4) + "••••••••••••••••" + key.takeLast(4)
+  }
+
+  fun currentApiKeyForSensitiveUse(): String = repository.apiKey.value
+
   val apiStatus = repository.apiStatus
   val profiles = repository.profiles
   val activeProfileId = repository.activeProfileId
@@ -62,11 +93,14 @@ class NextDnsViewModel(
   val allowlist = repository.allowlist
   val logs = repository.logs
   val analytics = repository.analytics
+  val analyticsLastSuccessAt = repository.analyticsLastSuccessAt
+  val analyticsErrorMessage = repository.analyticsErrorMessage
   val allKnownDevices = repository.allKnownDevices
   val configSettings = repository.configSettings
   val testResult = repository.testResult
   val isLiveStreaming = repository.isLiveStreaming
   val isSyncing = repository.isSyncing
+  val sectionSyncStates = repository.sectionSyncStates
 
   val availableBlocklistsCatalog = repository.availableBlocklistsCatalog
   val availableNativesCatalog = repository.availableNativesCatalog
@@ -86,11 +120,10 @@ class NextDnsViewModel(
   val isInitializing = _isInitializing.asStateFlow()
 
   val isLoggedIn: StateFlow<Boolean?> = combine(apiStatus, _isGuestMode) { status, isGuest ->
-    Log.d("AUTH_DEBUG", "status: $status, isGuest: $isGuest")
     when (status) {
       is ApiConnectionStatus.Connected -> {
         _isInitializing.value = false
-        true || isGuest
+        true
       }
       is ApiConnectionStatus.Disconnected -> {
         _isInitializing.value = false
@@ -110,6 +143,14 @@ class NextDnsViewModel(
   private val _currentTab = MutableStateFlow(NavTab.SETUP)
   val currentTab = _currentTab.asStateFlow()
 
+  val currentSectionSyncState: StateFlow<SectionSyncState?> =
+    combine(currentTab, sectionSyncStates) { tab, states ->
+      tab.toSyncSection()?.let { states[it] }
+    }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), null)
+
+  private var visibleSectionSyncJob: Job? = null
+  private var foregroundProfileSyncJob: Job? = null
+
   private val _uiMessage = MutableStateFlow<UiMessage?>(null)
   val uiMessage = _uiMessage.asStateFlow()
 
@@ -118,13 +159,91 @@ class NextDnsViewModel(
 
   fun syncAllData() {
     viewModelScope.launch {
-      repository.loadActiveProfileDataFromApi(apiKey.value, activeProfileId.value)
-      showMessage("Tüm NextDNS verileri senkronize edildi")
+      repository.loadActiveProfileDataFromApi(repository.apiKey.value, activeProfileId.value)
+
+      val requiredSections = listOf(
+        SyncSection.SECURITY,
+        SyncSection.PRIVACY,
+        SyncSection.PARENTAL,
+        SyncSection.DENYLIST,
+        SyncSection.ALLOWLIST,
+        SyncSection.SETTINGS
+      )
+      val states = sectionSyncStates.value
+      val failedSections = requiredSections.filter { section ->
+        states[section]?.errorMessage != null ||
+          states[section]?.lastSuccessAt == null
+      }
+
+      if (failedSections.isEmpty()) {
+        showMessage("NextDNS profil ayarları sunucudan doğrulandı.")
+      } else {
+        showMessage(
+          "Bazı NextDNS bölümleri doğrulanamadı; ekrandaki güncellik durumunu kontrol edin.",
+          isError = true
+        )
+      }
     }
   }
 
   fun selectTab(tab: NavTab) {
     _currentTab.value = tab
+  }
+
+  fun startVisibleTabSync(tab: NavTab) {
+    visibleSectionSyncJob?.cancel()
+    val section = tab.toSyncSection() ?: return
+
+    visibleSectionSyncJob = viewModelScope.launch {
+      repository.refreshSection(section)
+
+      val intervalMs: Long = when (tab) {
+        NavTab.SETUP, NavTab.ACCOUNT -> return@launch
+        else -> SyncPolicy.SECTION_POLL_MS
+      }
+
+      var nextDelayMs = intervalMs
+      while (true) {
+        delay(nextDelayMs)
+        val success = repository.refreshSection(section)
+        nextDelayMs = SyncPolicy.nextDelay(
+          success = success,
+          currentDelayMs = nextDelayMs,
+          baseDelayMs = intervalMs,
+          maxDelayMs = SyncPolicy.SECTION_MAX_BACKOFF_MS
+        )
+      }
+    }
+  }
+
+  fun stopVisibleTabSync() {
+    visibleSectionSyncJob?.cancel()
+    visibleSectionSyncJob = null
+  }
+
+  fun startForegroundProfileSync() {
+    foregroundProfileSyncJob?.cancel()
+    foregroundProfileSyncJob = viewModelScope.launch {
+      var nextDelayMs = SyncPolicy.PROFILE_POLL_MS
+
+      repository.refreshProfilesFromApi()
+
+      while (true) {
+        delay(nextDelayMs)
+        val success = repository.refreshProfilesFromApi()
+        nextDelayMs = SyncPolicy.nextDelay(
+          success = success,
+          currentDelayMs = nextDelayMs,
+          baseDelayMs = SyncPolicy.PROFILE_POLL_MS,
+          maxDelayMs = SyncPolicy.PROFILE_MAX_BACKOFF_MS
+        )
+      }
+    }
+  }
+
+  fun stopForegroundProfileSync() {
+    foregroundProfileSyncJob?.cancel()
+    foregroundProfileSyncJob = null
   }
 
   fun dismissMessage() {
@@ -133,6 +252,20 @@ class NextDnsViewModel(
 
   fun showMessage(msg: String, isError: Boolean = false) {
     _uiMessage.value = UiMessage(text = msg, isError = isError)
+  }
+
+  private fun reportMutationResult(
+    result: Result<Unit>,
+    successMessage: String? = null
+  ) {
+    if (result.isSuccess) {
+      if (!successMessage.isNullOrBlank()) showMessage(successMessage)
+    } else {
+      showMessage(
+        result.exceptionOrNull()?.message ?: "NextDNS işlemi tamamlanamadı.",
+        isError = true
+      )
+    }
   }
 
   fun saveApiKey(key: String) {
@@ -173,142 +306,219 @@ class NextDnsViewModel(
     showMessage("Aktif Profil Değiştirildi: $profileId")
   }
 
-  fun updateUserEmail(email: String, name: String = "") {
-    repository.updateUserEmail(email, name)
-    showMessage("Hesap e-postası güncellendi: $email")
-  }
-
   fun createProfile(name: String) {
     viewModelScope.launch {
-      val res = repository.createProfileRemote(name)
-      if (res.isSuccess) {
+      val result = repository.createProfileRemote(name)
+      if (result.isSuccess) {
         showMessage("Yeni profil başarıyla oluşturuldu!")
       } else {
-        showMessage("Profil oluşturulamadı", isError = true)
+        showMessage(
+          result.exceptionOrNull()?.message ?: "Profil oluşturulamadı",
+          isError = true
+        )
       }
     }
   }
 
   fun deleteProfile(profileId: String) {
     viewModelScope.launch {
-      repository.deleteProfileRemote(profileId)
-      showMessage("Profil silindi")
+      reportMutationResult(
+        repository.deleteProfileRemote(profileId),
+        successMessage = "Profil silindi"
+      )
     }
   }
 
   fun renameProfile(newName: String) {
     activeProfile.value?.id?.let { pid ->
-      repository.renameProfile(pid, newName)
-      showMessage("Profil ismi güncellendi: $newName")
-    }
-  }
-
-  fun renameProfile(profileId: String, newName: String) {
-    repository.renameProfile(profileId, newName)
-    showMessage("Profil ismi güncellendi")
-  }
-
-  // Security
-  fun toggleSecurityFeature(feature: String, enabled: Boolean) {
-    repository.updateSecurity { s ->
-      when (feature) {
-        "threatIntelligenceFeeds" -> s.copy(threatIntelligenceFeeds = enabled)
-        "aiThreatDetection" -> s.copy(aiThreatDetection = enabled)
-        "googleSafeBrowsing" -> s.copy(googleSafeBrowsing = enabled)
-        "cryptojacking" -> s.copy(cryptojacking = enabled)
-        "dnsRebinding" -> s.copy(dnsRebinding = enabled)
-        "idnHomographs" -> s.copy(idnHomographs = enabled)
-        "typosquatting" -> s.copy(typosquatting = enabled)
-        "dga" -> s.copy(dga = enabled)
-        "nrd" -> s.copy(nrd = enabled)
-        "ddns" -> s.copy(ddns = enabled)
-        "parkedDomains" -> s.copy(parkedDomains = enabled)
-        "csam" -> s.copy(csam = enabled)
-        else -> s
+      viewModelScope.launch {
+        reportMutationResult(
+          repository.renameProfile(pid, newName),
+          successMessage = "Profil ismi güncellendi: $newName"
+        )
       }
     }
   }
 
+  fun renameProfile(profileId: String, newName: String) {
+    viewModelScope.launch {
+      reportMutationResult(
+        repository.renameProfile(profileId, newName),
+        successMessage = "Profil ismi güncellendi"
+      )
+    }
+  }
+
+  // Security
+  fun toggleSecurityFeature(feature: String, enabled: Boolean) {
+    val flag = when (feature) {
+      "threatIntelligenceFeeds" -> SecurityFlag.THREAT_INTELLIGENCE_FEEDS
+      "aiThreatDetection" -> SecurityFlag.AI_THREAT_DETECTION
+      "googleSafeBrowsing" -> SecurityFlag.GOOGLE_SAFE_BROWSING
+      "cryptojacking" -> SecurityFlag.CRYPTOJACKING
+      "dnsRebinding" -> SecurityFlag.DNS_REBINDING
+      "idnHomographs" -> SecurityFlag.IDN_HOMOGRAPHS
+      "typosquatting" -> SecurityFlag.TYPOSQUATTING
+      "dga" -> SecurityFlag.DGA
+      "nrd" -> SecurityFlag.NRD
+      "ddns" -> SecurityFlag.DDNS
+      "parkedDomains" -> SecurityFlag.PARKING
+      "csam" -> SecurityFlag.CSAM
+      else -> {
+        showMessage("Bilinmeyen güvenlik ayarı: $feature", isError = true)
+        return
+      }
+    }
+
+    viewModelScope.launch {
+      reportMutationResult(repository.setSecurityFlag(flag, enabled))
+    }
+  }
+
   fun addBlockedTld(tld: String) {
-    repository.addBlockedTld(tld)
-    showMessage(".$tld uzantısı engellendi")
+    viewModelScope.launch {
+      reportMutationResult(
+        repository.addBlockedTld(tld),
+        successMessage = ".$tld uzantısı engellendi"
+      )
+    }
   }
 
   fun removeBlockedTld(tld: String) {
-    repository.removeBlockedTld(tld)
-    showMessage(".$tld engeli kaldırıldı")
+    viewModelScope.launch {
+      reportMutationResult(
+        repository.removeBlockedTld(tld),
+        successMessage = ".$tld engeli kaldırıldı"
+      )
+    }
   }
 
   // Privacy
   fun toggleBlocklist(blocklistId: String) {
-    repository.toggleBlocklist(blocklistId)
-    showMessage("Engelleme listesi güncellendi")
+    viewModelScope.launch {
+      reportMutationResult(
+        repository.toggleBlocklist(blocklistId),
+        successMessage = "Engelleme listesi güncellendi"
+      )
+    }
   }
 
   fun toggleNativeTracking(nativeId: String) {
-    repository.toggleNativeTracking(nativeId)
-    showMessage("Yerel izleme koruması güncellendi")
+    viewModelScope.launch {
+      reportMutationResult(
+        repository.toggleNativeTracking(nativeId),
+        successMessage = "Yerel izleme koruması güncellendi"
+      )
+    }
   }
 
   fun toggleDisguisedTrackers(enabled: Boolean) {
-    repository.updatePrivacy { it.copy(disguisedTrackers = enabled) }
+    viewModelScope.launch {
+      reportMutationResult(
+        repository.setPrivacyFlag(PrivacyFlag.DISGUISED_TRACKERS, enabled)
+      )
+    }
   }
 
   fun toggleAllowAffiliates(enabled: Boolean) {
-    repository.updatePrivacy { it.copy(allowAffiliates = enabled) }
+    viewModelScope.launch {
+      reportMutationResult(
+        repository.setPrivacyFlag(PrivacyFlag.ALLOW_AFFILIATE_LINKS, enabled)
+      )
+    }
   }
 
   // Parental Control
   fun toggleParentalService(serviceId: String) {
-    repository.toggleParentalService(serviceId)
-    showMessage("Ebeveyn kontrolü kuralı güncellendi")
+    viewModelScope.launch {
+      reportMutationResult(
+        repository.toggleParentalService(serviceId),
+        successMessage = "Ebeveyn kontrolü kuralı güncellendi"
+      )
+    }
   }
 
   fun toggleParentalCategory(categoryId: String) {
-    repository.toggleParentalCategory(categoryId)
-    showMessage("Kategori engeli güncellendi")
+    viewModelScope.launch {
+      reportMutationResult(
+        repository.toggleParentalCategory(categoryId),
+        successMessage = "Kategori engeli güncellendi"
+      )
+    }
   }
 
   fun setSafeSearch(enabled: Boolean) {
-    repository.updateParental { it.copy(safeSearch = enabled) }
+    viewModelScope.launch {
+      reportMutationResult(
+        repository.setParentalFlag(ParentalFlag.SAFE_SEARCH, enabled)
+      )
+    }
   }
 
   fun setYoutubeRestricted(enabled: Boolean) {
-    repository.updateParental { it.copy(youtubeRestrictedMode = enabled) }
+    viewModelScope.launch {
+      reportMutationResult(
+        repository.setParentalFlag(ParentalFlag.YOUTUBE_RESTRICTED_MODE, enabled)
+      )
+    }
   }
 
   fun setBlockBypass(enabled: Boolean) {
-    repository.updateParental { it.copy(blockBypass = enabled) }
+    viewModelScope.launch {
+      reportMutationResult(
+        repository.setParentalFlag(ParentalFlag.BLOCK_BYPASS, enabled)
+      )
+    }
   }
 
   // Denylist
   fun addToDenylist(domain: String) {
-    repository.addToDenylist(domain)
-    showMessage("$domain kara listeye eklendi")
+    viewModelScope.launch {
+      reportMutationResult(
+        repository.addToDenylist(domain),
+        successMessage = "$domain kara listeye eklendi"
+      )
+    }
   }
 
   fun removeFromDenylist(domain: String) {
-    repository.removeFromDenylist(domain)
-    showMessage("$domain kara listeden kaldırıldı")
+    viewModelScope.launch {
+      reportMutationResult(
+        repository.removeFromDenylist(domain),
+        successMessage = "$domain kara listeden kaldırıldı"
+      )
+    }
   }
 
   fun toggleDenylistItem(domain: String) {
-    repository.toggleDenylistItem(domain)
+    viewModelScope.launch {
+      reportMutationResult(repository.toggleDenylistItem(domain))
+    }
   }
 
   // Allowlist
   fun addToAllowlist(domain: String) {
-    repository.addToAllowlist(domain)
-    showMessage("$domain beyaz listeye eklendi")
+    viewModelScope.launch {
+      reportMutationResult(
+        repository.addToAllowlist(domain),
+        successMessage = "$domain beyaz listeye eklendi"
+      )
+    }
   }
 
   fun removeFromAllowlist(domain: String) {
-    repository.removeFromAllowlist(domain)
-    showMessage("$domain beyaz listeden kaldırıldı")
+    viewModelScope.launch {
+      reportMutationResult(
+        repository.removeFromAllowlist(domain),
+        successMessage = "$domain beyaz listeden kaldırıldı"
+      )
+    }
   }
 
   fun toggleAllowlistItem(domain: String) {
-    repository.toggleAllowlistItem(domain)
+    viewModelScope.launch {
+      reportMutationResult(repository.toggleAllowlistItem(domain))
+    }
   }
 
   // Logs & Live Stream
@@ -320,9 +530,13 @@ class NextDnsViewModel(
 
   fun refreshLogs(showToast: Boolean = true) {
     viewModelScope.launch {
-      repository.refreshLogsFromApi()
+      val success = repository.refreshLogsFromApi()
       if (showToast) {
-        showMessage("Günlük kayıtları yenilendi")
+        if (success) {
+          showMessage("Günlük kayıtları yenilendi")
+        } else {
+          showMessage("Günlük kayıtları yenilenemedi.", isError = true)
+        }
       }
     }
   }
@@ -331,7 +545,7 @@ class NextDnsViewModel(
     viewModelScope.launch {
       _isAnalyticsLoading.value = true
       try {
-        repository.fetchAnalytics(apiKey.value, activeProfileId.value, device, time)
+        repository.fetchAnalytics(repository.apiKey.value, activeProfileId.value, device, time)
       } finally {
         _isAnalyticsLoading.value = false
       }
@@ -365,7 +579,15 @@ class NextDnsViewModel(
         val currentPid = activePid ?: ""
         val isUsingNextDns = res.status.equals("ok", ignoreCase = true) || res.status.equals("using-nextdns", ignoreCase = true)
         val msg = if (isUsingNextDns) {
-          "Harika! NextDNS koruması bu profille aktif (${res.latencyMs} ms • ${res.protocol})."
+          val details = buildList {
+            if (res.latencyMs > 0) add("${res.latencyMs} ms")
+            res.protocol.takeIf { it.isNotBlank() }?.let(::add)
+          }.joinToString(" • ")
+          if (details.isBlank()) {
+            "NextDNS koruması bu profille aktif."
+          } else {
+            "NextDNS koruması bu profille aktif ($details)."
+          }
         } else {
           "Bağlantı kontrol edildi: Bu cihaz şu anda NextDNS kullanmıyor."
         }
@@ -380,79 +602,105 @@ class NextDnsViewModel(
       if (success) {
         showMessage("IP adresi başarıyla profile bağlandı.")
       } else {
-        showMessage("IP bağlama isteği tamamlandı.")
+        showMessage("IP adresi profile bağlanamadı.", isError = true)
       }
     }
   }
 
   // Settings
   fun toggleLogsEnabled(enabled: Boolean) {
-    repository.updateConfig { it.copy(logsEnabled = enabled) }
+    viewModelScope.launch {
+      reportMutationResult(repository.setLogsEnabled(enabled))
+    }
   }
 
   fun toggleLogClientIps(enabled: Boolean) {
-    repository.updateConfig { it.copy(logClientIps = enabled) }
+    viewModelScope.launch {
+      reportMutationResult(repository.setLogClientIps(enabled))
+    }
   }
 
   fun toggleLogDomains(enabled: Boolean) {
-    repository.updateConfig { it.copy(logDomains = enabled) }
+    viewModelScope.launch {
+      reportMutationResult(repository.setLogDomains(enabled))
+    }
   }
 
   fun setLogRetention(retention: String) {
-    repository.updateConfig { it.copy(logRetention = retention) }
-    showMessage("Saklama süresi: $retention")
+    viewModelScope.launch {
+      reportMutationResult(
+        repository.setLogRetention(retention),
+        successMessage = "Saklama süresi: $retention"
+      )
+    }
   }
 
   fun setLogStorageLocation(location: String) {
-    repository.updateConfig { it.copy(logStorageLocation = location) }
-    showMessage("Depolama konumu: $location")
+    viewModelScope.launch {
+      reportMutationResult(
+        repository.setLogStorageLocation(location),
+        successMessage = "Depolama konumu: $location"
+      )
+    }
   }
 
-  fun downloadLogs() {
-    showMessage("Günlükler CSV olarak indirildi")
+  suspend fun exportLogs(outputStream: OutputStream): Result<Unit> {
+    val result = repository.exportLogs(outputStream)
+    reportMutationResult(
+      result,
+      successMessage = "Günlükler CSV olarak kaydedildi"
+    )
+    return result
   }
 
   fun clearLogs() {
-    repository.clearLogs()
-    showMessage("Tüm günlükler temizlendi")
+    viewModelScope.launch {
+      reportMutationResult(
+        repository.clearLogs(),
+        successMessage = "Tüm günlükler temizlendi"
+      )
+    }
   }
 
   fun toggleBlockPage(enabled: Boolean) {
-    repository.updateConfig { it.copy(blockPage = enabled) }
+    viewModelScope.launch {
+      reportMutationResult(repository.setBlockPage(enabled))
+    }
   }
 
   fun toggleEdns(enabled: Boolean) {
-    repository.updateConfig { it.copy(ednsClientSubnet = enabled) }
+    viewModelScope.launch {
+      reportMutationResult(
+        repository.setPerformanceFlag(SettingsPerformanceFlag.ECS, enabled)
+      )
+    }
   }
 
   fun toggleCacheBoost(enabled: Boolean) {
-    repository.updateConfig { it.copy(cacheBoost = enabled) }
+    viewModelScope.launch {
+      reportMutationResult(
+        repository.setPerformanceFlag(SettingsPerformanceFlag.CACHE_BOOST, enabled)
+      )
+    }
   }
 
   fun toggleCnameFlattening(enabled: Boolean) {
-    repository.updateConfig { it.copy(cnameFlattening = enabled) }
-  }
-
-  fun toggleBypassAgeVerification(enabled: Boolean) {
-    repository.updateConfig { it.copy(bypassAgeVerification = enabled) }
+    viewModelScope.launch {
+      reportMutationResult(
+        repository.setPerformanceFlag(SettingsPerformanceFlag.CNAME_FLATTENING, enabled)
+      )
+    }
   }
 
   fun toggleWeb3(enabled: Boolean) {
-    repository.updateConfig { it.copy(web3 = enabled) }
-  }
-  fun addRewrite(domain: String, answer: String) {
-    repository.updateConfig { cfg ->
-      val updated = cfg.rewrites + RewriteItem(domain = domain, answer = answer)
-      cfg.copy(rewrites = updated)
+    viewModelScope.launch {
+      reportMutationResult(repository.setWeb3(enabled))
     }
-    showMessage("Yeniden yazma kuralı eklendi: $domain ➔ $answer")
   }
 
-  fun removeRewrite(id: String) {
-    repository.updateConfig { cfg ->
-      val updated = cfg.rewrites.filter { it.id != id }
-      cfg.copy(rewrites = updated)
-    }
-    showMessage("Yeniden yazma kuralı silindi")
+  override fun onCleared() {
+    stopVisibleTabSync()
+    stopForegroundProfileSync()
+    super.onCleared()
   }
 }

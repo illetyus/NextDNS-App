@@ -1,5 +1,6 @@
 package com.example.data.api
 
+import com.example.BuildConfig
 import com.squareup.moshi.Json
 import com.squareup.moshi.Moshi
 import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
@@ -20,12 +21,41 @@ import com.example.data.model.AnalyticsItemDto
 
 data class NextDnsApiResponse<T>(
   val data: T? = null,
-  val errors: List<ApiErrorDetail>? = null
+  val errors: List<ApiErrorDetail>? = null,
+  val meta: ApiMeta? = null
 )
 
 data class ApiErrorDetail(
   val code: String? = null,
-  val detail: String? = null
+  val detail: String? = null,
+  val source: ApiErrorSource? = null
+)
+
+data class ApiErrorSource(
+  val parameter: String? = null,
+  val pointer: String? = null
+)
+
+data class ApiMeta(
+  val pagination: ApiPaginationMeta? = null,
+  val stream: ApiStreamMeta? = null
+)
+
+data class ApiPaginationMeta(
+  val cursor: String? = null
+)
+
+data class ApiStreamMeta(
+  val id: String? = null
+)
+
+data class ProfileCreateDto(
+  val id: String
+)
+
+data class NextDnsMutationResponse(
+  val errors: List<ApiErrorDetail>? = null,
+  val meta: ApiMeta? = null
 )
 
 data class AccountSubscriptionDto(
@@ -47,18 +77,18 @@ data class ProfileDto(
 )
 
 data class SecurityDto(
-  val threatIntelligenceFeeds: Boolean? = true,
-  val aiThreatDetection: Boolean? = true,
-  val googleSafeBrowsing: Boolean? = true,
-  val cryptojacking: Boolean? = true,
-  val dnsRebinding: Boolean? = true,
-  val idnHomographs: Boolean? = true,
-  val typosquatting: Boolean? = true,
-  val dga: Boolean? = true,
-  val nrd: Boolean? = true,
-  val ddns: Boolean? = false,
-  val parking: Boolean? = true,
-  val csam: Boolean? = true,
+  val threatIntelligenceFeeds: Boolean? = null,
+  val aiThreatDetection: Boolean? = null,
+  val googleSafeBrowsing: Boolean? = null,
+  val cryptojacking: Boolean? = null,
+  val dnsRebinding: Boolean? = null,
+  val idnHomographs: Boolean? = null,
+  val typosquatting: Boolean? = null,
+  val dga: Boolean? = null,
+  val nrd: Boolean? = null,
+  val ddns: Boolean? = null,
+  val parking: Boolean? = null,
+  val csam: Boolean? = null,
   val tlds: List<TldDto>? = null
 )
 
@@ -83,8 +113,8 @@ data class NativeTrackingDto(
 data class PrivacyDto(
   val blocklists: List<BlocklistDto>? = null,
   val natives: List<NativeTrackingDto>? = null,
-  val disguisedTrackers: Boolean? = true,
-  @Json(name = "allowAffiliate") val allowAffiliateLinks: Boolean? = false
+  val disguisedTrackers: Boolean? = null,
+  @Json(name = "allowAffiliate") val allowAffiliateLinks: Boolean? = null
 )
 
 data class ParentalServiceDto(
@@ -124,9 +154,9 @@ data class SetupDto(
 data class ParentalControlDto(
   val services: List<ParentalServiceDto>? = null,
   val categories: List<ParentalCategoryDto>? = null,
-  val safeSearch: Boolean? = true,
-  val youtubeRestrictedMode: Boolean? = false,
-  val blockBypass: Boolean? = true
+  val safeSearch: Boolean? = null,
+  val youtubeRestrictedMode: Boolean? = null,
+  val blockBypass: Boolean? = null
 )
 
 data class AllowDenyRuleDto(
@@ -150,6 +180,9 @@ data class DnsLogDto(
   val domain: String? = null,
   val root: String? = null,
   val rootDomain: String? = null,
+  val tracker: String? = null,
+  val encrypted: Boolean? = null,
+  val client: String? = null,
   val clientIp: String? = null,
   @Json(name = "client_ip") val clientIpSnake: String? = null,
   val deviceName: String? = null,
@@ -171,6 +204,8 @@ data class AnalyticsStatusItem(
 data class AnalyticsDeviceItem(
   val id: String? = null,
   val name: String? = null,
+  val model: String? = null,
+  val localIp: String? = null,
   val queries: Long? = null
 )
 
@@ -191,6 +226,39 @@ data class AnalyticsProtocolItem(
   val queries: Long? = null
 )
 
+data class AnalyticsQueryTypeItem(
+  val type: Int? = null,
+  val name: String? = null,
+  val queries: Long? = null
+)
+
+data class AnalyticsIpVersionItem(
+  val version: Int? = null,
+  val queries: Long? = null
+)
+
+data class AnalyticsNetworkDto(
+  val cellular: Boolean? = null,
+  val vpn: Boolean? = null,
+  val isp: String? = null,
+  val asn: Long? = null
+)
+
+data class AnalyticsGeoDto(
+  val latitude: Double? = null,
+  val longitude: Double? = null,
+  val countryCode: String? = null,
+  val country: String? = null,
+  val city: String? = null
+)
+
+data class AnalyticsIpItem(
+  val ip: String? = null,
+  val network: AnalyticsNetworkDto? = null,
+  val geo: AnalyticsGeoDto? = null,
+  val queries: Long? = null
+)
+
 data class SettingsDto(
   val logs: SettingsLogsDto? = null,
   val blockPage: SettingsBlockPageDto? = null,
@@ -199,25 +267,25 @@ data class SettingsDto(
 )
 
 data class SettingsLogsDto(
-  val enabled: Boolean? = true,
-  val retention: Int? = 720,
-  val location: String? = "ch",
+  val enabled: Boolean? = null,
+  val retention: Int? = null,
+  val location: String? = null,
   val drop: SettingsLogsDropDto? = null
 )
 
 data class SettingsLogsDropDto(
-  val ip: Boolean? = false,
-  val domain: Boolean? = false
+  val ip: Boolean? = null,
+  val domain: Boolean? = null
 )
 
 data class SettingsBlockPageDto(
-  val enabled: Boolean? = false
+  val enabled: Boolean? = null
 )
 
 data class SettingsPerformanceDto(
-  val ecs: Boolean? = true,
-  val cacheBoost: Boolean? = true,
-  val cnameFlattening: Boolean? = true
+  val ecs: Boolean? = null,
+  val cacheBoost: Boolean? = null,
+  val cnameFlattening: Boolean? = null
 )
 
 data class NextDnsTestResponse(
@@ -327,27 +395,34 @@ interface NextDnsApiService {
   // Profiles
   @GET("profiles")
   suspend fun getProfiles(
-    @Header("X-Api-Key") apiKey: String
+    @Header("X-Api-Key") apiKey: String,
+    @Query("cursor") cursor: String? = null
   ): Response<NextDnsApiResponse<List<ProfileDto>>>
 
   @POST("profiles")
   suspend fun createProfile(
     @Header("X-Api-Key") apiKey: String,
     @Body body: NameRequest
+  ): Response<NextDnsApiResponse<ProfileCreateDto>>
+
+  @GET("profiles/{profileId}")
+  suspend fun getProfile(
+    @Header("X-Api-Key") apiKey: String,
+    @Path("profileId") profileId: String
   ): Response<NextDnsApiResponse<ProfileDto>>
 
   @DELETE("profiles/{profileId}")
   suspend fun deleteProfile(
     @Header("X-Api-Key") apiKey: String,
     @Path("profileId") profileId: String
-  ): Response<ResponseBody>
+  ): Response<NextDnsMutationResponse>
 
   @PATCH("profiles/{profileId}")
   suspend fun renameProfile(
     @Header("X-Api-Key") apiKey: String,
     @Path("profileId") profileId: String,
     @Body body: NameRequest
-  ): Response<ResponseBody>
+  ): Response<NextDnsMutationResponse>
 
   // Setup
   @GET("profiles/{profileId}/setup")
@@ -368,120 +443,138 @@ interface NextDnsApiService {
   suspend fun getSecurity(
     @Header("X-Api-Key") apiKey: String,
     @Path("profileId") profileId: String
-  ): Response<SecurityDto>
+  ): Response<NextDnsApiResponse<SecurityDto>>
 
   @GET("security/tlds")
-  suspend fun getAvailableTlds(): Response<NextDnsApiResponse<List<SecurityTldCatalogDto>>>
+  suspend fun getAvailableTlds(
+    @Query("limit") limit: Int? = null,
+    @Query("cursor") cursor: String? = null
+  ): Response<NextDnsApiResponse<List<SecurityTldCatalogDto>>>
 
   @PATCH("profiles/{profileId}/security")
   suspend fun updateSecurity(
     @Header("X-Api-Key") apiKey: String,
     @Path("profileId") profileId: String,
     @Body body: SecurityUpdateRequest
-  ): Response<ResponseBody>
+  ): Response<NextDnsMutationResponse>
 
   @POST("profiles/{profileId}/security/tlds")
   suspend fun addSecurityTld(
     @Header("X-Api-Key") apiKey: String,
     @Path("profileId") profileId: String,
     @Body body: IdRequest
-  ): Response<ResponseBody>
+  ): Response<NextDnsMutationResponse>
 
   @DELETE("profiles/{profileId}/security/tlds/{tld}")
   suspend fun removeSecurityTld(
     @Header("X-Api-Key") apiKey: String,
     @Path("profileId") profileId: String,
     @Path("tld") tld: String
-  ): Response<ResponseBody>
+  ): Response<NextDnsMutationResponse>
 
   // Privacy
   @GET("profiles/{profileId}/privacy")
   suspend fun getPrivacy(
     @Header("X-Api-Key") apiKey: String,
     @Path("profileId") profileId: String
-  ): Response<PrivacyDto>
+  ): Response<NextDnsApiResponse<PrivacyDto>>
 
   @GET("profiles/{profileId}/privacy/blocklists")
   suspend fun getProfileBlocklists(
     @Header("X-Api-Key") apiKey: String,
-    @Path("profileId") profileId: String
+    @Path("profileId") profileId: String,
+    @Query("limit") limit: Int? = null,
+    @Query("cursor") cursor: String? = null
   ): Response<NextDnsApiResponse<List<BlocklistDto>>>
 
   @GET("profiles/{profileId}/privacy/natives")
   suspend fun getProfileNatives(
     @Header("X-Api-Key") apiKey: String,
-    @Path("profileId") profileId: String
+    @Path("profileId") profileId: String,
+    @Query("limit") limit: Int? = null,
+    @Query("cursor") cursor: String? = null
   ): Response<NextDnsApiResponse<List<NativeTrackingDto>>>
 
   @GET("privacy/blocklists")
   suspend fun getAvailableBlocklists(
-    @Header("X-Api-Key") apiKey: String? = null
+    @Header("X-Api-Key") apiKey: String? = null,
+    @Query("limit") limit: Int? = null,
+    @Query("cursor") cursor: String? = null
   ): Response<NextDnsApiResponse<List<BlocklistDto>>>
 
   @GET("privacy/natives")
-  suspend fun getAvailableNatives(): Response<NextDnsApiResponse<List<NativeTrackingDto>>>
+  suspend fun getAvailableNatives(
+    @Query("limit") limit: Int? = null,
+    @Query("cursor") cursor: String? = null
+  ): Response<NextDnsApiResponse<List<NativeTrackingDto>>>
 
   @PATCH("profiles/{profileId}/privacy")
   suspend fun updatePrivacy(
     @Header("X-Api-Key") apiKey: String,
     @Path("profileId") profileId: String,
     @Body body: PrivacyUpdateRequest
-  ): Response<ResponseBody>
+  ): Response<NextDnsMutationResponse>
 
   @POST("profiles/{profileId}/privacy/blocklists")
   suspend fun addBlocklist(
     @Header("X-Api-Key") apiKey: String,
     @Path("profileId") profileId: String,
     @Body body: IdRequest
-  ): Response<ResponseBody>
+  ): Response<NextDnsMutationResponse>
 
   @DELETE("profiles/{profileId}/privacy/blocklists/{blocklistId}")
   suspend fun removeBlocklist(
     @Header("X-Api-Key") apiKey: String,
     @Path("profileId") profileId: String,
     @Path("blocklistId") blocklistId: String
-  ): Response<ResponseBody>
+  ): Response<NextDnsMutationResponse>
 
   @POST("profiles/{profileId}/privacy/natives")
   suspend fun addNativeTracking(
     @Header("X-Api-Key") apiKey: String,
     @Path("profileId") profileId: String,
     @Body body: IdRequest
-  ): Response<ResponseBody>
+  ): Response<NextDnsMutationResponse>
 
   @DELETE("profiles/{profileId}/privacy/natives/{nativeId}")
   suspend fun removeNativeTracking(
     @Header("X-Api-Key") apiKey: String,
     @Path("profileId") profileId: String,
     @Path("nativeId") nativeId: String
-  ): Response<ResponseBody>
+  ): Response<NextDnsMutationResponse>
 
   // Parental Control
   @GET("parentalControl/services")
-  suspend fun getAvailableParentalServices(): Response<NextDnsApiResponse<List<ParentalServiceCatalogDto>>>
+  suspend fun getAvailableParentalServices(
+    @Query("limit") limit: Int? = null,
+    @Query("cursor") cursor: String? = null
+  ): Response<NextDnsApiResponse<List<ParentalServiceCatalogDto>>>
 
   @GET("parentalControl/categories")
-  suspend fun getAvailableParentalCategories(): Response<NextDnsApiResponse<List<ParentalCategoryDto>>>
+  suspend fun getAvailableParentalCategories(
+    @Query("limit") limit: Int? = null,
+    @Query("cursor") cursor: String? = null
+  ): Response<NextDnsApiResponse<List<ParentalCategoryDto>>>
 
   @GET("profiles/{profileId}/parentalControl")
   suspend fun getParentalControl(
     @Header("X-Api-Key") apiKey: String,
     @Path("profileId") profileId: String
-  ): Response<ParentalControlDto>
+  ): Response<NextDnsApiResponse<ParentalControlDto>>
 
   @PATCH("profiles/{profileId}/parentalControl")
   suspend fun updateParentalControl(
     @Header("X-Api-Key") apiKey: String,
     @Path("profileId") profileId: String,
     @Body body: ParentalControlUpdateRequest
-  ): Response<ResponseBody>
+  ): Response<NextDnsMutationResponse>
 
   @POST("profiles/{profileId}/parentalControl/categories")
   suspend fun addParentalCategory(
     @Header("X-Api-Key") apiKey: String,
     @Path("profileId") profileId: String,
     @Body body: ParentalItemRequest
-  ): Response<ResponseBody>
+  ): Response<NextDnsMutationResponse>
 
   @PATCH("profiles/{profileId}/parentalControl/categories/{categoryId}")
   suspend fun updateParentalCategory(
@@ -489,21 +582,21 @@ interface NextDnsApiService {
     @Path("profileId") profileId: String,
     @Path("categoryId") categoryId: String,
     @Body body: ParentalActiveRequest
-  ): Response<ResponseBody>
+  ): Response<NextDnsMutationResponse>
 
   @DELETE("profiles/{profileId}/parentalControl/categories/{categoryId}")
   suspend fun removeParentalCategory(
     @Header("X-Api-Key") apiKey: String,
     @Path("profileId") profileId: String,
     @Path("categoryId") categoryId: String
-  ): Response<ResponseBody>
+  ): Response<NextDnsMutationResponse>
 
   @POST("profiles/{profileId}/parentalControl/services")
   suspend fun addParentalService(
     @Header("X-Api-Key") apiKey: String,
     @Path("profileId") profileId: String,
     @Body body: ParentalItemRequest
-  ): Response<ResponseBody>
+  ): Response<NextDnsMutationResponse>
 
   @PATCH("profiles/{profileId}/parentalControl/services/{serviceId}")
   suspend fun updateParentalService(
@@ -511,20 +604,22 @@ interface NextDnsApiService {
     @Path("profileId") profileId: String,
     @Path("serviceId") serviceId: String,
     @Body body: ParentalActiveRequest
-  ): Response<ResponseBody>
+  ): Response<NextDnsMutationResponse>
 
   @DELETE("profiles/{profileId}/parentalControl/services/{serviceId}")
   suspend fun removeParentalService(
     @Header("X-Api-Key") apiKey: String,
     @Path("profileId") profileId: String,
     @Path("serviceId") serviceId: String
-  ): Response<ResponseBody>
+  ): Response<NextDnsMutationResponse>
 
   // Denylist
   @GET("profiles/{profileId}/denylist")
   suspend fun getDenylist(
     @Header("X-Api-Key") apiKey: String,
-    @Path("profileId") profileId: String
+    @Path("profileId") profileId: String,
+    @Query("limit") limit: Int? = null,
+    @Query("cursor") cursor: String? = null
   ): Response<NextDnsApiResponse<List<AllowDenyRuleDto>>>
 
   @POST("profiles/{profileId}/denylist")
@@ -532,7 +627,7 @@ interface NextDnsApiService {
     @Header("X-Api-Key") apiKey: String,
     @Path("profileId") profileId: String,
     @Body body: AllowDenyItemRequest
-  ): Response<ResponseBody>
+  ): Response<NextDnsMutationResponse>
 
   @PATCH("profiles/{profileId}/denylist/{domain}")
   suspend fun toggleDenylist(
@@ -540,20 +635,22 @@ interface NextDnsApiService {
     @Path("profileId") profileId: String,
     @Path("domain") domain: String,
     @Body body: AllowDenyActiveRequest
-  ): Response<ResponseBody>
+  ): Response<NextDnsMutationResponse>
 
   @DELETE("profiles/{profileId}/denylist/{domain}")
   suspend fun removeDenylist(
     @Header("X-Api-Key") apiKey: String,
     @Path("profileId") profileId: String,
     @Path("domain") domain: String
-  ): Response<ResponseBody>
+  ): Response<NextDnsMutationResponse>
 
   // Allowlist
   @GET("profiles/{profileId}/allowlist")
   suspend fun getAllowlist(
     @Header("X-Api-Key") apiKey: String,
-    @Path("profileId") profileId: String
+    @Path("profileId") profileId: String,
+    @Query("limit") limit: Int? = null,
+    @Query("cursor") cursor: String? = null
   ): Response<NextDnsApiResponse<List<AllowDenyRuleDto>>>
 
   @POST("profiles/{profileId}/allowlist")
@@ -561,7 +658,7 @@ interface NextDnsApiService {
     @Header("X-Api-Key") apiKey: String,
     @Path("profileId") profileId: String,
     @Body body: AllowDenyItemRequest
-  ): Response<ResponseBody>
+  ): Response<NextDnsMutationResponse>
 
   @PATCH("profiles/{profileId}/allowlist/{domain}")
   suspend fun toggleAllowlist(
@@ -569,14 +666,14 @@ interface NextDnsApiService {
     @Path("profileId") profileId: String,
     @Path("domain") domain: String,
     @Body body: AllowDenyActiveRequest
-  ): Response<ResponseBody>
+  ): Response<NextDnsMutationResponse>
 
   @DELETE("profiles/{profileId}/allowlist/{domain}")
   suspend fun removeAllowlist(
     @Header("X-Api-Key") apiKey: String,
     @Path("profileId") profileId: String,
     @Path("domain") domain: String
-  ): Response<ResponseBody>
+  ): Response<NextDnsMutationResponse>
 
   // Logs
   @Streaming
@@ -596,15 +693,24 @@ interface NextDnsApiService {
     @Query("device") device: String? = null,
     @Query("status") status: String? = null,
     @Query("from") from: String? = null,
-    @Query("before") before: String? = null,
+    @Query("to") to: String? = null,
+    @Query("sort") sort: String? = null,
+    @Query("cursor") cursor: String? = null,
     @Query("raw") raw: Int? = 1
   ): Response<NextDnsApiResponse<List<DnsLogDto>>>
+
+  @GET("profiles/{profileId}/logs/download")
+  suspend fun getLogsDownloadLink(
+    @Header("X-Api-Key") apiKey: String,
+    @Path("profileId") profileId: String,
+    @Query("redirect") redirect: Int = 0
+  ): Response<ResponseBody>
 
   @DELETE("profiles/{profileId}/logs")
   suspend fun clearLogs(
     @Header("X-Api-Key") apiKey: String,
     @Path("profileId") profileId: String
-  ): Response<ResponseBody>
+  ): Response<NextDnsMutationResponse>
 
   // Analytics
   @GET("profiles/{profileId}/analytics/status")
@@ -612,7 +718,10 @@ interface NextDnsApiService {
     @Header("X-Api-Key") apiKey: String,
     @Path("profileId") profileId: String,
     @Query("device") device: String? = null,
-    @Query("from") from: String? = null
+    @Query("from") from: String? = null,
+    @Query("to") to: String? = null,
+    @Query("limit") limit: Int? = null,
+    @Query("cursor") cursor: String? = null
   ): Response<NextDnsApiResponse<List<AnalyticsStatusItem>>>
 
   @GET("profiles/{profileId}/analytics/devices")
@@ -620,7 +729,10 @@ interface NextDnsApiService {
     @Header("X-Api-Key") apiKey: String,
     @Path("profileId") profileId: String,
     @Query("device") device: String? = null,
-    @Query("from") from: String? = null
+    @Query("from") from: String? = null,
+    @Query("to") to: String? = null,
+    @Query("limit") limit: Int? = null,
+    @Query("cursor") cursor: String? = null
   ): Response<NextDnsApiResponse<List<AnalyticsDeviceItem>>>
 
   @GET("profiles/{profileId}/analytics/domains")
@@ -629,7 +741,11 @@ interface NextDnsApiService {
     @Path("profileId") profileId: String,
     @Query("device") device: String? = null,
     @Query("from") from: String? = null,
-    @Query("status") status: String? = null
+    @Query("status") status: String? = null,
+    @Query("root") root: Boolean? = null,
+    @Query("to") to: String? = null,
+    @Query("limit") limit: Int? = null,
+    @Query("cursor") cursor: String? = null
   ): Response<NextDnsApiResponse<List<AnalyticsDomainItem>>>
 
   @GET("profiles/{profileId}/analytics/reasons")
@@ -637,7 +753,10 @@ interface NextDnsApiService {
     @Header("X-Api-Key") apiKey: String,
     @Path("profileId") profileId: String,
     @Query("device") device: String? = null,
-    @Query("from") from: String? = null
+    @Query("from") from: String? = null,
+    @Query("to") to: String? = null,
+    @Query("limit") limit: Int? = null,
+    @Query("cursor") cursor: String? = null
   ): Response<NextDnsApiResponse<List<AnalyticsReasonItem>>>
 
   
@@ -655,7 +774,10 @@ interface NextDnsApiService {
     @Path("profileId") profileId: String,
     @Query("device") device: String? = null,
     @Query("from") from: String? = null,
-    @Query("type") type: String? = null
+    @Query("type") type: String? = null,
+    @Query("to") to: String? = null,
+    @Query("limit") limit: Int? = null,
+    @Query("cursor") cursor: String? = null
   ): Response<NextDnsApiResponse<List<AnalyticsItemDto>>>
 
   @GET("profiles/{profileId}/analytics/dnssec")
@@ -663,7 +785,10 @@ interface NextDnsApiService {
     @Header("X-Api-Key") apiKey: String,
     @Path("profileId") profileId: String,
     @Query("device") device: String? = null,
-    @Query("from") from: String? = null
+    @Query("from") from: String? = null,
+    @Query("to") to: String? = null,
+    @Query("limit") limit: Int? = null,
+    @Query("cursor") cursor: String? = null
   ): Response<NextDnsApiResponse<List<AnalyticsItemDto>>>
 
   @GET("profiles/{profileId}/analytics/encryption")
@@ -671,7 +796,10 @@ interface NextDnsApiService {
     @Header("X-Api-Key") apiKey: String,
     @Path("profileId") profileId: String,
     @Query("device") device: String? = null,
-    @Query("from") from: String? = null
+    @Query("from") from: String? = null,
+    @Query("to") to: String? = null,
+    @Query("limit") limit: Int? = null,
+    @Query("cursor") cursor: String? = null
   ): Response<NextDnsApiResponse<List<AnalyticsItemDto>>>
 
   @GET("profiles/{profileId}/analytics/protocols")
@@ -679,8 +807,44 @@ interface NextDnsApiService {
     @Header("X-Api-Key") apiKey: String,
     @Path("profileId") profileId: String,
     @Query("device") device: String? = null,
-    @Query("from") from: String? = null
+    @Query("from") from: String? = null,
+    @Query("to") to: String? = null,
+    @Query("limit") limit: Int? = null,
+    @Query("cursor") cursor: String? = null
   ): Response<NextDnsApiResponse<List<AnalyticsProtocolItem>>>
+
+  @GET("profiles/{profileId}/analytics/ips")
+  suspend fun getAnalyticsIps(
+    @Header("X-Api-Key") apiKey: String,
+    @Path("profileId") profileId: String,
+    @Query("device") device: String? = null,
+    @Query("from") from: String? = null,
+    @Query("to") to: String? = null,
+    @Query("limit") limit: Int? = null,
+    @Query("cursor") cursor: String? = null
+  ): Response<NextDnsApiResponse<List<AnalyticsIpItem>>>
+
+  @GET("profiles/{profileId}/analytics/queryTypes")
+  suspend fun getAnalyticsQueryTypes(
+    @Header("X-Api-Key") apiKey: String,
+    @Path("profileId") profileId: String,
+    @Query("device") device: String? = null,
+    @Query("from") from: String? = null,
+    @Query("to") to: String? = null,
+    @Query("limit") limit: Int? = null,
+    @Query("cursor") cursor: String? = null
+  ): Response<NextDnsApiResponse<List<AnalyticsQueryTypeItem>>>
+
+  @GET("profiles/{profileId}/analytics/ipVersions")
+  suspend fun getAnalyticsIpVersions(
+    @Header("X-Api-Key") apiKey: String,
+    @Path("profileId") profileId: String,
+    @Query("device") device: String? = null,
+    @Query("from") from: String? = null,
+    @Query("to") to: String? = null,
+    @Query("limit") limit: Int? = null,
+    @Query("cursor") cursor: String? = null
+  ): Response<NextDnsApiResponse<List<AnalyticsIpVersionItem>>>
 
   // Settings
   @GET("profiles/{profileId}/settings")
@@ -694,28 +858,28 @@ interface NextDnsApiService {
     @Header("X-Api-Key") apiKey: String,
     @Path("profileId") profileId: String,
     @Body body: SettingsUpdateRequest
-  ): Response<ResponseBody>
+  ): Response<NextDnsMutationResponse>
 
   @PATCH("profiles/{profileId}/settings/performance")
   suspend fun updateSettingsPerformance(
     @Header("X-Api-Key") apiKey: String,
     @Path("profileId") profileId: String,
     @Body body: SettingsPerformanceUpdateRequest
-  ): Response<ResponseBody>
+  ): Response<NextDnsMutationResponse>
 
   @PATCH("profiles/{profileId}/settings/logs")
   suspend fun updateSettingsLogs(
     @Header("X-Api-Key") apiKey: String,
     @Path("profileId") profileId: String,
     @Body body: SettingsLogsUpdateRequest
-  ): Response<ResponseBody>
+  ): Response<NextDnsMutationResponse>
 
   @PATCH("profiles/{profileId}/settings/blockPage")
   suspend fun updateSettingsBlockPage(
     @Header("X-Api-Key") apiKey: String,
     @Path("profileId") profileId: String,
     @Body body: SettingsBlockPageUpdateRequest
-  ): Response<ResponseBody>
+  ): Response<NextDnsMutationResponse>
 }
 
 interface NextDnsTestService {
@@ -728,10 +892,17 @@ object NextDnsNetworkClient {
   private const val TEST_URL = "https://test.nextdns.io/"
 
   private val logging = HttpLoggingInterceptor().apply {
-    level = HttpLoggingInterceptor.Level.BASIC
+    redactHeader("X-Api-Key")
+    level = if (BuildConfig.DEBUG) {
+      HttpLoggingInterceptor.Level.BASIC
+    } else {
+      HttpLoggingInterceptor.Level.NONE
+    }
   }
 
   val client = OkHttpClient.Builder()
+    .followRedirects(false)
+    .followSslRedirects(false)
     .addInterceptor { chain ->
       val original = chain.request()
       val request = original.newBuilder()
@@ -742,6 +913,11 @@ object NextDnsNetworkClient {
     .addInterceptor(logging)
     .connectTimeout(15, TimeUnit.SECONDS)
     .readTimeout(15, TimeUnit.SECONDS)
+    .build()
+
+  val publicDownloadClient: OkHttpClient = OkHttpClient.Builder()
+    .connectTimeout(15, TimeUnit.SECONDS)
+    .readTimeout(60, TimeUnit.SECONDS)
     .build()
 
   val moshi = Moshi.Builder()
