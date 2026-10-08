@@ -4,7 +4,7 @@
 
 ## 1. Privacy Policy — çerçeve
 
-**Başlık:** [UYGULAMA ADI] Gizlilik Politikası
+**Başlık:** [FINAL APP NAME] Privacy Policy (**English only — approved initial document language**)
 
 **Geliştirici / sorumlu:** [DOĞRULANMIŞ GERÇEK GELİŞTİRİCİ ADI]  
 **İletişim ve talepler:** [GERÇEK DESTEK E-POSTASI/URL]  
@@ -43,14 +43,24 @@ Google Play'in Data Safety beyanı, **uygulamanın gerçekten topladığı ve pa
 ## 3. Kullanım Şartları — taslak başlıkları
 
 1. Bağımsız uygulama niteliği / NextDNS ile resmî bağlantı iddiası yok (izin sonrasında gerekirse tam onaylı dil).
-2. Kullanıcı yalnız kendi yetkili NextDNS API anahtarını ve hesabını kullanır; abonelik NextDNS üzerinden yönetilir.
+2. Kullanıcı için uygulamaya özgü **kendi hesabı** şartı getirilmez; kullanıcı NextDNS hizmet koşullarına ve yürürlükteki hukuka uymakla yükümlüdür. Başkalarının hesaplarına yetkisiz erişim meşru kabul edilmez. Abonelik NextDNS üzerinden yönetilir.
 3. NextDNS servisinin müsaitliği/API değişiklikleri uygulamanın kontrolü dışındadır; sunucu sonuçlarının doğrulanması esastır.
 4. Geçerli hukuk çerçevesinde hata bildirimi, sürüm desteği ve sorumluluk koşulları.
 5. Yerel veri temizliği, API key iptali, NextDNS sunucu verisi sahipliği.
 6. İletişim, yürürlük ve değişiklik duyuruları.
 7. Reklam ve satın alma ilk sürümde yok; sonradan eklenirse açıkça güncellenecek.
 
-## 4. Açık yayın maddeleri
+## 4. Altı kesinleşmiş ürün kararı (8 Ekim 2026)
+
+- Kullanım Koşullarının ilk açılışta **işaretlenmeyen zorunlu kabul kutusu** ile açık kabulü; belgelerin okunabilmesi için bağlantılar.
+- **Önemli Terms değişikliklerinde** yeniden kabul; önemsiz yazım değişikliklerinde gerekmez.
+- Genel kullanıcı kitlesi, çocukları özellikle hedeflemez.
+- NextDNS hizmet koşullarına ve hukuka uyulmasını şart koşar; ayrıca yalnız kendi hesabına erişim kısıtı koymaz.
+- Logout: API key, yerel hesap/önbellek ve bildirim ayarları/görevleri silinir; tema korunabilir. NextDNS sunucu verileri ve dışa aktarılmış kullanıcı dosyaları etkilenmez.
+- Terms of Use ve Privacy Policy tam metinleri **yalnızca İngilizce**; ülke bazlı mevzuatın ayrıca bilgilendirme/yerel dil gereklilikleri yayın kapısıdır.
+- **Ayrıntılı teknik plan ve kabul testleri:** [TERMS_PRIVACY_IMPLEMENTATION_PLAN.md](TERMS_PRIVACY_IMPLEMENTATION_PLAN.md).
+
+## 5. Açık yayın maddeleri
 
 - [ ] Geliştirici adı, destek e-postası ve privacy URL doğrulandı (Play listede geliştirici/uygulama adı eşleşiyor).
 - [ ] Gerçek uygulama mağaza başlığı ve logo/NextDNS izni çözülmüş.
