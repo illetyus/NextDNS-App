@@ -3,7 +3,7 @@ DRAFT — LEGAL REVIEW AND DEVELOPER IDENTITY PENDING — DO NOT PUBLISH
 EN — Terms of Use
 
 ### 1. Legal character and independence
-[FINAL APPLICATION NAME] (the "Application") is an independently developed, unofficial third-party software client intended to facilitate access to selected NextDNS account and configuration management functions through the NextDNS application programming interface (API). The Application is not affiliated with, representative of, sponsored, endorsed or officially supported by NextDNS.
+Open Source Client for NextDNS (the "Application") is an independently developed, unofficial third-party software client intended to facilitate access to selected NextDNS account and configuration management functions through the NextDNS application programming interface (API). The Application is not affiliated with, representative of, sponsored, endorsed or officially supported by NextDNS.
 
 ### 2. Scope of functionality
 The Application provides an interface for viewing or managing profiles, configuration settings, security and privacy preferences, allow and deny rules, logs and analytics made available through the NextDNS API. It does not operate DNS resolution infrastructure, provide a VPN, sell NextDNS subscriptions or independently supply DNS services.
