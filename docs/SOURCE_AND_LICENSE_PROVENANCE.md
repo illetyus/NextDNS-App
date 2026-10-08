@@ -1,12 +1,13 @@
 # Faz 8 — Kaynak kökeni ve üçüncü taraf lisans envanteri
 
-**Durum:** İnceleme ön envanteri; *nihai açık kaynak lisans onayı değildir*. Tarih: 2026-10-08. İncelenen ref: `phase7-ci-quality@16256c86`.
+**Durum:** Apache-2.0 lisans seçimi uygulandı; üretim bağımlılıkları ve marka/görsel incelemesi bekliyor. Tarih: 2026-10-08. İncelenen kaynak: `phase7-ci-quality@16256c86`; belgelendirme dalı `phase8-compliance`.
 
 ## 1. Doğrudan kod kökeni
 
 - Kullanıcı deposu: https://github.com/illetyus/NextDNS-App
 - İlk `main` commit tarihi: **31 Ağustos 2026** (`7e3bfae`); Faz 7 geliştirmeleri ayrı PR/dallarda.
-- Bu ağaçta kök `LICENSE`, `NOTICE`, `README` veya üçüncü taraf lisans bildirimi yok.
+- Faz 8 öncesinde kök `LICENSE`, `NOTICE`, `README` yoktu. **Faz 8 dalında artık resmî Apache-2.0 `LICENSE`, `NOTICE` ve bağımsızlık/gizlilik konulu `README.md` bulunuyor.**
+- **Geliştiricinin beyanı (8 Ekim 2026):** İlk uygulama kaynakları AI araçlarıyla sıfırdan üretildi; başka projelerden kod veya görsel alınmadı; başka hak sahibi veya katkıcı bulunmuyor; lisans tercihi **Apache-2.0**. Bu beyan, otomatik telif/benzerlik denetimi veya gelecekteki marka onayının yerine geçmez.
 - Referans proje: https://github.com/doubleangels/nextdnsmanager — GPL-3.0; çoğunlukla `app/src/main/java/com/doubleangels/nextdnsmanagement/` altında Java ve WebView uygulaması.
 - Bizim uygulama `app/src/main/java/com/example/` altında Kotlin, Jetpack Compose, Retrofit/OkHttp/NextDNS API yapısı kullanıyor.
 - **Mimari ve dosya adı farklılığı tek başına kopyalama/türetme olmadığının kanıtı değildir.** Bu aşamada birebir kaynak kökeni kesinleştirilmedi. İkon, görseller, XML, UI metinleri, örnek kod ve başlangıçta içe aktarılmış kod da inceleme kapsamındadır.
@@ -18,7 +19,7 @@
 3. Referans NextDNS Manager'ın Java ve XML varlıklarıyla **anlamlı parça eşleşmeleri** (salt ortak REST yol adları değil) ve görsel tasarım karşılaştırması yap.
 4. Kod, XML, ikon, font, ekran görüntüsü veya şablon için köken, orijinal lisans, varsa değişiklik ve atıf kaydı tut.
 5. Eğer GPLv3 eserinden telif kapsamına giren kod/görsel uyarlaması tespit edilirse lisans yükümlülüklerini değerlendir ve uygun lisans/kaynak paylaşımı olmadan APK yayımlama.
-6. Bağımsız özgün eser olduğu belgelendirilirse telif sahibinin onayıyla Apache-2.0, MIT veya diğer seçilen lisans metnini ekle. Bir `LICENSE` eklemek marka/IP izinlerini vermez.
+6. Hak sahibinin beyan edilen tercihiyle özgün uygulama kodu/belgeleri için değiştirilmemiş Apache-2.0 lisans metni köke **eklendi** (SPDX resmi kayıt ile karşılaştırıldı). Bu adım görsel/marka hakkı veya GPL türetim ihtimalini çözmez; somut ihlal bulgusu olursa giderilmeden yayın yapılmaz.
 7. Nihai bağımlılık raporu için üretim varyantının **resolved runtime dependency tree**, AAR/JAR ve POM lisans bilgileri ve transitif lisansları çıkar. Sadece `libs.versions.toml` listesi yeterli değildir.
 
 ## 3. İncelenen doğrudan bileşen aileleri
@@ -35,8 +36,8 @@ Aşağıdakiler kullanılan sürüm/üretim artifact metadatasına karşı **tek
 | Robolectric | JVM Android testleri | https://github.com/robolectric/robolectric , kesin artifact/lisans kaydı hazırlanmalı | Teyit |
 | JaCoCo | CI kapsam raporu | EPL-2.0, https://github.com/jacoco/jacoco | Özellikle yalnız geliştirme aracı mı dağıtılan yapıya giriyor mu doğrula |
 | Gradle, Android Gradle Plugin, KSP | Build araçları | Her aracın ilgili kaynak/POM lisansı incelenecek | Teyit |
-| NextDNS API | Haricî servis, dağıtılan açık kaynak kütüphane değil | Kullanım izni/şartları hizmet sağlayıcıdan netleştirilecek | Yayın engeli |
-| NextDNS Manager | **Doğrudan Gradle bağımlılığı değil**; olası kaynak/vaka inceleme hedefi | GPL-3.0, https://github.com/doubleangels/nextdnsmanager/blob/main/LICENSE | Provenance kapanmadan lisans seçimi yok |
+| NextDNS API | Haricî servis, dağıtılan açık kaynak kütüphane değil | Kamuya açık API dokümanı ve geçerli kullanım şartları kontrol edilmeli; yazılı ön izin her bağımsız istemci için otomatik zorunlu sayılmaz | Politika kontrolü |
+| NextDNS Manager | **Doğrudan Gradle bağımlılığı değil**; olası kaynak/vaka inceleme hedefi | GPL-3.0, https://github.com/doubleangels/nextdnsmanager/blob/main/LICENSE | Apache-2.0 seçildi; önemli parça kopyalanmadığı teyidi son kontrolde kalır |
 
 ## 4. Üretim dağıtımını ilgilendiren ayrım
 
@@ -51,6 +52,7 @@ Aşağıdakiler kullanılan sürüm/üretim artifact metadatasına karşı **tek
 - [ ] NextDNS Manager veya diğer GPL eserinden alıntı/türetim var mı belgeyle karara bağlandı.
 - [ ] Üretim variantının tam transitive SBOM/lisans tablosu üretildi.
 - [ ] Şartları gerektiren tüm lisans/NOTICE'lar eklendi ve final APK ile dağıtım kanalı doğrulandı.
-- [ ] Projeye yalnız onay sonrasında kök `LICENSE` kondu.
+- [x] Projenin özgün kod/belgeleri için değiştirilmemiş Apache-2.0 lisans metni, `LICENSE` ve proje `NOTICE`/`README` eklendi.
+- [ ] Üretimden önce NextDNS markasıyla karıştırılabilecek mevcut launcher görselleri özgün tasarımla değiştirildi veya haklar doğrulandı.
 
 **Kaynak:** https://www.gnu.org/licenses/gpl-faq.en.html ve https://www.gnu.org/licenses/gpl.en.html
