@@ -62,7 +62,7 @@ class NotificationPolicyTest {
     assertEquals(
       "2026-281",
       NotificationPolicy.localDayKey(
-        epochMillis = 1_759_968_000_000L,
+        epochMillis = 1_791_417_600_000L,
         timeZone = utc
       )
     )
