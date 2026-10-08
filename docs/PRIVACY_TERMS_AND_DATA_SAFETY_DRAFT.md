@@ -44,7 +44,7 @@ Google Play'in Data Safety beyanı, **uygulamanın gerçekten topladığı ve pa
 
 1. Bağımsız uygulama niteliği / NextDNS ile resmî bağlantı iddiası yok (izin sonrasında gerekirse tam onaylı dil).
 2. Kullanıcı için uygulamaya özgü **kendi hesabı** şartı getirilmez; kullanıcı NextDNS hizmet koşullarına ve yürürlükteki hukuka uymakla yükümlüdür. Başkalarının hesaplarına yetkisiz erişim meşru kabul edilmez. Abonelik NextDNS üzerinden yönetilir.
-3. NextDNS servisinin müsaitliği/API değişiklikleri uygulamanın kontrolü dışındadır; sunucu sonuçlarının doğrulanması esastır.
+3. NextDNS API/hizmetindeki sürüm değişikliği, kesinti, yeni kullanım sınırı, kimlik doğrulama veya yanıt biçimi değişikliği uygulamada bağlantı hatası, uyumsuzluk, eksik/eskimiş görüntüleme ya da geçici/kalıcı işlev kaybı yaratabilir. NextDNS kaynaklı sorunlarda geliştiricinin kontrol alanı bulunmadığı açıklanır; hatalı/verisi belirsiz server sonucu sahte başarı olarak gösterilmez.
 4. Geçerli hukuk çerçevesinde hata bildirimi, sürüm desteği ve sorumluluk koşulları.
 5. Yerel veri temizliği, API key iptali, NextDNS sunucu verisi sahipliği.
 6. İletişim, yürürlük ve değişiklik duyuruları.
