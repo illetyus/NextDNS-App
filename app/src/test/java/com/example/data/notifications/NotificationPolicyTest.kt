@@ -57,6 +57,35 @@ class NotificationPolicyTest {
   }
 
   @Test
+  fun localMutationSuppression_isBoundedAndExpires() {
+    val now = 1_000_000L
+    val until = NotificationPolicy.localMutationSuppressionUntil(now)
+
+    assertEquals(
+      NotificationPolicy.LOCAL_MUTATION_SUPPRESSION_MS,
+      until - now
+    )
+    assertTrue(
+      NotificationPolicy.isLocalMutationSuppressed(
+        suppressUntil = until,
+        now = until - 1L
+      )
+    )
+    assertFalse(
+      NotificationPolicy.isLocalMutationSuppressed(
+        suppressUntil = until,
+        now = until
+      )
+    )
+  }
+
+  @Test
+  fun periodicBackgroundInterval_staysAboveWorkManagerMinimum() {
+    assertTrue(NotificationPolicy.PERIODIC_INTERVAL_MINUTES >= 15L)
+    assertEquals(30L, NotificationPolicy.PERIODIC_INTERVAL_MINUTES)
+  }
+
+  @Test
   fun dayKeyIsStableForExplicitTimezone() {
     val utc = TimeZone.getTimeZone("UTC")
     assertEquals(
