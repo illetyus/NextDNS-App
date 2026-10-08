@@ -94,6 +94,10 @@ jobs:
         run: bash scripts/verify_release_dependencies.sh
         shell: bash
 
+      - name: Record actual package, manifest and signature evidence
+        run: python3 scripts/record_package_evidence.py
+        shell: bash
+
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@303a32d7a59b442fa8d48b6a1cc6825c09c847a5 # v7.1.1
         with:
