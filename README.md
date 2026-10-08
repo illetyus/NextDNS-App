@@ -18,8 +18,25 @@ NextDNS account through the [documented NextDNS API](https://nextdns.github.io/a
 - Adaptive Android user interface built with Kotlin and Jetpack Compose.
 
 The project is an **account-management client**, not a replacement DNS resolver,
-VPN service, or NextDNS subscription. You must use your own NextDNS account and
-API key. Service availability and supported API operations depend on NextDNS.
+VPN service, or NextDNS subscription. The user supplies the NextDNS API key needed for a permitted account connection
+and must comply with NextDNS's service terms and applicable law. This app does not
+add a separate requirement that the connected account be owned by the device user.
+Service availability and supported API operations depend on NextDNS.
+
+
+## Independent service responsibilities
+
+NextDNS independently operates its DNS service, remote infrastructure, accounts,
+subscriptions, API and server-side data handling. This client does not control
+those services and is not sponsored, endorsed or officially supported by NextDNS.
+The app developer nevertheless remains responsible for the app's own code,
+security, on-device data handling, API requests and accurate disclosures to the
+extent required by applicable law. This distinction is not a blanket waiver of
+legal obligations.
+
+Our [independent-client and Google Play disclosure plan](docs/INDEPENDENT_CLIENT_AND_GOOGLE_PLAY_DISCLOSURE_PLAN.md)
+tracks required product wording, privacy declarations, Google/API integrations,
+Play review access, and checks that must pass before publication.
 
 ## Privacy architecture
 
