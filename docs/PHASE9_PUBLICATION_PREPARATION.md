@@ -10,4 +10,6 @@ Debug APK + androidTest APK hazırlandığında SHA-256 ve commit, gerçek cihaz
 
 `python3 scripts/verify_publication_ready.py --draft` yalnız hazırlık şemasını denetler. Parametresiz kontrol; DRAFT hukuk, son yayıncı incelemesi, imza/lisans inceleme kaydı, gerçek cihaz sonuçları ve Play internal/closed/prelaunch/Data safety kanıtları tamamlanmadan başarısız olur. Bu script Play'e dosya göndermez veya yayın başlatmaz.
 
+Aday kayıtlarında üretim imzalı APK/AAB ile instrumentation'a uygun debug APK ve test APK'sının hash'leri ayrı tutulur. App Automate kanıtı debug/test çiftine, App Live kanıtı üretim imzalı APK'ya bağlanır; ikisi aynı kaynak commit'inden gelir. B14 ayrıca gerçek üretim imzalı APK kanıtı içerir. Debug test sonucunu imzalı paket sonucu gibi göstermek veya sonradan derlenmiş farklı commit'i aynı aday saymak kapıyı geçirmez.
+
 İngilizce Privacy Policy için nihai kamuya açık HTTPS adresi hâlâ doğrulanmamıştır. Data safety formu, üçüncü tarafa gönderilen API istekleri ile yerel verileri son paket trafiğinden ayıran incelemeyle hazırlanacaktır; taslak belgeler otomatik biçimde form beyanına dönüştürülmez. [Google Data safety açıklaması](https://support.google.com/googleplay/android-developer/answer/10787469?hl=en).

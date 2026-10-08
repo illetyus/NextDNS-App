@@ -29,15 +29,24 @@ subprocess.run([sys.executable,str(root/'scripts/verify_legal_assets.py'),'--rel
 assert readiness['status']=='APPROVED' and readiness['publisherReview'],'Final publisher review is pending'
 candidate=readiness['releaseCandidate']
 assert candidate and re.fullmatch('[a-f0-9]{40}',candidate['commit'])
-for key in ('apkSha256','aabSha256'): assert re.fullmatch('[a-f0-9]{64}',candidate[key])
+for key in ('apkSha256','aabSha256','instrumentedApkSha256','testSuiteSha256'):
+ assert re.fullmatch('[a-f0-9]{64}',candidate[key])
 assert readiness['productionSigningApproval'] and readiness['licenseApproval']
 browserstack=readiness['browserstack']
 assert browserstack['appLiveSession'] and browserstack['appAutomateBuild'],'BrowserStack lanes have not both completed'
+for lane,apk_key in (('appLiveSession','apkSha256'),('appAutomateBuild','instrumentedApkSha256')):
+ evidence=browserstack[lane]
+ assert evidence['commit']==candidate['commit'] and evidence['apkSha256']==candidate[apk_key]
+ assert evidence['url'].startswith('https://')
+assert browserstack['appAutomateBuild']['testSuiteSha256']==candidate['testSuiteSha256']
 for case in cases:
  assert case['status']=='PASS' and case['evidence'],f'{case["id"]} has not passed'
  for evidence in case['evidence']:
-  assert evidence['commit']==candidate['commit'] and evidence['apkSha256']==candidate['apkSha256']
+  assert evidence['commit']==candidate['commit']
+  assert evidence['apkSha256'] in (candidate['apkSha256'],candidate['instrumentedApkSha256'])
   assert evidence['url'].startswith('https://') and evidence['device'] and evidence['androidVersion']
+equivalence=next(case for case in cases if case['id']=='B14')
+assert any(e['apkSha256']==candidate['apkSha256'] for e in equivalence['evidence']),'B14 lacks actual production-signed APK evidence'
 for field in ('internalTest','closedTest','prelaunchReport','dataSafetyApproval'):
  assert readiness['play'][field],f'Play evidence pending: {field}'
 print('Publication evidence structure is complete; no upload or rollout is performed by this script.')
