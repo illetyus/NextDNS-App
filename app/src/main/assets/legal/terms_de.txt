@@ -1,4 +1,5 @@
 DRAFT — LEGAL REVIEW AND DEVELOPER IDENTITY PENDING — DO NOT PUBLISH
+Revision: terms-2026-10-DRAFT-2
 
 DE — Nutzungsbedingungen
 
@@ -38,4 +39,4 @@ Die Annahme dieser Bedingungen erfolgt bei der erstmaligen Nutzung durch eine ge
 ### 12. Inkrafttreten, Kontakt und anwendbare Vorschriften
 Das Datum des Inkrafttretens sowie die verifizierte rechtliche Identität des Herausgebers und seine Kontaktangaben sind vor der Veröffentlichung einzutragen. Zuständigkeits- und länderspezifische Bestimmungen bedürfen einer gesonderten rechtlichen Prüfung vor der Freigabe.
 
----
+Der originäre Quellcode der Anwendung wird unter Apache-2.0 bereitgestellt. Soweit das anwendbare Recht dies zulässt, wird die Software in ihrem bestehenden Zustand ohne zusätzliche Garantie oder Zusage ununterbrochener Verfügbarkeit bereitgestellt. Diese Bedingungen beseitigen weder Rechte aus Apache-2.0 noch zwingende gesetzliche Bestimmungen.
