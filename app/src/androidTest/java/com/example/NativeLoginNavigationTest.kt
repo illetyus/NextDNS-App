@@ -1,0 +1,51 @@
+package com.example
+
+import android.content.Context
+import android.view.WindowManager
+import androidx.test.core.app.ActivityScenario
+import androidx.test.ext.junit.runners.AndroidJUnit4
+import androidx.test.platform.app.InstrumentationRegistry
+import androidx.compose.ui.test.*
+import androidx.compose.ui.test.junit4.createEmptyComposeRule
+import com.example.data.legal.LegalAcceptanceStore
+import org.junit.Assert.*
+import org.junit.Rule
+import org.junit.Test
+import org.junit.runner.RunWith
+
+/** Run only against a disposable test installation; never enter a real API key. */
+@RunWith(AndroidJUnit4::class)
+class NativeLoginNavigationTest {
+  @get:Rule val rule = createEmptyComposeRule()
+
+  @Test fun freshInstallRequiresExplicitTermsBeforeGuestNavigation() {
+    val context = InstrumentationRegistry.getInstrumentation().targetContext
+    assertTrue(context.getSharedPreferences("legal_acceptance", Context.MODE_PRIVATE).edit().clear().commit())
+    assertTrue(context.getSharedPreferences("nextdns_secure_prefs", Context.MODE_PRIVATE).edit().clear().commit())
+    val acceptance = LegalAcceptanceStore(context)
+    ActivityScenario.launch(MainActivity::class.java).use { scenario ->
+      rule.onNodeWithTag("welcome_accept_checkbox").assertIsOff()
+      rule.onNodeWithTag("welcome_continue").assertIsNotEnabled()
+      rule.onAllNodesWithTag("login_guest").assertCountEquals(0)
+      rule.onNodeWithTag("welcome_privacy").performClick()
+      rule.runOnIdle { assertFalse(acceptance.isAccepted()) }
+      rule.onNodeWithTag("welcome_continue").assertIsNotEnabled()
+      rule.onNodeWithTag("welcome_terms").performClick()
+      rule.onNodeWithTag("welcome_accept_checkbox").performClick()
+      rule.onNodeWithTag("welcome_continue").performClick()
+      rule.waitUntil(20_000) { rule.onAllNodesWithTag("login_guest").fetchSemanticsNodes().isNotEmpty() }
+      rule.runOnIdle { assertTrue(acceptance.isAccepted()) }
+      rule.onNodeWithTag("login_submit").assertIsNotEnabled()
+      scenario.onActivity { assertTrue(it.window.attributes.flags and WindowManager.LayoutParams.FLAG_SECURE != 0) }
+      rule.onNodeWithTag("login_guest").performScrollTo().performClick()
+      val settingsTags = listOf("tab_settings", "rail_settings", "drawer_settings")
+      rule.waitUntil(20_000) { settingsTags.any { rule.onAllNodesWithTag(it).fetchSemanticsNodes().isNotEmpty() } }
+      val settingsTag = settingsTags.first { rule.onAllNodesWithTag(it).fetchSemanticsNodes().isNotEmpty() }
+      rule.onNodeWithTag(settingsTag).performScrollTo().performClick()
+      rule.onNodeWithTag("legal_privacy_link").performScrollTo().performClick()
+      rule.onNodeWithTag("legal_document_content").assertTextContains("privacy-2026-10-DRAFT-2", substring = true)
+      rule.onNodeWithTag("legal_reader_close").performClick()
+      rule.runOnIdle { assertTrue(acceptance.isAccepted()) }
+    }
+  }
+}

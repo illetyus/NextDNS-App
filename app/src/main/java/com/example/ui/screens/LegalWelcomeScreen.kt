@@ -9,6 +9,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.unit.dp
 import java.util.Locale
 
@@ -92,10 +93,10 @@ fun LegalWelcomeScreen(
     )
 
     Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
-      OutlinedButton(onClick = { selectedTerms = true }, modifier = Modifier.fillMaxWidth()) {
+      OutlinedButton(onClick = { selectedTerms = true }, modifier = Modifier.fillMaxWidth().testTag("welcome_terms")) {
         Text(labels.terms)
       }
-      OutlinedButton(onClick = { selectedTerms = false }, modifier = Modifier.fillMaxWidth()) {
+      OutlinedButton(onClick = { selectedTerms = false }, modifier = Modifier.fillMaxWidth().testTag("welcome_privacy")) {
         Text(labels.privacy)
       }
     }
@@ -121,6 +122,7 @@ fun LegalWelcomeScreen(
 
     Row(verticalAlignment = Alignment.CenterVertically) {
       Checkbox(
+        modifier = Modifier.testTag("welcome_accept_checkbox"),
         checked = checked,
         onCheckedChange = { checked = it; storageError = false },
         enabled = terms != null && privacy != null
@@ -133,7 +135,7 @@ fun LegalWelcomeScreen(
     Button(
       onClick = { if (!onAccept()) storageError = true },
       enabled = checked && terms != null && privacy != null,
-      modifier = Modifier.fillMaxWidth()
+      modifier = Modifier.fillMaxWidth().testTag("welcome_continue")
     ) {
       Text(labels.continueLabel)
     }

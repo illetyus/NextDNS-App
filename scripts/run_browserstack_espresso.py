@@ -9,7 +9,6 @@ import base64
 import hashlib
 import json
 import os
-import subprocess
 import urllib.error
 import urllib.request
 import uuid
@@ -23,6 +22,7 @@ def main():
     parser.add_argument('--app',type=Path)
     parser.add_argument('--test-suite',type=Path)
     parser.add_argument('--devices-file',type=Path)
+    parser.add_argument('--package-evidence',type=Path,help='CI package-evidence.json for exactly these APKs')
     parser.add_argument('--preflight',action='store_true')
     args=parser.parse_args()
     username,key=os.environ.get('BROWSERSTACK_USERNAME'),os.environ.get('BROWSERSTACK_ACCESS_KEY')
@@ -31,8 +31,18 @@ def main():
     if args.preflight:
         print('Credential variables are present; connectivity and execution have not been verified.')
         return
-    for path in (args.app,args.test_suite,args.devices_file):
-        if not path or not path.is_file(): parser.error('Provide existing app, test-suite and selected devices files')
+    for path in (args.app,args.test_suite,args.devices_file,args.package_evidence):
+        if not path or not path.is_file(): parser.error('Provide existing app, test-suite, selected devices and CI package evidence files')
+    package_evidence=json.loads(args.package_evidence.read_text(encoding='utf8'))
+    commit=package_evidence.get('commit','')
+    if len(commit)!=40 or any(c not in '0123456789abcdef' for c in commit):
+        parser.error('Package evidence must identify its actual 40-character CI commit')
+    app_hash=hashlib.sha256(args.app.read_bytes()).hexdigest()
+    suite_hash=hashlib.sha256(args.test_suite.read_bytes()).hexdigest()
+    for kind,digest in (('debug',app_hash),('androidTest',suite_hash)):
+        matches=[p for p in package_evidence.get('packages',[]) if p.get('kind')==kind]
+        if len(matches)!=1 or matches[0].get('sha256')!=digest or matches[0].get('signatureVerified') is not True:
+            parser.error('APK hashes and verified signatures must match the supplied CI package evidence')
     devices=json.loads(args.devices_file.read_text(encoding='utf8'))
     if not isinstance(devices,list) or not devices or not all(isinstance(d,str) and d for d in devices):
         parser.error('devices-file must contain a nonempty JSON list from the actual device catalog')
@@ -53,9 +63,8 @@ def main():
     payload={'app':app['app_url'],'testSuite':suite['test_suite_url'],'devices':devices}
     build=request('build',json.dumps(payload).encode(),'application/json')
     root=Path(__file__).resolve().parents[1]
-    commit=subprocess.run(['git','rev-parse','HEAD'],cwd=root,check=True,capture_output=True,text=True).stdout.strip()
-    evidence={'status':'SUBMITTED','commit':commit,'appSha256':hashlib.sha256(args.app.read_bytes()).hexdigest(),
-        'testSuiteSha256':hashlib.sha256(args.test_suite.read_bytes()).hexdigest(),'devices':devices,
+    evidence={'status':'SUBMITTED','commit':commit,'appSha256':app_hash,
+        'testSuiteSha256':suite_hash,'devices':devices,
         'appUrl':app['app_url'],'testSuiteUrl':suite['test_suite_url'],'buildId':build['build_id']}
     directory=root/'build/browserstack'; directory.mkdir(parents=True,exist_ok=True)
     (directory/'submission.json').write_text(json.dumps(evidence,indent=2)+'\n',encoding='utf8')
