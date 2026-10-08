@@ -52,19 +52,19 @@ class LocaleRenderingTest {
       rule.waitForIdle()
       rule.onNodeWithText("Open Source Client for NextDNS").assertIsDisplayed()
       rule.onNodeWithText(AppStrings.get(R.string.ui_18d49619ba)).assertIsDisplayed()
+      rule.onRoot().captureRoboImage(filePath = "build/outputs/roborazzi/localization/home-$choice.png")
       val connectionTitle = rule.onNodeWithText(AppStrings.get(R.string.ui_5ed3c5cf66), useUnmergedTree = true)
         .assertIsDisplayed()
       val layouts = mutableListOf<TextLayoutResult>()
       connectionTitle.performSemanticsAction(SemanticsActions.GetTextLayoutResult) { it(layouts) }
       val layout = layouts.single()
-      assertFalse("Connection title must fit in $choice", layout.hasVisualOverflow)
+      assertFalse("Connection title must fit in $choice: size=${layout.size}, width=${layout.didOverflowWidth}, height=${layout.didOverflowHeight}", layout.hasVisualOverflow)
       for (line in 0 until layout.lineCount - 1) {
         val end = layout.getLineEnd(line, visibleEnd = true)
         val text = layout.layoutInput.text.text
         assertTrue("Connection title must wrap between words in $choice", end >= text.length ||
           text[end].isWhitespace() || text[end - 1].isWhitespace() || text[end - 1] == '-')
       }
-      rule.onRoot().captureRoboImage(filePath = "build/outputs/roborazzi/localization/home-$choice.png")
     }
   }
 }
