@@ -63,6 +63,10 @@ jobs:
           fi
           exit "$result"
 
+      - name: Draft store metadata and device evidence schema
+        run: python3 scripts/verify_publication_ready.py --draft
+        shell: bash
+
       - name: Unit, Contract, Compose and Screenshot Tests
         run: ./gradlew :app:testDebugUnitTest :app:jacocoTestReport -Proborazzi.test.record=true --no-daemon
         shell: bash

@@ -1,0 +1,10 @@
+Manage your NextDNS profiles from an independent, unofficial Android client.
+
+View and manage security, privacy and parental control settings, allow and deny lists, logs and analytics. Follow setup instructions for Android Private DNS and other supported platforms. This client does not create a VPN or replace the NextDNS DNS service.
+
+Choose English, Turkish, German, French or Spanish, or follow the system language. Notifications are optional. The first release is free and has no ads or in-app purchases.
+
+API requests go directly from your device to NextDNS. There is no developer account/log collection backend. Your own NextDNS API key is needed for account operations. NextDNS account and service arrangements remain separate from this application.
+
+This project is not affiliated with, endorsed by or sponsored by NextDNS. Original application source code is available under Apache-2.0:
+https://github.com/illetyus/open-source-client-for-nextdns

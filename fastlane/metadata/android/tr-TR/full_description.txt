@@ -1,0 +1,10 @@
+NextDNS profillerinizi bağımsız ve gayriresmî bir Android istemcisinden yönetin.
+
+Güvenlik, gizlilik ve ebeveyn denetimi ayarlarını; izin ve engelleme listelerini, günlükleri ve analizleri görüntüleyip yönetin. Android Özel DNS ve desteklenen diğer platformlar için kurulum yönergelerini izleyin. Bu istemci VPN oluşturmaz veya NextDNS DNS hizmetinin yerine geçmez.
+
+Türkçe, İngilizce, Almanca, Fransızca veya İspanyolca seçin ya da sistem dilini kullanın. Bildirimler isteğe bağlıdır. İlk sürüm ücretsizdir; reklam ve uygulama içi satın alma içermez.
+
+API istekleri cihazınızdan doğrudan NextDNS'e gider. Geliştiriciye ait hesap/günlük toplama sunucusu bulunmaz. Hesap işlemleri kendi NextDNS API anahtarınızı gerektirir. NextDNS hesap ve hizmet ilişkisi bu uygulamadan ayrıdır.
+
+Bu proje NextDNS ile bağlantılı değildir; NextDNS tarafından onaylanmış veya desteklenmiş değildir. Özgün uygulama kaynak kodu Apache-2.0 lisansıyla sunulur:
+https://github.com/illetyus/open-source-client-for-nextdns

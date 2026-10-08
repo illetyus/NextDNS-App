@@ -1,0 +1,1 @@
+Cliente Android independiente y no oficial para tu cuenta NextDNS.
