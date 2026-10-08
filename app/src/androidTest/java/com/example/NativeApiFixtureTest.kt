@@ -34,7 +34,9 @@ class NativeApiFixtureTest {
         .build().create(NextDnsApiService::class.java)
       server.enqueue(MockResponse().setBody("""{"data":null}"""))
       val result = api.updateSecurity("synthetic-fixture-key", "fixture-profile", SecurityUpdateRequest(googleSafeBrowsing = false))
-      assertTrue(result.body().isSemanticallySuccessful())
+      assertTrue(result.isSuccessful)
+      assertNotNull(result.body())
+      assertTrue(result.body()?.errors.isNullOrEmpty())
       val request = server.takeRequest(10, TimeUnit.SECONDS)!!
       assertEquals("PATCH", request.method)
       assertEquals("/profiles/fixture-profile/security", request.path)
@@ -42,7 +44,9 @@ class NativeApiFixtureTest {
       assertEquals(setOf("googleSafeBrowsing"), payload.keys().asSequence().toSet())
       assertFalse(payload.getBoolean("googleSafeBrowsing"))
       server.enqueue(MockResponse().setBody("""{"errors":[{"code":"invalid","detail":"Fixture rejection"}]}"""))
-      assertFalse(api.updateSecurity("synthetic-fixture-key", "fixture-profile", SecurityUpdateRequest(googleSafeBrowsing = true)).body().isSemanticallySuccessful())
+      val rejected = api.updateSecurity("synthetic-fixture-key", "fixture-profile", SecurityUpdateRequest(googleSafeBrowsing = true))
+      assertTrue(rejected.isSuccessful)
+      assertFalse(rejected.body()?.errors.isNullOrEmpty())
       server.enqueue(MockResponse().setResponseCode(401))
       assertFalse(api.getProfiles("synthetic-fixture-key").isSuccessful)
     } finally {
