@@ -153,6 +153,7 @@ class NextDnsViewModel(
 
   private var visibleSectionSyncJob: Job? = null
   private var foregroundProfileSyncJob: Job? = null
+  private var authenticationJob: Job? = null
 
   private val _uiMessage = MutableStateFlow<UiMessage?>(null)
   val uiMessage = _uiMessage.asStateFlow()
@@ -291,7 +292,8 @@ class NextDnsViewModel(
 
   fun loginWithApiKey(key: String) {
     if (!repository.termsAccepted()) return
-    viewModelScope.launch {
+    authenticationJob?.cancel()
+    authenticationJob = viewModelScope.launch {
       val result = repository.loginWithApiKey(key)
       if (result.isSuccess) {
         val count = result.getOrNull() ?: 1
@@ -305,6 +307,8 @@ class NextDnsViewModel(
   }
 
   fun logout() {
+    authenticationJob?.cancel()
+    authenticationJob = null
     stopVisibleTabSync()
     stopForegroundProfileSync()
     _isGuestMode.value = false
@@ -719,6 +723,7 @@ class NextDnsViewModel(
   }
 
   override fun onCleared() {
+    authenticationJob?.cancel()
     stopVisibleTabSync()
     stopForegroundProfileSync()
     super.onCleared()
