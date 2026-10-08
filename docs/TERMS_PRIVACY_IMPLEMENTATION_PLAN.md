@@ -103,3 +103,13 @@ This commit **documents** the approved design and required changes. It does **no
 ### Localization addendum (2026-10-08)
 
 After the original six questionnaire answers, the developer selected **five launch UI languages** and authorized **Terms of Use in those same languages**. This amends only the language portion of A6: the Privacy Policy remains English-only unless changed by a later decision or a legally required local disclosure. See [PHASE9_LOCALIZATION_PLAN.md](PHASE9_LOCALIZATION_PLAN.md). The five Terms translations must be aligned to the same reviewed version; language switching alone must not trigger a new acceptance for unchanged material terms.
+
+## 2026-10-08 — substantive legal drafts prepared (pending review)
+
+The next legal-document drafting milestone has been executed in the same branch:
+
+- [Five-language Terms of Use, 12 parallel clauses per locale](legal/TERMS_OF_USE_FIVE_LANGUAGES_DRAFT.md) — TR/EN/DE/FR/ES in formal legal/academic register; includes independent NextDNS client scope, user-approved external API-change responsibility clause, sign-out and data processing boundaries.
+- [English Privacy Policy substantive draft](legal/PRIVACY_POLICY_EN_DRAFT.md) — based on inspected Android design: API key, direct NextDNS transmissions, profile caches, notifications, log exports, deletion.
+- [Conditional Turkish KVKK aydınlatma template](legal/KVKK_AYDINLATMA_TR_TASLAK.md) — activity-specific inventory, not a consent agreement; requires controller-role and concrete legal-basis analysis before publication.
+
+**Not completed:** identity/support and effective dates; independent API/trademark terms confirmation; reviewed legal equivalence across locales; role/transfer assessment; tested signed AAB, storage/logout behavior; publication URLs; legal expert review; any live screen implementation. These remain release blockers.
