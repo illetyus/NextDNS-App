@@ -22,6 +22,6 @@ dependencyResolutionManagement {
   }
 }
 
-rootProject.name = "NextDNS"
+rootProject.name = "open-source-client-for-nextdns"
 
 include(":app")
