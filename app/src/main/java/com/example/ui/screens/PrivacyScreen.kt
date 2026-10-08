@@ -229,7 +229,7 @@ private fun BlocklistItemCard(
 
       IconButton(
         onClick = onRemove,
-        modifier = Modifier.size(32.dp)
+        modifier = Modifier.size(48.dp)
       ) {
         Icon(
           imageVector = Icons.Default.Close,
@@ -319,7 +319,7 @@ private fun NativeTrackingItemCard(
         )
         FaviconImage(
           domain = domain,
-          modifier = Modifier.size(24.dp).clip(RoundedCornerShape(4.dp))
+          modifier = Modifier.size(48.dp).clip(RoundedCornerShape(4.dp))
         )
         Column {
           Text(
@@ -338,7 +338,7 @@ private fun NativeTrackingItemCard(
 
       IconButton(
         onClick = onRemove,
-        modifier = Modifier.size(32.dp)
+        modifier = Modifier.size(48.dp)
       ) {
         Icon(
           imageVector = Icons.Default.Close,
@@ -665,7 +665,7 @@ private fun AddNativeTrackingDialog(
                 ) {
                   FaviconImage(
                     domain = domain,
-                    modifier = Modifier.size(24.dp).clip(RoundedCornerShape(4.dp))
+                    modifier = Modifier.size(48.dp).clip(RoundedCornerShape(4.dp))
                   )
                   Column {
                     Text(nat.name, color = MaterialTheme.colorScheme.onSurface, fontWeight = FontWeight.Bold, fontSize = 13.sp)
