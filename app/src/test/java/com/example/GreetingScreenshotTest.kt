@@ -34,7 +34,7 @@ class GreetingScreenshotTest {
     composeTestRule.setContent { AppTheme { HomeScreen(viewModel = viewModel) } }
 
     composeTestRule.onNodeWithText("Open Source Client for NextDNS").assertIsDisplayed()
-    composeTestRule.onRoot().captureRoboImage(filePath = "src/test/screenshots/greeting.png")
+    composeTestRule.onRoot().captureRoboImage(filePath = "build/outputs/roborazzi/branding/greeting.png")
   }
 
   @Test
@@ -64,7 +64,7 @@ class GreetingScreenshotTest {
     assertTrue(titleBounds.right <= account.fetchSemanticsNode().boundsInRoot.left)
 
     composeTestRule.onRoot().captureRoboImage(
-      filePath = "src/test/screenshots/greeting-compact-large-font.png"
+      filePath = "build/outputs/roborazzi/branding/greeting-compact-large-font.png"
     )
   }
 }
