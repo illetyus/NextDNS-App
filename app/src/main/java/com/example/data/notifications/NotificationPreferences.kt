@@ -27,7 +27,8 @@ data class NotificationSettings(
 data class ConfigNotificationState(
   val observedDigest: String? = null,
   val lastNotifiedDigest: String? = null,
-  val lastNotifiedAt: Long = 0L
+  val lastNotifiedAt: Long = 0L,
+  val localMutationSuppressUntil: Long = 0L
 )
 
 class NotificationPreferences(context: Context) {
@@ -71,7 +72,9 @@ class NotificationPreferences(context: Context) {
     return ConfigNotificationState(
       observedDigest = prefs[stringPreferencesKey("config_observed_$suffix")],
       lastNotifiedDigest = prefs[stringPreferencesKey("config_notified_$suffix")],
-      lastNotifiedAt = prefs[longPreferencesKey("config_notified_at_$suffix")] ?: 0L
+      lastNotifiedAt = prefs[longPreferencesKey("config_notified_at_$suffix")] ?: 0L,
+      localMutationSuppressUntil =
+        prefs[longPreferencesKey("config_local_mutation_until_$suffix")] ?: 0L
     )
   }
 
@@ -81,6 +84,24 @@ class NotificationPreferences(context: Context) {
       prefs[stringPreferencesKey("config_observed_$suffix")] = digest
       prefs[stringPreferencesKey("config_notified_$suffix")] = digest
       prefs[longPreferencesKey("config_notified_at_$suffix")] = 0L
+      prefs.remove(longPreferencesKey("config_local_mutation_until_$suffix"))
+    }
+  }
+
+  suspend fun suppressConfigForLocalMutation(
+    profileId: String,
+    until: Long
+  ) {
+    val suffix = NotificationPolicy.profileStorageSuffix(profileId)
+    dataStore.edit { prefs ->
+      prefs[longPreferencesKey("config_local_mutation_until_$suffix")] = until
+    }
+  }
+
+  suspend fun clearLocalMutationSuppression(profileId: String) {
+    val suffix = NotificationPolicy.profileStorageSuffix(profileId)
+    dataStore.edit { prefs ->
+      prefs.remove(longPreferencesKey("config_local_mutation_until_$suffix"))
     }
   }
 
