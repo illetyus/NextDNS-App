@@ -9,9 +9,10 @@ resources = root / 'app/src/main/res'
 catalogs = {}
 for language in ('en', 'tr', 'de', 'fr', 'es'):
     folder = 'values' if language == 'en' else 'values-' + language
-    tree = ET.parse(resources / folder / 'strings.xml')
     entries = {}
-    for element in tree.getroot():
+    elements = [element for path in (resources / folder).glob('*.xml') for element in ET.parse(path).getroot()]
+    for element in elements:
+        if element.tag not in ('string', 'plurals'): continue
         if element.get('translatable') == 'false': continue
         key = (element.tag, element.get('name'))
         assert key not in entries, f'Duplicate {key} in {language}'
