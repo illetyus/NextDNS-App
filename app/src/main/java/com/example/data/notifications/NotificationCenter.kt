@@ -158,7 +158,7 @@ object NotificationCenter {
 
     val publicVersion = NotificationCompat.Builder(context, channelId)
       .setSmallIcon(R.drawable.ic_notification_dns)
-      .setContentTitle("NextDNS bildirimi")
+      .setContentTitle(context.getString(R.string.app_name))
       .setContentText("Ayrıntılar için uygulamayı açın.")
       .setPriority(priority)
       .build()

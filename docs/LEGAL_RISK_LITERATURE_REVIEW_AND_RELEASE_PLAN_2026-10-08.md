@@ -108,4 +108,4 @@
 
 ### 8 Ekim 2026 — Marka adı uygulama durum güncellemesi
 
-Kararlaştırılan uygulama adı **Open Source Client for NextDNS** olarak kaynaklara uygulanmıştır; `app_name=NextDNS` tespiti bu belgenin önceki kaynak durumu için geçerlidir. Özgün uygulama simgesi, NextDNS marka/hizmet şartları ve mağaza açıklamaları **ayrıca** onaylanacaktır. Repo adı `illetyus/open-source-client-for-nextdns` olacaktır.
+Kararlaştırılan uygulama adı **Open Source Client for NextDNS** olarak kaynaklara uygulanmıştır; `app_name=NextDNS` tespiti bu belgenin önceki kaynak durumu için geçerlidir. Özgün uygulama simgesi, NextDNS marka/hizmet şartları ve mağaza açıklamaları **ayrıca** onaylanacaktır. Depo `illetyus/open-source-client-for-nextdns` olarak yeniden adlandırılmıştır.

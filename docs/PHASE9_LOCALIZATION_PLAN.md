@@ -68,4 +68,6 @@ The next legal-document drafting milestone has been executed in the same branch:
 
 ## 2026-10-08 — Confirmed app name and GitHub repository rename
 
-The application name was agreed as **Open Source Client for NextDNS** and has now been applied to Android `app_name`, the login wordmark, project README/NOTICE, offline legal drafts and metadata. The intended GitHub repository slug is `illetyus/open-source-client-for-nextdns`. No rename of Android `applicationId` or NextDNS provider/API identifiers was requested. **The launcher icon is not yet cleared for public release**, and five-language translation of all UI text remains outstanding.
+The application name was agreed as **Open Source Client for NextDNS** and has now been applied to Android `app_name`, the login wordmark, project README/NOTICE, offline legal drafts and metadata. The GitHub repository is now `illetyus/open-source-client-for-nextdns`. No rename of Android `applicationId` or NextDNS provider/API identifiers was requested. **The launcher icon is not yet cleared for public release**, and five-language translation of all UI text remains outstanding.
+
+The home-screen title and public lock-screen notification title also use `app_name`. This fixed product title is not translated; service descriptions and protocol identifiers continue to refer to NextDNS. The longer home-screen title wraps above the profile selector so the account controls remain available on compact displays.

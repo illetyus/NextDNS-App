@@ -1,7 +1,7 @@
 # Security Threat Model
 
-This document describes the security assumptions and mitigations for the unofficial
-NextDNS Android client.
+This document describes the security assumptions and mitigations for
+**Open Source Client for NextDNS**, an independent, unofficial Android client.
 
 ## Protected assets
 
