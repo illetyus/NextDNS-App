@@ -4,7 +4,7 @@ on:
   push:
     branches: [ "main" ]
   pull_request:
-    branches: [ "main", "phase7-ci-quality" ]
+    branches: [ "main", "phase7-ci-quality", "phase8-compliance" ]
 
 permissions:
   contents: read
