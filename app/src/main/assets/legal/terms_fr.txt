@@ -1,0 +1,41 @@
+DRAFT — LEGAL REVIEW AND DEVELOPER IDENTITY PENDING — DO NOT PUBLISH
+
+FR — Conditions d’utilisation
+
+### 1. Nature juridique et indépendance de l’application
+[NOM DÉFINITIF DE L’APPLICATION] (l’« Application ») est un logiciel client tiers, indépendant et non officiel, destiné à donner accès à certaines fonctionnalités de gestion des comptes et des configurations NextDNS par l’intermédiaire de son interface de programmation (API). L’Application n’entretient avec NextDNS aucun lien d’affiliation, de représentation, de parrainage, d’approbation ou de soutien officiel.
+
+### 2. Périmètre fonctionnel
+L’Application constitue une interface permettant de consulter ou de gérer, dans les limites des fonctions mises à disposition par l’API NextDNS, les profils, paramètres, préférences de sécurité et de confidentialité, règles d’autorisation ou de blocage, journaux et données analytiques. Elle n’exploite aucune infrastructure de résolution DNS, ne fournit aucun service VPN et ne commercialise ni abonnement NextDNS ni service DNS autonome.
+
+### 3. Autonomie des services NextDNS
+L’infrastructure DNS, les serveurs, les comptes, les abonnements et dispositifs de paiement, l’API ainsi que les opérations de traitement et de conservation des données côté serveur relèvent de l’exploitation et de la gestion propres à NextDNS. Les conditions applicables à ces services sont définies par NextDNS. L’utilisation de l’Application ne modifie pas les relations contractuelles distinctes susceptibles de lier l’utilisateur à NextDNS.
+
+### 4. Évolution de l’API, compatibilité technique et délimitation de responsabilité
+Le fonctionnement de l’Application dépend des caractéristiques techniques et de la disponibilité de l’API NextDNS. Toute modification des points de terminaison, mécanismes d’authentification, structures de réponse ou restrictions d’accès, ainsi que toute interruption du service, peut entraîner des erreurs de connexion, des incompatibilités logicielles, l’affichage d’informations obsolètes ou l’indisponibilité temporaire ou définitive de certaines fonctionnalités. **Le développeur de l’Application décline toute responsabilité pour les erreurs de connexion, incompatibilités ou pertes de fonctionnalités résultant de modifications, interruptions, restrictions ou de l’arrêt de l’API ou des services NextDNS.**
+
+### 5. Identifiants d’accès et utilisation licite
+L’accès aux fonctionnalités concernées peut nécessiter des identifiants API valides fournis par l’utilisateur. L’utilisation de l’Application doit respecter les dispositions légales applicables et les conditions de service de NextDNS. Les présentes Conditions n’instituent pas d’obligation supplémentaire de détenir personnellement le compte utilisé et ne sauraient être interprétées comme autorisant un accès non habilité.
+
+### 6. Opérations initiées par l’utilisateur
+L’Application peut transmettre par l’API NextDNS des opérations initiées par l’utilisateur, notamment la création ou la suppression de profils, la modification de paramètres, la gestion de règles d’autorisation ou de blocage et certaines opérations relatives aux journaux. Certaines opérations peuvent produire des effets irréversibles. L’état d’exécution présenté dépend des informations techniques communiquées par NextDNS. Les éléments pertinents du profil ou des paramètres sont affichés dans l’interface correspondante.
+
+### 7. Traitement des données et confidentialité
+La Politique de confidentialité distincte de l’Application décrit le traitement local des identifiants API et des données de compte ou de profil, leur transmission à NextDNS, les notifications facultatives et l’exportation des journaux. Les traitements exécutés par NextDNS sur ses propres infrastructures relèvent de ses informations de confidentialité. L’acceptation des présentes Conditions ne constitue pas un consentement général aux traitements nécessitant un consentement exprès distinct.
+
+### 8. Stockage local, déconnexion et périmètre de suppression
+La déconnexion vise à supprimer les identifiants API, les données locales associées au compte et les tâches de notification correspondantes conservés par l’Application. Elle n’entraîne pas, par elle-même, la suppression du compte NextDNS, des informations conservées sur ses serveurs ni des fichiers exportés séparément par l’utilisateur vers un emplacement de son choix. Cette distinction sera explicitée dans l’Application.
+
+### 9. Disponibilité, maintenance et évolution technique
+Des fonctionnalités peuvent devenir indisponibles sur certains appareils ou à certaines périodes en raison de modifications des spécifications API, de différences entre systèmes d’exploitation ou des conditions propres aux services tiers. Les mises à jour de l’Application peuvent modifier sa compatibilité, ses caractéristiques de sécurité ou son périmètre fonctionnel. Aucune garantie de disponibilité continue ou immuable de l’API NextDNS n’est donnée.
+
+### 10. Propriété intellectuelle et identité distincte
+Le code source original et les contenus élaborés par le développeur demeurent soumis aux licences et droits qui leur sont applicables. Le nom NextDNS, ses services et signes distinctifs restent la propriété de leurs titulaires respectifs. Toute référence descriptive à NextDNS ne vaut ni mandat, ni affiliation, ni autorisation d’utilisation de marque.
+
+### 11. Acceptation et modification des Conditions
+Les présentes Conditions sont acceptées lors de la première utilisation au moyen d’une case distincte requérant une action positive. Toute modification substantielle peut nécessiter une nouvelle acceptation avant l’accès aux fonctionnalités concernées. Le seul changement de langue de l’interface ne requiert pas une nouvelle acceptation lorsque la version juridique est inchangée. La version en vigueur et ses références demeureront accessibles dans l’Application.
+
+### 12. Entrée en vigueur, contact et dispositions applicables
+La date d’entrée en vigueur, l’identité juridique vérifiée de l’éditeur ainsi que les coordonnées d’assistance seront précisées avant publication. Les dispositions propres aux juridictions concernées et aux règles impératives applicables feront l’objet d’un examen juridique préalable à la diffusion.
+
+---
