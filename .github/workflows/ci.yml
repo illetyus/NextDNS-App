@@ -67,6 +67,10 @@ jobs:
         run: python3 scripts/verify_localization.py
         shell: bash
 
+      - name: Legal draft integrity and acceptance revision
+        run: python3 scripts/verify_legal_assets.py
+        shell: bash
+
       - name: Unit, Contract, Compose and Screenshot Tests
         run: ./gradlew :app:testDebugUnitTest :app:jacocoTestReport -Proborazzi.test.record=true --no-daemon
         shell: bash

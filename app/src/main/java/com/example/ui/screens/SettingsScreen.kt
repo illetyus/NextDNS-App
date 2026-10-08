@@ -166,6 +166,8 @@ fun SettingsScreen(
       com.example.ui.components.LanguagePicker(Modifier.fillMaxWidth())
     }
 
+    item { LegalDocumentLinks() }
+
     item {
       NotificationSettingsSection(
         settings = notificationSettings,

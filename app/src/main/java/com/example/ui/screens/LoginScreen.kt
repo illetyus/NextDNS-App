@@ -120,6 +120,8 @@ fun LoginScreen(
 
       Spacer(modifier = Modifier.height(32.dp))
 
+      LegalDocumentLinks()
+
       // Login Card
       Surface(
         modifier = Modifier

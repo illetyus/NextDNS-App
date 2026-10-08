@@ -6,6 +6,10 @@ cd "$(dirname "${BASH_SOURCE[0]}")/.."
 
 assets="app/src/main/assets/legal"
 missing=0
+if ! python3 scripts/verify_legal_assets.py --release; then
+  printf 'BLOCK: Legal registry is not approved for publication\n' >&2
+  missing=1
+fi
 for language in tr en de fr es; do
   file="$assets/terms_$language.txt"
   if [[ ! -s "$file" ]]; then

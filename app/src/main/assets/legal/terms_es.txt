@@ -1,4 +1,5 @@
 DRAFT — LEGAL REVIEW AND DEVELOPER IDENTITY PENDING — DO NOT PUBLISH
+Revision: terms-2026-10-DRAFT-2
 
 ES — Condiciones de uso
 
@@ -38,4 +39,4 @@ Estas Condiciones se aceptarán en el primer uso mediante una casilla independie
 ### 12. Entrada en vigor, contacto y disposiciones aplicables
 La fecha de entrada en vigor, la identidad jurídica verificada del editor y los datos de contacto se completarán antes de la publicación. Las disposiciones particulares sobre controversias y normas imperativas aplicables en cada jurisdicción se determinarán tras la revisión jurídica correspondiente.
 
----
+El código fuente original de la Aplicación se ofrece bajo Apache-2.0. En la medida permitida por la legislación aplicable, el software se proporciona tal cual, sin garantías adicionales ni compromiso de disponibilidad ininterrumpida. Estas Condiciones no eliminan los derechos de Apache-2.0 ni prevalecen sobre disposiciones imperativas aplicables.
