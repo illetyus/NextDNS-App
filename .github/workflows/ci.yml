@@ -2,9 +2,9 @@ name: Android CI & Security
 
 on:
   push:
-    branches: [ "main" ]
+    branches: [ "main", "phase8-compliance" ]
   pull_request:
-    branches: [ "main" ]
+    branches: [ "main", "phase7-ci-quality" ]
 
 permissions:
   contents: read
@@ -73,6 +73,10 @@ jobs:
 
       - name: Assemble Release (unsigned on CI)
         run: ./gradlew :app:assembleRelease --no-daemon
+        shell: bash
+
+      - name: Release Dependency and Privacy SDK Gate
+        run: bash scripts/verify_release_dependencies.sh
         shell: bash
 
       - name: Upload coverage to Codecov
