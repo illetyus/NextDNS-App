@@ -86,7 +86,8 @@ fun SettingsScreen(
         }
         NotificationWorkScheduler.reconcile(
           context = context,
-          runImmediately = true
+          runImmediately = true,
+          baselineConfig = pending == NotificationToggleType.CONFIG_CHANGES
         )
       }
     } else if (!granted) {
@@ -131,7 +132,8 @@ fun SettingsScreen(
         }
         NotificationWorkScheduler.reconcile(
           context = context,
-          runImmediately = true
+          runImmediately = true,
+          baselineConfig = type == NotificationToggleType.CONFIG_CHANGES
         )
       }
     } else {
