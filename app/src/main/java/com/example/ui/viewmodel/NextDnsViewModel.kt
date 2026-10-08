@@ -129,10 +129,13 @@ class NextDnsViewModel(
         _isInitializing.value = false
         isGuest
       }
-      else -> {
-        // Connecting, Error, etc.
-        null
+      is ApiConnectionStatus.Error -> {
+        // A saved key may no longer be valid. Show login instead of trapping
+        // the user behind the splash screen indefinitely.
+        _isInitializing.value = false
+        false
       }
+      is ApiConnectionStatus.Connecting -> null
     }
   }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), null)
 
