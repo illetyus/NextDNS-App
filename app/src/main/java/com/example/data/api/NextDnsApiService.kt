@@ -915,7 +915,10 @@ object NextDnsNetworkClient {
     .readTimeout(15, TimeUnit.SECONDS)
     .build()
 
+  // NextDNS supplies a public HTTPS URL for log exports. Never follow a
+  // redirect that downgrades the transfer from HTTPS to unencrypted HTTP.
   val publicDownloadClient: OkHttpClient = OkHttpClient.Builder()
+    .followSslRedirects(false)
     .connectTimeout(15, TimeUnit.SECONDS)
     .readTimeout(60, TimeUnit.SECONDS)
     .build()

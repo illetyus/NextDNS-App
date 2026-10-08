@@ -1,0 +1,24 @@
+NextDNS-App
+Copyright 2026 illetyus
+
+This project's original application source code and project-authored
+documentation are made available under the Apache License, Version 2.0.
+See the LICENSE file for the full license terms.
+
+This is an independent, unofficial Android client for the NextDNS service.
+This project is not affiliated with, endorsed by, or sponsored by NextDNS.
+
+NextDNS is a name/brand of its respective owner. The Apache-2.0 license
+for this project's original code does not grant rights to third-party names,
+logos, trademarks, or other third-party intellectual property.
+
+Existing launcher artwork has not yet passed the final trademark/asset
+review. Do not treat it as a licensed reproduction of any NextDNS brand
+assets. The production app icon will be reviewed or replaced before release.
+
+Dependencies retain their own upstream licenses and copyright notices.
+See docs/SOURCE_AND_LICENSE_PROVENANCE.md for the preliminary inventory;
+the resolved release dependency license audit remains a pre-release task.
+
+This NOTICE supplies attribution and information; it does not modify or
+replace the Apache License 2.0.
