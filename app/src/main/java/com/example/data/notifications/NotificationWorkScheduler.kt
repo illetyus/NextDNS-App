@@ -84,6 +84,31 @@ object NotificationWorkScheduler {
     workManager.cancelUniqueWork(IMMEDIATE_WORK_NAME)
   }
 
+  suspend fun beginLocalConfigMutation(
+    context: Context,
+    profileId: String,
+    now: Long = System.currentTimeMillis()
+  ): Boolean {
+    val appContext = context.applicationContext
+    val preferences = NotificationPreferences(appContext)
+    val settings = preferences.currentSettings()
+    if (!settings.configChangeAlertsEnabled) return false
+
+    preferences.suppressConfigForLocalMutation(
+      profileId = profileId,
+      until = NotificationPolicy.localMutationSuppressionUntil(now)
+    )
+    return true
+  }
+
+  suspend fun abortLocalConfigMutation(
+    context: Context,
+    profileId: String
+  ) {
+    NotificationPreferences(context.applicationContext)
+      .clearLocalMutationSuppression(profileId)
+  }
+
   suspend fun refreshConfigBaselineIfEnabled(context: Context) {
     val appContext = context.applicationContext
     val settings = NotificationPreferences(appContext).currentSettings()
