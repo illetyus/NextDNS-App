@@ -1,0 +1,41 @@
+DRAFT — LEGAL REVIEW AND DEVELOPER IDENTITY PENDING — DO NOT PUBLISH
+
+DE — Nutzungsbedingungen
+
+### 1. Rechtsnatur und Unabhängigkeit der Anwendung
+[ENDGÜLTIGER APP-NAME] (die „Anwendung“) ist eine unabhängig entwickelte, nicht offizielle Software eines Drittanbieters. Sie dient dem Zugriff auf ausgewählte Funktionen zur Konto- und Konfigurationsverwaltung über die Programmierschnittstelle (API) von NextDNS. Zwischen der Anwendung und NextDNS besteht weder eine gesellschaftsrechtliche oder vertragliche Partnerschaft noch eine Vertretungs-, Sponsoring-, Genehmigungs- oder offizielle Unterstützungsbeziehung.
+
+### 2. Funktionsumfang
+Die Anwendung stellt eine Benutzeroberfläche bereit, über die mittels der NextDNS-API verfügbare Profile, Konfigurationen, Sicherheits- und Datenschutzeinstellungen, Freigabe- und Sperrregeln sowie Protokolle und Auswertungen eingesehen oder verwaltet werden können. Sie betreibt keine eigene DNS-Auflösungsinfrastruktur, bietet keinen VPN-Dienst an und vertreibt weder NextDNS-Abonnements noch eigenständige DNS-Dienste.
+
+### 3. Eigenständigkeit der NextDNS-Dienste
+Die DNS-Infrastruktur, Server, Konten, Abonnements, Zahlungssysteme, API-Dienste sowie die serverseitige Datenverarbeitung und -speicherung werden von NextDNS eigenständig betrieben und verwaltet. NextDNS legt die hierfür geltenden Bedingungen und Richtlinien fest. Die Nutzung der Anwendung ändert ein etwaiges gesondertes Vertragsverhältnis mit NextDNS nicht.
+
+### 4. Änderungen der API, technische Kompatibilität und Haftungsabgrenzung
+Die Funktionsfähigkeit der Anwendung hängt von den technischen Eigenschaften und der Verfügbarkeit der NextDNS-API ab. Änderungen an Endpunkten, Authentifizierungsverfahren, Antwortstrukturen oder Zugriffsbeschränkungen sowie Unterbrechungen des Dienstes können Verbindungsfehler, Softwareinkompatibilitäten, veraltete Anzeigen oder die vorübergehende beziehungsweise dauerhafte Nichtverfügbarkeit einzelner Funktionen verursachen. **Der Entwickler der Anwendung übernimmt keine Haftung für Verbindungsfehler, Kompatibilitätsprobleme oder Funktionsausfälle, die auf Änderungen, Unterbrechungen, Beschränkungen oder die Einstellung der NextDNS-API beziehungsweise der NextDNS-Dienste zurückzuführen sind.**
+
+### 5. Zugangsdaten und rechtmäßige Nutzung
+Der Zugriff auf entsprechende NextDNS-Funktionen kann die Bereitstellung gültiger API-Zugangsdaten durch den Nutzer voraussetzen. Die Nutzung muss mit dem geltenden Recht und den einschlägigen Nutzungsbedingungen von NextDNS vereinbar sein. Diese Bedingungen begründen keine zusätzliche Verpflichtung, ausschließlich ein im eigenen Eigentum stehendes Konto zu verwenden; sie gestatten keinen unbefugten Zugriff.
+
+### 6. Vom Nutzer veranlasste Vorgänge
+Die Anwendung kann vom Nutzer veranlasste Vorgänge wie die Erstellung oder Löschung von Profilen, Änderungen von Konfigurationen, die Verwaltung von Freigabe- und Sperrregeln und Maßnahmen im Zusammenhang mit Protokollen über die NextDNS-API übermitteln. Einzelne Vorgänge können endgültige Folgen haben. Der angezeigte Bearbeitungsstand richtet sich nach den technischen Rückmeldungen von NextDNS. Relevante Profil- und Einstellungsinformationen werden in der jeweiligen Benutzeroberfläche ausgewiesen.
+
+### 7. Datenverarbeitung und Datenschutz
+Die gesonderte Datenschutzerklärung der Anwendung erläutert die Verarbeitung von API-Zugangsdaten und Konto- beziehungsweise Profildaten auf dem Endgerät, die Übermittlung an NextDNS, optionale Benachrichtigungen und den Export von Protokollen. Für die serverseitige Verarbeitung durch NextDNS gelten dessen eigene Datenschutzhinweise. Die Annahme dieser Nutzungsbedingungen stellt keine pauschale Einwilligung in Verarbeitungsvorgänge dar, für die eine gesonderte ausdrückliche Einwilligung erforderlich ist.
+
+### 8. Lokale Speicherung, Abmeldung und Löschung
+Mit der Abmeldung sollen die in der Anwendung gespeicherten API-Zugangsdaten, kontobezogenen lokalen Daten und zugehörigen Benachrichtigungsaufträge entfernt werden. Davon unberührt bleiben das NextDNS-Konto selbst, auf NextDNS-Servern gespeicherte Informationen sowie Dateien, die der Nutzer eigenständig an einen ausgewählten Speicherort exportiert hat. Auf diese Unterscheidung wird in der Anwendung hingewiesen.
+
+### 9. Verfügbarkeit, Wartung und technische Weiterentwicklung
+Aufgrund veränderter API-Spezifikationen, unterschiedlicher Betriebssysteme oder der Bedingungen externer Dienste können Funktionen zeitweise oder auf bestimmten Geräten nicht verfügbar sein. Aktualisierungen der Anwendung können Änderungen hinsichtlich Kompatibilität, Sicherheit oder Funktionsumfang enthalten. Eine ununterbrochene oder unveränderte Verfügbarkeit der NextDNS-API wird nicht zugesichert.
+
+### 10. Geistiges Eigentum und eigenständige Kennzeichnung
+Der originäre Quellcode und die vom Entwickler erstellten Inhalte unterliegen den jeweils einschlägigen Lizenzen und Schutzrechten. Die Bezeichnung NextDNS, dessen Dienste und Kennzeichen verbleiben bei den jeweiligen Rechteinhabern. Die beschreibende Bezugnahme auf NextDNS begründet weder eine Vertretungsbefugnis noch eine gesellschaftsrechtliche Verbindung oder eine markenrechtliche Genehmigung.
+
+### 11. Annahme und Änderung der Bedingungen
+Die Annahme dieser Bedingungen erfolgt bei der erstmaligen Nutzung durch eine gesonderte aktive Bestätigung. Bei wesentlichen Änderungen kann vor der weiteren Nutzung der betreffenden Funktionen eine erneute Annahme erforderlich werden. Die bloße Änderung der Anzeigesprache führt nicht zu einer erneuten Annahmepflicht, sofern die rechtliche Fassung unverändert bleibt. Die aktuelle Fassung und ihre Versionsangaben bleiben in der Anwendung einsehbar.
+
+### 12. Inkrafttreten, Kontakt und anwendbare Vorschriften
+Das Datum des Inkrafttretens sowie die verifizierte rechtliche Identität des Herausgebers und seine Kontaktangaben sind vor der Veröffentlichung einzutragen. Zuständigkeits- und länderspezifische Bestimmungen bedürfen einer gesonderten rechtlichen Prüfung vor der Freigabe.
+
+---
