@@ -378,9 +378,9 @@ private fun AffiliatesSection(
     subtitle = "Fırsat web sitelerinde, e-postalarda veya arama sonuçlarında yaygın olan satış ortağı ve izleme alanlarına izin verin. Bunlar genellikle yalnızca bir bağlantıya elle tıklandıktan sonra aranır."
   ) {
     Surface(
-      color = Color(0xFF2E1065).copy(alpha = 0.4f),
+      color = MaterialTheme.colorScheme.secondaryContainer.copy(alpha = 0.55f),
       shape = RoundedCornerShape(8.dp),
-      border = BorderStroke(1.dp, Color(0xFFA855F7).copy(alpha = 0.3f)),
+      border = BorderStroke(1.dp, MaterialTheme.colorScheme.secondary.copy(alpha = 0.35f)),
       modifier = Modifier
         .fillMaxWidth()
         .padding(bottom = 12.dp)
@@ -393,12 +393,12 @@ private fun AffiliatesSection(
         Icon(
           imageVector = Icons.Default.Lock,
           contentDescription = null,
-          tint = Color(0xFFA855F7),
+          tint = MaterialTheme.colorScheme.secondary,
           modifier = Modifier.size(16.dp)
         )
         Text(
           text = "IP adresiniz, gizliliğinizi korumak için bu web sitelerinden otomatik olarak gizlenecektir.",
-          color = Color(0xFFE9D5FF),
+          color = MaterialTheme.colorScheme.onSecondaryContainer,
           fontSize = 11.5.sp,
           fontWeight = FontWeight.Medium
         )
