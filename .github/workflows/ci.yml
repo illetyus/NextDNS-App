@@ -31,32 +31,29 @@ jobs:
           distribution: 'temurin'
           verify-signature: true
 
-      - name: Validate Gradle Wrapper
-        uses: gradle/actions/wrapper-validation@9c971963bec38e04b3d30dcc455b5382be2fdbfb # v6.3.0
-
-      - name: Setup Gradle
+      - name: Setup Gradle 9.3.1
         uses: gradle/actions/setup-gradle@9c971963bec38e04b3d30dcc455b5382be2fdbfb # v6.3.0
         with:
+          gradle-version: '9.3.1'
           cache-provider: basic
 
-      - name: Require checked-in Gradle Wrapper
+      - name: Verify Declared Gradle Version
         run: |
-          test -f gradlew
-          test -f gradle/wrapper/gradle-wrapper.jar
           test -f gradle/wrapper/gradle-wrapper.properties
-          chmod +x gradlew
+          grep -Fq 'gradle-9.3.1-bin.zip' gradle/wrapper/gradle-wrapper.properties
+          gradle --version
         shell: bash
 
       - name: Android Lint
-        run: ./gradlew :app:lintDebug --no-daemon
+        run: gradle :app:lintDebug --no-daemon
         shell: bash
 
       - name: Unit Tests & Coverage
-        run: ./gradlew :app:testDebugUnitTest jacocoTestReport --no-daemon
+        run: gradle :app:testDebugUnitTest jacocoTestReport --no-daemon
         shell: bash
 
       - name: Assemble Debug
-        run: ./gradlew :app:assembleDebug --no-daemon
+        run: gradle :app:assembleDebug --no-daemon
         shell: bash
 
       - name: Upload Coverage to Codecov
