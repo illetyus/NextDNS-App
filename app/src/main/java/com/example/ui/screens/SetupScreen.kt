@@ -466,8 +466,10 @@ private fun LinkedIpSection(
             fontFamily = FontFamily.Monospace,
             fontSize = 12.sp,
             modifier = Modifier
-              .clip(RoundedCornerShape(4.dp))
-              .bounceClick {
+              .clip(RoundedCornerShape(6.dp))
+              .heightIn(min = 48.dp)
+              .padding(horizontal = 4.dp)
+              .bounceClick(scaleDown = 0.99f) {
                 if (detectedIp.isNotBlank()) {
                   copyToClipboard(context, detectedIp, "IP Adresi")
                 }
@@ -554,7 +556,9 @@ private fun LinkedIpSection(
             fontSize = 11.5.sp,
             modifier = Modifier
               .clip(RoundedCornerShape(6.dp))
-              .bounceClick {
+              .heightIn(min = 48.dp)
+              .padding(horizontal = 4.dp)
+              .bounceClick(scaleDown = 0.99f) {
                 copyToClipboard(context, "https://link-ip.nextdns.io/$profileId/update", "DDNS URL")
               }
           )
@@ -763,7 +767,8 @@ private fun CopyableValueBox(
       ),
       modifier = Modifier
         .fillMaxWidth()
-        .bounceClick(scaleDown = 0.98f) {
+        .heightIn(min = 48.dp)
+        .bounceClick(scaleDown = 0.99f) {
           copyToClipboard(context, value, copyLabel)
           isCopied = true
         }
