@@ -156,7 +156,7 @@ class NextDnsNotificationWorker(
       api.getDenylist(
         apiKey = apiKey,
         profileId = profileId,
-        limit = 500,
+        limit = 100,
         cursor = cursor
       )
     } ?: return null
@@ -165,7 +165,7 @@ class NextDnsNotificationWorker(
       api.getAllowlist(
         apiKey = apiKey,
         profileId = profileId,
-        limit = 500,
+        limit = 100,
         cursor = cursor
       )
     } ?: return null
