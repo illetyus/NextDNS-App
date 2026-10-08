@@ -93,7 +93,7 @@ Acceptance criteria:
 
 - Google Play User Data / Privacy Policy / Data Safety: https://support.google.com/googleplay/android-developer/answer/10144311?hl=en
 - Google Play prominent disclosure and separate consent: https://support.google.com/googleplay/android-developer/answer/11150561?hl=en
-- KVKK understandable, plain-language privacy disclosures: https://www.kvkk.gov.tr/Icerik/6765/AYDINLATMA-YUKUMLULUGUNUN_YERINE_GETIRILMESI_HAKKINDA_KAMUOYU_DUYURUSU
+- KVKK understandable, plain-language privacy disclosures: https://www.kvkk.gov.tr/Icerik/6765/AYDINLATMA-YUKUMLULUGUNUN-YERINE-GETIRILMESI-HAKKINDA-KAMUOYU-DUYURUSU
 - KVKK notice and explicit consent separation (2026/347): https://www.kvkk.gov.tr/Icerik/8710/veri-sorumlulari-tarafindan-acik-riza-ve-aydinlatma-metinlerinin-ayri-ayri-duzenlenmesi-gerektigi-hakkinda-kisisel-verileri-koruma-kurulunun-18-02-2026-tarihli-ve-2026-347-sayili-ilke-kararina-iliskin-kamuoyu-duyurusu
 
 ## D. Status / no premature implementation claim
