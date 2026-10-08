@@ -35,6 +35,20 @@ class NextDnsNotificationWorker(
 
     NotificationCenter.createChannels(applicationContext)
 
+    val baselineOnly = inputData.getBoolean(KEY_BASELINE_ONLY, false)
+    if (baselineOnly) {
+      if (!settings.configChangeAlertsEnabled) return Result.success()
+
+      val snapshot = fetchConfigSnapshot(apiKey, profileId)
+        ?: return Result.retry()
+
+      preferences.establishConfigBaseline(
+        profileId = profileId,
+        digest = ConfigSnapshotHasher.digest(snapshot)
+      )
+      return Result.success()
+    }
+
     var shouldRetry = false
     val now = System.currentTimeMillis()
 
@@ -227,4 +241,8 @@ class NextDnsNotificationWorker(
     val totalQueries: Long,
     val blockedQueries: Long
   )
+
+  companion object {
+    const val KEY_BASELINE_ONLY = "baseline_only"
+  }
 }
