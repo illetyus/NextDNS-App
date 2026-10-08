@@ -1,5 +1,8 @@
 package com.example.ui.screens
 
+import android.Manifest
+import android.content.pm.PackageManager
+import android.os.Build
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
@@ -18,6 +21,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalUriHandler
+import androidx.core.content.ContextCompat
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.buildAnnotatedString
@@ -26,6 +30,9 @@ import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.data.model.ConfigSettings
+import com.example.data.notifications.NotificationPreferences
+import com.example.data.notifications.NotificationSettings
+import com.example.data.notifications.NotificationWorkScheduler
 import com.example.data.preferences.ThemePreferences
 import com.example.ui.components.*
 import com.example.ui.theme.*
@@ -38,10 +45,19 @@ fun SettingsScreen(
   modifier: Modifier = Modifier
 ) {
   val context = LocalContext.current
-  val exportScope = rememberCoroutineScope()
+  val screenScope = rememberCoroutineScope()
+  val notificationPreferences = remember(context) {
+    NotificationPreferences(context.applicationContext)
+  }
+  val notificationSettings by notificationPreferences.settings.collectAsStateWithLifecycle(
+    initialValue = NotificationSettings()
+  )
+  var pendingNotificationEnable by remember {
+    mutableStateOf<NotificationToggleType?>(null)
+  }
   val exportLauncher = rememberLauncherForActivityResult(ActivityResultContracts.CreateDocument("text/csv")) { uri ->
     if (uri != null) {
-      exportScope.launch {
+      screenScope.launch {
         val output = context.contentResolver.openOutputStream(uri)
         if (output == null) {
           viewModel.showMessage("Seçilen dosya konumu açılamadı.", isError = true)
@@ -51,6 +67,76 @@ fun SettingsScreen(
           }
         }
       }
+    }
+  }
+
+  val permissionLauncher = rememberLauncherForActivityResult(
+    ActivityResultContracts.RequestPermission()
+  ) { granted ->
+    val pending = pendingNotificationEnable
+    pendingNotificationEnable = null
+
+    if (granted && pending != null) {
+      screenScope.launch {
+        when (pending) {
+          NotificationToggleType.CONFIG_CHANGES ->
+            notificationPreferences.setConfigChangeAlertsEnabled(true)
+          NotificationToggleType.DAILY_SUMMARY ->
+            notificationPreferences.setDailySummaryEnabled(true)
+        }
+        NotificationWorkScheduler.reconcile(
+          context = context,
+          runImmediately = true
+        )
+      }
+    } else if (!granted) {
+      viewModel.showMessage(
+        "Bildirim izni verilmedi; bildirim seçeneği açılmadı.",
+        isError = true
+      )
+    }
+  }
+
+  fun updateNotificationToggle(
+    type: NotificationToggleType,
+    enabled: Boolean
+  ) {
+    if (!enabled) {
+      screenScope.launch {
+        when (type) {
+          NotificationToggleType.CONFIG_CHANGES ->
+            notificationPreferences.setConfigChangeAlertsEnabled(false)
+          NotificationToggleType.DAILY_SUMMARY ->
+            notificationPreferences.setDailySummaryEnabled(false)
+        }
+        NotificationWorkScheduler.reconcile(context)
+      }
+      return
+    }
+
+    val permissionGranted =
+      Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU ||
+        ContextCompat.checkSelfPermission(
+          context,
+          Manifest.permission.POST_NOTIFICATIONS
+        ) == PackageManager.PERMISSION_GRANTED
+
+    if (permissionGranted) {
+      screenScope.launch {
+        when (type) {
+          NotificationToggleType.CONFIG_CHANGES ->
+            notificationPreferences.setConfigChangeAlertsEnabled(true)
+          NotificationToggleType.DAILY_SUMMARY ->
+            notificationPreferences.setDailySummaryEnabled(true)
+        }
+        NotificationWorkScheduler.reconcile(
+          context = context,
+          runImmediately = true
+        )
+      }
+    } else {
+      pendingNotificationEnable = type
+      permissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
     }
   }
 
@@ -70,6 +156,18 @@ fun SettingsScreen(
     // 1. Görünüm (Appearance)
     item {
       AppearanceSection()
+    }
+
+    item {
+      NotificationSettingsSection(
+        settings = notificationSettings,
+        onConfigChangeAlertsChanged = {
+          updateNotificationToggle(NotificationToggleType.CONFIG_CHANGES, it)
+        },
+        onDailySummaryChanged = {
+          updateNotificationToggle(NotificationToggleType.DAILY_SUMMARY, it)
+        }
+      )
     }
 
     // 2. Profil İsmi
@@ -151,6 +249,44 @@ fun SettingsScreen(
           Text("VAZGEÇ")
         }
       }
+    )
+  }
+}
+
+private enum class NotificationToggleType {
+  CONFIG_CHANGES,
+  DAILY_SUMMARY
+}
+
+@Composable
+private fun NotificationSettingsSection(
+  settings: NotificationSettings,
+  onConfigChangeAlertsChanged: (Boolean) -> Unit,
+  onDailySummaryChanged: (Boolean) -> Unit,
+  modifier: Modifier = Modifier
+) {
+  NextDnsCard(
+    title = "Bildirimler",
+    subtitle = "İsteğe bağlı arka plan kontrolleri. Android zamanlamayı erteleyebilir; kontrol aralığı yaklaşık 30 dakikadır.",
+    modifier = modifier
+  ) {
+    NextDnsSettingToggleRow(
+      title = "Ayar değişiklikleri",
+      subtitle = "NextDNS sunucu yapılandırması değiştiğinde içerik ayrıntısı göstermeden bildirim gönderir.",
+      checked = settings.configChangeAlertsEnabled,
+      onCheckedChange = onConfigChangeAlertsChanged
+    )
+
+    HorizontalDivider(
+      modifier = Modifier.padding(vertical = 4.dp),
+      color = MaterialTheme.colorScheme.outlineVariant
+    )
+
+    NextDnsSettingToggleRow(
+      title = "Günlük özet",
+      subtitle = "Son 24 saatin toplam DNS sorgu ve engelleme sayılarını günde en fazla bir kez bildirir.",
+      checked = settings.dailySummaryEnabled,
+      onCheckedChange = onDailySummaryChanged
     )
   }
 }
