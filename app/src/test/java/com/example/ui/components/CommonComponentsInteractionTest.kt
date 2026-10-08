@@ -2,7 +2,12 @@ package com.example.ui.components
 
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.unit.dp
 import androidx.compose.ui.test.junit4.createComposeRule
+import androidx.compose.ui.test.assertHeightIsAtLeast
+import androidx.compose.ui.test.assertIsOff
+import androidx.compose.ui.test.assertIsOn
+import androidx.compose.ui.test.assertIsToggleable
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
@@ -54,7 +59,14 @@ class CommonComponentsInteractionTest {
       }
     }
 
-    composeTestRule.onNodeWithTag("setting_toggle_row").performClick()
+    val node = composeTestRule.onNodeWithTag("setting_toggle_row")
+
+    node
+      .assertIsToggleable()
+      .assertIsOff()
+      .assertHeightIsAtLeast(48.dp)
+      .performClick()
+      .assertIsOn()
 
     assertEquals(1, changes)
   }
