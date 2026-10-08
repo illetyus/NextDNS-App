@@ -1,5 +1,6 @@
 package com.example.ui.screens
 
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.*
@@ -53,8 +54,8 @@ fun SettingsScreen(
     }
   }
 
-  val activeProfile by viewModel.activeProfile.collectAsState()
-  val configSettings by viewModel.configSettings.collectAsState()
+  val activeProfile by viewModel.activeProfile.collectAsStateWithLifecycle()
+  val configSettings by viewModel.configSettings.collectAsStateWithLifecycle()
 
   var showDeleteProfileDialog by remember { mutableStateOf(false) }
   val profileName = activeProfile?.name ?: "Varsayılan Profil"
