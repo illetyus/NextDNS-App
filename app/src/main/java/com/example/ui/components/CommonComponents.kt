@@ -475,7 +475,8 @@ fun NextDnsDropdownSelector(
         modifier = Modifier
           .fillMaxWidth()
           .border(1.dp, MaterialTheme.colorScheme.outline, RoundedCornerShape(10.dp))
-          .bounceClick { expanded = true },
+          .heightIn(min = 48.dp)
+          .bounceClick(scaleDown = 0.99f) { expanded = true },
         color = MaterialTheme.colorScheme.surfaceVariant,
         shape = RoundedCornerShape(10.dp)
       ) {
