@@ -309,7 +309,8 @@ private fun LogsHeaderControls(
           if (isLiveStreaming) MaterialTheme.colorScheme.primary.copy(alpha = 0.6f) else MaterialTheme.colorScheme.outline,
           RoundedCornerShape(10.dp)
         )
-        .bounceClick(onClick = onToggleLiveStream),
+        .heightIn(min = 48.dp)
+        .bounceClick(scaleDown = 0.98f, onClick = onToggleLiveStream),
       color = if (isLiveStreaming) MaterialTheme.colorScheme.primary.copy(alpha = 0.15f) else MaterialTheme.colorScheme.surface,
       shape = RoundedCornerShape(10.dp)
     ) {
@@ -349,9 +350,7 @@ private fun LogsHeaderControls(
 
     IconButton(
       onClick = onRefreshLogs,
-      modifier = Modifier
-        .size(38.dp)
-        .bounceClick(onClick = onRefreshLogs)
+      modifier = Modifier.size(48.dp)
     ) {
       Icon(
         imageVector = Icons.Default.Refresh,
