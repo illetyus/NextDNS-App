@@ -141,7 +141,7 @@ fun AllowlistScreen(
                   .background(MaterialTheme.colorScheme.primary, RoundedCornerShape(2.dp))
               )
               
-              FaviconImage(domain = item.domain, modifier = Modifier.size(24.dp).clip(RoundedCornerShape(4.dp))
+              FaviconImage(domain = item.domain, modifier = Modifier.size(48.dp).clip(RoundedCornerShape(4.dp))
               )
               
               Text(
@@ -162,7 +162,7 @@ fun AllowlistScreen(
               )
               IconButton(
                 onClick = { viewModel.removeFromAllowlist(item.id) },
-                modifier = Modifier.size(28.dp)
+                modifier = Modifier.size(48.dp)
               ) {
                 Icon(
                   imageVector = Icons.Default.Close,
