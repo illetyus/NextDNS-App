@@ -1,7 +1,6 @@
 package com.example.ui.screens
 
 import androidx.compose.ui.res.painterResource
-import com.example.R
 
 import androidx.compose.animation.*
 import androidx.compose.animation.core.*
