@@ -129,10 +129,13 @@ class NextDnsViewModel(
         _isInitializing.value = false
         isGuest
       }
-      else -> {
-        // Connecting, Error, etc.
-        null
+      is ApiConnectionStatus.Error -> {
+        // A saved key may no longer be valid. Show login instead of trapping
+        // the user behind the splash screen indefinitely.
+        _isInitializing.value = false
+        false
       }
+      is ApiConnectionStatus.Connecting -> null
     }
   }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), null)
 
@@ -150,6 +153,7 @@ class NextDnsViewModel(
 
   private var visibleSectionSyncJob: Job? = null
   private var foregroundProfileSyncJob: Job? = null
+  private var authenticationJob: Job? = null
 
   private val _uiMessage = MutableStateFlow<UiMessage?>(null)
   val uiMessage = _uiMessage.asStateFlow()
@@ -272,17 +276,24 @@ class NextDnsViewModel(
     loginWithApiKey(key)
   }
 
+  fun resumeAfterTermsAccepted() {
+    repository.resumeAfterTermsAccepted()
+  }
+
   fun enterGuestMode() {
     continueAsGuest()
   }
 
   fun continueAsGuest() {
+    if (!repository.termsAccepted()) return
     _isGuestMode.value = true
     showMessage("Demo / Misafir Modunda başlatıldı")
   }
 
   fun loginWithApiKey(key: String) {
-    viewModelScope.launch {
+    if (!repository.termsAccepted()) return
+    authenticationJob?.cancel()
+    authenticationJob = viewModelScope.launch {
       val result = repository.loginWithApiKey(key)
       if (result.isSuccess) {
         val count = result.getOrNull() ?: 1
@@ -296,9 +307,22 @@ class NextDnsViewModel(
   }
 
   fun logout() {
+    authenticationJob?.cancel()
+    authenticationJob = null
+    stopVisibleTabSync()
+    stopForegroundProfileSync()
     _isGuestMode.value = false
-    repository.logout()
-    showMessage("Oturum kapatıldı. API Giriş ekranına dönüldü.")
+    viewModelScope.launch {
+      val result = repository.logout()
+      if (result.isSuccess) {
+        showMessage("Oturum kapatıldı. Yerel hesap ve bildirim verileri silindi.")
+      } else {
+        showMessage(
+          result.exceptionOrNull()?.message ?: "Yerel veriler tam olarak temizlenemedi.",
+          isError = true
+        )
+      }
+    }
   }
 
   fun switchProfile(profileId: String) {
@@ -699,6 +723,7 @@ class NextDnsViewModel(
   }
 
   override fun onCleared() {
+    authenticationJob?.cancel()
     stopVisibleTabSync()
     stopForegroundProfileSync()
     super.onCleared()

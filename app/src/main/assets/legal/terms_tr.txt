@@ -1,0 +1,41 @@
+DRAFT — LEGAL REVIEW AND DEVELOPER IDENTITY PENDING — DO NOT PUBLISH
+
+TR — Kullanım Koşulları
+
+### 1. Uygulamanın hukuki niteliği ve bağımsızlığı
+[UYGULAMANIN NİHAİ ADI] ("Uygulama"), NextDNS uygulama programlama arayüzü (API) aracılığıyla belirli hesap ve yapılandırma yönetimi işlevlerine erişim sağlamak amacıyla bağımsız biçimde geliştirilen, resmî olmayan bir üçüncü taraf yazılım istemcisidir. Uygulamanın NextDNS ile herhangi bir kurumsal ortaklığı, temsil ilişkisi, sponsorluk bağlantısı veya resmî onay ve destek ilişkisi bulunmamaktadır.
+
+### 2. Hizmetin kapsamı
+Uygulama; NextDNS hesabında erişime açılmış profillerin, ayarların, güvenlik ve gizlilik tercihlerinin, kural listelerinin, günlüklerin ve analizlerin, API tarafından desteklenen ölçüde görüntülenmesini veya yönetilmesini sağlayan bir arayüzdür. Uygulama, DNS çözümleme altyapısı, VPN, NextDNS aboneliği yahut bağımsız bir DNS hizmeti sunmaz.
+
+### 3. NextDNS hizmetlerinin bağımsızlığı
+NextDNS'e ait DNS altyapısı, sunucular, hesaplar, abonelik ve ödeme sistemleri, API hizmeti ile sunucu tarafındaki veri işleme ve saklama süreçleri NextDNS tarafından yönetilir. Bu hizmetlere ilişkin koşullar ve politikalar NextDNS tarafından belirlenir. Uygulamanın kullanılması, NextDNS ile akdedilmiş olabilecek ayrı hizmet ilişkisini değiştirmez.
+
+### 4. API değişiklikleri, teknik uyumluluk ve sorumluluğun sınırları
+Uygulamanın işlevselliği, NextDNS API hizmetinin teknik özelliklerine ve erişilebilirliğine bağlıdır. API uç noktalarında, kimlik doğrulama usullerinde, yanıt biçimlerinde, erişim sınırlarında veya hizmetin sürekliliğinde meydana gelebilecek değişiklikler; bağlantı hatalarına, yazılımsal uyumsuzluklara, güncel olmayan veri gösterimine ve işlevlerin geçici veya kalıcı biçimde kullanılamamasına neden olabilir. **NextDNS API'sinde veya hizmetlerinde meydana gelen değişiklikler, kesintiler, kısıtlamalar ya da hizmetin sonlandırılmasından kaynaklanan bağlantı hataları, uyumluluk sorunları veya işlev kayıpları bakımından Uygulama geliştiricisi sorumluluk kabul etmez.**
+
+### 5. Erişim bilgileri ve kullanım koşulları
+İlgili NextDNS işlevlerine erişim için, kullanıcı tarafından sağlanan geçerli API erişim bilgileri gerekebilir. Uygulamaya erişim, NextDNS hizmet koşullarına ve yürürlükteki hukuka uygun biçimde gerçekleştirilmelidir. İşbu Koşullar, NextDNS hesaplarına ilişkin ilave bir münhasır hesap sahipliği şartı oluşturmaz; yetkisiz erişime izin verdiği şeklinde yorumlanamaz.
+
+### 6. Kullanıcı tarafından başlatılan işlemler
+Profil oluşturma veya silme, yapılandırma değiştirme, engelleme veya izin verme kurallarını düzenleme ve günlük yönetimi gibi işlemler kullanıcı tarafından başlatılabilir ve NextDNS API'sine iletilebilir. Bazı işlemler geri alınamaz sonuçlar doğurabilir. Uygulamanın gösterdiği işlemin tamamlanma durumu, NextDNS'in sunduğu teknik yanıtlarla sınırlıdır. İşlem kapsamındaki profil ve ayar bilgileri, uygulamanın ilgili ekranlarında gösterilir.
+
+### 7. Veri işleme ve gizlilik
+API erişim bilgileri ile hesap/profil verilerinin cihaz üzerinde işlenmesi, NextDNS'e aktarılması, isteğe bağlı bildirimler ve günlük dışa aktarımı hakkında bilgiler Uygulamanın ayrı Gizlilik Politikası'nda açıklanır. NextDNS'in sunucu tarafındaki işlemleri kendi gizlilik açıklamalarına tabidir. Kullanım Koşullarının kabulü, özel bir açık rıza gerektiren veri işleme faaliyeti için otomatik ve genel bir açık rıza teşkil etmez.
+
+### 8. Yerel saklama, oturumun sonlandırılması ve verilerin silinmesi
+Uygulama içindeki çıkış işlemi, uygulamada saklanan API anahtarı ile hesapla ilişkili yerel verilerin ve ilgili bildirim görevlerinin kaldırılmasına yöneliktir. Bu işlem NextDNS hesabını, NextDNS sunucularındaki bilgileri veya kullanıcının cihazındaki ayrı bir konuma dışa aktardığı dosyaları kendiliğinden silmez. Bu ayrım uygulamada açıkça gösterilir.
+
+### 9. Erişilebilirlik, bakım ve teknik gelişim
+API'nin değişen teknik şartları, cihaz/işletim sistemi farklılıkları ve üçüncü taraf hizmetlerin durumu nedeniyle bazı işlevler farklı zamanlarda veya cihazlarda kullanılamayabilir. Uygulamanın yeni sürümleri, uyumluluk, güvenlik veya işlevsel kapsam bakımından değişiklikler içerebilir. NextDNS API'sinin kesintisiz veya değişmez kalacağına ilişkin bir taahhüt verilmez.
+
+### 10. Fikrî mülkiyet ve bağımsız marka
+Uygulamanın özgün kaynak kodu ve geliştiriciye ait içeriği, ilgili lisans ve haklara tabidir. NextDNS adı, hizmeti ve markaları ilgili hak sahiplerine aittir. NextDNS adına yapılan açıklamalar, NextDNS tarafından verilmiş bir temsil, ortaklık veya marka kullanım yetkisi oluşturmaz.
+
+### 11. Koşulların kabulü ve değişiklikler
+Kullanım Koşulları, ilk kullanımda kullanıcı tarafından ayrıca işaretlenen onay kutusu üzerinden kabul edilir. Koşullarda esaslı değişiklik yapılması hâlinde, uygulamanın ilgili işlevlerine devam edilmeden önce yeni metnin kabulü talep edilebilir. Yalnızca dil değişikliği, aynı hukuki sürümün yeniden kabulünü gerektirmez. Güncel metin ve sürüm bilgisi uygulama içerisinden erişilebilir tutulur.
+
+### 12. Yürürlük, iletişim ve uygulanacak hükümler
+Bu metnin yürürlük tarihi, gerçek uygulama yayıncısının kimliği ve iletişim kanalları yayımdan önce tamamlanacaktır. Uyuşmazlıklar ve uygulanacak mevzuat hakkında ülkeye özgü gerekli hükümler ayrı hukuki inceleme sonucunda belirlenecektir.
+
+---

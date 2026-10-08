@@ -2,8 +2,12 @@
 <data-extraction-rules>
     <cloud-backup>
         <exclude domain="sharedpref" path="nextdns_secure_prefs.xml" />
+        <exclude domain="sharedpref" path="legal_acceptance.xml" />
+        <exclude domain="file" path="datastore/notification_settings.preferences_pb" />
     </cloud-backup>
     <device-transfer>
         <exclude domain="sharedpref" path="nextdns_secure_prefs.xml" />
+        <exclude domain="sharedpref" path="legal_acceptance.xml" />
+        <exclude domain="file" path="datastore/notification_settings.preferences_pb" />
     </device-transfer>
 </data-extraction-rules>

@@ -1,0 +1,41 @@
+DRAFT — LEGAL REVIEW AND DEVELOPER IDENTITY PENDING — DO NOT PUBLISH
+
+EN — Terms of Use
+
+### 1. Legal character and independence
+[FINAL APPLICATION NAME] (the "Application") is an independently developed, unofficial third-party software client intended to facilitate access to selected NextDNS account and configuration management functions through the NextDNS application programming interface (API). The Application is not affiliated with, representative of, sponsored, endorsed or officially supported by NextDNS.
+
+### 2. Scope of functionality
+The Application provides an interface for viewing or managing profiles, configuration settings, security and privacy preferences, allow and deny rules, logs and analytics made available through the NextDNS API. It does not operate DNS resolution infrastructure, provide a VPN, sell NextDNS subscriptions or independently supply DNS services.
+
+### 3. Independence of NextDNS services
+NextDNS independently operates and administers its DNS infrastructure, servers, accounts, subscriptions and payment systems, API services and server-side data handling and retention. NextDNS determines the terms and policies governing those services. Using the Application does not alter any separate contractual relationship with NextDNS.
+
+### 4. API modifications, technical compatibility and allocation of responsibility
+The Application's functionality depends on the technical characteristics and availability of the NextDNS API. Modifications to endpoints, authentication mechanisms, response structures, access limitations or continuity of service may result in connection errors, software incompatibilities, outdated displays or temporary or permanent unavailability of functions. **The Application developer does not accept responsibility for connection errors, compatibility issues or loss of functionality resulting from modifications, interruptions, restrictions or discontinuation of the NextDNS API or services.**
+
+### 5. Access credentials and lawful use
+Use of relevant NextDNS features may require valid API access credentials supplied by the user. Access through the Application must comply with applicable law and NextDNS's service terms. These Terms do not impose an additional exclusive account-ownership condition and must not be construed as authorizing unauthorized access.
+
+### 6. User-initiated operations
+The Application may transmit user-initiated requests through the NextDNS API, including profile creation or deletion, configuration changes, allow or deny rule management and log-related operations. Certain operations may be irreversible. The status displayed for an operation depends on the technical information returned by NextDNS. Relevant profile and configuration details are presented through the applicable interface.
+
+### 7. Processing of data and privacy
+The Application's separate Privacy Policy describes handling of API credentials and account/profile data on the device, transmissions to NextDNS, optional notifications and log exports. Processing undertaken by NextDNS on its infrastructure is subject to its own privacy disclosures. Acceptance of these Terms does not constitute blanket consent to personal-data processing for which separate express consent is required.
+
+### 8. Local storage, sign-out and deletion boundaries
+Signing out is intended to remove the API credentials, local account-related data and associated notification tasks retained by the Application. It does not itself delete the underlying NextDNS account, remove information held on NextDNS servers or erase files separately exported by the user to a location of their choice. The Application will distinguish these effects.
+
+### 9. Availability, maintenance and technical evolution
+Certain features may be unavailable on particular devices or at particular times as a result of changing API specifications, operating-system differences or third-party service conditions. Application updates may alter compatibility, security characteristics or available functionality. No undertaking is made regarding uninterrupted or unchanging availability of the NextDNS API.
+
+### 10. Intellectual property and distinct identity
+Original source code and developer-authored content are subject to their respective licences and proprietary rights. NextDNS's name, service and trademarks remain the property of their respective rights holders. Descriptive references to NextDNS do not constitute representation of, affiliation with or trademark authorisation from NextDNS.
+
+### 11. Acceptance and amendments
+These Terms are accepted through a separate affirmative checkbox at first use. Material amendments may require renewed acceptance before the relevant Application features become available. Changing the interface language alone does not require reacceptance of an unchanged legal revision. Current Terms and revision information will remain accessible within the Application.
+
+### 12. Effective date, contact and applicable provisions
+The effective date, verified legal identity of the publisher and support contact information shall be completed before publication. Any jurisdiction-specific provisions governing disputes or mandatory legal requirements are reserved for legal review before release.
+
+---

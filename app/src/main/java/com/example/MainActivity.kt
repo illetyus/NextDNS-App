@@ -11,20 +11,25 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.setValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.data.preferences.ThemePreferences
+import com.example.data.legal.LegalAcceptanceStore
 import com.example.ui.screens.HomeScreen
 import com.example.ui.screens.LoginScreen
+import com.example.ui.screens.LegalWelcomeScreen
 import com.example.ui.theme.AppTheme
 import com.example.ui.theme.ThemeMode
 import com.example.ui.viewmodel.NextDnsViewModel
 
 class MainActivity : ComponentActivity() {
   private val viewModel: NextDnsViewModel by viewModels()
+  private val legalAcceptanceStore by lazy { LegalAcceptanceStore(applicationContext) }
 
   override fun onCreate(savedInstanceState: Bundle?) {
     val splashScreen = installSplashScreen()
@@ -33,11 +38,12 @@ class MainActivity : ComponentActivity() {
     
     splashScreen.setKeepOnScreenCondition {
         // Keep splash screen on until we know the login status
-        viewModel.isInitializing.value
+        legalAcceptanceStore.isAccepted() && viewModel.isInitializing.value
     }
     
     setContent {
         val context = LocalContext.current
+        var termsAccepted by remember { mutableStateOf(legalAcceptanceStore.isAccepted()) }
         val themePrefs = remember { ThemePreferences(context) }
         val themeMode by themePrefs.themeMode.collectAsStateWithLifecycle(initialValue = ThemeMode.SYSTEM)
 
@@ -48,7 +54,16 @@ class MainActivity : ComponentActivity() {
           modifier = Modifier.fillMaxSize(),
           color = MaterialTheme.colorScheme.background
         ) {
-          if (isLoggedIn != null) {
+          if (!termsAccepted) {
+            LegalWelcomeScreen(onAccept = {
+              val saved = legalAcceptanceStore.acceptCurrentTerms()
+              if (saved) {
+                termsAccepted = true
+                viewModel.resumeAfterTermsAccepted()
+              }
+              saved
+            })
+          } else if (isLoggedIn != null) {
             AnimatedContent(
               targetState = isLoggedIn == true,
               transitionSpec = {

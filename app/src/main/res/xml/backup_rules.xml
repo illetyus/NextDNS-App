@@ -1,4 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <full-backup-content>
     <exclude domain="sharedpref" path="nextdns_secure_prefs.xml" />
+    <exclude domain="sharedpref" path="legal_acceptance.xml" />
+    <exclude domain="file" path="datastore/notification_settings.preferences_pb" />
 </full-backup-content>

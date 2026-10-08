@@ -58,6 +58,9 @@ Gerçek cihaz modeli ve Android sürümü **test anındaki BrowserStack katalogu
 | B17 | **Beş dil**: Türkçe, İngilizce, Almanca, Fransızca, İspanyolca; sistem dili veya kullanıcı seçimi | Sabit arayüz metinleri tamamen çevrili, metin taşması veya karışık dil yok; erişilebilirlik ve bildirimler de çevrili |
 | B18 | **Beş dilde Terms of Use**, **İngilizce Privacy Policy**; ilk kabul, güncelleme ve dil değiştirme | İlk checkbox boş; materyal değişiklikte yeniden onay; yalnız dil değişiminde gereksiz yeniden onay yok; gizlilik metni İngilizce olduğu açık; yerel hukuk incelemesi tamam |
 | B19 | NextDNS API değişikliği/kesintisi: kaldırılan JSON alanı, hatalı tür, 401/403/404/429/5xx, timeout, eski endpoint | Uygulama çökmez; hata açıkça gösterilir, eski veri canlı olarak sunulmaz, yanlış profil silme/düzenleme gerçekleşmez, API onayı olmadan başarı bildirilmez; API değişikliği uyarısı doğru |
+| B20 | Yeni kurulumda onay yok; eski kurulumda kabul sürümü eskimiş | Giriş, misafir modu, auto-login, canlı katalog ve background API isteği kabul öncesinde yok; Terms/Privacy internet olmadan okunabilir; kabul yazılamazsa giriş açılmaz |
+| B21 | Açık oturumdan çıkış, devam eden API isteği ve WorkManager eşzamanlılığı | Yerel anahtar/profil/notification_settings temizlenir, tema korunur; sonradan gelen cevap veya worker eski hesap verisini yeniden oluşturmaz |
+| B22 | Eksik hukuk dosyası, hukuki taslak veya eski revizyon ile yayın denemesi | scripts/verify_legal_release_ready.sh yayın paketini engeller; nihai metinler hukuki ve beş dilde eşdeğerlik kontrolünden geçirilir |
 
 
 ## 5. Gerçek cihaz otomasyonu ve güvenlik
@@ -69,7 +72,7 @@ Gerçek cihaz modeli ve Android sürümü **test anındaki BrowserStack katalogu
 
 ## 6. Yayın kararı
 
-**PASS için:** B01–B19 içindeki geçerli senaryolar tamamlanmış olmalı; P0/P1 kritik/yüksek açık **0**; güvenlik ve API anahtarının yanlış aktarılması **0**; tüm zorunlu cihaz sınıfları test edilmiş; bulgular ve düzeltme sonrası tekrar testler aynı release adayıyla tutarlı olmalı.
+**PASS için:** B01–B22 içindeki geçerli senaryolar tamamlanmış olmalı; P0/P1 kritik/yüksek açık **0**; güvenlik ve API anahtarının yanlış aktarılması **0**; tüm zorunlu cihaz sınıfları test edilmiş; bulgular ve düzeltme sonrası tekrar testler aynı release adayıyla tutarlı olmalı.
 
 **FAIL/BLOCK:** Kritik crash/ANR, izinsiz veri aktarımı, hatalı ayarın başarılı gösterilmesi, başka profil verisinin görünmesi, gizli API key sızıntısı, ciddi a11y/OS çökmesi veya marka/lisans izni eksikliği.
 
@@ -80,3 +83,9 @@ Gerçek cihaz modeli ve Android sürümü **test anındaki BrowserStack katalogu
 ## 7. Faz 9 dil kapsamı
 
 İlk sürümde `tr`, `en`, `de`, `fr`, `es` desteklenecek. Kullanım Koşulları da beş dilde; Gizlilik Politikası şimdilik İngilizce. Dil değiştirmenin sözleşme onayına, oturuma, bildirimlere ve logout veri temizliğine etkisi için B17–B18 zorunludur. Ayrıntılar: [PHASE9_LOCALIZATION_PLAN.md](PHASE9_LOCALIZATION_PLAN.md).
+
+## 8. Faz 9 ilk dilimi — uygulanan değişiklikler ve yayın engeli
+
+`phase9-legal-gate-logout` dalında Terms kabulü, çevrimdışı beş dil taslak belgesi ve İngilizce Privacy görüntüleme, auto-login/WorkManager başlangıç kontrolü, oturum kapatmada notification DataStore temizliği ve yedekleme dışlamaları kodlandı. Test senaryoları eklendi. Bu **gerçek cihaz testinin yapıldığı veya nihai hukuki metinlerin onaylandığı anlamına gelmez**.
+
+**Önemli:** Uygulamaya yerleştirilen sözleşmeler hâlen taslaktır; tamamında `DRAFT` uyarıları bulunur. Public Play yayını öncesinde `bash scripts/verify_legal_release_ready.sh` çalıştırılması zorunludur; metinlerin içerik bakımından uzman incelemesi, geliştirici kimliği ve Privacy Policy URL'sinin doğrulanması ayrıca gereklidir. Script yalnız metin/placeholder tespiti yapar ve tek başına hukuk onayı sağlamaz.

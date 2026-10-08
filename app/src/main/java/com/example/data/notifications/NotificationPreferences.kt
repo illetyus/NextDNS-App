@@ -44,6 +44,11 @@ class NotificationPreferences(context: Context) {
 
   suspend fun currentSettings(): NotificationSettings = settings.first()
 
+  /** Remove notification toggles, per-profile digests, timestamps and baselines. */
+  suspend fun clearAccountState() {
+    dataStore.edit { prefs -> prefs.clear() }
+  }
+
   suspend fun setConfigChangeAlertsEnabled(enabled: Boolean) {
     dataStore.edit { prefs ->
       prefs[CONFIG_ALERTS] = enabled
