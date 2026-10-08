@@ -1,5 +1,8 @@
 package com.example.ui.screens
 
+import com.example.R
+import com.example.i18n.AppStrings
+
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -22,7 +25,7 @@ fun WorldMapChart(
 ) {
   if (countryData.isEmpty()) {
     Text(
-      text = "Ülke verisi bulunamadı",
+      text = AppStrings.get(R.string.ui_e07464ef33),
       color = MaterialTheme.colorScheme.onSurfaceVariant,
       fontSize = 12.sp,
       modifier = modifier.padding(vertical = 12.dp)

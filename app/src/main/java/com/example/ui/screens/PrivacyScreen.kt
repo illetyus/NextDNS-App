@@ -1,5 +1,8 @@
 package com.example.ui.screens
 
+import com.example.R
+import com.example.i18n.AppStrings
+
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -108,8 +111,8 @@ private fun BlocklistsSection(
 ) {
   NextDnsCard(
     modifier = modifier,
-    title = "Engelleme Listeleri",
-    subtitle = "NextDNS tarafından sunulan engelleme listelerini kullanarak reklamları ve izleyicileri engelleyin."
+    title = AppStrings.get(R.string.ui_6ef8c92a60),
+    subtitle = AppStrings.get(R.string.ui_7c705b3b35)
   ) {
     if (activeBlocklists.isNotEmpty()) {
       Column(
@@ -131,7 +134,7 @@ private fun BlocklistsSection(
           .padding(bottom = 12.dp)
       ) {
         Text(
-          text = "Henüz aktif engelleme listesi eklenmedi. 'Engelleme Listesi Ekle' butonuna basarak popüler listeleri etkinleştirebilirsiniz.",
+          text = AppStrings.get(R.string.ui_12e04ab891),
           color = MaterialTheme.colorScheme.outline,
           fontSize = 12.sp,
           modifier = Modifier.padding(12.dp)
@@ -140,7 +143,7 @@ private fun BlocklistsSection(
     }
 
     NextDnsButton(
-      text = "ENGELLEME LİSTESİ EKLE / YÖNET",
+      text = AppStrings.get(R.string.manage_blocklists),
       onClick = onOpenAddDialog,
       icon = Icons.Default.Add
     )
@@ -213,14 +216,14 @@ private fun BlocklistItemCard(
               fontSize = 11.sp
             )
           }
-          val updateInfo = if (item.updatedTime.isNotBlank()) "Son güncelleme: ${item.updatedTime}" else "Güncelleme zamanı sağlanmadı"
+          val updateInfo = if (item.updatedTime.isNotBlank()) AppStrings.get(R.string.last_updated, item.updatedTime) else AppStrings.get(R.string.ui_f4435d51ea)
           val formattedEntries = try {
-            java.text.NumberFormat.getInstance(java.util.Locale("tr", "TR")).format(item.entriesCount)
+            java.text.NumberFormat.getInstance(java.util.AppStrings.locale).format(item.entriesCount)
           } catch (_: Exception) {
             item.entriesCount.toString()
           }
           Text(
-            text = "$formattedEntries kural • $updateInfo",
+            text = AppStrings.get(R.string.rules_updated, formattedEntries, updateInfo),
             color = MaterialTheme.colorScheme.outline,
             fontSize = 10.5.sp
           )
@@ -233,7 +236,7 @@ private fun BlocklistItemCard(
       ) {
         Icon(
           imageVector = Icons.Default.Close,
-          contentDescription = "Kaldır",
+          contentDescription = AppStrings.get(R.string.ui_b88019aa28),
           tint = MaterialTheme.colorScheme.onSurfaceVariant,
           modifier = Modifier.size(18.dp)
         )
@@ -251,8 +254,8 @@ private fun NativeTrackingSection(
 ) {
   NextDnsCard(
     modifier = modifier,
-    title = "Yerel İzleme Koruması",
-    subtitle = "Bir cihazdaki etkinliğinizi izleyen, genellikle işletim sistemi düzeyinde çalışan geniş spektrumlu izleyicileri engelleyin. Bu etkinlikler ziyaret ettiğiniz siteleri, telemetriyi veya arka plan raporlarını içerebilir.",
+    title = AppStrings.get(R.string.ui_cc7f654b6c),
+    subtitle = AppStrings.get(R.string.ui_4efc38ead6),
     isBeta = true
   ) {
     if (activeNatives.isNotEmpty()) {
@@ -269,7 +272,7 @@ private fun NativeTrackingSection(
     }
 
     NextDnsButton(
-      text = "YEREL İZLEME KORUMASI EKLE",
+      text = AppStrings.get(R.string.ui_eaa29349bc),
       onClick = onOpenAddDialog,
       icon = Icons.Default.Add
     )
@@ -342,7 +345,7 @@ private fun NativeTrackingItemCard(
       ) {
         Icon(
           imageVector = Icons.Default.Close,
-          contentDescription = "Kaldır",
+          contentDescription = AppStrings.get(R.string.ui_b88019aa28),
           tint = MaterialTheme.colorScheme.onSurfaceVariant,
           modifier = Modifier.size(18.dp)
         )
@@ -359,8 +362,8 @@ private fun DisguisedTrackersSection(
 ) {
   NextDnsSettingToggle(
     modifier = modifier,
-    title = "Gizlenmiş Üçüncü Taraf İzleyicileri Engelle",
-    subtitle = "Güncel tarayıcıların gizlilik korumalarını atlatmak için CNAME veya birinci taraf olarak gizlenen izleyicileri otomatik olarak algılayın ve engelleyin.",
+    title = AppStrings.get(R.string.ui_f666e1ea8a),
+    subtitle = AppStrings.get(R.string.ui_48ef0bc17d),
     checked = disguisedTrackers,
     onCheckedChange = onToggleDisguisedTrackers
   )
@@ -374,8 +377,8 @@ private fun AffiliatesSection(
 ) {
   NextDnsCard(
     modifier = modifier,
-    title = "Ortaklık ve İzleme Bağlantılarına İzin Ver",
-    subtitle = "Fırsat web sitelerinde, e-postalarda veya arama sonuçlarında yaygın olan satış ortağı ve izleme alanlarına izin verin. Bunlar genellikle yalnızca bir bağlantıya elle tıklandıktan sonra aranır."
+    title = AppStrings.get(R.string.ui_1eabea1802),
+    subtitle = AppStrings.get(R.string.ui_33bf65ec66)
   ) {
     Surface(
       color = MaterialTheme.colorScheme.secondaryContainer.copy(alpha = 0.55f),
@@ -397,7 +400,7 @@ private fun AffiliatesSection(
           modifier = Modifier.size(16.dp)
         )
         Text(
-          text = "IP adresiniz, gizliliğinizi korumak için bu web sitelerinden otomatik olarak gizlenecektir.",
+          text = AppStrings.get(R.string.ui_a425a01661),
           color = MaterialTheme.colorScheme.onSecondaryContainer,
           fontSize = 11.5.sp,
           fontWeight = FontWeight.Medium
@@ -414,7 +417,7 @@ private fun AffiliatesSection(
       horizontalArrangement = Arrangement.SpaceBetween
     ) {
       Text(
-        text = if (allowAffiliates) "Ortaklık bağlantılarına izin veriliyor" else "Ortaklık bağlantılarına izin verilmiyor",
+        text = if (allowAffiliates) AppStrings.get(R.string.ui_6216cb4919) else AppStrings.get(R.string.ui_28fcc3af77),
         style = MaterialTheme.typography.bodyMedium.copy(fontSize = 13.sp),
         color = if (allowAffiliates) MaterialTheme.colorScheme.onSurface else MaterialTheme.colorScheme.onSurfaceVariant
       )
@@ -437,11 +440,11 @@ private fun AddBlocklistCatalogDialog(
   onDismiss: () -> Unit
 ) {
   var searchQuery by remember { mutableStateOf("") }
-  var selectedCategory by remember { mutableStateOf("Tümü") }
-  val categories = listOf("Tümü", "Genel", "Güvenlik", "Gizlilik", "Bölgesel")
+  var selectedCategory by remember { mutableStateOf(AppStrings.get(R.string.ui_f43a65ad82)) }
+  val categories = listOf(AppStrings.get(R.string.ui_f43a65ad82), AppStrings.get(R.string.ui_0f1322006d), AppStrings.get(R.string.ui_bde6632ed8), "Gizlilik", AppStrings.get(R.string.ui_5ed0130b25))
 
   val filteredList = blocklists.filter { entry ->
-    val matchesCat = selectedCategory == "Tümü" || (entry.category ?: "Genel").equals(selectedCategory, ignoreCase = true)
+    val matchesCat = selectedCategory == AppStrings.get(R.string.ui_f43a65ad82) || (entry.category ?: AppStrings.get(R.string.ui_0f1322006d)).equals(selectedCategory, ignoreCase = true)
     val matchesQuery = searchQuery.isBlank() ||
       entry.name.contains(searchQuery, ignoreCase = true) ||
       entry.description.contains(searchQuery, ignoreCase = true)
@@ -454,11 +457,11 @@ private fun AddBlocklistCatalogDialog(
     shape = RoundedCornerShape(20.dp),
     title = {
       Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-        Text("Engelleme Listesi Kataloğu", color = MaterialTheme.colorScheme.onSurface, fontWeight = FontWeight.Bold, fontSize = 17.sp)
+        Text(AppStrings.get(R.string.ui_18a8812db5), color = MaterialTheme.colorScheme.onSurface, fontWeight = FontWeight.Bold, fontSize = 17.sp)
         OutlinedTextField(
           value = searchQuery,
           onValueChange = { searchQuery = it },
-          placeholder = { Text("Filtre veya liste ara...", color = MaterialTheme.colorScheme.outline, fontSize = 12.sp) },
+          placeholder = { Text(AppStrings.get(R.string.ui_5197bf4e5f), color = MaterialTheme.colorScheme.outline, fontSize = 12.sp) },
           singleLine = true,
           modifier = Modifier.fillMaxWidth(),
           colors = OutlinedTextFieldDefaults.colors(
@@ -556,19 +559,19 @@ private fun AddBlocklistCatalogDialog(
                   modifier = Modifier.padding(top = 4.dp, bottom = 4.dp)
                 )
                 val formattedEntries = try {
-                  java.text.NumberFormat.getInstance(java.util.Locale("tr", "TR")).format(catItem.entriesCount)
+                  java.text.NumberFormat.getInstance(java.util.AppStrings.locale).format(catItem.entriesCount)
                 } catch (_: Exception) {
                   catItem.entriesCount.toString()
                 }
                 Row(verticalAlignment = Alignment.CenterVertically) {
                   Text(
-                    text = "$formattedEntries girdi",
+                    text = AppStrings.get(R.string.entries_count, formattedEntries),
                     color = MaterialTheme.colorScheme.outline,
                     fontSize = 10.sp
                   )
                   if (catItem.updatedTime.isNotBlank()) {
                     Text(
-                      text = " • Son güncelleme: ${catItem.updatedTime}",
+                      text = AppStrings.get(R.string.catalog_updated, catItem.updatedTime),
                       color = MaterialTheme.colorScheme.outline,
                       fontSize = 10.sp
                     )
@@ -589,7 +592,7 @@ private fun AddBlocklistCatalogDialog(
                 modifier = Modifier.height(32.dp)
               ) {
                 Text(
-                  text = if (isAdded) "Kaldır" else "Ekle",
+                  text = if (isAdded) AppStrings.get(R.string.ui_b88019aa28) else "Ekle",
                   fontSize = 11.5.sp,
                   fontWeight = FontWeight.Bold
                 )
@@ -601,7 +604,7 @@ private fun AddBlocklistCatalogDialog(
     },
     confirmButton = {
       TextButton(onClick = onDismiss) {
-        Text("Tamam", color = MaterialTheme.colorScheme.primary, fontWeight = FontWeight.Bold)
+        Text(AppStrings.get(R.string.ui_79c4b04b6e), color = MaterialTheme.colorScheme.primary, fontWeight = FontWeight.Bold)
       }
     },
     dismissButton = {}
@@ -621,11 +624,11 @@ private fun AddNativeTrackingDialog(
     containerColor = MaterialTheme.colorScheme.surface,
     shape = RoundedCornerShape(18.dp),
     title = {
-      Text("Yerel İzleme Koruması Ekle", color = MaterialTheme.colorScheme.onSurface, fontWeight = FontWeight.Bold, fontSize = 16.sp)
+      Text(AppStrings.get(R.string.ui_4ba62c96ff), color = MaterialTheme.colorScheme.onSurface, fontWeight = FontWeight.Bold, fontSize = 16.sp)
     },
     text = {
       if (inactiveNatives.isEmpty()) {
-        Text("Tüm yerel izleme korumaları zaten aktif.", color = MaterialTheme.colorScheme.onSurfaceVariant, fontSize = 13.sp)
+        Text(AppStrings.get(R.string.ui_fb11f587fe), color = MaterialTheme.colorScheme.onSurfaceVariant, fontSize = 13.sp)
       } else {
         Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
           inactiveNatives.forEach { nat ->
@@ -672,7 +675,7 @@ private fun AddNativeTrackingDialog(
                     Text(nat.description, color = MaterialTheme.colorScheme.onSurfaceVariant, fontSize = 11.sp)
                   }
                 }
-                Icon(Icons.Default.Add, contentDescription = "Ekle", tint = MaterialTheme.colorScheme.primary, modifier = Modifier.size(18.dp))
+                Icon(Icons.Default.Add, contentDescription = AppStrings.get(R.string.ui_f560a85f28), tint = MaterialTheme.colorScheme.primary, modifier = Modifier.size(18.dp))
               }
             }
           }
@@ -682,7 +685,7 @@ private fun AddNativeTrackingDialog(
     confirmButton = {},
     dismissButton = {
       TextButton(onClick = onDismiss) {
-        Text("Kapat", color = MaterialTheme.colorScheme.onSurfaceVariant)
+        Text(AppStrings.get(R.string.close), color = MaterialTheme.colorScheme.onSurfaceVariant)
       }
     }
   )

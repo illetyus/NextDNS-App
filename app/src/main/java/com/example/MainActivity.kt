@@ -1,6 +1,8 @@
 package com.example
 
 import android.os.Bundle
+import android.content.Context
+import com.example.i18n.LocalePreferences
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
@@ -28,6 +30,10 @@ import com.example.ui.theme.ThemeMode
 import com.example.ui.viewmodel.NextDnsViewModel
 
 class MainActivity : ComponentActivity() {
+  override fun attachBaseContext(newBase: Context) {
+    super.attachBaseContext(LocalePreferences.localizedContext(newBase))
+  }
+
   private val viewModel: NextDnsViewModel by viewModels()
   private val legalAcceptanceStore by lazy { LegalAcceptanceStore(applicationContext) }
 
@@ -35,6 +41,7 @@ class MainActivity : ComponentActivity() {
     val splashScreen = installSplashScreen()
     super.onCreate(savedInstanceState)
     enableEdgeToEdge()
+    com.example.data.notifications.NotificationCenter.createChannels(this)
     
     splashScreen.setKeepOnScreenCondition {
         // Keep splash screen on until we know the login status

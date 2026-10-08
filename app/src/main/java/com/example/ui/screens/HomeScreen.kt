@@ -37,6 +37,7 @@ import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.R
+import com.example.i18n.AppStrings
 import com.example.ui.components.NextDnsButton
 import com.example.ui.components.StatusBeacon
 import com.example.ui.components.bounceClick
@@ -201,7 +202,7 @@ fun HomeScreen(
                         .background(MaterialTheme.colorScheme.tertiary)
                     )
                     Text(
-                      text = activeProfile?.name ?: "Profil Seç",
+                      text = activeProfile?.name ?: AppStrings.get(R.string.ui_18d49619ba),
                       style = MaterialTheme.typography.bodySmall.copy(
                         fontWeight = FontWeight.SemiBold,
                         fontSize = 12.sp
@@ -253,7 +254,7 @@ fun HomeScreen(
                             Spacer(modifier = Modifier.width(8.dp))
                             Icon(
                               imageVector = Icons.Default.Check,
-                              contentDescription = "Seçili",
+                              contentDescription = AppStrings.get(R.string.ui_cab5ee48fc),
                               tint = MaterialTheme.colorScheme.primary,
                               modifier = Modifier.size(14.dp)
                             )
@@ -280,7 +281,7 @@ fun HomeScreen(
                           modifier = Modifier.size(14.dp)
                         )
                         Text(
-                          text = "Yeni Profil Oluştur",
+                          text = AppStrings.get(R.string.ui_cff3a955d7),
                           color = MaterialTheme.colorScheme.primary,
                           fontSize = 12.sp,
                           fontWeight = FontWeight.Bold
@@ -319,7 +320,7 @@ fun HomeScreen(
                     modifier = Modifier.size(14.dp)
                   )
                   Text(
-                    text = if (hasApiKey) "Hesabım" else "Misafir",
+                    text = if (hasApiKey) AppStrings.get(R.string.ui_c994874896) else AppStrings.get(R.string.ui_6d063986da),
                     style = MaterialTheme.typography.bodySmall.copy(
                       fontWeight = FontWeight.Medium,
                       fontSize = 11.sp
@@ -347,7 +348,7 @@ fun HomeScreen(
                   text = {
                     Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                       Icon(Icons.Default.Sync, contentDescription = null, tint = MaterialTheme.colorScheme.primary, modifier = Modifier.size(16.dp))
-                      Text("Verileri Yenile", color = MaterialTheme.colorScheme.onSurface, fontSize = 12.sp)
+                      Text(AppStrings.get(R.string.ui_9758f9879f), color = MaterialTheme.colorScheme.onSurface, fontSize = 12.sp)
                     }
                   },
                   onClick = {
@@ -359,7 +360,7 @@ fun HomeScreen(
                   text = {
                     Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                       Icon(Icons.Default.Speed, contentDescription = null, tint = MaterialTheme.colorScheme.tertiary, modifier = Modifier.size(16.dp))
-                      Text("Tanı Testi Çalıştır", color = MaterialTheme.colorScheme.onSurface, fontSize = 12.sp)
+                      Text(AppStrings.get(R.string.ui_3b01c686bb), color = MaterialTheme.colorScheme.onSurface, fontSize = 12.sp)
                     }
                   },
                   onClick = {
@@ -372,7 +373,7 @@ fun HomeScreen(
                   text = {
                     Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                       Icon(Icons.Default.Logout, contentDescription = null, tint = MaterialTheme.colorScheme.error, modifier = Modifier.size(16.dp))
-                      Text("Çıkış Yap", color = MaterialTheme.colorScheme.error, fontSize = 12.sp, fontWeight = FontWeight.Bold)
+                      Text(AppStrings.get(R.string.ui_283092d12a), color = MaterialTheme.colorScheme.error, fontSize = 12.sp, fontWeight = FontWeight.Bold)
                     }
                   },
                   onClick = {
@@ -450,14 +451,14 @@ fun HomeScreen(
 
           currentSectionSyncState?.let { syncState ->
             val syncText = when {
-              syncState.isSaving -> "NextDNS'e kaydediliyor…"
-              syncState.isRefreshing -> "Sunucuyla eşitleniyor…"
+              syncState.isSaving -> AppStrings.get(R.string.saving_server)
+              syncState.isRefreshing -> AppStrings.get(R.string.ui_a3b98b8a79)
               syncState.errorMessage != null -> {
-                val lastOk = syncState.lastSuccessAt?.let(::formatSyncTime) ?: "yok"
-                "Eşitleme başarısız • son başarılı: $lastOk"
+                val lastOk = syncState.lastSuccessAt?.let(::formatSyncTime) ?: AppStrings.get(R.string.none)
+                AppStrings.get(R.string.sync_failed_time, lastOk)
               }
-              syncState.lastSuccessAt != null -> "Sunucudan güncel • ${formatSyncTime(syncState.lastSuccessAt)}"
-              else -> "Henüz sunucudan doğrulanmadı"
+              syncState.lastSuccessAt != null -> AppStrings.get(R.string.sync_current_time, formatSyncTime(syncState.lastSuccessAt))
+              else -> AppStrings.get(R.string.ui_a68ae936eb)
             }
 
             val syncColor = when {
@@ -581,7 +582,7 @@ fun HomeScreen(
       shape = RoundedCornerShape(18.dp),
       title = {
         Text(
-          text = "Yeni Profil Oluştur",
+          text = AppStrings.get(R.string.ui_cff3a955d7),
           style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
           color = MaterialTheme.colorScheme.onSurface
         )
@@ -589,14 +590,14 @@ fun HomeScreen(
       text = {
         Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
           Text(
-            text = "Bu profil için bir isim girin:",
+            text = AppStrings.get(R.string.ui_bc16686dc9),
             color = MaterialTheme.colorScheme.onSurfaceVariant,
             fontSize = 12.sp
           )
           OutlinedTextField(
             value = newProfileNameInput,
             onValueChange = { newProfileNameInput = it },
-            placeholder = { Text("örn. Ev Ağı, Telefonum", color = MaterialTheme.colorScheme.outline, fontSize = 13.sp) },
+            placeholder = { Text(AppStrings.get(R.string.ui_7abc30d137), color = MaterialTheme.colorScheme.outline, fontSize = 13.sp) },
             singleLine = true,
             modifier = Modifier.fillMaxWidth(),
             colors = OutlinedTextFieldDefaults.colors(
@@ -611,7 +612,7 @@ fun HomeScreen(
       },
       confirmButton = {
         NextDnsButton(
-          text = "Oluştur",
+          text = AppStrings.get(R.string.ui_89c75b03b9),
           onClick = {
             if (newProfileNameInput.isNotBlank()) {
               viewModel.createProfile(newProfileNameInput.trim())
@@ -623,7 +624,7 @@ fun HomeScreen(
       },
       dismissButton = {
         TextButton(onClick = { showNewProfileDialog = false }) {
-          Text("İptal", color = MaterialTheme.colorScheme.onSurfaceVariant, fontSize = 12.sp)
+          Text(AppStrings.get(R.string.ui_7227874813), color = MaterialTheme.colorScheme.onSurfaceVariant, fontSize = 12.sp)
         }
       }
     )

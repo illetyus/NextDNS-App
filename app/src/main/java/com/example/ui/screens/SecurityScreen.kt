@@ -1,5 +1,8 @@
 package com.example.ui.screens
 
+import com.example.R
+import com.example.i18n.AppStrings
+
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -42,8 +45,8 @@ fun SecurityScreen(
     // 1. Tehdit İstihbaratı Beslemeleri
     item {
       NextDnsSettingToggle(
-        title = "Tehdit İstihbaratı Beslemeleri",
-        subtitle = "Tümü gerçek zamanlı olarak güncellenen, en saygın tehdit istihbarat beslemelerinin bir karışımını kullanarak kötü amaçlı yazılım dağıttığı, kimlik avı saldırıları başlattığı ve komuta ve kontrol sunucuları barındırdığı bilinen alan adlarını engelleyin.",
+        title = AppStrings.get(R.string.ui_9c19e93b43),
+        subtitle = AppStrings.get(R.string.ui_3e2b9e54d4),
         checked = settings.threatIntelligenceFeeds,
         onCheckedChange = { viewModel.toggleSecurityFeature("threatIntelligenceFeeds", it) }
       )
@@ -52,8 +55,8 @@ fun SecurityScreen(
     // 2. Yapay Zekâ Destekli Tehdit Algılama [BETA]
     item {
       NextDnsSettingToggle(
-        title = "Yapay Zekâ Destekli Tehdit Algılama",
-        subtitle = "Yapay zekâ teknolojimizle tespit edilen milyonlarca saldırıyı engelleyin. Tescilli yapay zekâ motorumuz yüzlerce sinyal, terabaytlarca eğitim verisi ve gerçek zamanlı karar verme kabiliyetleriyle baştan sona DNS için tasarlandı.",
+        title = AppStrings.get(R.string.ui_b8c859e123),
+        subtitle = AppStrings.get(R.string.ui_be3c39ca5b),
         checked = settings.aiThreatDetection,
         onCheckedChange = { viewModel.toggleSecurityFeature("aiThreatDetection", it) },
         isBeta = true
@@ -63,8 +66,8 @@ fun SecurityScreen(
     // 3. Google Güvenli Tarama
     item {
       NextDnsSettingToggle(
-        title = "Google Güvenli Tarama",
-        subtitle = "Güvenli olmayan web sitelerini arayarak her gün milyarlarca URL'yi inceleyen bir teknoloji olan Google Güvenli Tarama'yı kullanarak kötü amaçlı yazılımları ve kimlik avı alan adlarını engelleyin. Bazı tarayıcılarda yerleşik olan sürümden farklı olarak, bu, genel IP adresinizi tehditlerle ilişkilendirmez ve engellemeyi aşmaya izin vermez.",
+        title = AppStrings.get(R.string.ui_b6b6e376c7),
+        subtitle = AppStrings.get(R.string.ui_e8957127ba),
         checked = settings.googleSafeBrowsing,
         onCheckedChange = { viewModel.toggleSecurityFeature("googleSafeBrowsing", it) }
       )
@@ -73,8 +76,8 @@ fun SecurityScreen(
     // 4. Kripto Korsanlık (Cryptojacking) Koruması
     item {
       NextDnsSettingToggle(
-        title = "Kripto Korsanlık (Cryptojacking) Koruması",
-        subtitle = "Cihazlarınızın kripto para madenciliği yapmak için yetkisiz kullanımını önleyin.",
+        title = AppStrings.get(R.string.ui_309e669643),
+        subtitle = AppStrings.get(R.string.ui_c5806dad80),
         checked = settings.cryptojacking,
         onCheckedChange = { viewModel.toggleSecurityFeature("cryptojacking", it) }
       )
@@ -83,8 +86,8 @@ fun SecurityScreen(
     // 5. DNS Rebinding Koruması
     item {
       NextDnsSettingToggle(
-        title = "DNS Rebinding Koruması",
-        subtitle = "Özel IP adresleri içeren DNS yanıtlarını otomatik olarak engelleyerek saldırganların İnternet üzerinden yerel cihazlarınızın kontrolünü ele geçirmesini önleyin.",
+        title = AppStrings.get(R.string.ui_7a41105eb3),
+        subtitle = AppStrings.get(R.string.ui_9bf918d253),
         checked = settings.dnsRebinding,
         onCheckedChange = { viewModel.toggleSecurityFeature("dnsRebinding", it) }
       )
@@ -93,8 +96,8 @@ fun SecurityScreen(
     // 6. IDN Eşyazımı Saldırı Koruması
     item {
       NextDnsSettingToggle(
-        title = "IDN Eşyazımı Saldırı Koruması",
-        subtitle = "Uluslararası Alan Adlarının (IDN'ler) gelişiyle sağlanan büyük karakter kümesini kötüye kullanarak diğer etki alanlarını taklit eden etki alanlarını engelleyin - örneğin, Latince \"e\" harfini Kiril harfi \"е\" ile değiştirmek.",
+        title = AppStrings.get(R.string.ui_9904d77eb3),
+        subtitle = AppStrings.get(R.string.idn_description),
         checked = settings.idnHomographs,
         onCheckedChange = { viewModel.toggleSecurityFeature("idnHomographs", it) }
       )
@@ -103,8 +106,8 @@ fun SecurityScreen(
     // 7. Yanlış Siteye Yönlendirme Koruması
     item {
       NextDnsSettingToggle(
-        title = "Yanlış Siteye Yönlendirme Koruması",
-        subtitle = "Tarayıcılarına yanlış bir şekilde web sitesi adresi yazan kullanıcıları hedefleyen kötü niyetli kişiler tarafından kaydedilen alan adlarını engelleyin - ör. Google.com yerine gooogle.com.",
+        title = AppStrings.get(R.string.ui_6194b3ff35),
+        subtitle = AppStrings.get(R.string.ui_cf6cbd0dc8),
         checked = settings.typosquatting,
         onCheckedChange = { viewModel.toggleSecurityFeature("typosquatting", it) }
       )
@@ -113,8 +116,8 @@ fun SecurityScreen(
     // 8. Alan Adı Oluşturma Algoritmaları (DGA) Koruması
     item {
       NextDnsSettingToggle(
-        title = "Alan Adı Oluşturma Algoritmaları (DGA) Koruması",
-        subtitle = "Çeşitli kötü amaçlı yazılım gruplarında görülen ve komuta ve kontrol sunucularıyla buluşma noktaları olarak kullanılabilen Alan Adı Oluşturma Algoritmaları (DGA) tarafından oluşturulan etki alanlarını engelleyin.",
+        title = AppStrings.get(R.string.ui_fa2b128b73),
+        subtitle = AppStrings.get(R.string.ui_31c1f6c610),
         checked = settings.dga,
         onCheckedChange = { viewModel.toggleSecurityFeature("dga", it) }
       )
@@ -123,8 +126,8 @@ fun SecurityScreen(
     // 9. Yeni Kaydedilmiş Alan Adlarını (NRD'ler) Engelle
     item {
       NextDnsSettingToggle(
-        title = "Yeni Kaydedilmiş Alan Adlarını (NRD'ler) Engelle",
-        subtitle = "30 günden daha kısa süre önce kaydedilen alanları engelleyin. Bu alanların tehdit aktörleri tarafından kötü amaçlı kampanyalar başlatmak için tercih edildiği bilinmektedir.",
+        title = AppStrings.get(R.string.ui_c3cd82c4f0),
+        subtitle = AppStrings.get(R.string.ui_1371e307ce),
         checked = settings.nrd,
         onCheckedChange = { viewModel.toggleSecurityFeature("nrd", it) }
       )
@@ -133,8 +136,8 @@ fun SecurityScreen(
     // 10. Dinamik DNS Ana Bilgisayar Adlarını Engelle [BETA]
     item {
       NextDnsSettingToggle(
-        title = "Dinamik DNS Ana Bilgisayar Adlarını Engelle",
-        subtitle = "Dinamik DNS (kısaca DDNS) servisleri, kötü niyetli kişilerin herhangi bir doğrulama ve kimlik kontrolü olmaksızın hızlı ve ücretsiz bir şekilde ana bilgisayar adları oluşturmalarına olanak tanır. Normal amaçlarla kullanılan DDNS ana bilgisayar adları günlük kullanımda pek karşınıza çıkmaz ama kötü niyetli olanları kimlik avı kampanyalarında yoğun olarak kullanılır. (örn. paypal-login.duckdns.org)\nDDNS kullanıyorsanız unutmayın ki bu ayar, DDNS hizmetinin web sitesini ve güncelleme API'sini engellemeyecektir.",
+        title = AppStrings.get(R.string.ui_3399d9a672),
+        subtitle = AppStrings.get(R.string.ddns_description),
         checked = settings.ddns,
         onCheckedChange = { viewModel.toggleSecurityFeature("ddns", it) },
         isBeta = true
@@ -144,8 +147,8 @@ fun SecurityScreen(
     // 11. Park Edilmiş Alan Adlarını Engelle
     item {
       NextDnsSettingToggle(
-        title = "Park Edilmiş Alan Adlarını Engelle",
-        subtitle = "Park edilmiş alanlar, genellikle reklamlarla yüklü ve hiçbir değeri olmayan tek sayfalık web siteleridir. Park edilmiş alandan para kazanma, bazen şüpheli uygulamalar ve kötü amaçlı içerikle karışabilir.",
+        title = AppStrings.get(R.string.ui_b8b2a448eb),
+        subtitle = AppStrings.get(R.string.ui_b1fff1587d),
         checked = settings.parkedDomains,
         onCheckedChange = { viewModel.toggleSecurityFeature("parkedDomains", it) }
       )
@@ -154,8 +157,8 @@ fun SecurityScreen(
     // 12. Üst Seviye Alan Adlarını (TLD'ler) Engelle
     item {
       NextDnsCard(
-        title = "Üst Seviye Alan Adlarını (TLD'ler) Engelle",
-        subtitle = "Belirli TLD'lere ait tüm alanları ve alt alanları engelleyin."
+        title = AppStrings.get(R.string.ui_bfa7376292),
+        subtitle = AppStrings.get(R.string.ui_8a22df1169)
       ) {
         if (settings.blockedTlds.isNotEmpty()) {
           Column(
@@ -190,7 +193,7 @@ fun SecurityScreen(
                   ) {
                     Icon(
                       imageVector = Icons.Default.Close,
-                      contentDescription = "Kaldır",
+                      contentDescription = AppStrings.get(R.string.ui_b88019aa28),
                       tint = MaterialTheme.colorScheme.onSurfaceVariant,
                       modifier = Modifier.size(16.dp)
                     )
@@ -202,7 +205,7 @@ fun SecurityScreen(
         }
 
         NextDnsButton(
-          text = "TLD EKLE",
+          text = AppStrings.get(R.string.ui_2e2a1e330e),
           onClick = { showAddTldDialog = true },
           icon = Icons.Default.Add
         )
@@ -212,8 +215,8 @@ fun SecurityScreen(
     // 13. Çocukların Cinsel İstismarına İlişkin Materyalleri Engelle
     item {
       NextDnsSettingToggle(
-        title = "Çocukların Cinsel İstismarına İlişkin Materyalleri Engelle",
-        subtitle = "Canadian Centre for Child Protection tarafından işletilen Project Arachnid'in yardımıyla çocuklara yönelik cinsel istismar materyalleri barındıran alanları engelleyin. Bir alan adı engellendiğinde Project Arachnid'e hiçbir bilgi iletilmez.",
+        title = AppStrings.get(R.string.ui_122c713cab),
+        subtitle = AppStrings.get(R.string.ui_41ecbffa11),
         checked = settings.csam,
         onCheckedChange = { viewModel.toggleSecurityFeature("csam", it) }
       )
@@ -252,15 +255,15 @@ fun SecurityScreen(
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
           ) {
-            Text("TLD Ekle", color = MaterialTheme.colorScheme.onSurface, fontWeight = FontWeight.Bold, fontSize = 17.sp)
+            Text(AppStrings.get(R.string.ui_a0a234f76a), color = MaterialTheme.colorScheme.onSurface, fontWeight = FontWeight.Bold, fontSize = 17.sp)
             IconButton(onClick = { showAddTldDialog = false }, modifier = Modifier.size(48.dp)) {
-              Icon(Icons.Default.Close, contentDescription = "Kapat", tint = MaterialTheme.colorScheme.onSurfaceVariant)
+              Icon(Icons.Default.Close, contentDescription = AppStrings.get(R.string.ui_7b31a9fc48), tint = MaterialTheme.colorScheme.onSurfaceVariant)
             }
           }
           OutlinedTextField(
             value = tldSearchQuery,
             onValueChange = { tldSearchQuery = it },
-            placeholder = { Text("TLD ara... (.xyz, .top, .ru)", fontSize = 12.sp) },
+            placeholder = { Text(AppStrings.get(R.string.ui_d812357041), fontSize = 12.sp) },
             singleLine = true,
             modifier = Modifier.fillMaxWidth(),
             shape = RoundedCornerShape(8.dp)
@@ -289,7 +292,7 @@ fun SecurityScreen(
                 contentPadding = PaddingValues(horizontal = 12.dp, vertical = 4.dp),
                 modifier = Modifier.height(28.dp)
               ) {
-                Text("EKLE", fontSize = 11.sp, fontWeight = FontWeight.Bold)
+                Text(AppStrings.get(R.string.add), fontSize = 11.sp, fontWeight = FontWeight.Bold)
               }
             }
             HorizontalDivider(color = MaterialTheme.colorScheme.outline, modifier = Modifier.padding(horizontal = 16.dp))

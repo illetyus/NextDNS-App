@@ -63,6 +63,10 @@ jobs:
           fi
           exit "$result"
 
+      - name: Five-language resources and UI label gate
+        run: python3 scripts/verify_localization.py
+        shell: bash
+
       - name: Unit, Contract, Compose and Screenshot Tests
         run: ./gradlew :app:testDebugUnitTest :app:jacocoTestReport -Proborazzi.test.record=true --no-daemon
         shell: bash
@@ -81,6 +85,7 @@ jobs:
           name: ui-branding-screenshots
           path: |
             app/build/outputs/roborazzi/branding/*.png
+            app/build/outputs/roborazzi/localization/*.png
             app/build/test-results/testDebugUnitTest/*.xml
             app/build/reports/jacoco/jacocoTestReport/jacocoTestReport.xml
           if-no-files-found: error

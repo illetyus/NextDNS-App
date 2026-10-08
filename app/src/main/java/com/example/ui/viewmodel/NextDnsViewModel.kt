@@ -1,5 +1,10 @@
 package com.example.ui.viewmodel
 
+import com.example.i18n.UiLabels
+
+import com.example.R
+import com.example.i18n.AppStrings
+
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.data.model.*
@@ -20,17 +25,19 @@ import kotlinx.coroutines.launch
 import java.io.OutputStream
 import java.util.UUID
 
-enum class NavTab(val title: String, val iconName: String) {
-  SETUP("Kurulum", "dns"),
-  SECURITY("Güvenlik", "security"),
+enum class NavTab(val titleResource: Int, val iconName: String) {
+  SETUP(R.string.ui_daee5e5093, "dns"),
+  SECURITY(R.string.ui_bde6632ed8, "security"),
   PRIVACY("Gizlilik", "visibility_off"),
-  PARENTAL("Ebeveyn Kontrolü", "family_restroom"),
-  DENYLIST("Kara Liste", "block"),
-  ALLOWLIST("Beyaz Liste", "check_circle"),
-  ANALYTICS("Analizler", "insights"),
-  LOGS("Günlükler", "format_list_bulleted"),
-  SETTINGS("Ayarlar", "settings"),
-  ACCOUNT("Hesap", "account_circle")
+  PARENTAL(R.string.ui_c8073d04ad, "family_restroom"),
+  DENYLIST(R.string.ui_8aa4ccc961, "block"),
+  ALLOWLIST(R.string.ui_6419e29c88, "check_circle"),
+  ANALYTICS(R.string.ui_34db704cad, "insights"),
+  LOGS(R.string.ui_a007acc25e, "format_list_bulleted"),
+  SETTINGS(R.string.ui_80ad54ad05, "settings"),
+  ACCOUNT(R.string.ui_1c56ac8f2d, "account_circle");
+
+  val title: String get() = AppStrings.get(titleResource)
 }
 
 private fun NavTab.toSyncSection(): SyncSection? = when (this) {
@@ -180,10 +187,10 @@ class NextDnsViewModel(
       }
 
       if (failedSections.isEmpty()) {
-        showMessage("NextDNS profil ayarları sunucudan doğrulandı.")
+        showMessage(AppStrings.get(R.string.ui_7138c8cfd5))
       } else {
         showMessage(
-          "Bazı NextDNS bölümleri doğrulanamadı; ekrandaki güncellik durumunu kontrol edin.",
+          AppStrings.get(R.string.ui_4aae2f5c53),
           isError = true
         )
       }
@@ -266,7 +273,7 @@ class NextDnsViewModel(
       if (!successMessage.isNullOrBlank()) showMessage(successMessage)
     } else {
       showMessage(
-        result.exceptionOrNull()?.message ?: "NextDNS işlemi tamamlanamadı.",
+        result.exceptionOrNull()?.message ?: AppStrings.get(R.string.ui_fcd85e4b66),
         isError = true
       )
     }
@@ -287,7 +294,7 @@ class NextDnsViewModel(
   fun continueAsGuest() {
     if (!repository.termsAccepted()) return
     _isGuestMode.value = true
-    showMessage("Demo / Misafir Modunda başlatıldı")
+    showMessage(AppStrings.get(R.string.demo_started))
   }
 
   fun loginWithApiKey(key: String) {
@@ -298,9 +305,9 @@ class NextDnsViewModel(
       if (result.isSuccess) {
         val count = result.getOrNull() ?: 1
         _isGuestMode.value = false
-        showMessage("NextDNS API bağlantısı başarılı! ($count profil senkronize edildi)")
+        showMessage(AppStrings.get(R.string.connected_profiles, count))
       } else {
-        val err = result.exceptionOrNull()?.localizedMessage ?: "Bağlantı kurulamadı"
+        val err = result.exceptionOrNull()?.localizedMessage ?: AppStrings.get(R.string.ui_159dae4d54)
         showMessage(err, isError = true)
       }
     }
@@ -315,10 +322,10 @@ class NextDnsViewModel(
     viewModelScope.launch {
       val result = repository.logout()
       if (result.isSuccess) {
-        showMessage("Oturum kapatıldı. Yerel hesap ve bildirim verileri silindi.")
+        showMessage(AppStrings.get(R.string.ui_90f2c9060d))
       } else {
         showMessage(
-          result.exceptionOrNull()?.message ?: "Yerel veriler tam olarak temizlenemedi.",
+          result.exceptionOrNull()?.message ?: AppStrings.get(R.string.ui_0a6b6417d9),
           isError = true
         )
       }
@@ -327,17 +334,17 @@ class NextDnsViewModel(
 
   fun switchProfile(profileId: String) {
     repository.setActiveProfile(profileId)
-    showMessage("Aktif Profil Değiştirildi: $profileId")
+    showMessage(AppStrings.get(R.string.active_profile_changed, profileId))
   }
 
   fun createProfile(name: String) {
     viewModelScope.launch {
       val result = repository.createProfileRemote(name)
       if (result.isSuccess) {
-        showMessage("Yeni profil başarıyla oluşturuldu!")
+        showMessage(AppStrings.get(R.string.ui_280a4e8b98))
       } else {
         showMessage(
-          result.exceptionOrNull()?.message ?: "Profil oluşturulamadı",
+          result.exceptionOrNull()?.message ?: AppStrings.get(R.string.ui_d730312319),
           isError = true
         )
       }
@@ -348,7 +355,7 @@ class NextDnsViewModel(
     viewModelScope.launch {
       reportMutationResult(
         repository.deleteProfileRemote(profileId),
-        successMessage = "Profil silindi"
+        successMessage = AppStrings.get(R.string.ui_f9bd037a37)
       )
     }
   }
@@ -358,7 +365,7 @@ class NextDnsViewModel(
       viewModelScope.launch {
         reportMutationResult(
           repository.renameProfile(pid, newName),
-          successMessage = "Profil ismi güncellendi: $newName"
+          successMessage = AppStrings.get(R.string.profile_name_updated, newName)
         )
       }
     }
@@ -368,7 +375,7 @@ class NextDnsViewModel(
     viewModelScope.launch {
       reportMutationResult(
         repository.renameProfile(profileId, newName),
-        successMessage = "Profil ismi güncellendi"
+        successMessage = AppStrings.get(R.string.ui_977287c21d)
       )
     }
   }
@@ -389,7 +396,7 @@ class NextDnsViewModel(
       "parkedDomains" -> SecurityFlag.PARKING
       "csam" -> SecurityFlag.CSAM
       else -> {
-        showMessage("Bilinmeyen güvenlik ayarı: $feature", isError = true)
+        showMessage(AppStrings.get(R.string.unknown_security_setting, feature), isError = true)
         return
       }
     }
@@ -403,7 +410,7 @@ class NextDnsViewModel(
     viewModelScope.launch {
       reportMutationResult(
         repository.addBlockedTld(tld),
-        successMessage = ".$tld uzantısı engellendi"
+        successMessage = AppStrings.get(R.string.tld_blocked, tld)
       )
     }
   }
@@ -412,7 +419,7 @@ class NextDnsViewModel(
     viewModelScope.launch {
       reportMutationResult(
         repository.removeBlockedTld(tld),
-        successMessage = ".$tld engeli kaldırıldı"
+        successMessage = AppStrings.get(R.string.tld_unblocked, tld)
       )
     }
   }
@@ -422,7 +429,7 @@ class NextDnsViewModel(
     viewModelScope.launch {
       reportMutationResult(
         repository.toggleBlocklist(blocklistId),
-        successMessage = "Engelleme listesi güncellendi"
+        successMessage = AppStrings.get(R.string.ui_e70a2c89d4)
       )
     }
   }
@@ -431,7 +438,7 @@ class NextDnsViewModel(
     viewModelScope.launch {
       reportMutationResult(
         repository.toggleNativeTracking(nativeId),
-        successMessage = "Yerel izleme koruması güncellendi"
+        successMessage = AppStrings.get(R.string.ui_2ba97d5430)
       )
     }
   }
@@ -457,7 +464,7 @@ class NextDnsViewModel(
     viewModelScope.launch {
       reportMutationResult(
         repository.toggleParentalService(serviceId),
-        successMessage = "Ebeveyn kontrolü kuralı güncellendi"
+        successMessage = AppStrings.get(R.string.ui_0c1f8969ba)
       )
     }
   }
@@ -466,7 +473,7 @@ class NextDnsViewModel(
     viewModelScope.launch {
       reportMutationResult(
         repository.toggleParentalCategory(categoryId),
-        successMessage = "Kategori engeli güncellendi"
+        successMessage = AppStrings.get(R.string.ui_b9866d0f3d)
       )
     }
   }
@@ -509,7 +516,7 @@ class NextDnsViewModel(
     viewModelScope.launch {
       reportMutationResult(
         repository.removeFromDenylist(domain),
-        successMessage = "$domain kara listeden kaldırıldı"
+        successMessage = AppStrings.get(R.string.denylist_removed, domain)
       )
     }
   }
@@ -534,7 +541,7 @@ class NextDnsViewModel(
     viewModelScope.launch {
       reportMutationResult(
         repository.removeFromAllowlist(domain),
-        successMessage = "$domain beyaz listeden kaldırıldı"
+        successMessage = AppStrings.get(R.string.allowlist_removed, domain)
       )
     }
   }
@@ -557,9 +564,9 @@ class NextDnsViewModel(
       val success = repository.refreshLogsFromApi()
       if (showToast) {
         if (success) {
-          showMessage("Günlük kayıtları yenilendi")
+          showMessage(AppStrings.get(R.string.ui_cf14e423f5))
         } else {
-          showMessage("Günlük kayıtları yenilenemedi.", isError = true)
+          showMessage(AppStrings.get(R.string.ui_494d4e0007), isError = true)
         }
       }
     }
@@ -608,12 +615,12 @@ class NextDnsViewModel(
             res.protocol.takeIf { it.isNotBlank() }?.let(::add)
           }.joinToString(" • ")
           if (details.isBlank()) {
-            "NextDNS koruması bu profille aktif."
+            AppStrings.get(R.string.ui_eb367c1e14)
           } else {
-            "NextDNS koruması bu profille aktif ($details)."
+            AppStrings.get(R.string.protection_details, details)
           }
         } else {
-          "Bağlantı kontrol edildi: Bu cihaz şu anda NextDNS kullanmıyor."
+          AppStrings.get(R.string.ui_cab8dbe1ad)
         }
         showMessage(msg)
       }
@@ -624,9 +631,9 @@ class NextDnsViewModel(
     viewModelScope.launch {
       val success = repository.linkCurrentIp(profileId)
       if (success) {
-        showMessage("IP adresi başarıyla profile bağlandı.")
+        showMessage(AppStrings.get(R.string.ui_3bf6a89441))
       } else {
-        showMessage("IP adresi profile bağlanamadı.", isError = true)
+        showMessage(AppStrings.get(R.string.ui_e3e2b2c85a), isError = true)
       }
     }
   }
@@ -654,7 +661,7 @@ class NextDnsViewModel(
     viewModelScope.launch {
       reportMutationResult(
         repository.setLogRetention(retention),
-        successMessage = "Saklama süresi: $retention"
+        successMessage = AppStrings.get(R.string.retention_updated, UiLabels.canonical(retention))
       )
     }
   }
@@ -672,7 +679,7 @@ class NextDnsViewModel(
     val result = repository.exportLogs(outputStream)
     reportMutationResult(
       result,
-      successMessage = "Günlükler CSV olarak kaydedildi"
+      successMessage = AppStrings.get(R.string.ui_a5562d8e36)
     )
     return result
   }
@@ -681,7 +688,7 @@ class NextDnsViewModel(
     viewModelScope.launch {
       reportMutationResult(
         repository.clearLogs(),
-        successMessage = "Tüm günlükler temizlendi"
+        successMessage = AppStrings.get(R.string.ui_5324f7201f)
       )
     }
   }

@@ -7,6 +7,7 @@ import androidx.compose.ui.test.*
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.text.TextLayoutResult
 import androidx.compose.ui.unit.Density
+import com.example.i18n.AppStrings
 import com.example.ui.screens.HomeScreen
 import com.example.ui.theme.AppTheme
 import com.example.ui.viewmodel.NextDnsViewModel
@@ -51,8 +52,8 @@ class GreetingScreenshotTest {
     val title = composeTestRule.onNodeWithText(
       "Open Source Client for NextDNS", useUnmergedTree = true
     ).assertIsDisplayed()
-    val profile = composeTestRule.onNodeWithText("Profil Seç").assertIsDisplayed()
-    val account = composeTestRule.onNodeWithText("Misafir").assertIsDisplayed()
+    val profile = composeTestRule.onNodeWithText(AppStrings.get(R.string.ui_18d49619ba)).assertIsDisplayed()
+    val account = composeTestRule.onNodeWithText(AppStrings.get(R.string.ui_6d063986da)).assertIsDisplayed()
     composeTestRule.onNodeWithContentDescription("NextDNS Logo").assertDoesNotExist()
 
     val layouts = mutableListOf<TextLayoutResult>()

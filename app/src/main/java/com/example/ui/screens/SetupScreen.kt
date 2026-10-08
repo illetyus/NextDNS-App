@@ -1,5 +1,8 @@
 package com.example.ui.screens
 
+import com.example.R
+import com.example.i18n.AppStrings
+
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
@@ -52,8 +55,8 @@ fun SetupScreen(
   var selectedPlatform by remember { mutableStateOf("Android") }
   var showAdvancedIpSettings by remember { mutableStateOf(false) }
 
-  val platforms = listOf("Android", "iOS", "Windows", "macOS", "Linux", "ChromeOS", "Tarayıcılar", "Yönlendiriciler")
-  val profile = activeProfile ?: NextDnsProfile("", "Profil")
+  val platforms = listOf("Android", "iOS", "Windows", "macOS", "Linux", "ChromeOS", AppStrings.get(R.string.ui_4b4de7fb15), AppStrings.get(R.string.ui_7b5d49c4a6))
+  val profile = activeProfile ?: NextDnsProfile("", AppStrings.get(R.string.ui_e267d34382))
   val profileId = profile.id
   val setup = profileSetup
 
@@ -169,33 +172,33 @@ private fun ConnectionStatusBanner(
   }
 
   val title = when {
-    isTesting -> "Bağlantı kontrol ediliyor..."
-    isUsingNextDns -> "Her şey yolunda!"
-    isOffline -> "Bağlantı kontrol edilemedi"
-    else -> "Bu cihaz NextDNS kullanmıyor"
+    isTesting -> AppStrings.get(R.string.ui_5ed3c5cf66)
+    isUsingNextDns -> AppStrings.get(R.string.ui_934b24bdc9)
+    isOffline -> AppStrings.get(R.string.ui_97c1211397)
+    else -> AppStrings.get(R.string.ui_48016c5791)
   }
 
   val subtitle = when {
-    isTesting -> "NextDNS test sunucuları ile bağlantı kontrol ediliyor..."
-    isUsingNextDns -> "Bu cihaz, NextDNS'i bu profille kullanıyor."
-    isOffline -> "NextDNS test sunucusuna ulaşılamadı. İnternet bağlantınızı kontrol edin."
-    !testResult.resolver.isNullOrBlank() -> "Mevcut DNS: ${testResult.resolver}. NextDNS'i bu cihazda aktif etmek için aşağıdaki yönergeleri uygulayın."
-    else -> "Bu cihaz NextDNS üzerinden yapılandırılmamış. Aşağıdaki kurulum adımlarından birini izleyin."
+    isTesting -> AppStrings.get(R.string.ui_40f866a700)
+    isUsingNextDns -> AppStrings.get(R.string.ui_ebbbefad7b)
+    isOffline -> AppStrings.get(R.string.ui_19b9ff3444)
+    !testResult.resolver.isNullOrBlank() -> AppStrings.get(R.string.current_resolver, testResult.resolver ?: AppStrings.get(R.string.unavailable))
+    else -> AppStrings.get(R.string.ui_38cde25084)
   }
 
   val badgeText = when {
-    isTesting -> "Test Ediliyor"
+    isTesting -> AppStrings.get(R.string.ui_1e2d82ccaf)
     isUsingNextDns -> {
       val lat = if (testResult.latencyMs > 0) "${testResult.latencyMs} ms • " else ""
       val proto = testResult.protocol.takeIf { it.isNotBlank() }
       when {
         proto != null -> "$lat$proto"
         lat.isNotBlank() -> lat.removeSuffix(" • ")
-        else -> "Bağlı"
+        else -> AppStrings.get(R.string.ui_fb8d508c13)
       }
     }
-    isOffline -> "Çevrimdışı"
-    else -> "Yapılandırılmadı"
+    isOffline -> AppStrings.get(R.string.ui_47108d84ec)
+    else -> AppStrings.get(R.string.ui_1866bc156e)
   }
 
   val badgeBg = when {
@@ -306,7 +309,7 @@ private fun ConnectionStatusBanner(
                   )
               )
               Text(
-                text = "CANLI",
+                text = AppStrings.get(R.string.ui_447d7bdd67),
                 fontSize = 9.sp,
                 fontWeight = FontWeight.Bold,
                 color = if (isUsingNextDns) MaterialTheme.colorScheme.tertiary else MaterialTheme.colorScheme.primary
@@ -321,7 +324,7 @@ private fun ConnectionStatusBanner(
           ) {
             Icon(
               imageVector = Icons.Default.Refresh,
-              contentDescription = "Yeniden Test Et",
+              contentDescription = AppStrings.get(R.string.ui_3bb3f8b024),
               tint = MaterialTheme.colorScheme.primary,
               modifier = Modifier
                 .size(18.dp)
@@ -357,7 +360,7 @@ private fun ConnectionStatusBanner(
               modifier = Modifier.size(16.dp)
             )
             Text(
-              text = "Android Özel DNS Ayarlarını Aç",
+              text = AppStrings.get(R.string.ui_57efebc018),
               color = MaterialTheme.colorScheme.primary,
               fontSize = 12.sp,
               fontWeight = FontWeight.SemiBold
@@ -383,8 +386,8 @@ private fun EndpointsSection(
 ) {
   NextDnsCard(
     modifier = modifier,
-    title = "Uç noktalar",
-    subtitle = "NextDNS'i bu profille kullanmak için aşağıdaki uç noktalardan birini ayarlayın."
+    title = AppStrings.get(R.string.ui_af80266dc2),
+    subtitle = AppStrings.get(R.string.ui_9e84007b0d)
   ) {
     Column(
       modifier = Modifier
@@ -427,8 +430,8 @@ private fun LinkedIpSection(
 
   NextDnsCard(
     modifier = modifier,
-    title = "Bağlı IP",
-    subtitle = "DNS-over-TLS, DNS-over-HTTPS veya IPv6 kullanarak NextDNS'i ayarlayamıyorsanız aşağıdaki DNS sunucularını kullanın ve IP'nizi bağlayın. Bu yöntem çoğunlukla ev ağlarında kullanım içindir ve mobil cihazlarda önerilmez."
+    title = AppStrings.get(R.string.ui_e1ba21dcd4),
+    subtitle = AppStrings.get(R.string.ui_8ddbc3a609)
   ) {
     Column(
       modifier = Modifier
@@ -438,7 +441,7 @@ private fun LinkedIpSection(
         .clip(RoundedCornerShape(14.dp))
     ) {
       val ipv4List = setup?.ipv4 ?: listOf("45.90.28.234", "45.90.30.234")
-      EndpointTableRow("DNS sunucuları", ipv4List.joinToString("\n")) {
+      EndpointTableRow(AppStrings.get(R.string.ui_e0b841095a), ipv4List.joinToString("\n")) {
         copyToClipboard(context, ipv4List.firstOrNull() ?: "", "DNS Sunucusu")
       }
       HorizontalDivider(color = MaterialTheme.colorScheme.outline)
@@ -450,7 +453,7 @@ private fun LinkedIpSection(
         horizontalArrangement = Arrangement.SpaceBetween
       ) {
         Text(
-          text = "Bağlı IP",
+          text = AppStrings.get(R.string.ui_e1ba21dcd4),
           color = MaterialTheme.colorScheme.onSurface,
           fontSize = 12.5.sp,
           fontWeight = FontWeight.Medium,
@@ -461,7 +464,7 @@ private fun LinkedIpSection(
           horizontalArrangement = Arrangement.spacedBy(8.dp)
         ) {
           Text(
-            text = detectedIp.ifBlank { "Algılanıyor..." },
+            text = detectedIp.ifBlank { AppStrings.get(R.string.ui_d2b13bfcc8) },
             color = MaterialTheme.colorScheme.onSurface,
             fontFamily = FontFamily.Monospace,
             fontSize = 12.sp,
@@ -478,7 +481,7 @@ private fun LinkedIpSection(
           if (isUsingNextDns && detectedIp.isNotBlank()) {
             Icon(
               imageVector = Icons.Default.CheckCircle,
-              contentDescription = "Bağlı",
+              contentDescription = AppStrings.get(R.string.ui_fb8d508c13),
               tint = MaterialTheme.colorScheme.tertiary,
               modifier = Modifier.size(16.dp)
             )
@@ -498,12 +501,12 @@ private fun LinkedIpSection(
               ) {
                 Icon(
                   imageVector = Icons.Default.Link,
-                  contentDescription = "IP'yi Bağla",
+                  contentDescription = AppStrings.get(R.string.ui_6166e7d8f7),
                   tint = MaterialTheme.colorScheme.primary,
                   modifier = Modifier.size(13.dp)
                 )
                 Text(
-                  text = "IP'yi Bağla",
+                  text = AppStrings.get(R.string.ui_6166e7d8f7),
                   color = MaterialTheme.colorScheme.primary,
                   fontSize = 11.sp,
                   fontWeight = FontWeight.Bold
@@ -526,7 +529,7 @@ private fun LinkedIpSection(
       verticalAlignment = Alignment.CenterVertically
     ) {
       Text(
-        text = if (showAdvancedIpSettings) "Gelişmiş ayarları gizle" else "Gelişmiş ayarları göster",
+        text = if (showAdvancedIpSettings) AppStrings.get(R.string.ui_e351e2362e) else AppStrings.get(R.string.ui_533a6281d8),
         color = MaterialTheme.colorScheme.primary,
         fontSize = 12.sp,
         fontWeight = FontWeight.SemiBold
@@ -548,7 +551,7 @@ private fun LinkedIpSection(
         modifier = Modifier.fillMaxWidth()
       ) {
         Column(modifier = Modifier.padding(14.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-          Text("Dinamik DNS (DDNS) Güncelleme URL'si:", color = MaterialTheme.colorScheme.onSurfaceVariant, fontSize = 11.5.sp)
+          Text(AppStrings.get(R.string.ui_4dc480c54f), color = MaterialTheme.colorScheme.onSurfaceVariant, fontSize = 11.5.sp)
           Text(
             text = "https://link-ip.nextdns.io/$profileId/update",
             color = MaterialTheme.colorScheme.primary,
@@ -580,8 +583,8 @@ private fun SetupGuideSection(
 ) {
   NextDnsCard(
     modifier = modifier,
-    title = "Kurulum rehberi",
-    subtitle = "Cihazınızda, tarayıcınızda veya yönlendiricinizde NextDNS'i kurmak için aşağıdaki talimatları izleyin."
+    title = AppStrings.get(R.string.ui_917d229d50),
+    subtitle = AppStrings.get(R.string.ui_cbba6dfad2)
   ) {
     val platformScroll = rememberScrollState()
     Row(
@@ -623,8 +626,8 @@ private fun SetupGuideSection(
       "macOS" -> MacOsSetupGuide(profileId, context)
       "Linux" -> LinuxSetupGuide(profileId, context)
       "ChromeOS" -> ChromeOsSetupGuide(profileId, context)
-      "Tarayıcılar" -> BrowserSetupGuide(profileId, context)
-      "Yönlendiriciler" -> RouterSetupGuide(profileId, setup, context)
+      AppStrings.get(R.string.ui_4b4de7fb15) -> BrowserSetupGuide(profileId, context)
+      AppStrings.get(R.string.ui_7b5d49c4a6) -> RouterSetupGuide(profileId, setup, context)
       else -> AndroidSetupGuide(profileId, context)
     }
   }
@@ -697,12 +700,12 @@ private fun EndpointTableRow(
         ) {
           Icon(
             imageVector = if (isCopied) Icons.Default.Check else Icons.Default.ContentCopy,
-            contentDescription = "Kopyala",
+            contentDescription = AppStrings.get(R.string.ui_a8bcca42d9),
             tint = if (isCopied) MaterialTheme.colorScheme.tertiary else MaterialTheme.colorScheme.primary,
             modifier = Modifier.size(12.dp)
           )
           Text(
-            text = if (isCopied) "Kopyalandı" else "Kopyala",
+            text = if (isCopied) AppStrings.get(R.string.ui_02af74b2f0) else AppStrings.get(R.string.ui_a8bcca42d9),
             color = if (isCopied) MaterialTheme.colorScheme.tertiary else MaterialTheme.colorScheme.primary,
             fontSize = 10.5.sp,
             fontWeight = FontWeight.Bold
@@ -719,7 +722,7 @@ private fun CopyableValueBox(
   context: Context,
   modifier: Modifier = Modifier,
   label: String? = null,
-  copyLabel: String = "Değer",
+  copyLabel: String = AppStrings.get(R.string.ui_4cfa2b03d5),
   description: String? = null,
   isCode: Boolean = true
 ) {
@@ -808,12 +811,12 @@ private fun CopyableValueBox(
           ) {
             Icon(
               imageVector = if (isCopied) Icons.Default.Check else Icons.Default.ContentCopy,
-              contentDescription = "Kopyala",
+              contentDescription = AppStrings.get(R.string.ui_a8bcca42d9),
               tint = if (isCopied) MaterialTheme.colorScheme.tertiary else MaterialTheme.colorScheme.primary,
               modifier = Modifier.size(13.dp)
             )
             Text(
-              text = if (isCopied) "Kopyalandı" else "Kopyala",
+              text = if (isCopied) AppStrings.get(R.string.ui_02af74b2f0) else AppStrings.get(R.string.ui_a8bcca42d9),
               color = if (isCopied) MaterialTheme.colorScheme.tertiary else MaterialTheme.colorScheme.primary,
               fontSize = 11.sp,
               fontWeight = FontWeight.Bold
@@ -882,10 +885,10 @@ private fun AndroidSetupGuide(profileId: String, context: Context) {
       Column(modifier = Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
         Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
           NextDnsRecommendedBadge()
-          Text("Özel DNS (Private DNS / DoT)", color = MaterialTheme.colorScheme.onSurface, fontWeight = FontWeight.Bold, fontSize = 13.5.sp)
+          Text(AppStrings.get(R.string.private_dns_dot), color = MaterialTheme.colorScheme.onSurface, fontWeight = FontWeight.Bold, fontSize = 13.5.sp)
         }
         Text(
-          text = "Android 9 (Pie) ve üzeri tüm cihazlarda yerleşik olarak çalışır. Arka planda pil harcamaz ve herhangi bir harici yazılım gerektirmez.",
+          text = AppStrings.get(R.string.ui_4cd6aa49be),
           color = MaterialTheme.colorScheme.onSurfaceVariant,
           fontSize = 12.sp,
           lineHeight = 16.sp
@@ -893,16 +896,16 @@ private fun AndroidSetupGuide(profileId: String, context: Context) {
 
         HorizontalDivider(color = MaterialTheme.colorScheme.outline.copy(alpha = 0.6f))
 
-        SetupStepItem("1", "Ayarlar → Ağ ve İnternet (veya Bağlantılar) menüsünü açın.")
-        SetupStepItem("2", "Gelişmiş → Özel DNS (Private DNS) seçeneğine dokunun.")
-        SetupStepItem("3", "Özel DNS sağlayıcı ana bilgisayar adı seçeneğini işaretleyin.")
-        SetupStepItem("4", "Aşağıdaki ana bilgisayar adını yapıştırın ve Kaydet'e basın:")
+        SetupStepItem("1", AppStrings.get(R.string.ui_b7ebc7a832))
+        SetupStepItem("2", AppStrings.get(R.string.ui_2335163b7a))
+        SetupStepItem("3", AppStrings.get(R.string.ui_57d715d68f))
+        SetupStepItem("4", AppStrings.get(R.string.ui_92e7dadb33))
 
         CopyableValueBox(
-          label = "Standart Özel DNS Adresi",
+          label = AppStrings.get(R.string.ui_523d78e571),
           value = "$profileId.dns.nextdns.io",
           context = context,
-          copyLabel = "Özel DNS Adresi"
+          copyLabel = AppStrings.get(R.string.ui_66bf5a8c78)
         )
 
         // Pro tip: Cihaz adlandırma
@@ -914,10 +917,10 @@ private fun AndroidSetupGuide(profileId: String, context: Context) {
           Column(modifier = Modifier.padding(12.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
             Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(6.dp)) {
               Icon(Icons.Default.Info, contentDescription = null, tint = MaterialTheme.colorScheme.primary, modifier = Modifier.size(15.dp))
-              Text("İpucu: Cihazınızı Günlüklerde İsimlendirin", fontWeight = FontWeight.Bold, fontSize = 11.5.sp, color = MaterialTheme.colorScheme.primary)
+              Text(AppStrings.get(R.string.ui_138d8972ec), fontWeight = FontWeight.Bold, fontSize = 11.5.sp, color = MaterialTheme.colorScheme.primary)
             }
             Text(
-              text = "Günlüklerde hangi cihazın sorgu yaptığını görmek için adresi cihaz-adiniz-$profileId.dns.nextdns.io şeklinde girebilirsiniz:",
+              text = AppStrings.get(R.string.named_device_dot, profileId),
               fontSize = 11.sp,
               color = MaterialTheme.colorScheme.onSurfaceVariant,
               lineHeight = 15.sp
@@ -925,7 +928,7 @@ private fun AndroidSetupGuide(profileId: String, context: Context) {
             CopyableValueBox(
               value = "telefon-$profileId.dns.nextdns.io",
               context = context,
-              copyLabel = "Cihaz Adlı DoT Adresi"
+              copyLabel = AppStrings.get(R.string.ui_83ad857e6d)
             )
           }
         }
@@ -933,7 +936,7 @@ private fun AndroidSetupGuide(profileId: String, context: Context) {
         Spacer(modifier = Modifier.height(4.dp))
 
         NextDnsButton(
-          text = "Android Özel DNS Ayarlarını Aç",
+          text = AppStrings.get(R.string.ui_57efebc018),
           onClick = {
             try {
               context.startActivity(Intent(Settings.ACTION_WIRELESS_SETTINGS).apply { addFlags(Intent.FLAG_ACTIVITY_NEW_TASK) })
@@ -964,29 +967,29 @@ private fun WindowsSetupGuide(profileId: String, setup: com.example.data.api.Set
       Column(modifier = Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
         Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
           NextDnsRecommendedBadge()
-          Text("Windows Yerel DoH (DNS-over-HTTPS)", color = MaterialTheme.colorScheme.onSurface, fontWeight = FontWeight.Bold, fontSize = 13.5.sp)
+          Text(AppStrings.get(R.string.ui_1750d7455f), color = MaterialTheme.colorScheme.onSurface, fontWeight = FontWeight.Bold, fontSize = 13.5.sp)
         }
-        SetupStepItem("1", "Ayarlar → Ağ ve İnternet → Wi-Fi veya Ethernet'i seçin.")
-        SetupStepItem("2", "Donanım özellikleri → DNS sunucusu ataması yanındaki 'Düzenle'ye tıklayın.")
-        SetupStepItem("3", "'El ile girilen'i seçin ve IPv4'ü açın.")
-        SetupStepItem("4", "Tercih edilen DNS alanına aşağıdaki IP'yi girin:")
+        SetupStepItem("1", AppStrings.get(R.string.ui_f98df79775))
+        SetupStepItem("2", AppStrings.get(R.string.ui_c4b669d5a4))
+        SetupStepItem("3", AppStrings.get(R.string.ui_b8b91eeb7d))
+        SetupStepItem("4", AppStrings.get(R.string.ui_f817bdb64b))
 
         val ipv4First = setup?.ipv4?.firstOrNull() ?: "45.90.28.0"
         CopyableValueBox(
-          label = "Tercih Edilen DNS (IPv4)",
+          label = AppStrings.get(R.string.ui_91f537e633),
           value = ipv4First,
           context = context,
-          copyLabel = "Tercih Edilen DNS"
+          copyLabel = AppStrings.get(R.string.ui_6bd15f6947)
         )
 
-        SetupStepItem("5", "'HTTPS üzerinden DNS şifreleme' seçeneğini 'Yalnızca şifrelenmiş (HTTPS üzerinden DNS)' yapın.")
-        SetupStepItem("6", "DNS-over-HTTPS şablonu alanına aşağıdaki URL'yi yapıştırın:")
+        SetupStepItem("5", AppStrings.get(R.string.ui_c566947646))
+        SetupStepItem("6", AppStrings.get(R.string.ui_8107916865))
 
         CopyableValueBox(
-          label = "DoH Şablonu",
+          label = AppStrings.get(R.string.ui_2483d932cf),
           value = "https://dns.nextdns.io/$profileId",
           context = context,
-          copyLabel = "DoH Şablonu URL"
+          copyLabel = AppStrings.get(R.string.ui_f74994ccb0)
         )
       }
     }
@@ -1005,29 +1008,29 @@ private fun IosSetupGuide(profileId: String, context: Context) {
       Column(modifier = Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
         Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
           NextDnsRecommendedBadge()
-          Text("Apple Yapılandırma Profili (iOS 14+)", color = MaterialTheme.colorScheme.onSurface, fontWeight = FontWeight.Bold, fontSize = 13.5.sp)
+          Text(AppStrings.get(R.string.ui_fab118a38d), color = MaterialTheme.colorScheme.onSurface, fontWeight = FontWeight.Bold, fontSize = 13.5.sp)
         }
         Text(
-          text = "iOS 14 ve iPadOS 14'ten itibaren Apple sistem düzeyinde şifreli DNS'i yerel olarak destekler. Herhangi bir pil tüketimi oluşturmaz.",
+          text = AppStrings.get(R.string.ui_987c9f2614),
           color = MaterialTheme.colorScheme.onSurfaceVariant,
           fontSize = 12.sp,
           lineHeight = 16.sp
         )
 
-        SetupStepItem("1", "Safari tarayıcınızda apple.nextdns.io adresini açın:")
+        SetupStepItem("1", AppStrings.get(R.string.ui_ba08e4a4e3))
 
         CopyableValueBox(
-          label = "Profil İndirme Bağlantısı",
+          label = AppStrings.get(R.string.ui_2a7a58df0b),
           value = "https://apple.nextdns.io/$profileId",
           context = context,
-          copyLabel = "Apple Profil URL"
+          copyLabel = AppStrings.get(R.string.ui_c7c580fb51)
         )
 
-        SetupStepItem("2", "İndirilen profili onaylayın. Ayarlar → Profil İndirildi menüsünden 'Yükle'ye dokunun.")
-        SetupStepItem("3", "İstenirse cihaz parolanızı girip kurulumu tamamlayın.")
+        SetupStepItem("2", AppStrings.get(R.string.ui_a02ffecee5))
+        SetupStepItem("3", AppStrings.get(R.string.ui_d8a134c345))
 
         NextDnsButton(
-          text = "Safari'de apple.nextdns.io Aç",
+          text = AppStrings.get(R.string.ui_2a3846bca7),
           onClick = {
             val intent = Intent(Intent.ACTION_VIEW, Uri.parse("https://apple.nextdns.io/$profileId")).apply {
               addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
@@ -1050,32 +1053,32 @@ private fun MacOsSetupGuide(profileId: String, context: Context) {
     modifier = Modifier.fillMaxWidth()
   ) {
     Column(modifier = Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
-      Text("macOS için NextDNS", color = MaterialTheme.colorScheme.onSurface, fontWeight = FontWeight.Bold, fontSize = 13.5.sp)
+      Text(AppStrings.get(R.string.ui_f7f97af3a5), color = MaterialTheme.colorScheme.onSurface, fontWeight = FontWeight.Bold, fontSize = 13.5.sp)
       Text(
-        text = "macOS Big Sur (11.0) veya üzeri için sistem yapılandırma profilini Safari ile indirip kolayca kurabilirsiniz.",
+        text = AppStrings.get(R.string.ui_e667cd78cb),
         color = MaterialTheme.colorScheme.onSurfaceVariant,
         fontSize = 12.sp,
         lineHeight = 16.sp
       )
 
-      SetupStepItem("1", "Safari'de apple.nextdns.io adresini açıp profili indirin:")
+      SetupStepItem("1", AppStrings.get(R.string.ui_b48a2108af))
 
       CopyableValueBox(
-        label = "macOS Yapılandırma Profili URL",
+        label = AppStrings.get(R.string.ui_aea515d586),
         value = "https://apple.nextdns.io/$profileId",
         context = context,
-        copyLabel = "Apple Profil URL"
+        copyLabel = AppStrings.get(R.string.ui_c7c580fb51)
       )
 
-      SetupStepItem("2", "Sistem Ayarları → Gizlilik ve Güvenlik → Profiller bölümünden profili yükleyin.")
+      SetupStepItem("2", AppStrings.get(R.string.ui_cd8a56e83b))
 
-      SetupStepItem("3", "Veya Homebrew ile NextDNS CLI kurun:")
+      SetupStepItem("3", AppStrings.get(R.string.ui_fbe5a8bd84))
 
       CopyableValueBox(
-        label = "Homebrew Komutu",
+        label = AppStrings.get(R.string.ui_b9d9ff28ca),
         value = "brew install nextdns/tap/nextdns && sudo nextdns install -config $profileId -auto-activate",
         context = context,
-        copyLabel = "Homebrew Komutu"
+        copyLabel = AppStrings.get(R.string.ui_b9d9ff28ca)
       )
     }
   }
@@ -1090,39 +1093,39 @@ private fun LinuxSetupGuide(profileId: String, context: Context) {
     modifier = Modifier.fillMaxWidth()
   ) {
     Column(modifier = Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
-      Text("Linux CLI Kurulumu", color = MaterialTheme.colorScheme.onSurface, fontWeight = FontWeight.Bold, fontSize = 13.5.sp)
+      Text(AppStrings.get(R.string.ui_8630eade46), color = MaterialTheme.colorScheme.onSurface, fontWeight = FontWeight.Bold, fontSize = 13.5.sp)
       Text(
-        text = "Resmi NextDNS Linux istemcisini tek komutla kurup arka plan servisi olarak çalıştırabilirsiniz:",
+        text = AppStrings.get(R.string.ui_de99415fe0),
         color = MaterialTheme.colorScheme.onSurfaceVariant,
         fontSize = 12.sp,
         lineHeight = 16.sp
       )
 
-      SetupStepItem("1", "Terminalinizi açın ve kurulum betiğini çalıştırın:")
+      SetupStepItem("1", AppStrings.get(R.string.ui_e0deb2f485))
 
       CopyableValueBox(
-        label = "Otomatik Kurulum Komutu",
+        label = AppStrings.get(R.string.ui_aa7806f142),
         value = "sh -c 'sh -c \"$(curl -sL https://nextdns.io/install)\"'",
         context = context,
-        copyLabel = "Linux Kurulum Komutu"
+        copyLabel = AppStrings.get(R.string.ui_6c7334e6d4)
       )
 
-      SetupStepItem("2", "Kurulum sırasında sorulduğunda Profil Kimliğinizi girin:")
+      SetupStepItem("2", AppStrings.get(R.string.ui_b2b5e135ac))
 
       CopyableValueBox(
-        label = "Profil Kimliği (Configuration ID)",
+        label = AppStrings.get(R.string.ui_69209827d4),
         value = profileId,
         context = context,
-        copyLabel = "Profil Kimliği"
+        copyLabel = AppStrings.get(R.string.ui_ed46ef486b)
       )
 
-      SetupStepItem("3", "Kurulum tamamlandıktan sonra servisi başlatın:")
+      SetupStepItem("3", AppStrings.get(R.string.ui_f8394d404e))
 
       CopyableValueBox(
-        label = "Servis Başlatma Komutu",
+        label = AppStrings.get(R.string.ui_7986009971),
         value = "sudo nextdns start",
         context = context,
-        copyLabel = "Servis Başlatma Komutu"
+        copyLabel = AppStrings.get(R.string.ui_7986009971)
       )
     }
   }
@@ -1137,12 +1140,12 @@ private fun ChromeOsSetupGuide(profileId: String, context: Context) {
     modifier = Modifier.fillMaxWidth()
   ) {
     Column(modifier = Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
-      Text("ChromeOS Güvenli DNS", color = MaterialTheme.colorScheme.onSurface, fontWeight = FontWeight.Bold, fontSize = 13.5.sp)
-      SetupStepItem("1", "Ayarlar → Güvenlik ve Gizlilik → Güvenli DNS bölümüne gidin.")
-      SetupStepItem("2", "Özel seçeneğini belirleyin ve aşağıdaki DoH adresini yapıştırın:")
+      Text(AppStrings.get(R.string.ui_1e14b1c274), color = MaterialTheme.colorScheme.onSurface, fontWeight = FontWeight.Bold, fontSize = 13.5.sp)
+      SetupStepItem("1", AppStrings.get(R.string.ui_6193571a24))
+      SetupStepItem("2", AppStrings.get(R.string.ui_db6ba771e0))
 
       CopyableValueBox(
-        label = "Güvenli DNS (DoH) Adresi",
+        label = AppStrings.get(R.string.ui_5de4f38861),
         value = "https://dns.nextdns.io/$profileId",
         context = context,
         copyLabel = "ChromeOS DoH Adresi"
@@ -1160,9 +1163,9 @@ private fun BrowserSetupGuide(profileId: String, context: Context) {
     modifier = Modifier.fillMaxWidth()
   ) {
     Column(modifier = Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(14.dp)) {
-      Text("Tarayıcı Güvenli DNS (DoH)", color = MaterialTheme.colorScheme.onSurface, fontWeight = FontWeight.Bold, fontSize = 13.5.sp)
+      Text(AppStrings.get(R.string.ui_41f0468d9e), color = MaterialTheme.colorScheme.onSurface, fontWeight = FontWeight.Bold, fontSize = 13.5.sp)
       Text(
-        text = "Yalnızca belirli bir tarayıcıda NextDNS kullanmak istiyorsanız şifreli DNS (DoH) URL'sini tarayıcı ayarlarına ekleyebilirsiniz.",
+        text = AppStrings.get(R.string.ui_8fa4a6d58b),
         color = MaterialTheme.colorScheme.onSurfaceVariant,
         fontSize = 12.sp,
         lineHeight = 16.sp
@@ -1178,7 +1181,7 @@ private fun BrowserSetupGuide(profileId: String, context: Context) {
         Column(modifier = Modifier.padding(12.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
           Text("Google Chrome / Brave / Edge", color = MaterialTheme.colorScheme.primary, fontWeight = FontWeight.Bold, fontSize = 12.5.sp)
           Text(
-            text = "Ayarlar → Gizlilik ve güvenlik → Güvenlik → Güvenli DNS kullan → 'Özel' seçin ve aşağıdaki URL'yi yapıştırın:",
+            text = AppStrings.get(R.string.ui_4f8d04c22f),
             color = MaterialTheme.colorScheme.onSurfaceVariant,
             fontSize = 11.5.sp,
             lineHeight = 15.sp
@@ -1186,7 +1189,7 @@ private fun BrowserSetupGuide(profileId: String, context: Context) {
           CopyableValueBox(
             value = "https://dns.nextdns.io/$profileId",
             context = context,
-            copyLabel = "Chrome DoH Adresi"
+            copyLabel = AppStrings.get(R.string.ui_d5aa6b5ec2)
           )
         }
       }
@@ -1201,7 +1204,7 @@ private fun BrowserSetupGuide(profileId: String, context: Context) {
         Column(modifier = Modifier.padding(12.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
           Text("Mozilla Firefox", color = MaterialTheme.colorScheme.primary, fontWeight = FontWeight.Bold, fontSize = 12.5.sp)
           Text(
-            text = "Ayarlar → Gizlilik ve Güvenlik → DNS over HTTPS → Maksimum Koruma → 'Özel' seçin ve aşağıdaki URL'yi yapıştırın:",
+            text = AppStrings.get(R.string.ui_715efd7b23),
             color = MaterialTheme.colorScheme.onSurfaceVariant,
             fontSize = 11.5.sp,
             lineHeight = 15.sp
@@ -1209,7 +1212,7 @@ private fun BrowserSetupGuide(profileId: String, context: Context) {
           CopyableValueBox(
             value = "https://dns.nextdns.io/$profileId",
             context = context,
-            copyLabel = "Firefox DoH Adresi"
+            copyLabel = AppStrings.get(R.string.ui_90834f5514)
           )
         }
       }
@@ -1226,65 +1229,65 @@ private fun RouterSetupGuide(profileId: String, setup: com.example.data.api.Setu
     modifier = Modifier.fillMaxWidth()
   ) {
     Column(modifier = Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(14.dp)) {
-      Text("Yönlendirici (Router) Kurulumu", color = MaterialTheme.colorScheme.onSurface, fontWeight = FontWeight.Bold, fontSize = 13.5.sp)
+      Text(AppStrings.get(R.string.ui_f62318dd8b), color = MaterialTheme.colorScheme.onSurface, fontWeight = FontWeight.Bold, fontSize = 13.5.sp)
       Text(
-        text = "Evinizdeki tüm cihazları (akıllı TV, oyun konsolu vb.) tek merkezden korumak için modem/router'ınızın DNS ayarlarını yapılandırın:",
+        text = AppStrings.get(R.string.router_description),
         color = MaterialTheme.colorScheme.onSurfaceVariant,
         fontSize = 12.sp,
         lineHeight = 16.sp
       )
 
-      Text("1. Standart IPv4 DNS Sunucuları", fontWeight = FontWeight.Bold, fontSize = 12.5.sp, color = MaterialTheme.colorScheme.onSurface)
+      Text(AppStrings.get(R.string.ui_9de822673b), fontWeight = FontWeight.Bold, fontSize = 12.5.sp, color = MaterialTheme.colorScheme.onSurface)
 
       val ipv4First = setup?.ipv4?.getOrNull(0) ?: "45.90.28.234"
       CopyableValueBox(
-        label = "Birincil DNS (IPv4)",
+        label = AppStrings.get(R.string.ui_e074fca8cf),
         value = ipv4First,
         context = context,
-        copyLabel = "Birincil DNS"
+        copyLabel = AppStrings.get(R.string.ui_e170a66b88)
       )
 
       val ipv4Second = setup?.ipv4?.getOrNull(1) ?: "45.90.30.234"
       CopyableValueBox(
-        label = "İkincil DNS (IPv4)",
+        label = AppStrings.get(R.string.ui_2e8400bb4b),
         value = ipv4Second,
         context = context,
-        copyLabel = "İkincil DNS"
+        copyLabel = AppStrings.get(R.string.ui_f312681126)
       )
 
-      Text("2. IPv6 DNS Sunucuları", fontWeight = FontWeight.Bold, fontSize = 12.5.sp, color = MaterialTheme.colorScheme.onSurface)
+      Text(AppStrings.get(R.string.ui_6cda839fb5), fontWeight = FontWeight.Bold, fontSize = 12.5.sp, color = MaterialTheme.colorScheme.onSurface)
 
       val ipv6First = setup?.ipv6?.getOrNull(0) ?: "2a07:a8c0::$profileId"
       CopyableValueBox(
-        label = "Birincil DNS (IPv6)",
+        label = AppStrings.get(R.string.ui_4eb25410e1),
         value = ipv6First,
         context = context,
-        copyLabel = "Birincil IPv6"
+        copyLabel = AppStrings.get(R.string.ui_e086835b9a)
       )
 
       val ipv6Second = setup?.ipv6?.getOrNull(1) ?: "2a07:a8c1::$profileId"
       CopyableValueBox(
-        label = "İkincil DNS (IPv6)",
+        label = AppStrings.get(R.string.ui_2dbf7664c8),
         value = ipv6Second,
         context = context,
-        copyLabel = "İkincil IPv6"
+        copyLabel = AppStrings.get(R.string.ui_6431ef9198)
       )
 
       HorizontalDivider(color = MaterialTheme.colorScheme.outline)
 
-      Text("3. Gelişmiş Router'lar (Asuswrt-Merlin, OpenWrt, DD-WRT, pfSense)", fontWeight = FontWeight.Bold, fontSize = 12.5.sp, color = MaterialTheme.colorScheme.onSurface)
+      Text(AppStrings.get(R.string.ui_48f50e5ec4), fontWeight = FontWeight.Bold, fontSize = 12.5.sp, color = MaterialTheme.colorScheme.onSurface)
       Text(
-        text = "NextDNS CLI istemcisini doğrudan router üzerinde kurarak DoH veya DoT şifrelemesi kullanabilirsiniz:",
+        text = AppStrings.get(R.string.ui_ffafd0b3a7),
         fontSize = 11.5.sp,
         color = MaterialTheme.colorScheme.onSurfaceVariant,
         lineHeight = 15.sp
       )
 
       CopyableValueBox(
-        label = "Router CLI Kurulum Komutu",
+        label = AppStrings.get(R.string.ui_a7c4020d15),
         value = "sh -c 'sh -c \"$(curl -sL https://nextdns.io/install)\"'",
         context = context,
-        copyLabel = "Router CLI Komutu"
+        copyLabel = AppStrings.get(R.string.ui_ebf16194a7)
       )
     }
   }

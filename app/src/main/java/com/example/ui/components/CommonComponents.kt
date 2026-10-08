@@ -1,5 +1,10 @@
 package com.example.ui.components
 
+import com.example.i18n.UiLabels
+
+import com.example.R
+import com.example.i18n.AppStrings
+
 import android.content.ClipData
 import android.content.ClipboardManager
 import android.content.Context
@@ -333,7 +338,7 @@ fun NextDnsSettingToggle(
           )
           Spacer(modifier = Modifier.width(12.dp))
           Text(
-            text = if (checked) "$title etkin" else "$title etkinleştir",
+            text = if (checked) "$title etkin" else AppStrings.get(R.string.enable_setting, title),
             style = MaterialTheme.typography.bodySmall.copy(
               fontSize = 12.5.sp,
               fontWeight = if (checked) FontWeight.SemiBold else FontWeight.Medium
@@ -486,7 +491,7 @@ fun NextDnsDropdownSelector(
           verticalAlignment = Alignment.CenterVertically
         ) {
           Text(
-            text = selectedValue,
+            text = UiLabels.canonical(selectedValue),
             color = MaterialTheme.colorScheme.onSurface,
             fontSize = 12.sp,
             maxLines = 1,
@@ -510,7 +515,7 @@ fun NextDnsDropdownSelector(
       ) {
         options.forEach { option ->
           DropdownMenuItem(
-            text = { Text(option, color = MaterialTheme.colorScheme.onSurface, fontSize = 12.sp) },
+            text = { Text(UiLabels.canonical(option), color = MaterialTheme.colorScheme.onSurface, fontSize = 12.sp) },
             onClick = {
               onOptionSelected(option)
               expanded = false
@@ -799,7 +804,7 @@ fun NextDnsBetaBadge(modifier: Modifier = Modifier) {
 @Composable
 fun NextDnsRecommendedBadge(modifier: Modifier = Modifier) {
   NextDnsBadge(
-    text = "ÖNERİLEN",
+    text = AppStrings.get(R.string.ui_4ce78923da),
     style = BadgeStyle.RECOMMENDED,
     modifier = modifier
   )
@@ -861,11 +866,11 @@ fun NextDnsInfoBanner(
 /**
  * Copy to Clipboard Helper with Toast and Sound
  */
-fun copyToClipboard(context: Context, text: String, label: String = "Kopyalandı") {
+fun copyToClipboard(context: Context, text: String, label: String = AppStrings.get(R.string.ui_02af74b2f0)) {
   val clipboard = context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
   val clip = ClipData.newPlainText(label, text)
   clipboard.setPrimaryClip(clip)
-  Toast.makeText(context, "$label kopyalandı", Toast.LENGTH_SHORT).show()
+  Toast.makeText(context, AppStrings.get(R.string.copied_value, label), Toast.LENGTH_SHORT).show()
 }
 
 // Backward compatibility alias for CyberSectionCard
