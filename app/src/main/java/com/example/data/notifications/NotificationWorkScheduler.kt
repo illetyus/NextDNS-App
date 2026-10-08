@@ -1,6 +1,7 @@
 package com.example.data.notifications
 
 import android.content.Context
+import com.example.data.legal.LegalAcceptanceStore
 import androidx.work.BackoffPolicy
 import androidx.work.Constraints
 import androidx.work.ExistingPeriodicWorkPolicy
@@ -25,6 +26,12 @@ object NotificationWorkScheduler {
     val preferences = NotificationPreferences(appContext)
     val settings = preferences.currentSettings()
     val workManager = WorkManager.getInstance(appContext)
+
+    if (!LegalAcceptanceStore(appContext).isAccepted()) {
+      workManager.cancelUniqueWork(PERIODIC_WORK_NAME)
+      workManager.cancelUniqueWork(IMMEDIATE_WORK_NAME)
+      return
+    }
 
     if (!settings.anyEnabled) {
       workManager.cancelUniqueWork(PERIODIC_WORK_NAME)
@@ -90,6 +97,7 @@ object NotificationWorkScheduler {
     now: Long = System.currentTimeMillis()
   ): Boolean {
     val appContext = context.applicationContext
+    if (!LegalAcceptanceStore(appContext).isAccepted()) return false
     val preferences = NotificationPreferences(appContext)
     val settings = preferences.currentSettings()
     if (!settings.configChangeAlertsEnabled) return false
@@ -111,6 +119,7 @@ object NotificationWorkScheduler {
 
   suspend fun refreshConfigBaselineIfEnabled(context: Context) {
     val appContext = context.applicationContext
+    if (!LegalAcceptanceStore(appContext).isAccepted()) return
     val settings = NotificationPreferences(appContext).currentSettings()
     if (!settings.configChangeAlertsEnabled) return
 
