@@ -64,12 +64,27 @@ jobs:
           exit "$result"
 
       - name: Unit, Contract, Compose and Screenshot Tests
-        run: ./gradlew :app:testDebugUnitTest :app:jacocoTestReport --no-daemon
+        run: ./gradlew :app:testDebugUnitTest :app:jacocoTestReport -Proborazzi.test.record=true --no-daemon
+        shell: bash
+
+      - name: Verify actual test, screenshot and coverage evidence
+        run: python3 scripts/verify_test_evidence.py
         shell: bash
 
       - name: Assemble Debug
         run: ./gradlew :app:assembleDebug --no-daemon
         shell: bash
+
+      - name: Upload UI branding screenshots
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: ui-branding-screenshots
+          path: |
+            app/build/outputs/roborazzi/branding/*.png
+            app/build/test-results/testDebugUnitTest/*.xml
+            app/build/reports/jacoco/jacocoTestReport/jacocoTestReport.xml
+          if-no-files-found: error
+          retention-days: 7
 
       - name: Assemble Release (unsigned on CI)
         run: ./gradlew :app:assembleRelease --no-daemon

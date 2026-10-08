@@ -66,8 +66,8 @@ artwork requires a separate asset/brand review before any public release.
 ## Release process
 
 1. Phase 8: legal, privacy, provenance and third-party license review.
-2. Phase 9: apply the selected app name and finalize store text; prepare signing,
-   distribution and final privacy disclosures.
+2. Phase 9: the selected app name and repository rename are applied; finalize
+   the independent icon, store text, signing, distribution and privacy disclosures.
 3. **Mandatory BrowserStack real-device tests** before Google Play public
    release; see [the release gate](docs/PHASE9_BROWSERSTACK_RELEASE_GATE.md).
 4. Google Play internal/closed testing followed by a release decision.

@@ -82,19 +82,20 @@ tasks.register<JacocoReport>("jacocoTestReport") {
     html.required.set(true)
     csv.required.set(false)
   }
-  val debugTree = fileTree("${layout.buildDirectory.get()}/tmp/kotlin-classes/debug") {
-    exclude(
-      "**/R.class",
-      "**/R$*.class",
-      "**/BuildConfig.*",
-      "**/Manifest*.*",
-      "**/*Test*.*",
-      "android/**/*.*"
-    )
-  }
   val mainSrc = "${project.projectDir}/src/main/java"
   sourceDirectories.setFrom(files(mainSrc))
-  classDirectories.setFrom(files(debugTree))
+  // AGP 9 built-in Kotlin no longer writes classes to tmp/kotlin-classes.
+  // Use compiler task outputs so coverage follows the actual build layout.
+  classDirectories.setFrom(
+    listOf("compileDebugKotlin", "compileDebugJavaWithJavac").map { taskName ->
+      tasks.named(taskName).map { compiler ->
+        compiler.outputs.files.asFileTree.matching {
+          include("**/*.class")
+          exclude("**/R.class", "**/R$*.class", "**/BuildConfig.*", "**/Manifest*.*", "**/*Test*.*")
+        }
+      }
+    }
+  )
   executionData.setFrom(fileTree(layout.buildDirectory.get()) {
     include(
       "outputs/unit_test_code_coverage/debugUnitTest/testDebugUnitTest.exec",

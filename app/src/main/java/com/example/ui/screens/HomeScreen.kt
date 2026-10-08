@@ -22,6 +22,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.LiveRegionMode
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.clearAndSetSemantics
@@ -35,6 +36,7 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.example.R
 import com.example.ui.components.NextDnsButton
 import com.example.ui.components.StatusBeacon
 import com.example.ui.components.bounceClick
@@ -124,7 +126,7 @@ fun HomeScreen(
         modifier = Modifier.statusBarsPadding()
       ) {
         Column(modifier = Modifier.fillMaxWidth()) {
-          // --- NextDNS Expressive Top Bar ---
+          // Independent client title, profile selector and account controls.
           Row(
             modifier = Modifier
               .fillMaxWidth()
@@ -132,16 +134,17 @@ fun HomeScreen(
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
           ) {
-            // Left: NextDNS Shield Logo + Profile Selector
-            Row(
-              verticalAlignment = Alignment.CenterVertically,
-              horizontalArrangement = Arrangement.spacedBy(10.dp)
+            // Allow the full product title to wrap above the profile selector.
+            Column(
+              modifier = Modifier.weight(1f).padding(end = 8.dp),
+              verticalArrangement = Arrangement.spacedBy(8.dp)
             ) {
-              // Animated Pulsing Shield Logo
+              // Decorative shield and refresh status, not a provider logo.
               Row(
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.spacedBy(6.dp),
                 modifier = Modifier
+                  .fillMaxWidth()
                   .clip(RoundedCornerShape(12.dp))
                   .heightIn(min = 48.dp)
                   .bounceClick(scaleDown = 0.97f) {
@@ -157,16 +160,18 @@ fun HomeScreen(
                   )
                   Icon(
                     imageVector = Icons.Default.Shield,
-                    contentDescription = "NextDNS Logo",
+                    contentDescription = null,
                     tint = MaterialTheme.colorScheme.primary,
                     modifier = Modifier.size(22.dp)
                   )
                 }
                 Text(
-                  text = "NextDNS",
+                  text = stringResource(R.string.app_name),
+                  modifier = Modifier.weight(1f),
                   style = MaterialTheme.typography.titleMedium.copy(
                     fontWeight = FontWeight.Bold,
                     fontSize = 17.sp,
+                    lineHeight = 22.sp,
                     letterSpacing = (-0.4).sp
                   ),
                   color = MaterialTheme.colorScheme.onSurface
