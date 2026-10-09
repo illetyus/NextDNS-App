@@ -4,6 +4,8 @@
 **Temel:** `app/build.gradle.kts` + `gradle/libs.versions.toml` + kaynak projenin lisans beyanları.  
 **Durum:** Doğrudan paket aileleri için belgelenmiş ön denetim; **çözülmüş (resolved) `releaseRuntimeClasspath` ve her transitif POM henüz bağımsız doğrulanmadı**.
 
+**9 Ekim ek kaydı:** Yukarıdaki tablo 8 Ekim kaynak ön incelemesidir. Faz 9.5 CI'sında `releaseRuntimeClasspath` ve `coreLibraryDesugaring` gerçekten çözülmüş; 138 modül/98 artifact hash'i, POM lisansları ve 22 gömülü bildirim çıkarılmıştır. Kesin varyant, metadata istisnaları ve bir doğrudan POM alanı boşluğu [çözülmüş lisans gözlemleri](release/RESOLVED_LICENSE_OBSERVATIONS.md) içinde ayrılır. Son imzalı paket/NOTICE dağıtımı onayı bu çıktıdan türetilmez.
+
 ## 1. Neden projenin Apache-2.0 lisansı tek başına yeterli değil?
 
 `LICENSE` projenin özgün kaynaklarını kapsar. Android APK'nın içerdiği transitif yazılım bileşenleri kendi telif haklarını ve lisanslarını korur. Çıktı APK/AAB'nin gerçek sürümleri ve NOTICE gereksinimleri yayından önce kontrol edilir.
@@ -44,7 +46,7 @@ bash scripts/verify_release_dependencies.sh
 
 ## 4. Yayın kabul eşiği
 
-- [ ] Gradle `releaseRuntimeClasspath` gerçek build ortamında çözülmüş ve rapor saklanmış.
+- [x] Gradle `releaseRuntimeClasspath` gerçek CI build ortamında çözülmüş; raw inventory ve hash raporu artifact olarak saklanmış (yukarıdaki 9 Ekim ek kaydı).
 - [ ] Tüm dağıtılan koordinatların **tam sürüm**, SPDX/lisans metni, gerekli attribution/NOTICE girdisi incelenmiş.
 - [ ] Gerekli lisans bildirimleri kullanıcı tarafından erişilebilir hale getirilmiş.
 - [ ] `assembleRelease` ve bağımlılık negatif kontrolü başarılı; AAB/APK analiziyle üçüncü taraf SDK beyanları tutarlı.
