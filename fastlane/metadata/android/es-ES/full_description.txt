@@ -1,0 +1,10 @@
+Gestiona tus perfiles de NextDNS con un cliente Android independiente y no oficial.
+
+Consulta y gestiona la configuración de seguridad, privacidad y control parental, las listas de permitidos y de bloqueo, los registros y los análisis. Sigue las instrucciones para configurar el DNS privado de Android y otras plataformas compatibles. Este cliente no crea una VPN ni sustituye al servicio DNS de NextDNS.
+
+Elige inglés, turco, alemán, francés o español, o utiliza el idioma del sistema. Las notificaciones son opcionales. La primera versión es gratuita y no incluye anuncios ni compras en la aplicación.
+
+Las solicitudes API van directamente desde tu dispositivo a NextDNS. El desarrollador no dispone de un servidor que recopile cuentas o registros. Las operaciones de cuenta requieren tu propia clave API de NextDNS. La relación con la cuenta y el servicio NextDNS es independiente de esta aplicación.
+
+Este proyecto no está afiliado a NextDNS, ni cuenta con su aprobación o patrocinio. El código fuente original de la aplicación está disponible bajo Apache-2.0:
+https://github.com/illetyus/open-source-client-for-nextdns

@@ -4,8 +4,9 @@ An **independent, unofficial** native Android client for managing a user's own
 NextDNS account through the [documented NextDNS API](https://nextdns.github.io/api/).
 
 > **Development status:** The application is not ready for public Google Play
-> release. The selected name is **Open Source Client for NextDNS**. The original
-> icon and Play Store description still require Phase 9 review. This repository
+> release. The name is **Open Source Client for NextDNS**. Five-language UI,
+> original network-node artwork and draft store/legal documents are prepared;
+> final signed-package and real-device release evidence remains open. This repository
 > is not affiliated with or endorsed by NextDNS.
 
 ## Features in development
@@ -29,10 +30,9 @@ Service availability and supported API operations depend on NextDNS.
 NextDNS independently operates its DNS service, remote infrastructure, accounts,
 subscriptions, API and server-side data handling. This client does not control
 those services and is not sponsored, endorsed or officially supported by NextDNS.
-The app developer nevertheless remains responsible for the app's own code,
-security, on-device data handling, API requests and accurate disclosures to the
-extent required by applicable law. This distinction is not a blanket waiver of
-legal obligations.
+Client code, on-device processing and API requests are analysed separately from
+NextDNS-operated services under applicable law. The draft does not add an SLA,
+support, indemnity or service-continuity undertaking, or claim blanket immunity.
 
 Our [independent-client and Google Play disclosure plan](docs/INDEPENDENT_CLIENT_AND_GOOGLE_PLAY_DISCLOSURE_PLAN.md)
 tracks required product wording, privacy declarations, Google/API integrations,
@@ -60,17 +60,24 @@ Third-party dependencies keep their own license terms. The
 records the pending final runtime artifact/license verification.
 
 The name, brand, logos, service, API and intellectual property of NextDNS are
-not licensed to this project by the Apache-2.0 license. Current launcher
-artwork requires a separate asset/brand review before any public release.
+not licensed to this project by the Apache-2.0 license. The project-authored
+network-node artwork and its provenance are recorded in
+[the asset review](docs/BRAND_ASSET_PROVENANCE.md). Final launcher/store presentation
+remains part of the release review.
 
 ## Release process
 
 1. Phase 8: legal, privacy, provenance and third-party license review.
-2. Phase 9: the selected app name and repository rename are applied; finalize
-   the independent icon, store text, signing, distribution and privacy disclosures.
+2. Phase 9: naming, five-language UI, original icon and verified offline legal
+   drafts are followed by release dependency/package evidence and final review.
 3. **Mandatory BrowserStack real-device tests** before Google Play public
    release; see [the release gate](docs/PHASE9_BROWSERSTACK_RELEASE_GATE.md).
-4. Google Play internal/closed testing followed by a release decision.
+4. Google Play internal/closed testing and prelaunch evidence followed by a release decision.
+5. Phase 10: API compatibility, dependency and release maintenance after publication.
+
+The [master phase record](docs/PROJECT_PHASE_STATUS.md) preserves the scope of
+Phases 2–10; the [literature review](docs/legal/LITERATURE_REVIEW_TR_EU_2026-10-09_DRAFT.md)
+and legal texts remain **DRAFT**. Naming completion does not complete Phase 9.
 
 The project is under active development. Do not consider a draft PR or a
 successful unit-test run a public release approval.

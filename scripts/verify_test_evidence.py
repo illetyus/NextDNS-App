@@ -46,6 +46,14 @@ for name in screenshots:
 coverage = ET.parse(root / "app/build/reports/jacoco/jacocoTestReport/jacocoTestReport.xml").getroot()
 classes = coverage.findall(".//class")
 assert classes, "JaCoCo report contains no compiled application classes"
+for class_name in ("LegalAcceptanceStore", "LegalDocuments"):
+    class_path = "com/example/data/legal/" + class_name
+    entry = next((item for item in classes if item.get("name") == class_path), None)
+    assert entry is not None, f"Legal application class absent from coverage: {class_name}"
+    lines = next((item for item in entry.findall("counter") if item.get("type") == "LINE"), None)
+    assert lines is not None and int(lines.get("covered", 0)) > 0, f"Legal tests produced no executed lines: {class_name}"
+for class_name in ("LegalAcceptanceStoreTest", "LegalDocumentsTest", "LegalDocumentLinksTest", "LegalWelcomeInteractionTest"):
+    assert any(classname == "com.example.data.legal." + class_name for classname, name in cases), f"Legal test not executed: {class_name}"
 instructions = next((item for item in coverage.findall("counter") if item.get("type") == "INSTRUCTION"), None)
 assert instructions is not None and int(instructions.get("covered", 0)) > 0, "No executed application instructions in coverage"
 print(f"PASS: {tests} tests, {failures} failures, {skipped} skipped; {len(screenshots)} generated screenshots; {len(classes)} coverage classes")

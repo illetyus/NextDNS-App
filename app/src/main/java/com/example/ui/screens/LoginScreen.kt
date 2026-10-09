@@ -31,6 +31,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalClipboardManager
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
@@ -222,6 +223,7 @@ fun LoginScreen(
               }
             },
             modifier = Modifier
+              .testTag("login_submit")
               .fillMaxWidth()
               .height(46.dp),
             shape = RoundedCornerShape(12.dp),
@@ -242,6 +244,7 @@ fun LoginScreen(
           OutlinedButton(
             onClick = { viewModel.enterGuestMode() },
             modifier = Modifier
+              .testTag("login_guest")
               .fillMaxWidth()
               .height(42.dp),
             shape = RoundedCornerShape(12.dp),

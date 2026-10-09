@@ -22,12 +22,16 @@ for document in registry['documents']:
         assert len(re.findall(r'^### \d+\.', content, re.M)) == 12, document['path']
         assert 'Apache-2.0' in content, document['path']
     if registry['status'] == 'DRAFT': assert 'DRAFT' in content and document['status'] == 'DRAFT'
+    if '--release' in sys.argv:
+        assert not re.search(r'\bDRAFT\b|NOT FOR (?:RELEASE|PUBLICATION)|\[(?:VERIFIED|PUBLIC|WORKING|DATE|FINAL)\b', content, re.I), f'Unapproved legal text: {document["path"]}'
 store = (root / 'app/src/main/java/com/example/data/legal/LegalAcceptanceStore.kt').read_text(encoding='utf8')
 assert f'CURRENT_TERMS_REVISION = "{registry["terms_revision"]}"' in store
 if '--release' in sys.argv:
     assert registry['status'] == 'APPROVED', 'Legal bundle is still DRAFT'
+    assert 'DRAFT' not in registry['terms_revision'] and 'DRAFT' not in registry['privacy_revision'], 'Provisional document revision'
     for field in ('publisher', 'contact', 'public_policy_url', 'approval_reference'):
         assert registry.get(field), f'Unverified release metadata: {field}'
+        assert '[' not in registry[field], f'Placeholder release metadata: {field}'
     assert registry['public_policy_url'].startswith('https://')
     assert all(d['status'] == 'APPROVED' for d in registry['documents'])
 print('Legal bundle integrity and revision verified; status:', registry['status'])

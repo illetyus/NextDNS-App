@@ -20,3 +20,5 @@ debug.keystore
 *.keystore
 *.p12
 google-services.json
+__pycache__/
+*.py[cod]

@@ -1,0 +1,136 @@
+{
+  "status": "DRAFT",
+  "territories": [
+    "TR",
+    "EU"
+  ],
+  "free": true,
+  "ads": false,
+  "inAppPurchases": false,
+  "publisherReview": null,
+  "releaseCandidate": null,
+  "productionSigningApproval": null,
+  "licenseApproval": null,
+  "browserstack": {
+    "appLiveSession": null,
+    "appAutomateBuild": null,
+    "cases": [
+      {
+        "id": "B01",
+        "status": "NOT_RUN",
+        "evidence": []
+      },
+      {
+        "id": "B02",
+        "status": "NOT_RUN",
+        "evidence": []
+      },
+      {
+        "id": "B03",
+        "status": "NOT_RUN",
+        "evidence": []
+      },
+      {
+        "id": "B04",
+        "status": "NOT_RUN",
+        "evidence": []
+      },
+      {
+        "id": "B05",
+        "status": "NOT_RUN",
+        "evidence": []
+      },
+      {
+        "id": "B06",
+        "status": "NOT_RUN",
+        "evidence": []
+      },
+      {
+        "id": "B07",
+        "status": "NOT_RUN",
+        "evidence": []
+      },
+      {
+        "id": "B08",
+        "status": "NOT_RUN",
+        "evidence": []
+      },
+      {
+        "id": "B09",
+        "status": "NOT_RUN",
+        "evidence": []
+      },
+      {
+        "id": "B10",
+        "status": "NOT_RUN",
+        "evidence": []
+      },
+      {
+        "id": "B11",
+        "status": "NOT_RUN",
+        "evidence": []
+      },
+      {
+        "id": "B12",
+        "status": "NOT_RUN",
+        "evidence": []
+      },
+      {
+        "id": "B13",
+        "status": "NOT_RUN",
+        "evidence": []
+      },
+      {
+        "id": "B14",
+        "status": "NOT_RUN",
+        "evidence": []
+      },
+      {
+        "id": "B15",
+        "status": "NOT_RUN",
+        "evidence": []
+      },
+      {
+        "id": "B16",
+        "status": "NOT_RUN",
+        "evidence": []
+      },
+      {
+        "id": "B17",
+        "status": "NOT_RUN",
+        "evidence": []
+      },
+      {
+        "id": "B18",
+        "status": "NOT_RUN",
+        "evidence": []
+      },
+      {
+        "id": "B19",
+        "status": "NOT_RUN",
+        "evidence": []
+      },
+      {
+        "id": "B20",
+        "status": "NOT_RUN",
+        "evidence": []
+      },
+      {
+        "id": "B21",
+        "status": "NOT_RUN",
+        "evidence": []
+      },
+      {
+        "id": "B22",
+        "status": "NOT_RUN",
+        "evidence": []
+      }
+    ]
+  },
+  "play": {
+    "internalTest": null,
+    "closedTest": null,
+    "prelaunchReport": null,
+    "dataSafetyApproval": null
+  }
+}
