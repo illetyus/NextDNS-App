@@ -24,7 +24,16 @@ test -n "$test_apk"
 unset NEXTDNS_CI_AUDIT_PASSWORD
 # Android SDK licenses are already accepted on the hosted Android build runner.
 "$sdk_manager" 'system-images;android-35;default;x86_64' 'emulator' 'platform-tools'
-printf 'no\n' | avdmanager create avd -n nextdns-release-audit -k 'system-images;android-35;default;x86_64' --force
+# Use one explicit AVD location for both command-line tools and the emulator.
+# Hosted runners can give older SDK tools and newer emulators different defaults.
+export ANDROID_USER_HOME="$RUNNER_TEMP/release-audit-android"
+export ANDROID_EMULATOR_HOME="$ANDROID_USER_HOME"
+export ANDROID_AVD_HOME="$ANDROID_USER_HOME/avd"
+mkdir -p "$ANDROID_AVD_HOME"
+printf 'no\n' | avdmanager create avd -n nextdns-release-audit -k 'system-images;android-35;default;x86_64' \
+  --path "$ANDROID_AVD_HOME/nextdns-release-audit.avd" --force
+test -f "$ANDROID_AVD_HOME/nextdns-release-audit.ini"
+"$ANDROID_HOME/emulator/emulator" -list-avds | grep -Fx 'nextdns-release-audit'
 sudo chmod 666 /dev/kvm
 "$ANDROID_HOME/emulator/emulator" -avd nextdns-release-audit -no-window -no-audio -no-boot-anim \
   -no-snapshot -gpu swiftshader_indirect -memory 2048 > "$out/emulator.log" 2>&1 &
