@@ -12,9 +12,10 @@ NextDNS is a name/brand of its respective owner. The Apache-2.0 license
 for this project's original code does not grant rights to third-party names,
 logos, trademarks, or other third-party intellectual property.
 
-Existing launcher artwork has not yet passed the final trademark/asset
-review. Do not treat it as a licensed reproduction of any NextDNS brand
-assets. The production app icon will be reviewed or replaced before release.
+The project-authored network-node icon replaces the earlier shield artwork.
+Its geometry and reproducible assets are documented in
+docs/BRAND_ASSET_PROVENANCE.md. It does not reproduce a NextDNS logo or
+represent affiliation; final store presentation review remains pending.
 
 Dependencies retain their own upstream licenses and copyright notices.
 See docs/SOURCE_AND_LICENSE_PROVENANCE.md for the preliminary inventory;

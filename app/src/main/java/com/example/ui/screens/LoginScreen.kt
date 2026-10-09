@@ -1,5 +1,7 @@
 package com.example.ui.screens
 
+import androidx.compose.ui.res.painterResource
+
 import android.app.Activity
 import android.content.Context
 import android.content.ContextWrapper
@@ -88,13 +90,13 @@ fun LoginScreen(
       horizontalAlignment = Alignment.CenterHorizontally,
       verticalArrangement = Arrangement.Center
     ) {
-      // Independent client title and decorative shield (not a NextDNS logo)
+      // Independent client title and project-authored network symbol.
       Row(
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(8.dp)
       ) {
         Icon(
-          imageVector = Icons.Default.Shield,
+          painter = painterResource(R.drawable.ic_client_network),
           contentDescription = null,
           tint = MaterialTheme.colorScheme.primary,
           modifier = Modifier.size(36.dp)
