@@ -11,6 +11,9 @@ out = root/'build/compliance/runtime'
 text = (out/'instrumentation.txt').read_text(encoding='utf8')
 assert 'OK (10 tests)' in text and 'INSTRUMENTATION_CODE: -1' in text, text[-3000:]
 assert not any(marker in text for marker in ('FAILURES!!!', 'INSTRUMENTATION_FAILED', 'Process crashed', 'INSTRUMENTATION_STATUS_CODE: -2'))
+statuses = re.findall(r'^INSTRUMENTATION_STATUS_CODE: (-?\d+)\s*$', text, re.M)
+assert statuses.count('1') == 10 and statuses.count('0') == 10, 'Require ten started and successfully completed tests'
+assert all(status in ('0', '1') for status in statuses), 'Errors, failures, ignored tests or assumptions are not release evidence'
 assert 'RELEASE_AUDIT_SYNTHETIC_CANARY_20261009' not in (out/'logcat.txt').read_text(encoding='utf8'), 'Synthetic credential appeared in logcat'
 unsigned = root/'app/build/outputs/apk/release/app-release-unsigned.apk'
 signed = out/'release-runtime.apk'
