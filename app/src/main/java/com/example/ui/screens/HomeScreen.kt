@@ -1,5 +1,7 @@
 package com.example.ui.screens
 
+import androidx.compose.ui.res.painterResource
+
 import androidx.compose.animation.*
 import androidx.compose.animation.core.*
 import androidx.compose.foundation.background
@@ -140,7 +142,7 @@ fun HomeScreen(
               modifier = Modifier.weight(1f).padding(end = 8.dp),
               verticalArrangement = Arrangement.spacedBy(8.dp)
             ) {
-              // Decorative shield and refresh status, not a provider logo.
+              // Project-authored network symbol and refresh status.
               Row(
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.spacedBy(6.dp),
@@ -160,7 +162,7 @@ fun HomeScreen(
                     isPulsing = currentSectionSyncState?.isRefreshing == true || currentSectionSyncState?.isSaving == true
                   )
                   Icon(
-                    imageVector = Icons.Default.Shield,
+                    painter = painterResource(R.drawable.ic_client_network),
                     contentDescription = null,
                     tint = MaterialTheme.colorScheme.primary,
                     modifier = Modifier.size(22.dp)
