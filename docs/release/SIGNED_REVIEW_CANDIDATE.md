@@ -24,6 +24,8 @@ Tam proje Apache-2.0 metni, upstream GPLv2/Classpath ve BSD metinleri, 22 artifa
 
 Anahtar `%LOCALAPPDATA%/OpenSourceClientForNextDNS/signing/upload.p12` altında, güçlü rastgele parolası Windows kullanıcı hesabına bağlı DPAPI ile şifreli `password.dpapi` dosyasında tutulur. Klasör erişimi mevcut kullanıcı ve SYSTEM ile sınırlandırılır. Özel anahtar veya parola Git'e, CI'a ve inceleme ZIP'ine eklenmez. Yerel yedek kullanıcının Documents klasöründeki `CodexPrivate/OpenSourceClientForNextDNS-signing-backup` konumunda aynı erişim sınırıyla saklanır; **DPAPI yedeği başka bir Windows hesabında taşınabilir bir parola yedeği değildir**. Public `upload-certificate.pem` sır içermez.
 
+İlk oluşturma erişimi sınırlar; sonraki imzalamalarda mevcut korumalı klasörün izinleri yeniden yazılmaz. Mevcut ACL'nin kalıtım kapalı ve yalnız kullanıcı/SYSTEM için FullControl olması doğrulanır; beklenmeyen izin varsa imzalama durur. Böylece tekrar kullanım, mevcut korumalı klasörün security descriptor'ını yeniden yazmak için Windows'un isteyebileceği ek yetkiye dayanmaz.
+
 Play App Signing kaydı henüz yoktur. Yerel APK imzası ve AAB upload imzası doğrulanabilir olsa da Google'ın ileride kullanacağı uygulama imza anahtarı hakkında varsayım yapılmaz. İlk imzalı APK, eski debug imzalı kurulumun üzerine farklı sertifikayla güncelleme olarak kurulamaz; mevcut uygulama verisini silme işlemi otomatik yapılmaz.
 
 Örnek kullanım: PowerShell'de `scripts/sign_review_windows.ps1` dosyasına `-EvidenceDirectory`, `-OutputDirectory`, `-BuildToolsDirectory` ve başarılı `main` koşusunun `-RunId` değerini verin. Çıktı klasörü önceden imzalı paket içeriyorsa dosyalar üzerine yazılmaz.
