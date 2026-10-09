@@ -116,6 +116,10 @@ jobs:
         run: python3 scripts/record_package_evidence.py
         shell: bash
 
+      - name: Reject test DEX types and validate against real test APK
+        run: python3 scripts/release_dex_audit.py
+        shell: bash
+
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@303a32d7a59b442fa8d48b6a1cc6825c09c847a5 # v7.1.1
         with:

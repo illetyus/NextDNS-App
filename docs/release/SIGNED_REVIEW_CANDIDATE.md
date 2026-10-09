@@ -10,6 +10,8 @@ Yerelde imzalanan APK'nın aynı payload'a sahip olması da doğrulanır. CI em�
 
 `verify_signed_review.py`, dört giriş paketinin SHA-256 değerlerini; başarılı `main` CI commit'ini; APK v2 imzasını; AAB'nin her veri girdisinin aynı sertifikayla imzasını; 16 KB ZIP hizalamasını; paket kimliği, debuggable ve cleartext manifest değerlerini; lisans metninin bire bir dağıtımını; test/coverage kodunun ve sentetik anahtarın release DEX'inde bulunmamasını; Snyk high/critical çıktısını ve runtime payload eşdeğerliğini kontrol eder. APK/AAB, public sertifika, özetler ve `signed-review-evidence.json` birlikte teslim edilir.
 
+DEX kontrolü gerçek tür referanslarını okur; Compose/DataStore/OkHttp'in üretim kodundaki Robolectric/MockWebServer metinleri test sınıfı olarak sayılmaz. `release_dex_audit.py` gerçek test APK'sını ve kesilmiş DEX dosyalarını reddederek bu ayrımı CI'da sınar. Test/coverage türleri, JaCoCo alanları ve sentetik anahtar kapısı korunur. DEX 041 container biçimi otomatik kabul edilmez; desteklenmeyen biçim doğrulamayı durdurur. [DEX tür ve dize tabloları](https://source.android.com/docs/core/runtime/dex-format).
+
 ## Lisans dağıtımı ve kaynak kapsamı
 
 Tam proje Apache-2.0 metni, upstream GPLv2/Classpath ve BSD metinleri, 22 artifact lisans/NOTICE girdisi ile 138 çözülmüş girdinin metadata listesi uygulamada çevrimdışı sunulur. Liste platform/BOM ve desugaring girdilerini de kapsar; APK'da 138 kütüphane bulunduğu iddiası değildir. `components.json` 98 artifact hash kaydını korur; CI `prepare_bundled_notices.py --check` ile sürüm değişimini reddeder. İlk envanterdeki 98 hash, Google Maven/Maven Central'dan bağımsız indirilen dosyalarla eşleştirilmiş; AAR içindeki JAR'lar da lisans metni için taranmıştır. Ek nested bildirim bulunmamıştır.
