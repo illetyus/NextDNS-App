@@ -41,7 +41,7 @@ try {
     keytool -genkeypair -keystore $keystore -storetype PKCS12 -alias upload -keyalg RSA -keysize 3072 -validity 10000 -dname 'CN=Open Source Client for NextDNS' -storepass:env NEXTDNS_LOCAL_SIGNING_PASSWORD -keypass:env NEXTDNS_LOCAL_SIGNING_PASSWORD -noprompt
     if ($LASTEXITCODE -ne 0) { throw 'Keystore generation failed' }
   } else {
-    $secure = Get-Content -LiteralPath $passwordFile -Raw | ConvertTo-SecureString
+    $secure = (Get-Content -LiteralPath $passwordFile -Raw).Trim() | ConvertTo-SecureString
     $pointer = [Runtime.InteropServices.Marshal]::SecureStringToBSTR($secure)
     try { $env:NEXTDNS_LOCAL_SIGNING_PASSWORD = [Runtime.InteropServices.Marshal]::PtrToStringBSTR($pointer) }
     finally { [Runtime.InteropServices.Marshal]::ZeroFreeBSTR($pointer) }
