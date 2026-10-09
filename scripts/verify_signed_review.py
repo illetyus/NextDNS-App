@@ -7,6 +7,7 @@ import subprocess
 import zipfile
 from pathlib import Path
 from package_payload import digest, entries
+from release_dex_audit import audit_dex
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--evidence', type=Path, required=True)
@@ -40,11 +41,9 @@ assert 'com.aistudio.nextdns.mgrqvt' in manifest and ':usesCleartextTraffic(0x01
 assert not re.search(r':debuggable\([^)]*\)=(true|0xffffffff)',manifest,re.I)
 with zipfile.ZipFile(apk) as z:
     assert z.read('assets/licenses/THIRD_PARTY_NOTICES.txt') == (root/'app/src/main/assets/licenses/THIRD_PARTY_NOTICES.txt').read_bytes()
-    forbidden = ('mockwebserver','robolectric','jacoco','ReleaseSecurityRuntimeTest','RELEASE_AUDIT_SYNTHETIC_CANARY_20261009')
     for name in z.namelist():
         if re.fullmatch(r'classes\d*\.dex',name):
-            data = z.read(name)
-            for marker in forbidden: assert marker.encode() not in data, marker
+            audit_dex(z.read(name))
 runtime = json.loads((args.evidence/'build/compliance/runtime/release-runtime-evidence.json').read_text())
 assert runtime['commit']==evidence['commit'] and runtime['tests']==10 and runtime['failures']==0 and runtime['skipped']==0
 assert runtime['payloadSha256']==digest(apk) and runtime['canaryAbsentFromLogcat'] and runtime['payloadIdenticalExceptSignature']
