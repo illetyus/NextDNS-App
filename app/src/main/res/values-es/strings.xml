@@ -564,4 +564,5 @@
     <string name="copy_dns">"Servidor DNS"</string>
     <string name="copy_ddns">"URL DDNS"</string>
     <string name="copy_chromeos_doh">"Dirección DoH de ChromeOS"</string>
+    <string name="source_licenses_label">Código fuente y licencias</string>
 </resources>

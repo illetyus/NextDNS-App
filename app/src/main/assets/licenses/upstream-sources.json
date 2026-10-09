@@ -1,0 +1,17 @@
+[
+  {
+    "file": "desugar-LICENSE.txt",
+    "url": "https://raw.githubusercontent.com/google/desugar_jdk_libs/73170c345e6a762fc6a1f0301bb15218850023ef/LICENSE",
+    "sha256": "4b9abebc4338048a7c2dc184e9f800deb349366bdf28eb23c2677a77b4c87726"
+  },
+  {
+    "file": "desugar-ADDITIONAL_LICENSE_INFO.txt",
+    "url": "https://raw.githubusercontent.com/google/desugar_jdk_libs/73170c345e6a762fc6a1f0301bb15218850023ef/ADDITIONAL_LICENSE_INFO",
+    "sha256": "a69bce275ba7a3570af6579cb0f55682cd75fedfcd49e0e8e9022270c447c916"
+  },
+  {
+    "file": "protobuf-LICENSE.txt",
+    "url": "https://raw.githubusercontent.com/protocolbuffers/protobuf/v3.25.5/LICENSE",
+    "sha256": "6e5e117324afd944dcf67f36cf329843bc1a92229a8cd9bb573d7a83130fea7d"
+  }
+]

@@ -1,0 +1,191 @@
+package com.example
+
+import android.content.Context
+import android.content.pm.ApplicationInfo
+import android.security.NetworkSecurityPolicy
+import androidx.test.ext.junit.runners.AndroidJUnit4
+import androidx.test.platform.app.InstrumentationRegistry
+import com.example.data.api.NextDnsNetworkClient
+import com.example.data.legal.LegalDocuments
+import com.example.data.local.NextDnsPreferences
+import okhttp3.Request
+import okhttp3.logging.HttpLoggingInterceptor
+import okhttp3.mockwebserver.MockResponse
+import okhttp3.mockwebserver.MockWebServer
+import okhttp3.tls.HandshakeCertificates
+import okhttp3.tls.HeldCertificate
+import org.junit.Assert.*
+import org.junit.Assume.assumeFalse
+import org.junit.Before
+import org.junit.Test
+import org.junit.runner.RunWith
+import java.io.File
+import java.security.KeyStore
+import java.util.concurrent.TimeUnit
+
+/** Release-only checks on a disposable installation. All credentials are synthetic. */
+@RunWith(AndroidJUnit4::class)
+class ReleaseSecurityRuntimeTest {
+  private val context get() = InstrumentationRegistry.getInstrumentation().targetContext
+  private val canary = "RELEASE_AUDIT_SYNTHETIC_CANARY_20261009"
+
+  @Before fun requireReleaseVariant() { assumeFalse(BuildConfig.DEBUG) }
+
+  private fun tlsServer(): Pair<MockWebServer, HandshakeCertificates> {
+    val certificate = HeldCertificate.Builder().commonName("localhost")
+      .addSubjectAlternativeName("localhost").build()
+    val server = MockWebServer()
+    server.useHttps(HandshakeCertificates.Builder().heldCertificate(certificate).build().sslSocketFactory(), false)
+    server.start()
+    return server to HandshakeCertificates.Builder().addTrustedCertificate(certificate.certificate).build()
+  }
+
+  @Test fun releaseIsNotDebuggableAndNetworkLoggingIsDisabled() {
+    assertFalse(BuildConfig.DEBUG)
+    assertEquals(0, context.applicationInfo.flags and ApplicationInfo.FLAG_DEBUGGABLE)
+    val logging = NextDnsNetworkClient.client.interceptors.filterIsInstance<HttpLoggingInterceptor>()
+    assertEquals(1, logging.size)
+    assertEquals(HttpLoggingInterceptor.Level.NONE, logging.single().level)
+    assertTrue(NextDnsNetworkClient.publicDownloadClient.interceptors.isEmpty())
+    assertTrue(NextDnsNetworkClient.client.networkInterceptors.isEmpty())
+  }
+
+  @Test fun cleartextTransportIsRejectedBeforeSendingCredentials() {
+    assertFalse(NetworkSecurityPolicy.getInstance().isCleartextTrafficPermitted)
+    val server = MockWebServer()
+    server.start()
+    try {
+      server.enqueue(MockResponse().setBody("unused"))
+      val result = runCatching {
+        NextDnsNetworkClient.client.newCall(Request.Builder().url(server.url("/"))
+          .header("X-Api-Key", canary).build()).execute().close()
+      }
+      assertTrue(result.isFailure)
+      assertEquals(0, server.requestCount)
+    } finally { server.shutdown() }
+  }
+
+  @Test fun defaultTrustRejectsUntrustedServerCertificate() {
+    val (server, _) = tlsServer()
+    try {
+      server.enqueue(MockResponse().setBody("unused"))
+      assertTrue(runCatching {
+        NextDnsNetworkClient.client.newCall(Request.Builder().url(server.url("/"))
+          .header("X-Api-Key", canary).build()).execute().close()
+      }.isFailure)
+      assertEquals(0, server.requestCount)
+    } finally { server.shutdown() }
+  }
+
+  @Test fun credentialedTlsRedirectNeverReachesAnotherHost() {
+    val (server, certificates) = tlsServer()
+    val destination = MockWebServer()
+    destination.start()
+    try {
+      server.enqueue(MockResponse().setResponseCode(302).addHeader("Location", destination.url("/leak")))
+      // Only the fixture certificate is trusted by this test clone. The app's
+      // production trust manager and API endpoints are unchanged.
+      val client = NextDnsNetworkClient.client.newBuilder()
+        .sslSocketFactory(certificates.sslSocketFactory(), certificates.trustManager).build()
+      client.newCall(Request.Builder().url(server.url("/profiles"))
+        .header("X-Api-Key", canary).build()).execute().use {
+        assertEquals(302, it.code)
+        assertNotNull(it.handshake)
+      }
+      val received = server.takeRequest(10, TimeUnit.SECONDS)!!
+      assertEquals(canary, received.getHeader("X-Api-Key"))
+      assertEquals("/profiles", received.path)
+      assertEquals(0, destination.requestCount)
+    } finally { server.shutdown(); destination.shutdown() }
+  }
+
+  @Test fun publicExportContainsNoCredentialAndCannotDowngradeToHttp() {
+    val (server, certificates) = tlsServer()
+    val destination = MockWebServer()
+    destination.start()
+    try {
+      server.enqueue(MockResponse().setResponseCode(302).addHeader("Location", destination.url("/download")))
+      val client = NextDnsNetworkClient.publicDownloadClient.newBuilder()
+        .sslSocketFactory(certificates.sslSocketFactory(), certificates.trustManager).build()
+      client.newCall(Request.Builder().url(server.url("/download"))
+        .header("Accept", "*/*").build()).execute().use { assertEquals(302, it.code) }
+      val received = server.takeRequest(10, TimeUnit.SECONDS)!!
+      assertNull(received.getHeader("X-Api-Key"))
+      assertNull(received.getHeader("Authorization"))
+      assertEquals(0, destination.requestCount)
+    } finally { server.shutdown(); destination.shutdown() }
+  }
+
+  @Test fun keystoreEncryptionPersistsNoPlaintextAndRejectsTampering() {
+    val preferences = NextDnsPreferences(context)
+    assertTrue(preferences.clear())
+    try {
+      preferences.apiKey = canary
+      assertEquals(canary, preferences.apiKey)
+      val raw = context.getSharedPreferences("nextdns_secure_prefs", Context.MODE_PRIVATE)
+      val encrypted = raw.getString("saved_api_key_encrypted_v1", "")!!
+      assertTrue(encrypted.startsWith("v1:"))
+      assertFalse(encrypted.contains(canary))
+      assertFalse(raw.contains("saved_api_key"))
+      val file = File(context.applicationInfo.dataDir, "shared_prefs/nextdns_secure_prefs.xml")
+      assertTrue(file.isFile)
+      assertFalse(file.readText().contains(canary))
+      val keystore = KeyStore.getInstance("AndroidKeyStore").apply { load(null) }
+      assertNull(keystore.getKey("nextdns_api_key_aes_v1", null).encoded)
+      val parts = encrypted.split(':').toMutableList()
+      parts[2] = (if (parts[2][0] == 'A') "B" else "A") + parts[2].substring(1)
+      assertTrue(raw.edit().putString("saved_api_key_encrypted_v1", parts.joinToString(":" )).commit())
+      assertEquals("", preferences.apiKey)
+      assertFalse(raw.contains("saved_api_key_encrypted_v1"))
+    } finally { assertTrue(preferences.clear()) }
+  }
+
+  @Test fun legacyKeyMigratesAndAccountClearRemovesItsData() {
+    val raw = context.getSharedPreferences("nextdns_secure_prefs", Context.MODE_PRIVATE)
+    assertTrue(raw.edit().clear().putString("saved_api_key", canary)
+      .putString("saved_logs_fixture", canary).putString("saved_user_email", "synthetic@example.invalid").commit())
+    val preferences = NextDnsPreferences(context)
+    try {
+      assertEquals(canary, preferences.apiKey)
+      assertFalse(raw.contains("saved_api_key"))
+      assertFalse(raw.contains("saved_logs_fixture"))
+      assertFalse(raw.contains("saved_user_email"))
+      assertTrue(preferences.clear())
+      assertTrue(raw.all.isEmpty())
+      assertEquals("", preferences.apiKey)
+    } finally { preferences.clear() }
+  }
+
+  @Test fun backupAndTransferRulesExcludeCredentials() {
+    for (name in listOf("backup_rules", "data_extraction_rules")) {
+      val parser = context.resources.getXml(context.resources.getIdentifier(name, "xml", context.packageName))
+      var exclusions = 0
+      parser.use {
+        while (it.eventType != org.xmlpull.v1.XmlPullParser.END_DOCUMENT) {
+          if (it.eventType == org.xmlpull.v1.XmlPullParser.START_TAG && it.name == "exclude" &&
+            it.getAttributeValue(null, "domain") == "sharedpref" &&
+            it.getAttributeValue(null, "path") == "nextdns_secure_prefs.xml") exclusions++
+          it.next()
+        }
+      }
+      assertEquals(if (name == "backup_rules") 1 else 2, exclusions)
+    }
+  }
+
+  @Test fun bundledLicensesAreReadableWithoutAcceptingTerms() {
+    val notices = context.assets.open("licenses/THIRD_PARTY_NOTICES.txt").bufferedReader().use { it.readText() }
+    assertTrue(notices.contains("com.android.tools:desugar_jdk_libs:2.1.5"))
+    assertTrue(notices.contains("Classpath"))
+    assertTrue(notices.contains("Copyright 2008 Google Inc."))
+    assertTrue(notices.contains("Apache License"))
+    assertTrue(notices.contains("independent, unofficial"))
+  }
+
+  @Test fun allFiveLegalDocumentsStillHaveValidDraftHashes() {
+    for (language in listOf("tr", "en", "de", "fr", "es")) {
+      val bundle = LegalDocuments.load(context, language).getOrThrow()
+      assertEquals(language, bundle.language)
+      assertTrue(bundle.draft)
+    }
+  }
+}

@@ -565,5 +565,6 @@
     <string name="copy_dns">"DNS server"</string>
     <string name="copy_ddns">"DDNS URL"</string>
     <string name="copy_chromeos_doh">"ChromeOS DoH address"</string>
+    <string name="source_licenses_label">Source and licenses</string>
 </resources>
 <!-- Locale-only presentation; API privacy fields remain unchanged. -->

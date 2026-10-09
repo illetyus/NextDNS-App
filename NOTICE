@@ -18,8 +18,10 @@ docs/BRAND_ASSET_PROVENANCE.md. It does not reproduce a NextDNS logo or
 represent affiliation; final store presentation review remains pending.
 
 Dependencies retain their own upstream licenses and copyright notices.
-See docs/SOURCE_AND_LICENSE_PROVENANCE.md for the preliminary inventory;
-the resolved release dependency license audit remains a pre-release task.
+Full dependency license texts, artifact notices and resolved input hashes
+are bundled in app/src/main/assets/licenses/THIRD_PARTY_NOTICES.txt and
+components.json. They are available offline from the app's sign-in and
+Settings screens. See docs/release/RESOLVED_LICENSE_OBSERVATIONS.md.
 
 This NOTICE supplies attribution and information; it does not modify or
 replace the Apache License 2.0.

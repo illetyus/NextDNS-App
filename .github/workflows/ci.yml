@@ -108,6 +108,10 @@ jobs:
         run: bash scripts/verify_release_dependencies.sh
         shell: bash
 
+      - name: Verify bundled full license and NOTICE distribution
+        run: python3 scripts/prepare_bundled_notices.py --check
+        shell: bash
+
       - name: Record actual package, manifest and signature evidence
         run: python3 scripts/record_package_evidence.py
         shell: bash
@@ -137,6 +141,10 @@ jobs:
         shell: bash
         env:
           SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+
+      - name: Signed release payload security on Android emulator
+        run: bash scripts/run_release_runtime_audit.sh
+        shell: bash
 
       - name: Upload resolved release and device-test artifacts
         if: always()

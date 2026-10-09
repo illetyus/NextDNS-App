@@ -27,6 +27,7 @@ fun LegalDocumentLinks(modifier: Modifier = Modifier) {
     TextButton(onClick = { selectedTerms = false }, modifier = Modifier.testTag("legal_privacy_link")) {
       Text(stringResource(R.string.legal_privacy_label))
     }
+    SourceLicenseLink()
   }
   selectedTerms?.let { initial ->
     val context = LocalContext.current
