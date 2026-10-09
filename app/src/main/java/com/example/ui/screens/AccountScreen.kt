@@ -1,5 +1,8 @@
 package com.example.ui.screens
 
+import com.example.R
+import com.example.i18n.AppStrings
+
 import android.content.ClipData
 import android.content.ClipboardManager
 import android.app.Activity
@@ -100,8 +103,8 @@ fun AccountScreen(
     // 2. Real Live Usage / Query Metrics Card
     item {
       NextDnsCard(
-        title = "DNS Metrikleri",
-        subtitle = "Aktif profil için NextDNS API'sinden son alınan sorgu istatistikleri."
+        title = AppStrings.get(R.string.ui_c636e5398b),
+        subtitle = AppStrings.get(R.string.ui_de9c0c50cb)
       ) {
         Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
           Row(
@@ -116,7 +119,7 @@ fun AccountScreen(
             ) {
               Column(modifier = Modifier.padding(12.dp)) {
                 Text(
-                  text = "Toplam Sorgu",
+                  text = AppStrings.get(R.string.ui_c8fbd2d7db),
                   color = MaterialTheme.colorScheme.onSurfaceVariant,
                   fontSize = 11.sp
                 )
@@ -137,7 +140,7 @@ fun AccountScreen(
             ) {
               Column(modifier = Modifier.padding(12.dp)) {
                 Text(
-                  text = "Engellenen",
+                  text = AppStrings.get(R.string.ui_8757f8e456),
                   color = MaterialTheme.colorScheme.onSurfaceVariant,
                   fontSize = 11.sp
                 )
@@ -158,7 +161,7 @@ fun AccountScreen(
             ) {
               Column(modifier = Modifier.padding(12.dp)) {
                 Text(
-                  text = "Engelleme",
+                  text = AppStrings.get(R.string.ui_0f7cd99d61),
                   color = MaterialTheme.colorScheme.onSurfaceVariant,
                   fontSize = 11.sp
                 )
@@ -174,7 +177,7 @@ fun AccountScreen(
 
           if (analytics.topDevices.isNotEmpty()) {
             Text(
-              text = "Bağlı Aktif Cihazlar: ${analytics.topDevices.size} cihaz (${analytics.topDevices.take(3).joinToString { it.name }})",
+              text = AppStrings.get(R.string.active_devices, analytics.topDevices.size, analytics.topDevices.take(3).joinToString { it.name }),
               color = MaterialTheme.colorScheme.onSurfaceVariant,
               fontSize = 11.5.sp
             )
@@ -183,9 +186,9 @@ fun AccountScreen(
           if (analyticsLastSuccessAt == null) {
             Text(
               text = when {
-                isAnalyticsLoading -> "NextDNS analiz verisi alınıyor…"
+                isAnalyticsLoading -> AppStrings.get(R.string.ui_f227ea13fc)
                 !analyticsErrorMessage.isNullOrBlank() -> analyticsErrorMessage!!
-                else -> "Henüz doğrulanmış analiz verisi alınmadı."
+                else -> AppStrings.get(R.string.ui_fa93b503d4)
               },
               color = if (!analyticsErrorMessage.isNullOrBlank() && !isAnalyticsLoading) {
                 MaterialTheme.colorScheme.error
@@ -202,8 +205,8 @@ fun AccountScreen(
     // 2. API Key Card
     item {
       NextDnsCard(
-        title = "API Anahtarı",
-        subtitle = "Bu cihazda kullanılan NextDNS kimlik doğrulama anahtarı."
+        title = AppStrings.get(R.string.ui_f9b1cde612),
+        subtitle = AppStrings.get(R.string.ui_4400dad370)
       ) {
         Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
           Surface(
@@ -221,7 +224,7 @@ fun AccountScreen(
             ) {
               Text(
                 text = if (!hasApiKey) {
-                  "Anahtar girilmedi"
+                  AppStrings.get(R.string.ui_ebf30ef1ee)
                 } else if (showApiKey) {
                   viewModel.currentApiKeyForSensitiveUse()
                 } else {
@@ -240,7 +243,7 @@ fun AccountScreen(
                 ) {
                   Icon(
                     imageVector = if (showApiKey) Icons.Default.VisibilityOff else Icons.Default.Visibility,
-                    contentDescription = "Göster/Gizle",
+                    contentDescription = AppStrings.get(R.string.toggle_visibility),
                     tint = MaterialTheme.colorScheme.onSurfaceVariant,
                     modifier = Modifier.size(18.dp)
                   )
@@ -257,7 +260,7 @@ fun AccountScreen(
                   ) {
                     Icon(
                       imageVector = Icons.Default.ContentCopy,
-                      contentDescription = "Kopyala",
+                      contentDescription = AppStrings.get(R.string.ui_a8bcca42d9),
                       tint = MaterialTheme.colorScheme.onSurfaceVariant,
                       modifier = Modifier.size(18.dp)
                     )
@@ -272,7 +275,7 @@ fun AccountScreen(
             horizontalArrangement = Arrangement.spacedBy(8.dp)
           ) {
             NextDnsButton(
-              text = if (isSyncing) "EŞİTLENİYOR..." else "TÜM VERİYİ BULUTLA EŞİTLE",
+              text = if (isSyncing) AppStrings.get(R.string.ui_d5ca89c99b) else AppStrings.get(R.string.ui_8b96719687),
               onClick = { viewModel.syncAllData() },
               icon = Icons.Default.Sync,
               modifier = Modifier.weight(1f)
@@ -285,8 +288,8 @@ fun AccountScreen(
     // 3. Profiles Overview Card
     item {
       NextDnsCard(
-        title = "Profiller (${profiles.size})",
-        subtitle = "Hesabınıza bağlı NextDNS profilleri."
+        title = AppStrings.get(R.string.profiles_count, profiles.size),
+        subtitle = AppStrings.get(R.string.ui_473fdfc82e)
       ) {
         Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
           profiles.forEach { profile ->
@@ -345,7 +348,7 @@ fun AccountScreen(
                     shape = RoundedCornerShape(6.dp)
                   ) {
                     Text(
-                      text = "AKTİF",
+                      text = AppStrings.get(R.string.ui_66100986ec),
                       color = MaterialTheme.colorScheme.tertiary,
                       fontSize = 10.sp,
                       fontWeight = FontWeight.Bold,
@@ -358,7 +361,7 @@ fun AccountScreen(
           }
 
           NextDnsButton(
-            text = "YENİ PROFİL OLUŞTUR",
+            text = AppStrings.get(R.string.ui_ae56761330),
             onClick = { showNewProfileDialog = true },
             icon = Icons.Default.Add,
             modifier = Modifier.fillMaxWidth()
@@ -370,8 +373,8 @@ fun AccountScreen(
     // 4. Live DNS Diagnostics
     item {
       NextDnsCard(
-        title = "Ağ Teşhisi",
-        subtitle = "Cihazınızın NextDNS bağlantı durumu ve protokol parametreleri."
+        title = AppStrings.get(R.string.ui_33cbc60e2e),
+        subtitle = AppStrings.get(R.string.ui_ed7561918d)
       ) {
         Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
           val rawStatus = testResult.status.lowercase().trim()
@@ -384,14 +387,14 @@ fun AccountScreen(
           ) {
             Column {
               Text(
-                text = if (isUsingNextDns) "Bu cihaz NextDNS kullanıyor" else "NextDNS aktif değil",
+                text = if (isUsingNextDns) AppStrings.get(R.string.ui_8c25d923c8) else AppStrings.get(R.string.ui_a13d9a7458),
                 color = if (isUsingNextDns) MaterialTheme.colorScheme.tertiary else MaterialTheme.colorScheme.error,
                 fontWeight = FontWeight.Bold,
                 fontSize = 13.5.sp
               )
               if (testResult.serverPoP.isNotBlank()) {
                 Text(
-                  text = "Sunucu: ${testResult.serverPoP} (${testResult.protocol}) • Gecikme: ${testResult.latencyMs} ms",
+                  text = AppStrings.get(R.string.server_latency, testResult.serverPoP, testResult.protocol, testResult.latencyMs),
                   color = MaterialTheme.colorScheme.onSurfaceVariant,
                   fontSize = 11.5.sp
                 )
@@ -399,7 +402,7 @@ fun AccountScreen(
             }
 
             NextDnsButton(
-              text = if (testResult.isTesting) "TEST..." else "TEŞHİS ET",
+              text = if (testResult.isTesting) "TEST..." else AppStrings.get(R.string.ui_e4f71092ee),
               onClick = { viewModel.runDiagnostic(showToast = true) },
               icon = Icons.Default.Refresh
             )
@@ -411,8 +414,8 @@ fun AccountScreen(
     // 5. Account Management / Web Link & Logout
     item {
       NextDnsCard(
-        title = "Oturum Yönetimi",
-        subtitle = "Web paneli ve oturum sonlandırma."
+        title = AppStrings.get(R.string.ui_c917752692),
+        subtitle = AppStrings.get(R.string.ui_0ff43760d0)
       ) {
         Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
           OutlinedButton(
@@ -433,7 +436,7 @@ fun AccountScreen(
               modifier = Modifier.size(16.dp)
             )
             Spacer(modifier = Modifier.width(8.dp))
-            Text("my.nextdns.io Hesabını Aç", fontSize = 12.5.sp)
+            Text(AppStrings.get(R.string.ui_0a2d9890c6), fontSize = 12.5.sp)
           }
 
           Button(
@@ -451,7 +454,7 @@ fun AccountScreen(
               modifier = Modifier.size(16.dp)
             )
             Spacer(modifier = Modifier.width(8.dp))
-            Text("Çıkış Yap", fontSize = 12.5.sp, fontWeight = FontWeight.Bold)
+            Text(AppStrings.get(R.string.ui_283092d12a), fontSize = 12.5.sp, fontWeight = FontWeight.Bold)
           }
         }
       }
@@ -465,11 +468,11 @@ fun AccountScreen(
       containerColor = MaterialTheme.colorScheme.surface,
       shape = RoundedCornerShape(16.dp),
       title = {
-        Text("Çıkış Yapmak İstiyor musunuz?", color = MaterialTheme.colorScheme.onSurface, fontWeight = FontWeight.Bold)
+        Text(AppStrings.get(R.string.ui_984bb24efa), color = MaterialTheme.colorScheme.onSurface, fontWeight = FontWeight.Bold)
       },
       text = {
         Text(
-          "NextDNS API bağlantısı kesilecek ve kayıtlı oturum bilgileri temizlenecektir.",
+          AppStrings.get(R.string.ui_4448d81aad),
           color = MaterialTheme.colorScheme.onSurfaceVariant,
           fontSize = 13.sp
         )
@@ -482,12 +485,12 @@ fun AccountScreen(
           },
           colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.error)
         ) {
-          Text("Çıkış Yap", color = MaterialTheme.colorScheme.onError)
+          Text(AppStrings.get(R.string.ui_283092d12a), color = MaterialTheme.colorScheme.onError)
         }
       },
       dismissButton = {
         TextButton(onClick = { showLogoutConfirm = false }) {
-          Text("İptal", color = MaterialTheme.colorScheme.onSurfaceVariant)
+          Text(AppStrings.get(R.string.ui_7227874813), color = MaterialTheme.colorScheme.onSurfaceVariant)
         }
       }
     )
@@ -500,14 +503,14 @@ fun AccountScreen(
       containerColor = MaterialTheme.colorScheme.surface,
       shape = RoundedCornerShape(16.dp),
       title = {
-        Text("Yeni Profil Oluştur", color = MaterialTheme.colorScheme.onSurface, fontWeight = FontWeight.Bold)
+        Text(AppStrings.get(R.string.ui_cff3a955d7), color = MaterialTheme.colorScheme.onSurface, fontWeight = FontWeight.Bold)
       },
       text = {
         OutlinedTextField(
           value = newProfileName,
           onValueChange = { newProfileName = it },
-          label = { Text("Profil Adı") },
-          placeholder = { Text("Örn: Ev Ağı, Telefon") },
+          label = { Text(AppStrings.get(R.string.ui_249cb2491d)) },
+          placeholder = { Text(AppStrings.get(R.string.ui_b75d4ec373)) },
           singleLine = true,
           modifier = Modifier.fillMaxWidth()
         )
@@ -523,12 +526,12 @@ fun AccountScreen(
           },
           enabled = newProfileName.isNotBlank()
         ) {
-          Text("Oluştur")
+          Text(AppStrings.get(R.string.ui_89c75b03b9))
         }
       },
       dismissButton = {
         TextButton(onClick = { showNewProfileDialog = false }) {
-          Text("İptal", color = MaterialTheme.colorScheme.onSurfaceVariant)
+          Text(AppStrings.get(R.string.ui_7227874813), color = MaterialTheme.colorScheme.onSurfaceVariant)
         }
       }
     )
@@ -539,7 +542,7 @@ fun AccountScreen(
 
 private fun copySensitiveApiKey(context: Context, apiKey: String) {
   val clipboard = context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
-  val clip = ClipData.newPlainText("NextDNS API key", apiKey)
+  val clip = ClipData.newPlainText(AppStrings.get(R.string.ui_92e563511e), apiKey)
 
   clip.description.extras = PersistableBundle().apply {
     putBoolean("android.content.extra.IS_SENSITIVE", true)
@@ -548,7 +551,7 @@ private fun copySensitiveApiKey(context: Context, apiKey: String) {
   clipboard.setPrimaryClip(clip)
 
   if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.S_V2) {
-    Toast.makeText(context, "API Anahtarı kopyalandı", Toast.LENGTH_SHORT).show()
+    Toast.makeText(context, AppStrings.get(R.string.ui_41809d48c3), Toast.LENGTH_SHORT).show()
   }
 }
 

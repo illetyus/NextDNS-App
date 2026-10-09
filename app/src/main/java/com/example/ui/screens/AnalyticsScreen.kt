@@ -1,5 +1,10 @@
 package com.example.ui.screens
 
+import com.example.i18n.UiLabels
+
+import com.example.R
+import com.example.i18n.AppStrings
+
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
@@ -84,18 +89,18 @@ fun AnalyticsScreen(
   var showDeviceFilterMenu by remember { mutableStateOf(false) }
   var showTimeFilterMenu by remember { mutableStateOf(false) }
 
-  val numFormat = remember { NumberFormat.getInstance(Locale("tr", "TR")) }
+  val numFormat = remember { NumberFormat.getInstance(AppStrings.locale) }
   val timesList = listOf("Son 24 saat", "Son 7 gün", "Son 30 gün", "Son 3 ay")
 
   val devicesList = remember(allKnownDevices, analytics.topDevices) {
     val list = mutableListOf<String>()
     analytics.topDevices.forEach { dev ->
-      if (dev.name.isNotBlank() && dev.name != "Bilinmeyen Cihaz" && dev.name != "Cihaz") {
+      if (dev.name.isNotBlank() && dev.name != AppStrings.get(R.string.ui_571961518d) && dev.name != "Cihaz") {
         list.add(dev.name)
       }
     }
     allKnownDevices.forEach { dev ->
-      if (dev.isNotBlank() && dev != "Bilinmeyen Cihaz" && dev != "Cihaz") {
+      if (dev.isNotBlank() && dev != AppStrings.get(R.string.ui_571961518d) && dev != "Cihaz") {
         list.add(dev)
       }
     }
@@ -139,8 +144,8 @@ fun AnalyticsScreen(
     if (analyticsLastSuccessAt == null) {
       item {
         NextDnsCard(
-          title = "Analiz Verisi",
-          subtitle = "Aktif profil için NextDNS API durumu."
+          title = AppStrings.get(R.string.ui_dfe06b6d3d),
+          subtitle = AppStrings.get(R.string.ui_940a3407df)
         ) {
           Row(
             modifier = Modifier
@@ -164,9 +169,9 @@ fun AnalyticsScreen(
             }
             Text(
               text = when {
-                isAnalyticsLoading -> "NextDNS analiz verisi alınıyor…"
+                isAnalyticsLoading -> AppStrings.get(R.string.ui_f227ea13fc)
                 !analyticsErrorMessage.isNullOrBlank() -> analyticsErrorMessage!!
-                else -> "Henüz doğrulanmış analiz verisi alınmadı."
+                else -> AppStrings.get(R.string.ui_fa93b503d4)
               },
               color = if (!analyticsErrorMessage.isNullOrBlank() && !isAnalyticsLoading) {
                 MaterialTheme.colorScheme.error
@@ -300,7 +305,7 @@ private fun AnalyticsFilterBar(
           verticalAlignment = Alignment.CenterVertically,
           horizontalArrangement = Arrangement.spacedBy(6.dp)
         ) {
-          Text(selectedDeviceFilter, color = MaterialTheme.colorScheme.onSurface, fontSize = 12.5.sp, fontWeight = FontWeight.Medium)
+          Text(UiLabels.canonical(selectedDeviceFilter), color = MaterialTheme.colorScheme.onSurface, fontSize = 12.5.sp, fontWeight = FontWeight.Medium)
           Icon(Icons.Default.ArrowDropDown, contentDescription = null, tint = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.size(16.dp))
         }
       }
@@ -313,7 +318,7 @@ private fun AnalyticsFilterBar(
       ) {
         devicesList.forEach { dev ->
           DropdownMenuItem(
-            text = { Text(dev, color = if (dev == selectedDeviceFilter) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurface, fontSize = 12.sp) },
+            text = { Text(UiLabels.canonical(dev), color = if (dev == selectedDeviceFilter) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurface, fontSize = 12.sp) },
             onClick = {
               onSelectDevice(dev)
               onToggleDeviceFilterMenu(false)
@@ -337,7 +342,7 @@ private fun AnalyticsFilterBar(
           verticalAlignment = Alignment.CenterVertically,
           horizontalArrangement = Arrangement.spacedBy(6.dp)
         ) {
-          Text(selectedTimeFilter, color = MaterialTheme.colorScheme.onSurface, fontSize = 12.5.sp, fontWeight = FontWeight.Medium)
+          Text(UiLabels.canonical(selectedTimeFilter), color = MaterialTheme.colorScheme.onSurface, fontSize = 12.5.sp, fontWeight = FontWeight.Medium)
           Icon(Icons.Default.ArrowDropDown, contentDescription = null, tint = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.size(16.dp))
         }
       }
@@ -350,7 +355,7 @@ private fun AnalyticsFilterBar(
       ) {
         timesList.forEach { tm ->
           DropdownMenuItem(
-            text = { Text(tm, color = if (tm == selectedTimeFilter) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurface, fontSize = 12.sp) },
+            text = { Text(UiLabels.canonical(tm), color = if (tm == selectedTimeFilter) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurface, fontSize = 12.sp) },
             onClick = {
               onSelectTime(tm)
               onToggleTimeFilterMenu(false)
@@ -397,7 +402,7 @@ private fun AnalyticsOverviewCards(
           color = MaterialTheme.colorScheme.onSurface
         )
         Spacer(modifier = Modifier.height(2.dp))
-        Text("Sorgular", color = MaterialTheme.colorScheme.onSurfaceVariant, fontSize = 10.5.sp, maxLines = 1)
+        Text(AppStrings.get(R.string.queries), color = MaterialTheme.colorScheme.onSurfaceVariant, fontSize = 10.5.sp, maxLines = 1)
       }
     }
 
@@ -418,7 +423,7 @@ private fun AnalyticsOverviewCards(
           color = MaterialTheme.colorScheme.error
         )
         Spacer(modifier = Modifier.height(2.dp))
-        Text("Engellenen", color = MaterialTheme.colorScheme.onSurfaceVariant, fontSize = 10.5.sp, maxLines = 1)
+        Text(AppStrings.get(R.string.blocked), color = MaterialTheme.colorScheme.onSurfaceVariant, fontSize = 10.5.sp, maxLines = 1)
       }
     }
 
@@ -431,7 +436,7 @@ private fun AnalyticsOverviewCards(
     ) {
       Column(modifier = Modifier.padding(14.dp)) {
         Text(
-          text = "%${String.format(Locale("tr", "TR"), "%.2f", analytics.blockRate.coerceIn(0.0, 100.0))}",
+          text = AppStrings.percent(analytics.blockRate.coerceIn(0.0, 100.0)),
           style = MaterialTheme.typography.titleLarge.copy(
             fontWeight = FontWeight.Bold,
             fontSize = 20.sp
@@ -439,7 +444,7 @@ private fun AnalyticsOverviewCards(
           color = MaterialTheme.colorScheme.onSurface
         )
         Spacer(modifier = Modifier.height(2.dp))
-        Text("Engelleme %", color = MaterialTheme.colorScheme.onSurfaceVariant, fontSize = 10.5.sp, maxLines = 1)
+        Text(AppStrings.get(R.string.ui_4f143875ca), color = MaterialTheme.colorScheme.onSurfaceVariant, fontSize = 10.5.sp, maxLines = 1)
       }
     }
   }
@@ -451,7 +456,7 @@ private fun ResolvedDomainsCard(
   numFormat: NumberFormat,
   modifier: Modifier = Modifier
 ) {
-  NextDnsCard(title = "Çözümlenmiş Alan Adları", modifier = modifier) {
+  NextDnsCard(title = AppStrings.get(R.string.ui_b13fa1ff43), modifier = modifier) {
     Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
       analytics.topAllowedDomains.take(6).forEach { dom ->
         Row(
@@ -497,7 +502,7 @@ private fun BlockedDomainsCard(
   numFormat: NumberFormat,
   modifier: Modifier = Modifier
 ) {
-  NextDnsCard(title = "Engellenen Alan Adları", modifier = modifier) {
+  NextDnsCard(title = AppStrings.get(R.string.ui_c98fb72576), modifier = modifier) {
     Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
       analytics.topBlockedDomains.take(6).forEach { dom ->
         Row(
@@ -543,7 +548,7 @@ private fun BlockedReasonsCard(
   numFormat: NumberFormat,
   modifier: Modifier = Modifier
 ) {
-  NextDnsCard(title = "Engellenme Nedenleri", modifier = modifier) {
+  NextDnsCard(title = AppStrings.get(R.string.ui_74b2548cbb), modifier = modifier) {
     Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
       analytics.topBlockedReasons.forEach { (reason, count) ->
         Row(
@@ -577,7 +582,7 @@ private fun DevicesAnalyticsCard(
   numFormat: NumberFormat,
   modifier: Modifier = Modifier
 ) {
-  NextDnsCard(title = "Cihazlar", modifier = modifier) {
+  NextDnsCard(title = AppStrings.get(R.string.ui_238a17ed89), modifier = modifier) {
     Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
       analytics.topDevices.forEach { dev ->
         Row(
@@ -623,10 +628,10 @@ private fun RootDomainsCard(
   numFormat: NumberFormat,
   modifier: Modifier = Modifier
 ) {
-  NextDnsCard(title = "Kök Alan Adları", modifier = modifier) {
+  NextDnsCard(title = AppStrings.get(R.string.ui_ff7847fdd3), modifier = modifier) {
     if (analytics.topDomains.isEmpty()) {
       Box(modifier = Modifier.fillMaxWidth().height(100.dp), contentAlignment = Alignment.Center) {
-        Text("Bu profil için henüz yeterli veri yok.", color = MaterialTheme.colorScheme.outline, fontSize = 12.sp)
+        Text(AppStrings.get(R.string.ui_00d38c0168), color = MaterialTheme.colorScheme.outline, fontSize = 12.sp)
       }
     } else {
       Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
@@ -675,8 +680,8 @@ private fun GafamDominanceCard(
   modifier: Modifier = Modifier
 ) {
   NextDnsCard(
-    title = "GAFAM Hâkimiyeti",
-    subtitle = "\"GAFAM\" (Google, Amazon, Facebook, Apple ve Microsoft), birçok popüler hizmete sahip olan 5 baskın internet şirketidir. Bazen farklı adlarla hizmet verebilirler. Örneğin, WhatsApp ve Instagram aslında Facebook'a aittir.",
+    title = AppStrings.get(R.string.ui_8f4d0d2695),
+    subtitle = AppStrings.get(R.string.gafam_description),
     modifier = modifier
   ) {
     Row(
@@ -729,12 +734,12 @@ private fun GafamDominanceCard(
         val others = Pair(othersPct, othersQueries)
 
         val gafamList = listOf(
-          Triple("Google", "%${String.format(Locale("tr", "TR"), "%.2f", google.first.coerceIn(0.0, 100.0))} (${numFormat.format(google.second)} sorgu)", MaterialTheme.colorScheme.primary),
-          Triple("Facebook", "%${String.format(Locale("tr", "TR"), "%.2f", fb.first.coerceIn(0.0, 100.0))} (${numFormat.format(fb.second)} sorgu)", MaterialTheme.colorScheme.secondary),
-          Triple("Microsoft", "%${String.format(Locale("tr", "TR"), "%.2f", ms.first.coerceIn(0.0, 100.0))} (${numFormat.format(ms.second)} sorgu)", MaterialTheme.colorScheme.tertiary),
-          Triple("Apple", "%${String.format(Locale("tr", "TR"), "%.2f", apple.first.coerceIn(0.0, 100.0))} (${numFormat.format(apple.second)} sorgu)", MaterialTheme.colorScheme.outline),
-          Triple("Amazon", "%${String.format(Locale("tr", "TR"), "%.2f", amazon.first.coerceIn(0.0, 100.0))} (${numFormat.format(amazon.second)} sorgu)", MaterialTheme.colorScheme.error),
-          Triple("Diğerleri", "%${String.format(Locale("tr", "TR"), "%.2f", others.first.coerceIn(0.0, 100.0))} (${numFormat.format(others.second)} sorgu)", MaterialTheme.colorScheme.onSurfaceVariant)
+          Triple("Google", AppStrings.get(R.string.percentage_queries, AppStrings.percent(google.first.coerceIn(0.0, 100.0)), numFormat.format(google.second)), MaterialTheme.colorScheme.primary),
+          Triple("Facebook", AppStrings.get(R.string.percentage_queries, AppStrings.percent(fb.first.coerceIn(0.0, 100.0)), numFormat.format(fb.second)), MaterialTheme.colorScheme.secondary),
+          Triple("Microsoft", AppStrings.get(R.string.percentage_queries, AppStrings.percent(ms.first.coerceIn(0.0, 100.0)), numFormat.format(ms.second)), MaterialTheme.colorScheme.tertiary),
+          Triple("Apple", AppStrings.get(R.string.percentage_queries, AppStrings.percent(apple.first.coerceIn(0.0, 100.0)), numFormat.format(apple.second)), MaterialTheme.colorScheme.outline),
+          Triple("Amazon", AppStrings.get(R.string.percentage_queries, AppStrings.percent(amazon.first.coerceIn(0.0, 100.0)), numFormat.format(amazon.second)), MaterialTheme.colorScheme.error),
+          Triple(AppStrings.get(R.string.ui_36ed682fbd), AppStrings.get(R.string.percentage_queries, AppStrings.percent(others.first.coerceIn(0.0, 100.0)), numFormat.format(others.second)), MaterialTheme.colorScheme.onSurfaceVariant)
         )
         gafamList.forEach { (name, stats, dotColor) ->
           Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
@@ -763,9 +768,9 @@ private fun EncryptedDnsAndDnssecCard(
     modifier = modifier.fillMaxWidth(),
     verticalArrangement = Arrangement.spacedBy(14.dp)
   ) {
-    NextDnsCard(title = "Şifrelenmiş DNS") {
+    NextDnsCard(title = AppStrings.get(R.string.ui_40dcde1fc7)) {
       Text(
-        text = "Şifrelenmiş bir aktarım kullanılarak yapılan sorguların yüzdesi (HTTPS üzerinden DNS, TLS üzerinden DNS veya resmi NextDNS uygulamaları).",
+        text = AppStrings.get(R.string.ui_f58c928dd1),
         color = MaterialTheme.colorScheme.onSurfaceVariant,
         fontSize = 11.sp,
         modifier = Modifier.padding(bottom = 12.dp)
@@ -775,16 +780,16 @@ private fun EncryptedDnsAndDnssecCard(
         Box(modifier = Modifier.fillMaxWidth(encPct).fillMaxHeight().background(MaterialTheme.colorScheme.tertiary))
       }
       Text(
-        text = "%${String.format(Locale("tr", "TR"), "%.2f", analytics.encryptedDnsPercentage)}",
+        text = AppStrings.percent(analytics.encryptedDnsPercentage),
         color = MaterialTheme.colorScheme.tertiary,
         fontSize = 12.sp,
         modifier = Modifier.padding(top = 4.dp)
       )
     }
 
-    NextDnsCard(title = "DNSSEC") {
+    NextDnsCard(title = AppStrings.get(R.string.ui_37eafaf79e)) {
       Text(
-        text = "DNSSEC ile doğrulanan sorguların yüzdesi.",
+        text = AppStrings.get(R.string.ui_b5d24e85ce),
         color = MaterialTheme.colorScheme.onSurfaceVariant,
         fontSize = 11.sp,
         modifier = Modifier.padding(bottom = 12.dp)
@@ -794,7 +799,7 @@ private fun EncryptedDnsAndDnssecCard(
         Box(modifier = Modifier.fillMaxWidth(secPct).fillMaxHeight().background(MaterialTheme.colorScheme.primary))
       }
       Text(
-        text = "%${String.format(Locale("tr", "TR"), "%.2f", analytics.dnssecPercentage)}",
+        text = AppStrings.percent(analytics.dnssecPercentage),
         color = MaterialTheme.colorScheme.primary,
         fontSize = 12.sp,
         modifier = Modifier.padding(top = 4.dp)
@@ -808,9 +813,9 @@ private fun TrafficDestinationsCard(
   analytics: AnalyticsSummary,
   modifier: Modifier = Modifier
 ) {
-  NextDnsCard(title = "Trafik Varış Noktaları", modifier = modifier) {
+  NextDnsCard(title = AppStrings.get(R.string.ui_eb85097b6a), modifier = modifier) {
     Text(
-      text = "İnternet trafiğinizin gittiği ülkeler.",
+      text = AppStrings.get(R.string.ui_df2660a8a1),
       color = MaterialTheme.colorScheme.onSurfaceVariant,
       fontSize = 11.sp,
       modifier = Modifier.padding(bottom = 12.dp)
@@ -827,13 +832,13 @@ private fun TrafficDestinationsCard(
             verticalAlignment = Alignment.CenterVertically
           ) {
             Text(
-              text = country.uppercase(Locale("tr", "TR")),
+              text = country.uppercase(AppStrings.locale),
               color = MaterialTheme.colorScheme.onSurface,
               fontWeight = FontWeight.Medium,
               fontSize = 13.sp
             )
             Text(
-              text = "%${String.format(Locale("tr", "TR"), "%.2f", pct)}",
+              text = AppStrings.percent(pct),
               color = MaterialTheme.colorScheme.onSurfaceVariant,
               fontSize = 12.sp
             )

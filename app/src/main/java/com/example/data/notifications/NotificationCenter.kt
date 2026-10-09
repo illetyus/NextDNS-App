@@ -14,6 +14,7 @@ import androidx.core.app.NotificationManagerCompat
 import androidx.core.content.ContextCompat
 import com.example.MainActivity
 import com.example.R
+import com.example.i18n.AppStrings
 
 object NotificationCenter {
   const val CHANNEL_CONFIG_CHANGES = "nextdns_config_changes"
@@ -29,19 +30,19 @@ object NotificationCenter {
 
     val changeChannel = NotificationChannel(
       CHANNEL_CONFIG_CHANGES,
-      "Ayar değişiklikleri",
+      AppStrings.get(R.string.ui_d2a366ccf5),
       NotificationManager.IMPORTANCE_DEFAULT
     ).apply {
-      description = "NextDNS sunucu yapılandırmasında değişiklik algılandığında bildirir."
+      description = AppStrings.get(R.string.ui_50bdef725a)
       lockscreenVisibility = Notification.VISIBILITY_PRIVATE
     }
 
     val summaryChannel = NotificationChannel(
       CHANNEL_DAILY_SUMMARY,
-      "Günlük özet",
+      AppStrings.get(R.string.ui_bb763d7bf3),
       NotificationManager.IMPORTANCE_LOW
     ).apply {
-      description = "Son 24 saatlik DNS sorgu ve engelleme özetini gösterir."
+      description = AppStrings.get(R.string.ui_25243a32a1)
       lockscreenVisibility = Notification.VISIBILITY_PRIVATE
     }
 
@@ -80,8 +81,8 @@ object NotificationCenter {
     val notification = baseBuilder(
       context = context,
       channelId = CHANNEL_CONFIG_CHANGES,
-      title = "NextDNS ayarları değişti",
-      text = "Etkin profilin sunucu yapılandırmasında bir değişiklik algılandı.",
+      title = AppStrings.get(R.string.ui_47afbf1118),
+      text = AppStrings.get(R.string.ui_8273173721),
       priority = NotificationCompat.PRIORITY_DEFAULT
     ).build()
 
@@ -99,13 +100,13 @@ object NotificationCenter {
   ): Boolean {
     if (!canPost(context, CHANNEL_DAILY_SUMMARY)) return false
 
-    val text = "Son 24 saatte %,d DNS sorgusu işlendi; %,d tanesi engellendi."
-      .format(totalQueries, blockedQueries)
+    val text = AppStrings.get(R.string.ui_edf1c59922)
+      .format(AppStrings.locale, totalQueries, blockedQueries)
 
     val notification = baseBuilder(
       context = context,
       channelId = CHANNEL_DAILY_SUMMARY,
-      title = "NextDNS günlük özeti",
+      title = AppStrings.get(R.string.ui_f88f548670),
       text = text,
       priority = NotificationCompat.PRIORITY_LOW
     ).build()
@@ -159,7 +160,7 @@ object NotificationCenter {
     val publicVersion = NotificationCompat.Builder(context, channelId)
       .setSmallIcon(R.drawable.ic_notification_dns)
       .setContentTitle(context.getString(R.string.app_name))
-      .setContentText("Ayrıntılar için uygulamayı açın.")
+      .setContentText(AppStrings.get(R.string.ui_092e2e8b4e))
       .setPriority(priority)
       .build()
 

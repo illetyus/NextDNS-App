@@ -1,5 +1,8 @@
 package com.example.ui.screens
 
+import com.example.R
+import com.example.i18n.AppStrings
+
 import com.example.ui.viewmodel.NavTab
 
 enum class NavigationLayoutMode {
@@ -9,9 +12,11 @@ enum class NavigationLayoutMode {
 }
 
 data class NavigationGroup(
-  val title: String,
+  val titleResource: Int,
   val tabs: List<NavTab>
-)
+) {
+  val title: String get() = AppStrings.get(titleResource)
+}
 
 fun navigationLayoutForWidth(widthDp: Float): NavigationLayoutMode = when {
   widthDp < 600f -> NavigationLayoutMode.COMPACT
@@ -21,27 +26,27 @@ fun navigationLayoutForWidth(widthDp: Float): NavigationLayoutMode = when {
 
 val nextDnsNavigationGroups: List<NavigationGroup> = listOf(
   NavigationGroup(
-    title = "Genel",
+    titleResource = R.string.ui_0f1322006d,
     tabs = listOf(NavTab.SETUP)
   ),
   NavigationGroup(
-    title = "Koruma",
+    titleResource = R.string.ui_110e26ffd4,
     tabs = listOf(NavTab.SECURITY, NavTab.PRIVACY, NavTab.PARENTAL)
   ),
   NavigationGroup(
-    title = "Kurallar",
+    titleResource = R.string.ui_9cc4262aec,
     tabs = listOf(NavTab.DENYLIST, NavTab.ALLOWLIST)
   ),
   NavigationGroup(
-    title = "Aktivite",
+    titleResource = R.string.ui_1e99298c66,
     tabs = listOf(NavTab.ANALYTICS, NavTab.LOGS)
   ),
   NavigationGroup(
-    title = "Ayarlar",
+    titleResource = R.string.ui_80ad54ad05,
     tabs = listOf(NavTab.SETTINGS)
   ),
   NavigationGroup(
-    title = "Hesap",
+    titleResource = R.string.ui_1c56ac8f2d,
     tabs = listOf(NavTab.ACCOUNT)
   )
 )
