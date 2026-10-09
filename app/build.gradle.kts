@@ -69,6 +69,11 @@ android {
     buildConfig = true
   }
   testOptions { unitTests { isIncludeAndroidResources = true } }
+  // A disposable CI emulator can instrument the release payload. The default
+  // device-test variant remains debug for BrowserStack's existing workflow.
+  if (providers.gradleProperty("releaseRuntimeAudit").orNull == "true") {
+    testBuildType = "release"
+  }
   dependenciesInfo {
     includeInApk = false
     includeInBundle = true

@@ -46,4 +46,14 @@ class LegalDocumentLinksTest {
     rule.onNodeWithTag("legal_reader_close").performClick()
     assertEquals(before, context.getSharedPreferences("legal_acceptance", Context.MODE_PRIVATE).all)
   }
+  @Test fun offlineLicenseReaderDoesNotAcceptTerms() {
+    rule.setContent { AppTheme { LegalDocumentLinks() } }
+    rule.onNodeWithTag("source_licenses_link").performClick()
+    rule.onNodeWithTag("source_licenses_content").assertIsDisplayed()
+    rule.onNodeWithText("Open Source Client for NextDNS — source and dependency notices", substring = true).assertIsDisplayed()
+    assertFalse(LegalAcceptanceStore(context).isAccepted())
+    rule.onNodeWithTag("source_licenses_close").performClick()
+    rule.onNodeWithTag("source_licenses_link").assertIsDisplayed()
+    assertFalse(LegalAcceptanceStore(context).isAccepted())
+  }
 }
