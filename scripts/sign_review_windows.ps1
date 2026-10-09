@@ -15,16 +15,35 @@ foreach ($package in $evidence.packages) {
 $keyDirectory = Join-Path $env:LOCALAPPDATA 'OpenSourceClientForNextDNS\signing'
 $backupDirectory = Join-Path ([Environment]::GetFolderPath('MyDocuments')) 'CodexPrivate\OpenSourceClientForNextDNS-signing-backup'
 foreach ($directory in @($keyDirectory, $backupDirectory)) {
-  New-Item -ItemType Directory -Path $directory -Force | Out-Null
-  $acl = New-Object System.Security.AccessControl.DirectorySecurity
-  $acl.SetAccessRuleProtection($true, $false)
   $identity = [System.Security.Principal.WindowsIdentity]::GetCurrent().User
   $system = New-Object System.Security.Principal.SecurityIdentifier('S-1-5-18')
-  foreach ($sid in @($identity,$system)) {
-    $rule = New-Object System.Security.AccessControl.FileSystemAccessRule($sid,'FullControl','ContainerInherit,ObjectInherit','None','Allow')
-    $acl.AddAccessRule($rule)
+  if (-not (Test-Path -LiteralPath $directory)) {
+    New-Item -ItemType Directory -Path $directory | Out-Null
+    $acl = New-Object System.Security.AccessControl.DirectorySecurity
+    $acl.SetAccessRuleProtection($true, $false)
+    foreach ($sid in @($identity,$system)) {
+      $rule = New-Object System.Security.AccessControl.FileSystemAccessRule($sid,'FullControl','ContainerInherit,ObjectInherit','None','Allow')
+      $acl.AddAccessRule($rule)
+    }
+    Set-Acl -LiteralPath $directory -AclObject $acl
   }
-  Set-Acl -LiteralPath $directory -AclObject $acl
+  # Validate existing protected folders instead of rewriting their descriptor.
+  # Windows can require SeSecurityPrivilege for that unnecessary repeat write.
+  $actual = Get-Acl -LiteralPath $directory
+  if (-not $actual.AreAccessRulesProtected) { throw 'Signing directory inherits access; will not use it' }
+  $allowed = @($identity.Value, $system.Value)
+  foreach ($rule in $actual.Access) {
+    $sid = $rule.IdentityReference.Translate([System.Security.Principal.SecurityIdentifier]).Value
+    if ($rule.AccessControlType -ne 'Allow' -or $sid -notin $allowed) { throw 'Unexpected signing directory access; will not use it' }
+  }
+  foreach ($sid in $allowed) {
+    $matching = @($actual.Access | Where-Object {
+      $_.IdentityReference.Translate([System.Security.Principal.SecurityIdentifier]).Value -eq $sid -and
+      $_.FileSystemRights -eq [System.Security.AccessControl.FileSystemRights]::FullControl -and
+      $_.InheritanceFlags -eq ([System.Security.AccessControl.InheritanceFlags]::ContainerInherit -bor [System.Security.AccessControl.InheritanceFlags]::ObjectInherit)
+    })
+    if ($matching.Count -ne 1) { throw 'Signing directory lacks expected private access; will not use it' }
+  }
 }
 $keystore = Join-Path $keyDirectory 'upload.p12'
 $passwordFile = Join-Path $keyDirectory 'password.dpapi'
