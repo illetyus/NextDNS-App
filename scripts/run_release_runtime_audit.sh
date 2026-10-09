@@ -4,6 +4,9 @@ cd "$(dirname "${BASH_SOURCE[0]}")/.."
 out="$PWD/build/compliance/runtime"
 mkdir -p "$out"
 tools="$ANDROID_HOME/build-tools/36.0.0"
+sdk_manager=$(find "$ANDROID_HOME/cmdline-tools" -type f -path '*/bin/sdkmanager' | sort -V | tail -n 1)
+test -x "$sdk_manager"
+export PATH="$(dirname "$sdk_manager"):$ANDROID_HOME/platform-tools:$ANDROID_HOME/emulator:$PATH"
 key="$RUNNER_TEMP/release-runtime.p12"
 export NEXTDNS_CI_AUDIT_PASSWORD
 NEXTDNS_CI_AUDIT_PASSWORD="$(openssl rand -hex 32)"
@@ -20,7 +23,7 @@ test -n "$test_apk"
   --key-pass env:NEXTDNS_CI_AUDIT_PASSWORD --out "$out/release-runtime-test.apk" "$test_apk"
 unset NEXTDNS_CI_AUDIT_PASSWORD
 # Android SDK licenses are already accepted on the hosted Android build runner.
-sdkmanager 'system-images;android-35;default;x86_64'
+"$sdk_manager" 'system-images;android-35;default;x86_64' 'emulator' 'platform-tools'
 printf 'no\n' | avdmanager create avd -n nextdns-release-audit -k 'system-images;android-35;default;x86_64' --force
 sudo chmod 666 /dev/kvm
 "$ANDROID_HOME/emulator/emulator" -avd nextdns-release-audit -no-window -no-audio -no-boot-anim \
