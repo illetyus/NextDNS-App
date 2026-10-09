@@ -1,5 +1,8 @@
 package com.example.ui.screens
 
+import com.example.R
+import com.example.i18n.AppStrings
+
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -46,8 +49,8 @@ fun DenylistScreen(
   ) {
     item {
       NextDnsCard(
-        title = "Kara Liste (Özel Engellemeler)",
-        subtitle = "Engelleme listeleri tarafından engellenmemiş olsalar bile belirli alan adlarını (ve alt alan adlarını) engelleyin. Tüm alt alanları engellemek için joker karakterleri kullanabilirsiniz (ör. *.domain.com)."
+        title = AppStrings.get(R.string.ui_3490101f8d),
+        subtitle = AppStrings.get(R.string.ui_64d2b316b6)
       ) {
         Row(
           modifier = Modifier.fillMaxWidth(),
@@ -61,13 +64,13 @@ fun DenylistScreen(
               isError = false
             },
             placeholder = {
-              Text("Alan adı girin (ör. *.tiktokv.com)", color = MaterialTheme.colorScheme.outline, fontSize = 12.5.sp)
+              Text(AppStrings.get(R.string.ui_24c0e0a2c6), color = MaterialTheme.colorScheme.outline, fontSize = 12.5.sp)
             },
             singleLine = true,
             isError = isError,
             trailingIcon = {
               if (isError) {
-                Icon(Icons.Default.Warning, contentDescription = "Hata", tint = MaterialTheme.colorScheme.error)
+                Icon(Icons.Default.Warning, contentDescription = AppStrings.get(R.string.ui_307b9dc791), tint = MaterialTheme.colorScheme.error)
               }
             },
             supportingText = {
@@ -91,7 +94,7 @@ fun DenylistScreen(
           )
 
           NextDnsButton(
-            text = "EKLE",
+            text = AppStrings.get(R.string.ui_422579fc64),
             onClick = {
               val input = domainInput.trim()
               val isValid = input.matches(Regex("^(?:\\*\\.)?[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$"))
@@ -102,9 +105,9 @@ fun DenylistScreen(
               } else {
                 isError = true
                 if (!input.contains(".")) {
-                  errorMessage = "Görünüşe göre TLD'nin tamamını engellemeye çalışıyorsunuz, lütfen Güvenlik bölümündeki TLD'leri Engelle özelliğini kullanın."
+                  errorMessage = AppStrings.get(R.string.ui_c10eecdcb0)
                 } else {
-                  errorMessage = "Lütfen geçerli bir alan adı formatı girin (ör. example.com veya *.example.com)."
+                  errorMessage = AppStrings.get(R.string.ui_585a0d389f)
                 }
               }
             },
@@ -166,7 +169,7 @@ fun DenylistScreen(
               ) {
                 Icon(
                   imageVector = Icons.Default.Close,
-                  contentDescription = "Sil",
+                  contentDescription = AppStrings.get(R.string.ui_f698e9b40f),
                   tint = MaterialTheme.colorScheme.onSurfaceVariant,
                   modifier = Modifier.size(16.dp)
                 )

@@ -1,5 +1,8 @@
 package com.example.ui.screens
 
+import com.example.R
+import com.example.i18n.AppStrings
+
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
@@ -113,8 +116,8 @@ private fun ParentalServicesSection(
 ) {
   NextDnsCard(
     modifier = modifier,
-    title = "Web Siteleri, Uygulamalar ve Oyunlar",
-    subtitle = "Belirli web sitelerine, uygulamalara ve oyunlara erişimi kısıtlayın."
+    title = AppStrings.get(R.string.ui_86e9f0e4ce),
+    subtitle = AppStrings.get(R.string.ui_43bc237560)
   ) {
     if (activeServices.isNotEmpty()) {
       Column(
@@ -134,7 +137,7 @@ private fun ParentalServicesSection(
     }
 
     NextDnsButton(
-      text = "WEB SİTESİ, UYGULAMA VEYA OYUN EKLE",
+      text = AppStrings.get(R.string.ui_b02d56c853),
       onClick = onOpenAddDialog,
       icon = Icons.Default.Add
     )
@@ -201,7 +204,7 @@ private fun ParentalServiceItemCard(
         ) {
           Icon(
             imageVector = Icons.Default.Close,
-            contentDescription = "Kaldır",
+            contentDescription = AppStrings.get(R.string.ui_b88019aa28),
             tint = MaterialTheme.colorScheme.onSurfaceVariant,
             modifier = Modifier.size(16.dp)
           )
@@ -220,8 +223,8 @@ private fun ParentalCategoriesSection(
 ) {
   NextDnsCard(
     modifier = modifier,
-    title = "Kategoriler",
-    subtitle = "Belirli web siteleri ve uygulama kategorilerine erişimi kısıtlayın."
+    title = AppStrings.get(R.string.ui_e9371667ba),
+    subtitle = AppStrings.get(R.string.ui_c1c678372b)
   ) {
     if (activeCategories.isNotEmpty()) {
       Column(
@@ -241,7 +244,7 @@ private fun ParentalCategoriesSection(
     }
 
     NextDnsButton(
-      text = "KATEGORİ EKLE",
+      text = AppStrings.get(R.string.ui_c216d0fa85),
       onClick = onOpenAddDialog,
       icon = Icons.Default.Add
     )
@@ -308,7 +311,7 @@ private fun ParentalCategoryItemCard(
         ) {
           Icon(
             imageVector = Icons.Default.Close,
-            contentDescription = "Kaldır",
+            contentDescription = AppStrings.get(R.string.ui_b88019aa28),
             tint = MaterialTheme.colorScheme.onSurfaceVariant,
             modifier = Modifier.size(16.dp)
           )
@@ -326,8 +329,8 @@ private fun ParentalSafeSearchSection(
 ) {
   NextDnsSettingToggle(
     modifier = modifier,
-    title = "Güvenli Arama",
-    subtitle = "Resimler ve videolar dahil olmak üzere tüm büyük arama motorlarında yetişkinlere yönelik içeriği filtreleyin. Bu ayrıca, bu özelliği desteklemeyen arama motorlarına erişimi de engelleyecektir.",
+    title = AppStrings.get(R.string.ui_ce261422e7),
+    subtitle = AppStrings.get(R.string.ui_ffca076206),
     checked = safeSearch,
     onCheckedChange = onToggleSafeSearch
   )
@@ -341,8 +344,8 @@ private fun ParentalYoutubeSection(
 ) {
   NextDnsSettingToggle(
     modifier = modifier,
-    title = "YouTube Kısıtlı Modu",
-    subtitle = "YouTube'daki yetişkin içerikli videoları filtreleyin ve gömülü yetişkin içerikli videoların diğer web sitelerinde izlenmesini engelleyin. Bu aynı zamanda tüm yorumları da gizleyecektir.",
+    title = AppStrings.get(R.string.ui_692c4c985a),
+    subtitle = AppStrings.get(R.string.ui_6456a6c39a),
     checked = youtubeRestricted,
     onCheckedChange = onToggleYoutubeRestricted
   )
@@ -356,8 +359,8 @@ private fun ParentalBypassSection(
 ) {
   NextDnsSettingToggle(
     modifier = modifier,
-    title = "Atlatma Yöntemlerini Engelle",
-    subtitle = "Ağda NextDNS filtrelemesini atlatmaya yardımcı olabilecek yöntemlerin kullanımını önleyin veya engelleyin. Buna VPN'ler, proxy'ler, Tor ile ilgili yazılımlar ve şifreli DNS sağlayıcıları dahildir.",
+    title = AppStrings.get(R.string.ui_5d3f711698),
+    subtitle = AppStrings.get(R.string.ui_4b376be2ad),
     checked = blockBypass,
     onCheckedChange = onToggleBlockBypass
   )
@@ -384,11 +387,11 @@ private fun AddParentalServiceDialog(
     shape = RoundedCornerShape(18.dp),
     title = {
       Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-        Text("Uygulama / Oyun Engelle", color = MaterialTheme.colorScheme.onSurface, fontWeight = FontWeight.Bold, fontSize = 16.sp)
+        Text(AppStrings.get(R.string.block_app_game), color = MaterialTheme.colorScheme.onSurface, fontWeight = FontWeight.Bold, fontSize = 16.sp)
         OutlinedTextField(
           value = searchQuery,
           onValueChange = { searchQuery = it },
-          placeholder = { Text("Uygulama ara (Discord, TikTok, Steam...)", fontSize = 12.sp) },
+          placeholder = { Text(AppStrings.get(R.string.ui_cf482d0257), fontSize = 12.sp) },
           singleLine = true,
           modifier = Modifier.fillMaxWidth(),
           shape = RoundedCornerShape(8.dp)
@@ -429,7 +432,7 @@ private fun AddParentalServiceDialog(
                 )
                 Text(srv.name, color = MaterialTheme.colorScheme.onSurface, fontSize = 13.sp, fontWeight = FontWeight.Medium)
               }
-              Icon(Icons.Default.Add, contentDescription = "Ekle", tint = MaterialTheme.colorScheme.primary, modifier = Modifier.size(18.dp))
+              Icon(Icons.Default.Add, contentDescription = AppStrings.get(R.string.ui_f560a85f28), tint = MaterialTheme.colorScheme.primary, modifier = Modifier.size(18.dp))
             }
           }
         }
@@ -438,7 +441,7 @@ private fun AddParentalServiceDialog(
     confirmButton = {},
     dismissButton = {
       TextButton(onClick = onDismiss) {
-        Text("Kapat", color = MaterialTheme.colorScheme.onSurfaceVariant)
+        Text(AppStrings.get(R.string.close), color = MaterialTheme.colorScheme.onSurfaceVariant)
       }
     }
   )
@@ -461,11 +464,11 @@ private fun AddParentalCategoryDialog(
     shape = RoundedCornerShape(18.dp),
     title = {
       Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-        Text("Kategori Engelle", color = MaterialTheme.colorScheme.onSurface, fontWeight = FontWeight.Bold, fontSize = 16.sp)
+        Text(AppStrings.get(R.string.ui_fc9e7ea43b), color = MaterialTheme.colorScheme.onSurface, fontWeight = FontWeight.Bold, fontSize = 16.sp)
         OutlinedTextField(
           value = searchQuery,
           onValueChange = { searchQuery = it },
-          placeholder = { Text("Kategori ara...", fontSize = 12.sp) },
+          placeholder = { Text(AppStrings.get(R.string.ui_559e575b15), fontSize = 12.sp) },
           singleLine = true,
           modifier = Modifier.fillMaxWidth(),
           shape = RoundedCornerShape(8.dp)
@@ -497,7 +500,7 @@ private fun AddParentalCategoryDialog(
                 Text(cat.name, color = MaterialTheme.colorScheme.onSurface, fontSize = 13.sp, fontWeight = FontWeight.Medium)
                 Text(cat.description, color = MaterialTheme.colorScheme.onSurfaceVariant, fontSize = 11.sp)
               }
-              Icon(Icons.Default.Add, contentDescription = "Ekle", tint = MaterialTheme.colorScheme.primary, modifier = Modifier.size(18.dp))
+              Icon(Icons.Default.Add, contentDescription = AppStrings.get(R.string.ui_f560a85f28), tint = MaterialTheme.colorScheme.primary, modifier = Modifier.size(18.dp))
             }
           }
         }
@@ -506,7 +509,7 @@ private fun AddParentalCategoryDialog(
     confirmButton = {},
     dismissButton = {
       TextButton(onClick = onDismiss) {
-        Text("Kapat", color = MaterialTheme.colorScheme.onSurfaceVariant)
+        Text(AppStrings.get(R.string.close), color = MaterialTheme.colorScheme.onSurfaceVariant)
       }
     }
   )

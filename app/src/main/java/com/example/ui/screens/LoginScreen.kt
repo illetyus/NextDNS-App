@@ -8,6 +8,7 @@ import android.net.Uri
 import android.view.WindowManager
 import androidx.compose.ui.res.stringResource
 import com.example.R
+import com.example.i18n.AppStrings
 import androidx.compose.animation.*
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -112,7 +113,7 @@ fun LoginScreen(
       Spacer(modifier = Modifier.height(10.dp))
 
       Text(
-        text = "Bağımsız NextDNS hesap yönetimi",
+        text = AppStrings.get(R.string.ui_0a513dc4d3),
         style = MaterialTheme.typography.bodyMedium,
         color = MaterialTheme.colorScheme.onSurfaceVariant
       )
@@ -136,7 +137,7 @@ fun LoginScreen(
           verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
           Text(
-            text = "API Anahtarı ile Giriş Yap",
+            text = AppStrings.get(R.string.ui_19a6f5a59f),
             style = MaterialTheme.typography.titleMedium.copy(
               fontWeight = FontWeight.Bold,
               fontSize = 17.sp
@@ -145,7 +146,7 @@ fun LoginScreen(
           )
 
           Text(
-            text = "Hesabınızı bağlamak ve profillerinizi yönetmek için NextDNS API Anahtarınızı girin.",
+            text = AppStrings.get(R.string.ui_f8aa0b084e),
             style = MaterialTheme.typography.bodySmall.copy(
               fontSize = 12.5.sp,
               lineHeight = 17.sp
@@ -157,8 +158,8 @@ fun LoginScreen(
           OutlinedTextField(
             value = apiKeyInput,
             onValueChange = { apiKeyInput = it },
-            label = { Text("API Anahtarı", color = MaterialTheme.colorScheme.onSurfaceVariant, fontSize = 12.sp) },
-            placeholder = { Text("örn. 28df1993bf40d5885cfa", color = MaterialTheme.colorScheme.outline, fontSize = 12.sp) },
+            label = { Text(AppStrings.get(R.string.ui_f9b1cde612), color = MaterialTheme.colorScheme.onSurfaceVariant, fontSize = 12.sp) },
+            placeholder = { Text(AppStrings.get(R.string.ui_196ca66c5f), color = MaterialTheme.colorScheme.outline, fontSize = 12.sp) },
             singleLine = true,
             visualTransformation = if (isPasswordVisible) VisualTransformation.None else PasswordVisualTransformation(),
             keyboardOptions = KeyboardOptions(
@@ -187,7 +188,7 @@ fun LoginScreen(
                   },
                   modifier = Modifier.size(24.dp)
                 ) {
-                  Icon(Icons.Default.ContentPaste, contentDescription = "Yapıştır", tint = MaterialTheme.colorScheme.primary, modifier = Modifier.size(16.dp))
+                  Icon(Icons.Default.ContentPaste, contentDescription = AppStrings.get(R.string.ui_172b43747c), tint = MaterialTheme.colorScheme.primary, modifier = Modifier.size(16.dp))
                 }
                 Spacer(modifier = Modifier.width(8.dp))
               }
@@ -231,7 +232,7 @@ fun LoginScreen(
             if (isLoading) {
               CircularProgressIndicator(modifier = Modifier.size(18.dp), color = MaterialTheme.colorScheme.onPrimary, strokeWidth = 2.dp)
             } else {
-              Text("Giriş Yap", fontWeight = FontWeight.Bold, fontSize = 13.5.sp)
+              Text(AppStrings.get(R.string.ui_93f4dcc542), fontWeight = FontWeight.Bold, fontSize = 13.5.sp)
             }
           }
 
@@ -247,7 +248,7 @@ fun LoginScreen(
               contentColor = MaterialTheme.colorScheme.onSurface
             )
           ) {
-            Text("Demo / Misafir Modu ile Keşfet", fontSize = 12.5.sp, fontWeight = FontWeight.Medium)
+            Text(AppStrings.get(R.string.demo_explore), fontSize = 12.5.sp, fontWeight = FontWeight.Medium)
           }
 
           HorizontalDivider(color = MaterialTheme.colorScheme.outline)
@@ -265,7 +266,7 @@ fun LoginScreen(
             horizontalArrangement = Arrangement.Center
           ) {
             Text(
-              text = "API Anahtarınızı my.nextdns.io/account adresinden alın",
+              text = AppStrings.get(R.string.get_api_key),
               color = MaterialTheme.colorScheme.primary,
               fontSize = 11.5.sp,
               fontWeight = FontWeight.Medium

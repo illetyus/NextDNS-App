@@ -1,5 +1,8 @@
 package com.example.ui.screens
 
+import com.example.R
+import com.example.i18n.AppStrings
+
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -46,8 +49,8 @@ fun AllowlistScreen(
   ) {
     item {
       NextDnsCard(
-        title = "Beyaz Liste (İzin Verilenler)",
-        subtitle = "Engelleme listeleri tarafından engellenmiş olsalar bile belirli alan adlarına (ve alt alan adlarına) erişime her zaman izin verin. Tüm alt alanlara izin vermek için joker karakterleri kullanabilirsiniz (ör. *.domain.com)."
+        title = AppStrings.get(R.string.ui_0e49d5acc2),
+        subtitle = AppStrings.get(R.string.ui_055f341637)
       ) {
         Row(
           modifier = Modifier.fillMaxWidth(),
@@ -61,13 +64,13 @@ fun AllowlistScreen(
               isError = false
             },
             placeholder = {
-              Text("Alan adı girin (ör. *.example.com)", color = MaterialTheme.colorScheme.outline, fontSize = 12.5.sp)
+              Text(AppStrings.get(R.string.ui_53c16c016e), color = MaterialTheme.colorScheme.outline, fontSize = 12.5.sp)
             },
             singleLine = true,
             isError = isError,
             trailingIcon = {
               if (isError) {
-                Icon(Icons.Default.Warning, contentDescription = "Hata", tint = MaterialTheme.colorScheme.error)
+                Icon(Icons.Default.Warning, contentDescription = AppStrings.get(R.string.ui_307b9dc791), tint = MaterialTheme.colorScheme.error)
               }
             },
             supportingText = {
@@ -91,7 +94,7 @@ fun AllowlistScreen(
           )
 
           NextDnsButton(
-            text = "EKLE",
+            text = AppStrings.get(R.string.ui_422579fc64),
             onClick = {
               val input = domainInput.trim()
               val isValid = input.matches(Regex("^(?:\\*\\.)?[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$"))
@@ -102,9 +105,9 @@ fun AllowlistScreen(
               } else {
                 isError = true
                 if (!input.contains(".")) {
-                  errorMessage = "Görünüşe göre TLD'nin tamamını izin verilenlere eklemeye çalışıyorsunuz, bu desteklenmiyor."
+                  errorMessage = AppStrings.get(R.string.ui_162ff93d0f)
                 } else {
-                  errorMessage = "Lütfen geçerli bir alan adı formatı girin (ör. example.com veya *.example.com)."
+                  errorMessage = AppStrings.get(R.string.ui_585a0d389f)
                 }
               }
             },
@@ -166,7 +169,7 @@ fun AllowlistScreen(
               ) {
                 Icon(
                   imageVector = Icons.Default.Close,
-                  contentDescription = "Sil",
+                  contentDescription = AppStrings.get(R.string.ui_f698e9b40f),
                   tint = MaterialTheme.colorScheme.onSurfaceVariant,
                   modifier = Modifier.size(16.dp)
                 )

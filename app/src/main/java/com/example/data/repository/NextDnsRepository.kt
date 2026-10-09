@@ -1,5 +1,8 @@
 package com.example.data.repository
 
+import com.example.R
+import com.example.i18n.AppStrings
+
 import android.util.Log
 import com.example.BuildConfig
 import com.example.NextDnsApp
@@ -184,7 +187,7 @@ class NextDnsRepository(
       } else {
         previous.copy(
           isRefreshing = false,
-          errorMessage = "NextDNS verisi yenilenemedi."
+          errorMessage = AppStrings.get(R.string.refresh_failed)
         )
       }
     }
@@ -201,13 +204,13 @@ class NextDnsRepository(
 
     if (key.isBlank() || profileId.isBlank()) {
       return Result.failure(
-        IllegalStateException("Aktif NextDNS profili veya API anahtarı bulunamadı.")
+        IllegalStateException(AppStrings.get(R.string.ui_75ad86c6ba))
       )
     }
 
     if (!mutationCoordinator.tryEnter(section)) {
       return Result.failure(
-        IllegalStateException("Bu bölümde başka bir NextDNS değişikliği hâlâ kaydediliyor.")
+        IllegalStateException(AppStrings.get(R.string.ui_f0f54e91df))
       )
     }
 
@@ -240,21 +243,21 @@ class NextDnsRepository(
       val response = safeApiCall(operationName) {
         action(key, profileId)
       } ?: run {
-        val message = "NextDNS isteği tamamlanamadı."
+        val message = AppStrings.get(R.string.ui_0e6df5dfd7)
         updateSectionSyncState(section) { it.copy(errorMessage = message) }
         return Result.failure(IllegalStateException(message))
       }
 
       val apiError = response.body()?.errors?.firstOrNull()?.detail
       if (!response.isSuccessful || !response.body()?.errors.isNullOrEmpty()) {
-        val message = apiError ?: "NextDNS işlemi reddetti (HTTP ${response.code()})."
+        val message = apiError ?: AppStrings.get(R.string.operation_http, response.code())
         updateSectionSyncState(section) { it.copy(errorMessage = message) }
         return Result.failure(IllegalStateException(message))
       }
 
       val verified = refreshSection(section)
       if (!verified) {
-        val message = "İşlem gönderildi ancak güncel durum NextDNS'ten doğrulanamadı."
+        val message = AppStrings.get(R.string.ui_4940b95279)
         updateSectionSyncState(section) { it.copy(errorMessage = message) }
         return Result.failure(IllegalStateException(message))
       }
@@ -393,8 +396,8 @@ class NextDnsRepository(
           val isRecommended = cleanId == "nextdns-recommended"
           BlocklistEntry(
             id = dto.id,
-            name = dto.name?.takeIf { it.isNotBlank() } ?: (if (isRecommended) "NextDNS Reklam & İzleyici Koruması" else dto.id),
-            description = dto.description ?: (if (isRecommended) "NextDNS tarafından optimize edilmiş dengeli ve kapsamlı engelleme listesi." else ""),
+            name = dto.name?.takeIf { it.isNotBlank() } ?: (if (isRecommended) AppStrings.get(R.string.ui_13e3677beb) else dto.id),
+            description = dto.description ?: (if (isRecommended) AppStrings.get(R.string.ui_08080164e9) else ""),
             entriesCount = dto.entries ?: 0L,
             active = false,
             website = dto.website ?: (if (isRecommended) "https://nextdns.io" else ""),
@@ -496,7 +499,7 @@ class NextDnsRepository(
       _testResult.value.copy(
         isTesting = false,
         lastTestedTime = System.currentTimeMillis(),
-        errorMessage = "Sunucuya bağlanılamadı"
+        errorMessage = AppStrings.get(R.string.ui_6da43a7f63)
       )
     }
 
@@ -523,16 +526,16 @@ class NextDnsRepository(
       val response = safeApiCall("getProfiles") {
         NextDnsNetworkClient.api.getProfiles(key, cursor)
       } ?: return Result.failure(
-        ProfilesFetchException(-1, "NextDNS profil listesine bağlanılamadı.")
+        ProfilesFetchException(-1, AppStrings.get(R.string.ui_8520ff5f87))
       )
 
       val body = response.body()
         ?: return Result.failure(
-          ProfilesFetchException(response.code(), "NextDNS boş bir profil yanıtı döndürdü.")
+          ProfilesFetchException(response.code(), AppStrings.get(R.string.ui_7589647af2))
         )
       if (!response.isSuccessful || body.hasApiErrors()) {
         val detail = body.errors?.firstOrNull()?.detail
-          ?: "NextDNS profil listesi alınamadı."
+          ?: AppStrings.get(R.string.ui_f64dc7c6b4)
         return Result.failure(ProfilesFetchException(response.code(), detail))
       }
 
@@ -546,7 +549,7 @@ class NextDnsRepository(
 
   suspend fun loginWithApiKey(key: String, restoreProfileId: String? = null): Result<Int> = withContext(Dispatchers.IO) {
     if (!legalAcceptanceStore.isAccepted()) {
-      return@withContext Result.failure(IllegalStateException("Kullanım Koşulları henüz kabul edilmedi."))
+      return@withContext Result.failure(IllegalStateException(AppStrings.get(R.string.ui_cf61b6f813)))
     }
     _apiStatus.value = ApiConnectionStatus.Connecting
 
@@ -555,9 +558,9 @@ class NextDnsRepository(
       val cause = profilesResult.exceptionOrNull()
       val code = (cause as? ProfilesFetchException)?.httpCode ?: -1
       val errorMsg = when (code) {
-        401 -> "API Anahtarı geçersiz (401 Yetkisiz). Lütfen my.nextdns.io/account adresinden anahtarınızı kontrol edin."
-        403 -> "Erişim engellendi (403 Yasak). Lütfen API anahtarınızı kontrol edin."
-        else -> cause?.message ?: "NextDNS API sunucusuna bağlanılamadı."
+        401 -> AppStrings.get(R.string.invalid_api_key)
+        403 -> AppStrings.get(R.string.ui_57380f7ad7)
+        else -> cause?.message ?: AppStrings.get(R.string.ui_62b3e50501)
       }
       _apiStatus.value = ApiConnectionStatus.Error(errorMsg)
       return@withContext Result.failure(Exception(errorMsg))
@@ -565,7 +568,7 @@ class NextDnsRepository(
 
     val apiProfiles = profilesResult.getOrThrow()
     if (apiProfiles.isEmpty()) {
-      val msg = "Hesabınızda hiçbir NextDNS profili bulunamadı."
+      val msg = AppStrings.get(R.string.ui_564ed4ba2d)
       _apiStatus.value = ApiConnectionStatus.Error(msg)
       return@withContext Result.failure(Exception(msg))
     }
@@ -574,7 +577,7 @@ class NextDnsRepository(
       preferences.apiKey = key
     }
     if (secureStorage.isFailure) {
-      val message = "API anahtarı cihazın güvenli depolamasına kaydedilemedi."
+      val message = AppStrings.get(R.string.ui_f8222e6ff1)
       _apiStatus.value = ApiConnectionStatus.Error(message)
       _apiKey.value = ""
       return@withContext Result.failure(
@@ -807,13 +810,13 @@ class NextDnsRepository(
 
         val displayName = when {
           !dto.name.isNullOrBlank() -> dto.name
-          isRecommended -> "NextDNS Reklam & İzleyici Koruması"
+          isRecommended -> AppStrings.get(R.string.ui_13e3677beb)
           else -> dto.id
         }
 
         val displayDesc = when {
           !dto.description.isNullOrBlank() -> dto.description
-          isRecommended -> "NextDNS tarafından optimize edilmiş dengeli ve kapsamlı reklam/izleyici engelleme listesi."
+          isRecommended -> AppStrings.get(R.string.recommended_list_description)
           else -> ""
         }
 
@@ -847,11 +850,11 @@ class NextDnsRepository(
             BlocklistEntry(
               id = activeDto.id,
               name = activeDto.name ?: activeDto.id,
-              description = activeDto.description ?: "Özel filtre listesi.",
+              description = activeDto.description ?: AppStrings.get(R.string.ui_9809519988),
               entriesCount = activeDto.entries ?: 0L,
               active = true,
               website = activeDto.website ?: "",
-              category = "Özel",
+              category = AppStrings.get(R.string.ui_7bd8b8264c),
               updatedTime = formatIsoDateWithRelative(activeDto.updatedOn)
             )
           )
@@ -1140,7 +1143,7 @@ class NextDnsRepository(
     _apiStatus.value = ApiConnectionStatus.Disconnected
 
     if (!localDataCleared) {
-      return Result.failure(IllegalStateException("Yerel hesap verileri silinemedi."))
+      return Result.failure(IllegalStateException(AppStrings.get(R.string.local_clear_failed)))
     }
 
     return runCatching {
@@ -1167,21 +1170,21 @@ class NextDnsRepository(
   suspend fun createProfileRemote(name: String): Result<NextDnsProfile> = withContext(Dispatchers.IO) {
     val key = _apiKey.value
     if (key.isBlank()) {
-      return@withContext Result.failure(IllegalStateException("API anahtarı olmadan profil oluşturulamaz."))
+      return@withContext Result.failure(IllegalStateException(AppStrings.get(R.string.ui_07980aa188)))
     }
 
     val resp = safeApiCall("createProfile") {
       NextDnsNetworkClient.api.createProfile(key, NameRequest(name = name))
-    } ?: return@withContext Result.failure(IllegalStateException("Profil oluşturma isteği tamamlanamadı."))
+    } ?: return@withContext Result.failure(IllegalStateException(AppStrings.get(R.string.ui_a5fc13d828)))
 
     val body = resp.body()
     if (!resp.isSuccessful || body.hasApiErrors()) {
-      val detail = body?.errors?.firstOrNull()?.detail ?: "Profil NextDNS tarafından oluşturulamadı."
+      val detail = body?.errors?.firstOrNull()?.detail ?: AppStrings.get(R.string.ui_43611457f9)
       return@withContext Result.failure(IllegalStateException(detail))
     }
 
     val newId = body?.data?.id?.takeIf { it.isNotBlank() }
-      ?: return@withContext Result.failure(IllegalStateException("NextDNS profil kimliği döndürmedi."))
+      ?: return@withContext Result.failure(IllegalStateException(AppStrings.get(R.string.ui_51e119f7b9)))
 
     val verified = safeApiCall("getCreatedProfile") {
       NextDnsNetworkClient.api.getProfile(key, newId)
@@ -1195,7 +1198,7 @@ class NextDnsRepository(
 
     val verifiedProfile = profileDto
       ?: return@withContext Result.failure(
-        IllegalStateException("Profil oluşturuldu ancak NextDNS'ten doğrulanamadı.")
+        IllegalStateException(AppStrings.get(R.string.ui_d635045839))
       )
 
     val created = NextDnsProfile(
@@ -1216,27 +1219,27 @@ class NextDnsRepository(
     val key = _apiKey.value
     if (key.isBlank()) {
       return@withContext Result.failure(
-        IllegalStateException("API anahtarı olmadan profil silinemez.")
+        IllegalStateException(AppStrings.get(R.string.ui_4028f03245))
       )
     }
 
     val response = safeApiCall("deleteProfile") {
       NextDnsNetworkClient.api.deleteProfile(key, profileId)
     } ?: return@withContext Result.failure(
-      IllegalStateException("Profil silme isteği tamamlanamadı.")
+      IllegalStateException(AppStrings.get(R.string.ui_407ddb5dd2))
     )
 
     val apiError = response.body()?.errors?.firstOrNull()?.detail
     if (!response.isMutationAccepted()) {
       return@withContext Result.failure(
-        IllegalStateException(apiError ?: "NextDNS profil silme işlemini reddetti.")
+        IllegalStateException(apiError ?: AppStrings.get(R.string.ui_856fbe8f71))
       )
     }
 
     val verified = refreshProfilesFromApi()
     if (!verified) {
       return@withContext Result.failure(
-        IllegalStateException("Profil silindi ancak profil listesi doğrulanamadı.")
+        IllegalStateException(AppStrings.get(R.string.ui_9cac51a42b))
       )
     }
 
@@ -1247,7 +1250,7 @@ class NextDnsRepository(
     val key = _apiKey.value
     if (key.isBlank()) {
       return@withContext Result.failure(
-        IllegalStateException("API anahtarı olmadan profil adı değiştirilemez.")
+        IllegalStateException(AppStrings.get(R.string.ui_de223d8e2f))
       )
     }
 
@@ -1256,20 +1259,20 @@ class NextDnsRepository(
         key, profileId, NameRequest(name = newName)
       )
     } ?: return@withContext Result.failure(
-      IllegalStateException("Profil adı değiştirme isteği tamamlanamadı.")
+      IllegalStateException(AppStrings.get(R.string.ui_7ae7fc7964))
     )
 
     val apiError = response.body()?.errors?.firstOrNull()?.detail
     if (!response.isMutationAccepted()) {
       return@withContext Result.failure(
-        IllegalStateException(apiError ?: "NextDNS profil adını değiştirmeyi reddetti.")
+        IllegalStateException(apiError ?: AppStrings.get(R.string.ui_d01c651ccf))
       )
     }
 
     val verified = refreshProfilesFromApi()
     if (!verified) {
       return@withContext Result.failure(
-        IllegalStateException("Profil adı değiştirildi ancak güncel liste doğrulanamadı.")
+        IllegalStateException(AppStrings.get(R.string.ui_e144829518))
       )
     }
 
@@ -1340,7 +1343,7 @@ class NextDnsRepository(
 
   suspend fun toggleBlocklist(blocklistId: String): Result<Unit> {
     val target = _privacySettings.value.blocklists.firstOrNull { it.id == blocklistId }
-      ?: return Result.failure(IllegalArgumentException("Engelleme listesi bulunamadı."))
+      ?: return Result.failure(IllegalArgumentException(AppStrings.get(R.string.ui_0e194a1fda)))
 
     val activate = !target.active
     return mutateSection(
@@ -1357,7 +1360,7 @@ class NextDnsRepository(
 
   suspend fun toggleNativeTracking(nativeId: String): Result<Unit> {
     val target = _privacySettings.value.nativeTracking.firstOrNull { it.id == nativeId }
-      ?: return Result.failure(IllegalArgumentException("Yerel izleme kaydı bulunamadı."))
+      ?: return Result.failure(IllegalArgumentException(AppStrings.get(R.string.ui_bdcf657cbe)))
 
     val activate = !target.active
     return mutateSection(
@@ -1393,7 +1396,7 @@ class NextDnsRepository(
 
   suspend fun toggleParentalService(serviceId: String): Result<Unit> {
     val target = _parentalControlSettings.value.services.firstOrNull { it.id == serviceId }
-      ?: return Result.failure(IllegalArgumentException("Ebeveyn hizmeti bulunamadı."))
+      ?: return Result.failure(IllegalArgumentException(AppStrings.get(R.string.ui_1705477f10)))
 
     val activate = !target.active
     return mutateSection(
@@ -1412,7 +1415,7 @@ class NextDnsRepository(
 
   suspend fun toggleParentalCategory(categoryId: String): Result<Unit> {
     val target = _parentalControlSettings.value.categories.firstOrNull { it.id == categoryId }
-      ?: return Result.failure(IllegalArgumentException("Ebeveyn kategorisi bulunamadı."))
+      ?: return Result.failure(IllegalArgumentException(AppStrings.get(R.string.ui_b9861c3200)))
 
     val activate = !target.active
     return mutateSection(
@@ -1453,7 +1456,7 @@ class NextDnsRepository(
 
   suspend fun toggleDenylistItem(domain: String): Result<Unit> {
     val target = _denylist.value.firstOrNull { it.id == domain || it.domain == domain }
-      ?: return Result.failure(IllegalArgumentException("Kara liste kaydı bulunamadı."))
+      ?: return Result.failure(IllegalArgumentException(AppStrings.get(R.string.ui_75e8c7e60b)))
 
     val activate = !target.active
     return mutateSection(
@@ -1486,7 +1489,7 @@ class NextDnsRepository(
 
   suspend fun toggleAllowlistItem(domain: String): Result<Unit> {
     val target = _allowlist.value.firstOrNull { it.id == domain || it.domain == domain }
-      ?: return Result.failure(IllegalArgumentException("Beyaz liste kaydı bulunamadı."))
+      ?: return Result.failure(IllegalArgumentException(AppStrings.get(R.string.ui_e09828adaa)))
 
     val activate = !target.active
     return mutateSection(
@@ -1539,7 +1542,7 @@ class NextDnsRepository(
 
   suspend fun setLogRetention(retention: String): Result<Unit> {
     val seconds = LogRetentionCodec.toSeconds(retention)
-      ?: return Result.failure(IllegalArgumentException("Geçersiz log saklama süresi."))
+      ?: return Result.failure(IllegalArgumentException(AppStrings.get(R.string.ui_50e35a68f0)))
 
     return mutateSection(
       section = SyncSection.SETTINGS,
@@ -1557,7 +1560,7 @@ class NextDnsRepository(
       "Avrupa Birliği (AB)" -> "eu"
       "Amerika Birleşik Devletleri (ABD)" -> "us"
       else -> return Result.failure(
-        IllegalArgumentException("Geçersiz log depolama konumu.")
+        IllegalArgumentException(AppStrings.get(R.string.ui_a8512035f2))
       )
     }
 
@@ -1635,30 +1638,30 @@ class NextDnsRepository(
     val pid = _activeProfileId.value
     if (key.isBlank() || pid.isBlank()) {
       return@withContext Result.failure(
-        IllegalStateException("Aktif NextDNS profili veya API anahtarı bulunamadı.")
+        IllegalStateException(AppStrings.get(R.string.ui_75ad86c6ba))
       )
     }
 
     val linkResponse = safeApiCall("getLogsDownloadLink") {
       NextDnsNetworkClient.api.getLogsDownloadLink(key, pid, redirect = 0)
     } ?: return@withContext Result.failure(
-      IllegalStateException("Log indirme bağlantısı alınamadı.")
+      IllegalStateException(AppStrings.get(R.string.ui_7d6197fbd4))
     )
 
     if (!linkResponse.isSuccessful) {
       return@withContext Result.failure(
-        IllegalStateException("Log indirme bağlantısı alınamadı (HTTP ${linkResponse.code()}).")
+        IllegalStateException(AppStrings.get(R.string.export_link_http, linkResponse.code()))
       )
     }
 
     val rawJson = linkResponse.body()?.string()
       ?: return@withContext Result.failure(
-        IllegalStateException("NextDNS boş bir log indirme yanıtı döndürdü.")
+        IllegalStateException(AppStrings.get(R.string.ui_8cb3b36c3c))
       )
 
     val publicUrl = extractDownloadUrl(rawJson)
       ?: return@withContext Result.failure(
-        IllegalStateException("NextDNS log indirme URL'si döndürmedi.")
+        IllegalStateException(AppStrings.get(R.string.ui_e51fbaad5c))
       )
 
     val request = Request.Builder()
@@ -1670,13 +1673,13 @@ class NextDnsRepository(
       NextDnsNetworkClient.publicDownloadClient.newCall(request).execute().use { response ->
         if (!response.isSuccessful) {
           return@use Result.failure(
-            IllegalStateException("Log dosyası indirilemedi (HTTP ${response.code}).")
+            IllegalStateException(AppStrings.get(R.string.export_download_http, response.code))
           )
         }
 
         val body = response.body
           ?: return@use Result.failure(
-            IllegalStateException("NextDNS boş bir log dosyası döndürdü.")
+            IllegalStateException(AppStrings.get(R.string.ui_90e9c703f0))
           )
 
         body.byteStream().use { input ->
@@ -1687,7 +1690,7 @@ class NextDnsRepository(
       }
     } catch (error: Exception) {
       Result.failure(
-        IllegalStateException("Log dosyası cihaza yazılamadı.", error)
+        IllegalStateException(AppStrings.get(R.string.ui_0813aca08b), error)
       )
     }
   }
@@ -1697,20 +1700,20 @@ class NextDnsRepository(
     val pid = _activeProfileId.value
     if (key.isBlank() || pid.isBlank()) {
       return Result.failure(
-        IllegalStateException("Aktif NextDNS profili veya API anahtarı bulunamadı.")
+        IllegalStateException(AppStrings.get(R.string.ui_75ad86c6ba))
       )
     }
 
     val response = safeApiCall("clearLogs") {
       NextDnsNetworkClient.api.clearLogs(key, pid)
     } ?: return Result.failure(
-      IllegalStateException("Günlükleri temizleme isteği tamamlanamadı.")
+      IllegalStateException(AppStrings.get(R.string.ui_b5f608bed2))
     )
 
     val apiError = response.body()?.errors?.firstOrNull()?.detail
     if (!response.isMutationAccepted()) {
       return Result.failure(
-        IllegalStateException(apiError ?: "NextDNS günlükleri temizlemeyi reddetti.")
+        IllegalStateException(apiError ?: AppStrings.get(R.string.ui_7161dae00a))
       )
     }
 
@@ -1997,7 +2000,7 @@ class NextDnsRepository(
       data.forEach { item ->
         val count = item.queries ?: 0L
         val pct = if (totalQueries > 0) ((count.toDouble() / totalQueries) * 100.0).coerceIn(0.0, 100.0) else 0.0
-        val companyName = item.company ?: item.name ?: item.id ?: "Diğer"
+        val companyName = item.company ?: item.name ?: item.id ?: AppStrings.get(R.string.ui_6cceb67979)
         gafamMetrics[companyName] = Pair(pct, count)
       }
     }
@@ -2211,7 +2214,7 @@ class NextDnsRepository(
     }
 
     if (!statusResp.isUsableApiResponse()) {
-      _analyticsErrorMessage.value = "NextDNS analiz verisi alınamadı."
+      _analyticsErrorMessage.value = AppStrings.get(R.string.ui_d4c19c0ba4)
       return false
     }
 
@@ -2270,27 +2273,27 @@ class NextDnsRepository(
     // 1. Name based translations / cleanups
     if (name.isNotBlank()) {
       when {
-        name.equals("NextDNS Ads & Trackers Blocklist", ignoreCase = true) -> return "NextDNS Reklam ve İzleyici Engelleme Listesi"
-        name.equals("Disguised Third-Party Trackers", ignoreCase = true) || name.equals("Disguised Trackers", ignoreCase = true) -> return "Gizlenmiş Üçüncü Taraf İzleyiciler"
-        name.equals("Block Bypass Methods", ignoreCase = true) || name.equals("Bypass Methods", ignoreCase = true) -> return "Atlatma Yöntemleri"
-        name.equals("Denylist", ignoreCase = true) || name.equals("Blacklist", ignoreCase = true) -> return "Kara Liste"
-        name.equals("Allowlist", ignoreCase = true) || name.equals("Whitelist", ignoreCase = true) -> return "Beyaz Liste"
-        name.equals("Threat Intelligence Feeds", ignoreCase = true) -> return "Tehdit İstihbarat Kaynakları"
-        name.equals("AI Threat Detection", ignoreCase = true) -> return "Yapay Zeka Tehdit Algılama"
-        name.equals("Google Safe Browsing", ignoreCase = true) -> return "Google Güvenli Tarama"
-        name.equals("Cryptojacking Protection", ignoreCase = true) || name.equals("Cryptojacking", ignoreCase = true) -> return "Kripto Madenciliği Koruması"
-        name.equals("DNS Rebinding Protection", ignoreCase = true) || name.equals("DNS Rebinding", ignoreCase = true) -> return "DNS Yeniden Bağlama Koruması"
-        name.equals("IDN Homograph Attacks Protection", ignoreCase = true) -> return "IDN Eşsesli Saldırı Koruması"
-        name.equals("Typosquatting Protection", ignoreCase = true) -> return "Yazım Hatası Alan Adı Koruması"
-        name.equals("Newly Registered Domains (NRD)", ignoreCase = true) || name.equals("Newly Registered Domains", ignoreCase = true) -> return "Yeni Kaydedilen Alan Adları (NRD)"
-        name.equals("Dynamic DNS (DDNS)", ignoreCase = true) || name.equals("Dynamic DNS Hostnames", ignoreCase = true) -> return "Dinamik DNS Alan Adları (DDNS)"
-        name.equals("Parked Domains", ignoreCase = true) -> return "Park Edilmiş Alan Adları"
-        name.equals("Child Sexual Abuse Material (CSAM)", ignoreCase = true) -> return "Çocuk Cinsel İstismarı Materyalleri (CSAM)"
-        name.equals("SafeSearch", ignoreCase = true) -> return "Güvenli Arama"
-        name.equals("YouTube Restricted Mode", ignoreCase = true) -> return "YouTube Kısıtlı Modu"
+        name.equals("NextDNS Ads & Trackers Blocklist", ignoreCase = true) -> return AppStrings.get(R.string.ui_890f81a670)
+        name.equals("Disguised Third-Party Trackers", ignoreCase = true) || name.equals("Disguised Trackers", ignoreCase = true) -> return AppStrings.get(R.string.ui_63f2dd13cc)
+        name.equals("Block Bypass Methods", ignoreCase = true) || name.equals("Bypass Methods", ignoreCase = true) -> return AppStrings.get(R.string.ui_7396ea2940)
+        name.equals("Denylist", ignoreCase = true) || name.equals("Blacklist", ignoreCase = true) -> return AppStrings.get(R.string.ui_8aa4ccc961)
+        name.equals("Allowlist", ignoreCase = true) || name.equals("Whitelist", ignoreCase = true) -> return AppStrings.get(R.string.ui_6419e29c88)
+        name.equals("Threat Intelligence Feeds", ignoreCase = true) -> return AppStrings.get(R.string.ui_2a58359877)
+        name.equals("AI Threat Detection", ignoreCase = true) -> return AppStrings.get(R.string.ui_ee6d30b548)
+        name.equals("Google Safe Browsing", ignoreCase = true) -> return AppStrings.get(R.string.ui_b6b6e376c7)
+        name.equals("Cryptojacking Protection", ignoreCase = true) || name.equals("Cryptojacking", ignoreCase = true) -> return AppStrings.get(R.string.ui_5839f75751)
+        name.equals("DNS Rebinding Protection", ignoreCase = true) || name.equals("DNS Rebinding", ignoreCase = true) -> return AppStrings.get(R.string.ui_705a8885b5)
+        name.equals("IDN Homograph Attacks Protection", ignoreCase = true) -> return AppStrings.get(R.string.ui_9ba4a1d72e)
+        name.equals("Typosquatting Protection", ignoreCase = true) -> return AppStrings.get(R.string.ui_361b4eb00a)
+        name.equals("Newly Registered Domains (NRD)", ignoreCase = true) || name.equals("Newly Registered Domains", ignoreCase = true) -> return AppStrings.get(R.string.ui_091c6aed71)
+        name.equals("Dynamic DNS (DDNS)", ignoreCase = true) || name.equals("Dynamic DNS Hostnames", ignoreCase = true) -> return AppStrings.get(R.string.ui_ad98b36293)
+        name.equals("Parked Domains", ignoreCase = true) -> return AppStrings.get(R.string.ui_3cf825a2e2)
+        name.equals("Child Sexual Abuse Material (CSAM)", ignoreCase = true) -> return AppStrings.get(R.string.ui_6e34ff30da)
+        name.equals("SafeSearch", ignoreCase = true) -> return AppStrings.get(R.string.ui_ce261422e7)
+        name.equals("YouTube Restricted Mode", ignoreCase = true) -> return AppStrings.get(R.string.ui_692c4c985a)
         name.startsWith("Native Tracking (", ignoreCase = true) -> {
           val brand = name.substringAfter("(").substringBefore(")")
-          return "Yerel İzleme ($brand)"
+          return AppStrings.get(R.string.native_brand, brand)
         }
         !name.startsWith("blocklist:", ignoreCase = true) && !name.startsWith("native:", ignoreCase = true) -> return name
       }
@@ -2300,11 +2303,11 @@ class NextDnsRepository(
     val cleanId = id.removePrefix("blocklist:").removePrefix("parentalcontrol:").trim()
 
     return when {
-      cleanId == "denylist" || cleanId == "blacklist" -> "Kara Liste"
-      cleanId == "allowlist" || cleanId == "whitelist" -> "Beyaz Liste"
-      cleanId == "block-bypass" || cleanId == "bypass" -> "Atlatma Yöntemleri"
-      cleanId == "disguised-trackers" || cleanId == "cname-flattening" -> "Gizlenmiş Üçüncü Taraf İzleyiciler"
-      cleanId == "nextdns-recommended" -> "NextDNS Reklam ve İzleyici Engelleme Listesi"
+      cleanId == "denylist" || cleanId == "blacklist" -> AppStrings.get(R.string.ui_8aa4ccc961)
+      cleanId == "allowlist" || cleanId == "whitelist" -> AppStrings.get(R.string.ui_6419e29c88)
+      cleanId == "block-bypass" || cleanId == "bypass" -> AppStrings.get(R.string.ui_7396ea2940)
+      cleanId == "disguised-trackers" || cleanId == "cname-flattening" -> AppStrings.get(R.string.ui_63f2dd13cc)
+      cleanId == "nextdns-recommended" -> AppStrings.get(R.string.ui_890f81a670)
       cleanId == "adguard-dns-filter" || cleanId == "adguard-mobile-filter" -> "AdGuard DNS filter"
       cleanId == "oisd" || cleanId == "oisd-full" || cleanId == "oisd-basic" -> "oisd"
       cleanId == "easylist" -> "EasyList"
@@ -2330,27 +2333,27 @@ class NextDnsRepository(
           "lg" -> "LG"
           else -> brand.replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.ROOT) else it.toString() }
         }
-        "Yerel İzleme ($formattedBrand)"
+        AppStrings.get(R.string.native_formatted_brand, formattedBrand)
       }
-      cleanId == "threat-intelligence-feeds" || cleanId == "threat-intelligence" -> "Tehdit İstihbarat Kaynakları"
-      cleanId == "ai-threat-detection" || cleanId == "ai-threat" -> "Yapay Zeka Tehdit Algılama"
-      cleanId == "google-safe-browsing" || cleanId == "safebrowsing" -> "Google Güvenli Tarama"
-      cleanId == "cryptojacking" -> "Kripto Madenciliği Koruması"
-      cleanId == "dns-rebinding" -> "DNS Yeniden Bağlama Koruması"
-      cleanId == "idn-homographs" || cleanId == "homographs" -> "IDN Eşsesli Saldırı Koruması"
-      cleanId == "typosquatting" -> "Yazım Hatası Alan Adı Koruması"
-      cleanId == "dga" -> "DGA Koruması"
-      cleanId == "nrd" -> "Yeni Kaydedilen Alan Adları (NRD)"
-      cleanId == "ddns" -> "Dinamik DNS Alan Adları (DDNS)"
-      cleanId == "parking" || cleanId == "parked-domains" -> "Park Edilmiş Alan Adları"
-      cleanId == "csam" -> "Çocuk Cinsel İstismarı Materyalleri (CSAM)"
-      cleanId == "safesearch" -> "Güvenli Arama"
-      cleanId == "youtube-restricted-mode" || cleanId == "youtube-restricted" -> "YouTube Kısıtlı Modu"
-      cleanId == "block-page" -> "Engelleme Sayfası"
-      cleanId == "tlds" || cleanId == "blocked-tlds" -> "Engellenen Üst Seviye Alan Adları (TLD)"
+      cleanId == "threat-intelligence-feeds" || cleanId == "threat-intelligence" -> AppStrings.get(R.string.ui_2a58359877)
+      cleanId == "ai-threat-detection" || cleanId == "ai-threat" -> AppStrings.get(R.string.ui_ee6d30b548)
+      cleanId == "google-safe-browsing" || cleanId == "safebrowsing" -> AppStrings.get(R.string.ui_b6b6e376c7)
+      cleanId == "cryptojacking" -> AppStrings.get(R.string.ui_5839f75751)
+      cleanId == "dns-rebinding" -> AppStrings.get(R.string.ui_705a8885b5)
+      cleanId == "idn-homographs" || cleanId == "homographs" -> AppStrings.get(R.string.ui_9ba4a1d72e)
+      cleanId == "typosquatting" -> AppStrings.get(R.string.ui_361b4eb00a)
+      cleanId == "dga" -> AppStrings.get(R.string.ui_7968337d16)
+      cleanId == "nrd" -> AppStrings.get(R.string.ui_091c6aed71)
+      cleanId == "ddns" -> AppStrings.get(R.string.ui_ad98b36293)
+      cleanId == "parking" || cleanId == "parked-domains" -> AppStrings.get(R.string.ui_3cf825a2e2)
+      cleanId == "csam" -> AppStrings.get(R.string.ui_6e34ff30da)
+      cleanId == "safesearch" -> AppStrings.get(R.string.ui_ce261422e7)
+      cleanId == "youtube-restricted-mode" || cleanId == "youtube-restricted" -> AppStrings.get(R.string.ui_692c4c985a)
+      cleanId == "block-page" -> AppStrings.get(R.string.ui_dbea792aea)
+      cleanId == "tlds" || cleanId == "blocked-tlds" -> AppStrings.get(R.string.ui_372431170f)
       name.isNotBlank() -> name
       id.isNotBlank() -> id.replace("-", " ").replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.ROOT) else it.toString() }
-      else -> "Diğer"
+      else -> AppStrings.get(R.string.ui_6cceb67979)
     }
   }
 
@@ -2390,7 +2393,7 @@ class NextDnsRepository(
           timeInMillis = epochMillis
         }
         val day = cal.get(java.util.Calendar.DAY_OF_MONTH)
-        val monthNames = arrayOf("Oca", "Şub", "Mar", "Nis", "May", "Haz", "Tem", "Ağu", "Eyl", "Eki", "Kas", "Ara")
+        val monthNames = java.text.DateFormatSymbols(AppStrings.locale).shortMonths
         val monthStr = monthNames.getOrElse(cal.get(java.util.Calendar.MONTH)) { "" }
         val year = cal.get(java.util.Calendar.YEAR)
         val formattedDate = "$day $monthStr $year"
@@ -2399,7 +2402,7 @@ class NextDnsRepository(
         val diffMs = now - epochMillis
 
         val relative = if (diffMs <= 0) {
-          "Bugün"
+          AppStrings.get(R.string.ui_1279dae674)
         } else {
           val diffSec = diffMs / 1000
           val diffMin = diffSec / 60
@@ -2407,13 +2410,13 @@ class NextDnsRepository(
           val diffDays = diffHours / 24
 
           when {
-            diffMin < 1 -> "Az önce"
-            diffMin < 60 -> "$diffMin dk önce"
-            diffHours < 24 -> "$diffHours saat önce"
-            diffDays == 1L -> "Dün"
-            diffDays < 30 -> "$diffDays gün önce"
-            diffDays < 365 -> "${diffDays / 30} ay önce"
-            else -> "${diffDays / 365} yıl önce"
+            diffMin < 1 -> AppStrings.get(R.string.ui_ec3f106d56)
+            diffMin < 60 -> AppStrings.plural(R.plurals.minutes_ago, diffMin)
+            diffHours < 24 -> AppStrings.plural(R.plurals.hours_ago, diffHours)
+            diffDays == 1L -> AppStrings.get(R.string.ui_2693187887)
+            diffDays < 30 -> AppStrings.plural(R.plurals.days_ago, diffDays)
+            diffDays < 365 -> AppStrings.plural(R.plurals.months_ago, diffDays / 30)
+            else -> AppStrings.plural(R.plurals.years_ago, diffDays / 365)
           }
         }
 
@@ -2431,7 +2434,7 @@ class NextDnsRepository(
     return when {
       lower.contains("malware") || lower.contains("threat") || lower.contains("phishing") ||
         lower.contains("security") || lower.contains("güvenlik") || lower.contains("crypto") ||
-        lower.contains("scam") || lower.contains("ransomware") || lower.contains("c2") -> "Güvenlik"
+        lower.contains("scam") || lower.contains("ransomware") || lower.contains("c2") -> AppStrings.get(R.string.ui_bde6632ed8)
       lower.contains("privacy") || lower.contains("gizlilik") || lower.contains("telemetry") ||
         lower.contains("tracker") || lower.contains("tracking") || lower.contains("izle") ||
         lower.contains("facebook") || lower.contains("google") || lower.contains("smarttv") -> "Gizlilik"
@@ -2441,7 +2444,7 @@ class NextDnsRepository(
         lower.contains("regional") || lower.contains("bölge") || lower.contains("russian") ||
         lower.contains("czech") || lower.contains("vietnam") || lower.contains("spanish") ||
         lower.contains("israel") || lower.contains("lithuania") || lower.contains("indonesia") ||
-        lower.contains("swedish") || lower.contains("finnish") || lower.contains("dutch") -> "Bölgesel"
+        lower.contains("swedish") || lower.contains("finnish") || lower.contains("dutch") -> AppStrings.get(R.string.ui_5ed0130b25)
       else -> "Genel"
     }
   }
