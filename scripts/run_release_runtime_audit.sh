@@ -13,8 +13,11 @@ keytool -genkeypair -keystore "$key" -storetype PKCS12 -alias upload -keyalg RSA
 "$tools/apksigner" sign --ks "$key" --ks-key-alias upload --ks-pass env:NEXTDNS_CI_AUDIT_PASSWORD \
   --key-pass env:NEXTDNS_CI_AUDIT_PASSWORD --out "$out/release-runtime.apk" app/build/outputs/apk/release/app-release-unsigned.apk
 "$tools/apksigner" verify --verbose --print-certs "$out/release-runtime.apk" > "$out/signature.txt"
-KEYSTORE_PATH="$key" STORE_PASSWORD="$NEXTDNS_CI_AUDIT_PASSWORD" KEY_PASSWORD="$NEXTDNS_CI_AUDIT_PASSWORD" \
-  ./gradlew :app:assembleReleaseAndroidTest -PreleaseRuntimeAudit=true --no-daemon
+./gradlew :app:assembleReleaseAndroidTest -PreleaseRuntimeAudit=true --no-daemon
+test_apk=$(find app/build/outputs/apk/androidTest/release -name '*.apk' -type f)
+test -n "$test_apk"
+"$tools/apksigner" sign --ks "$key" --ks-key-alias upload --ks-pass env:NEXTDNS_CI_AUDIT_PASSWORD \
+  --key-pass env:NEXTDNS_CI_AUDIT_PASSWORD --out "$out/release-runtime-test.apk" "$test_apk"
 unset NEXTDNS_CI_AUDIT_PASSWORD
 # Android SDK licenses are already accepted on the hosted Android build runner.
 sdkmanager 'system-images;android-35;default;x86_64'
@@ -34,9 +37,7 @@ adb shell settings put global window_animation_scale 0
 adb shell settings put global transition_animation_scale 0
 adb shell settings put global animator_duration_scale 0
 adb install -r "$out/release-runtime.apk"
-test_apk=$(find app/build/outputs/apk/androidTest/release -name '*.apk' -type f)
-test -n "$test_apk"
-adb install -r "$test_apk"
+adb install -r "$out/release-runtime-test.apk"
 adb logcat -c
 timeout 240 adb shell am instrument -w -r -e class com.example.ReleaseSecurityRuntimeTest \
   com.aistudio.nextdns.mgrqvt.test/androidx.test.runner.AndroidJUnitRunner > "$out/instrumentation.txt"
