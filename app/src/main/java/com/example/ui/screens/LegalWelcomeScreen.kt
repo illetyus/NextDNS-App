@@ -1,5 +1,8 @@
 package com.example.ui.screens
 
+import com.example.R
+import com.example.i18n.AppStrings
+
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
@@ -10,7 +13,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
-import java.util.Locale
+import com.example.i18n.LocalePreferences
+import com.example.ui.components.LanguagePicker
 import com.example.data.legal.LegalDocuments
 
 private data class LegalLabels(
@@ -23,28 +27,12 @@ private data class LegalLabels(
   val error: String
 )
 
-private fun legalLabels(language: String): LegalLabels = when (language) {
-  "tr" -> LegalLabels("Kullanım Koşulları", "Devam etmeden önce koşulları inceleyiniz.",
-    "Kullanım Koşulları", "Gizlilik Politikası (İngilizce)",
-    "Kullanım Koşullarını okudum ve kabul ediyorum.", "Kabul Et ve Devam Et",
-    "Kabul kaydedilemedi. Lütfen yeniden deneyiniz.")
-  "de" -> LegalLabels("Nutzungsbedingungen", "Bitte lesen Sie die Bedingungen vor der Nutzung.",
-    "Nutzungsbedingungen", "Datenschutzerklärung (Englisch)",
-    "Ich habe die Nutzungsbedingungen gelesen und akzeptiere sie.", "Zustimmen und fortfahren",
-    "Die Zustimmung konnte nicht gespeichert werden.")
-  "fr" -> LegalLabels("Conditions d’utilisation", "Veuillez consulter les conditions avant de poursuivre.",
-    "Conditions d’utilisation", "Politique de confidentialité (anglais)",
-    "J’ai lu et j’accepte les conditions d’utilisation.", "Accepter et continuer",
-    "L’acceptation n’a pas pu être enregistrée.")
-  "es" -> LegalLabels("Condiciones de uso", "Consulte las condiciones antes de continuar.",
-    "Condiciones de uso", "Política de privacidad (inglés)",
-    "He leído y acepto las condiciones de uso.", "Aceptar y continuar",
-    "No se ha podido guardar la aceptación.")
-  else -> LegalLabels("Terms of Use", "Please review these terms before continuing.",
-    "Terms of Use", "Privacy Policy (English)",
-    "I have read and agree to the Terms of Use.", "Accept and Continue",
-    "The acceptance could not be saved. Please try again.")
-}
+private fun legalLabels(): LegalLabels = LegalLabels(
+  AppStrings.get(R.string.ui_d451294fda), AppStrings.get(R.string.ui_b8a9f44998),
+  AppStrings.get(R.string.ui_d451294fda), AppStrings.get(R.string.ui_ac96fa3c88),
+  AppStrings.get(R.string.ui_7382c39e80), AppStrings.get(R.string.ui_7935969625),
+  AppStrings.get(R.string.ui_3eb5f14831)
+)
 
 /**
  * Offline terms/privacy reader and explicit terms-only acceptance gate.
@@ -57,12 +45,8 @@ fun LegalWelcomeScreen(
   modifier: Modifier = Modifier
 ) {
   val context = LocalContext.current
-  val language = remember {
-    Locale.getDefault().language.let {
-      if (it in listOf("tr", "en", "de", "fr", "es")) it else "en"
-    }
-  }
-  val labels = remember(language) { legalLabels(language) }
+  val language = LocalePreferences.resolvedLanguage(context)
+  val labels = remember(language) { legalLabels() }
 
   val bundle = remember(context, language) { LegalDocuments.load(context, language).getOrNull() }
   val terms = bundle?.terms
@@ -76,11 +60,12 @@ fun LegalWelcomeScreen(
     modifier = modifier.fillMaxSize().statusBarsPadding().navigationBarsPadding().padding(20.dp),
     verticalArrangement = Arrangement.spacedBy(12.dp)
   ) {
+    LanguagePicker(Modifier.fillMaxWidth())
     Text(labels.title, style = MaterialTheme.typography.headlineSmall)
     Text(labels.explanation, style = MaterialTheme.typography.bodyMedium)
 
     Text(
-      "DRAFT — LEGAL REVIEW REQUIRED — NOT FOR RELEASE",
+      AppStrings.get(R.string.ui_6e7946fdc3),
       color = MaterialTheme.colorScheme.error,
       style = MaterialTheme.typography.labelMedium
     )

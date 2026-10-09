@@ -1,5 +1,8 @@
 package com.example.data.local
 
+import com.example.R
+import com.example.i18n.AppStrings
+
 import android.content.Context
 import android.content.SharedPreferences
 import com.example.data.model.*
@@ -122,7 +125,7 @@ class NextDnsPreferences(
           .remove(KEY_API_KEY_ENCRYPTED)
           .remove(KEY_API_KEY)
           .commit()
-        throw IllegalStateException("API anahtarı güvenli biçimde saklanamadı.", it)
+        throw IllegalStateException(AppStrings.get(R.string.ui_7bd985c876), it)
       }
 
       val committed = prefs.edit()
@@ -131,7 +134,7 @@ class NextDnsPreferences(
         .commit()
 
       check(committed) {
-        "API anahtarı güvenli depolamaya yazılamadı."
+        AppStrings.get(R.string.ui_c2a8fa4d41)
       }
     }
 

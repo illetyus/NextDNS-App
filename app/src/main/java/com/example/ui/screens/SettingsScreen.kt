@@ -1,5 +1,10 @@
 package com.example.ui.screens
 
+import com.example.i18n.UiLabels
+
+import com.example.R
+import com.example.i18n.AppStrings
+
 import android.Manifest
 import android.content.pm.PackageManager
 import android.os.Build
@@ -60,7 +65,7 @@ fun SettingsScreen(
       screenScope.launch {
         val output = context.contentResolver.openOutputStream(uri)
         if (output == null) {
-          viewModel.showMessage("Seçilen dosya konumu açılamadı.", isError = true)
+          viewModel.showMessage(AppStrings.get(R.string.ui_5d465cd584), isError = true)
         } else {
           output.use { stream ->
             viewModel.exportLogs(stream)
@@ -92,7 +97,7 @@ fun SettingsScreen(
       }
     } else if (!granted) {
       viewModel.showMessage(
-        "Bildirim izni verilmedi; bildirim seçeneği açılmadı.",
+        AppStrings.get(R.string.ui_aa12c2d136),
         isError = true
       )
     }
@@ -146,7 +151,7 @@ fun SettingsScreen(
   val configSettings by viewModel.configSettings.collectAsStateWithLifecycle()
 
   var showDeleteProfileDialog by remember { mutableStateOf(false) }
-  val profileName = activeProfile?.name ?: "Varsayılan Profil"
+  val profileName = activeProfile?.name ?: AppStrings.get(R.string.ui_0a4d547a3f)
 
   LazyColumn(
     modifier = modifier
@@ -158,6 +163,7 @@ fun SettingsScreen(
     // 1. Görünüm (Appearance)
     item {
       AppearanceSection()
+      com.example.ui.components.LanguagePicker(Modifier.fillMaxWidth())
     }
 
     item { LegalDocumentLinks() }
@@ -232,10 +238,10 @@ fun SettingsScreen(
   if (showDeleteProfileDialog) {
     AlertDialog(
       onDismissRequest = { showDeleteProfileDialog = false },
-      title = { Text("Profili sil?") },
+      title = { Text(AppStrings.get(R.string.ui_26c4159180)) },
       text = {
         Text(
-          "$profileName profili ve onunla ilişkili günlükler NextDNS'ten kalıcı olarak silinecek."
+          AppStrings.get(R.string.delete_profile_named, profileName)
         )
       },
       confirmButton = {
@@ -245,12 +251,12 @@ fun SettingsScreen(
             activeProfile?.id?.let(viewModel::deleteProfile)
           }
         ) {
-          Text("SİL", color = MaterialTheme.colorScheme.error)
+          Text(AppStrings.get(R.string.ui_0ad23c38d9), color = MaterialTheme.colorScheme.error)
         }
       },
       dismissButton = {
         TextButton(onClick = { showDeleteProfileDialog = false }) {
-          Text("VAZGEÇ")
+          Text(AppStrings.get(R.string.ui_c1e7a1dd63))
         }
       }
     )
@@ -270,13 +276,13 @@ private fun NotificationSettingsSection(
   modifier: Modifier = Modifier
 ) {
   NextDnsCard(
-    title = "Bildirimler",
-    subtitle = "İsteğe bağlı arka plan kontrolleri. Android zamanlamayı erteleyebilir; kontrol aralığı yaklaşık 30 dakikadır.",
+    title = AppStrings.get(R.string.ui_fc2cbca9ac),
+    subtitle = AppStrings.get(R.string.ui_c8d644e4b9),
     modifier = modifier
   ) {
     NextDnsSettingToggleRow(
-      title = "Ayar değişiklikleri",
-      subtitle = "NextDNS sunucu yapılandırması değiştiğinde içerik ayrıntısı göstermeden bildirim gönderir.",
+      title = AppStrings.get(R.string.ui_d2a366ccf5),
+      subtitle = AppStrings.get(R.string.ui_693b1184c2),
       checked = settings.configChangeAlertsEnabled,
       onCheckedChange = onConfigChangeAlertsChanged
     )
@@ -287,8 +293,8 @@ private fun NotificationSettingsSection(
     )
 
     NextDnsSettingToggleRow(
-      title = "Günlük özet",
-      subtitle = "Son 24 saatin toplam DNS sorgu ve engelleme sayılarını günde en fazla bir kez bildirir.",
+      title = AppStrings.get(R.string.ui_bb763d7bf3),
+      subtitle = AppStrings.get(R.string.ui_4ac3ce8599),
       checked = settings.dailySummaryEnabled,
       onCheckedChange = onDailySummaryChanged
     )
@@ -307,7 +313,7 @@ fun AppearanceSection(
   val themeMode by themePrefs.themeMode.collectAsStateWithLifecycle(initialValue = ThemeMode.SYSTEM)
   val scope = rememberCoroutineScope()
 
-  NextDnsCard(title = "Görünüm", modifier = modifier) {
+  NextDnsCard(title = AppStrings.get(R.string.ui_e1b0af0c14), modifier = modifier) {
     SingleChoiceSegmentedButtonRow(
       modifier = Modifier
         .fillMaxWidth()
@@ -324,9 +330,9 @@ fun AppearanceSection(
           label = {
             Text(
               text = when (mode) {
-                ThemeMode.LIGHT -> "Açık"
-                ThemeMode.DARK -> "Koyu"
-                ThemeMode.SYSTEM -> "Otomatik"
+                ThemeMode.LIGHT -> AppStrings.get(R.string.ui_bbb1132f30)
+                ThemeMode.DARK -> AppStrings.get(R.string.theme_dark)
+                ThemeMode.SYSTEM -> AppStrings.get(R.string.theme_system)
               },
               maxLines = 1
             )
@@ -349,8 +355,8 @@ fun ProfileNameSection(
   var profileNameInput by remember(initialName) { mutableStateOf(initialName) }
 
   NextDnsCard(
-    title = "Profil İsmi",
-    subtitle = "Bu profile ayırt edici bir isim verin. Ev, Ofis veya Mobil gibi farklı cihaz gruplarını kolayca yönetebilirsiniz.",
+    title = AppStrings.get(R.string.ui_f5e0e67ae0),
+    subtitle = AppStrings.get(R.string.ui_0e37b40064),
     modifier = modifier
   ) {
     Row(
@@ -361,7 +367,7 @@ fun ProfileNameSection(
       OutlinedTextField(
         value = profileNameInput,
         onValueChange = { profileNameInput = it },
-        placeholder = { Text("Profil ismi", color = MaterialTheme.colorScheme.outline) },
+        placeholder = { Text(AppStrings.get(R.string.ui_9382774b58), color = MaterialTheme.colorScheme.outline) },
         singleLine = true,
         modifier = Modifier.weight(1f),
         colors = OutlinedTextFieldDefaults.colors(
@@ -376,7 +382,7 @@ fun ProfileNameSection(
       )
 
       NextDnsButton(
-        text = "KAYDET",
+        text = AppStrings.get(R.string.ui_8bbadb3bfe),
         onClick = {
           if (profileNameInput.isNotBlank()) {
             onSaveName(profileNameInput.trim())
@@ -415,14 +421,14 @@ fun LogsAndPrivacySection(
   val configSettings = state.configSettings
 
   NextDnsCard(
-    title = "Günlükler & Gizlilik Ayarları",
-    subtitle = "Cihazlarınızdan gelen DNS sorgularını analiz etmek için kaydedin. İstemci IP'lerini ve alan adlarını ayrı ayrı gizleyebilir veya saklama süresini özelleştirebilirsiniz.",
+    title = AppStrings.get(R.string.ui_469fe6b9ee),
+    subtitle = AppStrings.get(R.string.ui_6d9044322d),
     modifier = modifier
   ) {
     // Günlükleri etkinleştir toggle
     NextDnsSettingToggleRow(
-      title = "Günlükleri etkinleştir",
-      subtitle = "DNS sorgularının analiz ve inceleme için kaydedilmesini sağlar.",
+      title = AppStrings.get(R.string.ui_975fd0ef39),
+      subtitle = AppStrings.get(R.string.ui_a29eef8cc4),
       checked = configSettings.logsEnabled,
       onCheckedChange = state.onToggleLogsEnabled
     )
@@ -434,15 +440,15 @@ fun LogsAndPrivacySection(
 
       // IP & Domain kayıt onay kutuları
       NextDnsCheckboxRow(
-        title = "İstemci IP adreslerini kaydet",
-        subtitle = "Kapatılırsa günlüklerde cihaz IP adresleri anonimleştirilir.",
+        title = AppStrings.get(R.string.ui_4843d526ea),
+        subtitle = AppStrings.get(R.string.ui_44bf716fa8),
         checked = configSettings.logClientIps,
         onCheckedChange = state.onToggleLogClientIps
       )
 
       NextDnsCheckboxRow(
-        title = "Ziyaret edilen alan adlarını kaydet",
-        subtitle = "Kapatılırsa sadece engellenen/izin verilen sorgu sayıları tutulur.",
+        title = AppStrings.get(R.string.ui_ce0860f44d),
+        subtitle = AppStrings.get(R.string.log_domains_description),
         checked = configSettings.logDomains,
         onCheckedChange = state.onToggleLogDomains
       )
@@ -455,7 +461,7 @@ fun LogsAndPrivacySection(
         horizontalArrangement = Arrangement.spacedBy(10.dp)
       ) {
         NextDnsDropdownSelector(
-          label = "Saklama süresi",
+          label = AppStrings.get(R.string.ui_591abe76df),
           selectedValue = configSettings.logRetention,
           options = retentionOptions,
           onOptionSelected = state.onSetLogRetention,
@@ -463,7 +469,7 @@ fun LogsAndPrivacySection(
         )
 
         NextDnsDropdownSelector(
-          label = "Depolama konumu",
+          label = AppStrings.get(R.string.ui_b9e7b41f06),
           selectedValue = configSettings.logStorageLocation,
           options = locationOptions,
           onOptionSelected = state.onSetLogStorageLocation,
@@ -479,7 +485,7 @@ fun LogsAndPrivacySection(
         horizontalArrangement = Arrangement.spacedBy(10.dp)
       ) {
         NextDnsOutlineButton(
-          text = "Günlükleri indir",
+          text = AppStrings.get(R.string.ui_f57b70c49f),
           onClick = state.onExportClick,
           colors = NextDnsOutlineButtonColors(
             borderColor = MaterialTheme.colorScheme.primary,
@@ -490,7 +496,7 @@ fun LogsAndPrivacySection(
         )
 
         NextDnsOutlineButton(
-          text = "Günlükleri temizle",
+          text = AppStrings.get(R.string.ui_a871d61ff5),
           onClick = state.onClearLogsClick,
           colors = NextDnsOutlineButtonColors(
             borderColor = MaterialTheme.colorScheme.error,
@@ -542,7 +548,7 @@ fun BlockPageSection(
   val uriHandler = LocalUriHandler.current
 
   NextDnsCard(
-    title = "Engel Sayfası",
+    title = AppStrings.get(R.string.ui_92ca542cb4),
     modifier = modifier
   ) {
     Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
@@ -558,7 +564,7 @@ fun BlockPageSection(
           onCheckedChange = onToggleBlockPage
         )
         Text(
-          text = "Engel sayfasını etkinleştir",
+          text = AppStrings.get(R.string.ui_8e63c077a5),
           color = MaterialTheme.colorScheme.onSurface,
           fontSize = 13.sp
         )
@@ -574,7 +580,7 @@ fun BlockPageSection(
           verticalArrangement = Arrangement.spacedBy(6.dp)
         ) {
           Text(
-            text = "🔒 NextDNS Kök Sertifika Otoritesi",
+            text = AppStrings.get(R.string.ui_4af4c84b30),
             color = MaterialTheme.colorScheme.onSurface,
             fontWeight = FontWeight.Bold,
             fontSize = 13.5.sp
@@ -585,13 +591,13 @@ fun BlockPageSection(
               append("https://nextdns.io/ca")
             }
             pop()
-            append(" adresindeki kök Sertifika Otoritemizi yükleyip güvenerek, engelleme sayfasını yüklerken HTTPS uyarısını kaldırın. Bunun nasıl yapılacağına ilişkin talimatları ")
+            append(AppStrings.get(R.string.ui_f1aa098317))
             pushStringAnnotation("help", "https://help.nextdns.io/t/x2hmvas/how-to-install-and-trust-nextdns-root-ca")
             withStyle(SpanStyle(color = MaterialTheme.colorScheme.primary)) {
-              append("buradan")
+              append(AppStrings.get(R.string.help_here))
             }
             pop()
-            append(" okuyun.")
+            append(AppStrings.get(R.string.help_end))
           }
           androidx.compose.foundation.text.ClickableText(
             text = annotatedText,
@@ -621,8 +627,8 @@ fun PerformanceSection(
   modifier: Modifier = Modifier
 ) {
   NextDnsCard(
-    title = "Performans",
-    subtitle = "Göz atmanızı hızlandırın.",
+    title = AppStrings.get(R.string.ui_559b742446),
+    subtitle = AppStrings.get(R.string.ui_6d97d4726f),
     modifier = modifier
   ) {
     Column {
@@ -661,13 +667,13 @@ private fun EdnsSubnetBlock(
     verticalArrangement = Arrangement.spacedBy(8.dp)
   ) {
     Text(
-      text = "Anonimize EDNS İstemci Alt Ağı",
+      text = AppStrings.get(R.string.ui_fdfae18144),
       color = MaterialTheme.colorScheme.onSurface,
       fontWeight = FontWeight.Bold,
       fontSize = 13.5.sp
     )
     Text(
-      text = "IP adresinizi ifşa etmeden içerik dağıtım ağlarından veri dağıtımını hızlandırın.",
+      text = AppStrings.get(R.string.ui_c115f79722),
       color = MaterialTheme.colorScheme.onSurfaceVariant,
       fontSize = 12.sp
     )
@@ -680,7 +686,7 @@ private fun EdnsSubnetBlock(
         onCheckedChange = onToggle
       )
       Text(
-        text = "Anonimize EDNS İstemci Alt Ağı'nı etkinleştir",
+        text = AppStrings.get(R.string.ui_31eea8dfbe),
         color = MaterialTheme.colorScheme.onSurface,
         fontSize = 12.sp
       )
@@ -701,13 +707,13 @@ private fun CacheBoostBlock(
     verticalArrangement = Arrangement.spacedBy(8.dp)
   ) {
     Text(
-      text = "Önbellek Arttırma",
+      text = AppStrings.get(R.string.ui_e5b3c1ddd0),
       color = MaterialTheme.colorScheme.onSurface,
       fontWeight = FontWeight.Bold,
       fontSize = 13.5.sp
     )
     Text(
-      text = "Minimum TTL (Time to live) uygulayarak DNS sorgularını en aza indirin.",
+      text = AppStrings.get(R.string.ui_77ad4a90bc),
       color = MaterialTheme.colorScheme.onSurfaceVariant,
       fontSize = 12.sp
     )
@@ -720,7 +726,7 @@ private fun CacheBoostBlock(
         onCheckedChange = onToggle
       )
       Text(
-        text = "Önbellek arttırmayı etkinleştir",
+        text = AppStrings.get(R.string.ui_320039c2a6),
         color = MaterialTheme.colorScheme.onSurface,
         fontSize = 12.sp
       )
@@ -741,13 +747,13 @@ private fun CnameFlatteningBlock(
     verticalArrangement = Arrangement.spacedBy(8.dp)
   ) {
     Text(
-      text = "CNAME Düzleştirme",
+      text = AppStrings.get(R.string.ui_4eb09dec40),
       color = MaterialTheme.colorScheme.onSurface,
       fontWeight = FontWeight.Bold,
       fontSize = 13.5.sp
     )
     Text(
-      text = "CNAME izleyen çözümleyicilerin gereksiz sorgular yapmasını önleyin ve günlükleri ara alan adlarıyla doldurun.",
+      text = AppStrings.get(R.string.ui_9cb9b3f307),
       color = MaterialTheme.colorScheme.onSurfaceVariant,
       fontSize = 12.sp
     )
@@ -760,7 +766,7 @@ private fun CnameFlatteningBlock(
         onCheckedChange = onToggle
       )
       Text(
-        text = "CNAME düzleştirmeyi etkinleştir",
+        text = AppStrings.get(R.string.ui_d1121a66b2),
         color = MaterialTheme.colorScheme.onSurface,
         fontSize = 12.sp
       )
@@ -780,7 +786,7 @@ fun Web3Section(
   NextDnsCard(
     title = "Web3",
     isBeta = true,
-    subtitle = "Web3, yenilikçi teknolojilerden oluşan, merkezi olmayan ve sansüre dirençli bir çevrimiçi ekosistemi ifade eder. Bu teknolojiler arasında blok zinciri tabanlı alan adı yazmanları (ör. Ethereum Name Service), dağıtık içerik depolama ve dağıtım ağları (örn. IPFS) sayılabilir. Bu ayarı açtığınızda, NextDNS bu yeni web'e filtresiz bir ağ geçidi görevi görecek ve hiçbir şey yüklemeye gerek kalmadan onu deneyimlemenize olanak tanıyacaktır.\n\nTarayıcıların çoğu şu anda yalnızca klasik üst düzey alan adlarını desteklediğinden, Web3 alan adlarına doğrudan erişmek için sonlarına bölü işareti (\"/\") eklemelisiniz. (örn. \"vitalik.eth\" yerine \"vitalik.eth/\")",
+    subtitle = AppStrings.get(R.string.web3_description),
     modifier = modifier
   ) {
     Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
@@ -824,7 +830,7 @@ fun Web3Section(
         horizontalArrangement = Arrangement.SpaceBetween
       ) {
         Text(
-          text = "Web3'ü Etkinleştir",
+          text = AppStrings.get(R.string.ui_8fa74dac7d),
           color = MaterialTheme.colorScheme.onSurface,
           fontWeight = FontWeight.Bold,
           fontSize = 13.5.sp
@@ -852,8 +858,8 @@ fun ProfileActionsSection(
     verticalArrangement = Arrangement.spacedBy(14.dp)
   ) {
     NextDnsActionCard(
-      buttonText = "Sil: $profileName",
-      description = "Bu işlem, bu profili ve onunla ilişkili tüm günlükleri kalıcı olarak silecektir.",
+      buttonText = AppStrings.get(R.string.delete_profile_button, profileName),
+      description = AppStrings.get(R.string.ui_df88ac14a6),
       onButtonClick = onDeleteProfile,
       isDanger = true
     )

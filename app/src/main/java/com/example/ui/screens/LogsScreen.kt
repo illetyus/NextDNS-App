@@ -1,5 +1,10 @@
 package com.example.ui.screens
 
+import com.example.i18n.UiLabels
+
+import com.example.R
+import com.example.i18n.AppStrings
+
 import androidx.compose.animation.*
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.ExperimentalFoundationApi
@@ -37,8 +42,8 @@ import java.time.Instant
 
 fun formatRelativeTime(timestampStr: String): String {
   try {
-    if (timestampStr.isBlank()) return "şimdi"
-    if (timestampStr.endsWith("önce") || timestampStr == "şimdi") return timestampStr
+    if (timestampStr.isBlank()) return AppStrings.get(R.string.ui_68af8fa298)
+    if (timestampStr.endsWith(AppStrings.get(R.string.ui_16ef24fc3b)) || timestampStr == AppStrings.get(R.string.ui_68af8fa298)) return timestampStr
     val time = if (timestampStr.contains("T")) {
       try {
         Instant.parse(timestampStr).toEpochMilli()
@@ -61,12 +66,12 @@ fun formatRelativeTime(timestampStr: String): String {
     val now = System.currentTimeMillis()
     val diffSeconds = (now - time) / 1000
     return when {
-      diffSeconds < 0 -> "şimdi"
-      diffSeconds < 5 -> "şimdi"
-      diffSeconds < 60 -> "$diffSeconds saniye önce"
-      diffSeconds < 3600 -> "${diffSeconds / 60} dakika önce"
-      diffSeconds < 86400 -> "${diffSeconds / 3600} saat önce"
-      else -> "${diffSeconds / 86400} gün önce"
+      diffSeconds < 0 -> AppStrings.get(R.string.ui_68af8fa298)
+      diffSeconds < 5 -> AppStrings.get(R.string.ui_68af8fa298)
+      diffSeconds < 60 -> AppStrings.plural(R.plurals.seconds_ago, diffSeconds)
+      diffSeconds < 3600 -> AppStrings.plural(R.plurals.minutes_ago, diffSeconds / 60)
+      diffSeconds < 86400 -> AppStrings.plural(R.plurals.hours_ago, diffSeconds / 3600)
+      else -> AppStrings.plural(R.plurals.days_ago, diffSeconds / 86400)
     }
   } catch (_: Exception) {
     return timestampStr
@@ -119,18 +124,18 @@ fun LogsScreen(
   val detectedDevices = remember(analytics.topDevices, allKnownDevices, logs) {
     val list = mutableListOf<String>()
     analytics.topDevices.forEach { dev ->
-      if (dev.name.isNotBlank() && dev.name != "Bilinmeyen Cihaz" && dev.name != "Cihaz") {
+      if (dev.name.isNotBlank() && dev.name != AppStrings.get(R.string.ui_571961518d) && dev.name != "Cihaz") {
         list.add(dev.name)
       }
     }
     allKnownDevices.forEach { dev ->
-      if (dev.isNotBlank() && dev != "Bilinmeyen Cihaz" && dev != "Cihaz") {
+      if (dev.isNotBlank() && dev != AppStrings.get(R.string.ui_571961518d) && dev != "Cihaz") {
         list.add(dev)
       }
     }
     logs.forEach { l ->
       val dn = l.deviceName
-      if (!dn.isNullOrBlank() && dn != "Bilinmeyen Cihaz" && dn != "Cihaz") {
+      if (!dn.isNullOrBlank() && dn != AppStrings.get(R.string.ui_571961518d) && dn != "Cihaz") {
         list.add(dn)
       }
     }
@@ -263,7 +268,7 @@ private fun LogsHeaderControls(
           horizontalArrangement = Arrangement.spacedBy(6.dp)
         ) {
           Text(
-            text = selectedDeviceFilter,
+            text = UiLabels.canonical(selectedDeviceFilter),
             color = MaterialTheme.colorScheme.onSurface,
             fontSize = 12.5.sp,
             fontWeight = FontWeight.Medium
@@ -327,7 +332,7 @@ private fun LogsHeaderControls(
             .background(if (isLiveStreaming) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.outline)
         )
         Text(
-          text = if (isLiveStreaming) "Canlı Akış: Açık" else "Canlı Akış: Kapalı",
+          text = if (isLiveStreaming) AppStrings.get(R.string.ui_d6b0f8fc37) else AppStrings.get(R.string.ui_db747e4342),
           color = if (isLiveStreaming) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant,
           fontSize = 11.5.sp,
           fontWeight = FontWeight.Bold
@@ -341,7 +346,7 @@ private fun LogsHeaderControls(
     ) {
       Icon(
         imageVector = Icons.Default.Info,
-        contentDescription = "Canlı Yayın Açıklaması",
+        contentDescription = AppStrings.get(R.string.ui_97489bb373),
         tint = if (showLiveStreamInfo) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.outline,
         modifier = Modifier.size(18.dp)
       )
@@ -355,7 +360,7 @@ private fun LogsHeaderControls(
     ) {
       Icon(
         imageVector = Icons.Default.Refresh,
-        contentDescription = "Yenile",
+        contentDescription = AppStrings.get(R.string.ui_63cd725787),
         tint = MaterialTheme.colorScheme.onSurfaceVariant,
         modifier = Modifier.size(20.dp)
       )
@@ -374,10 +379,10 @@ private fun LiveStreamInfoCard(modifier: Modifier = Modifier) {
     Column(modifier = Modifier.padding(12.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
       Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(6.dp)) {
         Icon(Icons.Default.Sensors, contentDescription = null, tint = MaterialTheme.colorScheme.primary, modifier = Modifier.size(16.dp))
-        Text("Canlı Günlük Akışı Nedir?", color = MaterialTheme.colorScheme.primary, fontWeight = FontWeight.Bold, fontSize = 12.sp)
+        Text(AppStrings.get(R.string.ui_0ad2f52cde), color = MaterialTheme.colorScheme.primary, fontWeight = FontWeight.Bold, fontSize = 12.sp)
       }
       Text(
-        text = "• AÇIK olduğunda: NextDNS yeni DNS olaylarını SSE canlı akışı üzerinden geldikçe ekrana iletir.\n• KAPALI olduğunda: Canlı bağlantı kapatılır; kayıtları 'Yenile' butonuyla yeniden alabilirsiniz.",
+        text = AppStrings.get(R.string.live_logs_description),
         color = MaterialTheme.colorScheme.onSurface,
         fontSize = 11.sp,
         lineHeight = 15.sp
@@ -395,14 +400,14 @@ private fun LogsSearchField(
   OutlinedTextField(
     value = searchQuery,
     onValueChange = onQueryChange,
-    placeholder = { Text("Bir alan adını veya cihazı filtrele...", color = MaterialTheme.colorScheme.outline, fontSize = 12.5.sp) },
+    placeholder = { Text(AppStrings.get(R.string.ui_bb89ec5b3b), color = MaterialTheme.colorScheme.outline, fontSize = 12.5.sp) },
     leadingIcon = {
       Icon(Icons.Default.Search, contentDescription = null, tint = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.size(18.dp))
     },
     trailingIcon = {
       if (searchQuery.isNotBlank()) {
         IconButton(onClick = { onQueryChange("") }, modifier = Modifier.size(48.dp)) {
-          Icon(Icons.Default.Close, contentDescription = "Temizle", tint = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.size(14.dp))
+          Icon(Icons.Default.Close, contentDescription = AppStrings.get(R.string.ui_e306951c12), tint = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.size(14.dp))
         }
       }
     },
@@ -434,7 +439,7 @@ private fun EmptyLogsPlaceholder(searchQuery: String, modifier: Modifier = Modif
     ) {
       Icon(Icons.Default.History, contentDescription = null, tint = MaterialTheme.colorScheme.outline, modifier = Modifier.size(36.dp))
       Text(
-        text = if (searchQuery.isNotBlank()) "Aramanızla eşleşen log kaydı bulunamadı." else "Henüz günlük kaydı yok.",
+        text = if (searchQuery.isNotBlank()) AppStrings.get(R.string.ui_935450c7e2) else AppStrings.get(R.string.ui_b0d5218690),
         color = MaterialTheme.colorScheme.onSurfaceVariant,
         fontSize = 13.sp
       )
@@ -523,14 +528,14 @@ private fun LogItemRow(
               )
               .sizeIn(minWidth = 48.dp, minHeight = 48.dp)
               .bounceClick(scaleDown = 0.99f) {
-                copyToClipboard(context, log.domain, "Alan adı")
+                copyToClipboard(context, log.domain, AppStrings.get(R.string.ui_9f714c45ab))
                 isCopied = true
               },
             contentAlignment = Alignment.Center
           ) {
             Icon(
               imageVector = if (isCopied) Icons.Default.Check else Icons.Default.ContentCopy,
-              contentDescription = "Alan adını kopyala",
+              contentDescription = AppStrings.get(R.string.ui_38f9d7ffb8),
               tint = if (isCopied) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant,
               modifier = Modifier.size(14.dp)
             )
@@ -547,7 +552,7 @@ private fun LogItemRow(
       ) {
         if (!log.deviceName.isNullOrBlank()) {
           Text(
-            text = log.deviceName,
+            text = UiLabels.canonical(log.deviceName),
             color = MaterialTheme.colorScheme.onSurfaceVariant,
             fontSize = 11.sp,
             fontWeight = FontWeight.Medium
@@ -610,13 +615,13 @@ private fun LogExpandedDetails(
       horizontalArrangement = Arrangement.SpaceBetween
     ) {
       Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
-        Text("Protokol: ${log.protocol.ifBlank { "DNS-over-HTTPS (DoH)" }}", color = MaterialTheme.colorScheme.onSurfaceVariant, fontSize = 11.5.sp)
-        Text("İstemci IP: ${log.clientIp ?: "-"}", color = MaterialTheme.colorScheme.onSurfaceVariant, fontSize = 11.5.sp)
+        Text(AppStrings.get(R.string.protocol_label, log.protocol.ifBlank { "DNS-over-HTTPS (DoH)" }), color = MaterialTheme.colorScheme.onSurfaceVariant, fontSize = 11.5.sp)
+        Text(AppStrings.get(R.string.client_ip, log.clientIp ?: AppStrings.get(R.string.unavailable)), color = MaterialTheme.colorScheme.onSurfaceVariant, fontSize = 11.5.sp)
       }
       Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
-        Text("Yanıt Süresi: ${if (log.responseTimeMs != null) "${log.responseTimeMs} ms" else "-"}", color = MaterialTheme.colorScheme.onSurfaceVariant, fontSize = 11.5.sp)
+        Text(AppStrings.get(R.string.response_time, log.responseTimeMs?.let { "$it ms" } ?: AppStrings.get(R.string.unavailable)), color = MaterialTheme.colorScheme.onSurfaceVariant, fontSize = 11.5.sp)
         Text(
-          text = "Durum: ${if (isBlocked) "Engellendi" else "İzin Verildi"}",
+          text = AppStrings.get(R.string.status_label, AppStrings.get(if (isBlocked) R.string.state_blocked else R.string.state_allowed)),
           color = if (isBlocked) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.tertiary,
           fontSize = 11.5.sp,
           fontWeight = FontWeight.Bold
@@ -631,7 +636,7 @@ private fun LogExpandedDetails(
       horizontalArrangement = Arrangement.spacedBy(10.dp)
     ) {
       NextDnsOutlineButton(
-        text = "İzin Verilenlere Ekle",
+        text = AppStrings.get(R.string.ui_9e1b588ac9),
         onClick = onAddToAllowlist,
         colors = NextDnsOutlineButtonColors(
           borderColor = MaterialTheme.colorScheme.tertiary,
@@ -640,7 +645,7 @@ private fun LogExpandedDetails(
         icon = Icons.Default.Check
       )
       NextDnsOutlineButton(
-        text = "Engellenenlere Ekle",
+        text = AppStrings.get(R.string.ui_b768ffe3c8),
         onClick = onAddToDenylist,
         colors = NextDnsOutlineButtonColors(
           borderColor = MaterialTheme.colorScheme.error,
