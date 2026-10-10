@@ -1,0 +1,562 @@
+{
+  "schemaVersion": 1,
+  "recordedAt": "2026-10-10T15:40:45.842265+00:00",
+  "baselineReviewedCommit": "4abf26a1a556cf42235fbf05c70f89cb5ad79e8c",
+  "fixCommit": "40aefa8a6446bd1f16824cc14e290b6307f35440",
+  "pullRequest": "https://github.com/illetyus/open-source-client-for-nextdns/pull/21",
+  "ciUrl": "https://github.com/illetyus/open-source-client-for-nextdns/actions/runs/38063979745",
+  "ciConclusion": "success",
+  "ciBuiltCommit": "9eabdabd1a82bbca29ceef7169066a66f5fd8609",
+  "ciHeadCommit": "40aefa8a6446bd1f16824cc14e290b6307f35440",
+  "ciSteps": [
+    {
+      "name": "Set up job",
+      "conclusion": "success"
+    },
+    {
+      "name": "Checkout Repository",
+      "conclusion": "success"
+    },
+    {
+      "name": "Set up JDK 17",
+      "conclusion": "success"
+    },
+    {
+      "name": "Setup Gradle",
+      "conclusion": "success"
+    },
+    {
+      "name": "Verify Gradle Wrapper",
+      "conclusion": "success"
+    },
+    {
+      "name": "Android Lint",
+      "conclusion": "success"
+    },
+    {
+      "name": "Draft store metadata and device evidence schema",
+      "conclusion": "success"
+    },
+    {
+      "name": "Five-language resources and UI label gate",
+      "conclusion": "success"
+    },
+    {
+      "name": "Legal draft integrity and acceptance revision",
+      "conclusion": "success"
+    },
+    {
+      "name": "Unit, Contract, Compose and Screenshot Tests",
+      "conclusion": "success"
+    },
+    {
+      "name": "Verify actual test, screenshot and coverage evidence",
+      "conclusion": "success"
+    },
+    {
+      "name": "Assemble Debug",
+      "conclusion": "success"
+    },
+    {
+      "name": "Upload UI branding screenshots",
+      "conclusion": "success"
+    },
+    {
+      "name": "Assemble Release (unsigned on CI)",
+      "conclusion": "success"
+    },
+    {
+      "name": "Release Dependency and Privacy SDK Gate",
+      "conclusion": "success"
+    },
+    {
+      "name": "Verify bundled full license and NOTICE distribution",
+      "conclusion": "success"
+    },
+    {
+      "name": "Record actual package, manifest and signature evidence",
+      "conclusion": "success"
+    },
+    {
+      "name": "Reject test DEX types and validate against real test APK",
+      "conclusion": "success"
+    },
+    {
+      "name": "Upload coverage to Codecov",
+      "conclusion": "success"
+    },
+    {
+      "name": "Setup Snyk CLI",
+      "conclusion": "success"
+    },
+    {
+      "name": "Snyk High-Severity Dependency Gate",
+      "conclusion": "success"
+    },
+    {
+      "name": "Snyk Monitor Main",
+      "conclusion": "skipped"
+    },
+    {
+      "name": "Signed release payload security on Android emulator",
+      "conclusion": "success"
+    },
+    {
+      "name": "Upload resolved release and device-test artifacts",
+      "conclusion": "success"
+    },
+    {
+      "name": "Post Setup Gradle",
+      "conclusion": "success"
+    },
+    {
+      "name": "Post Set up JDK 17",
+      "conclusion": "success"
+    },
+    {
+      "name": "Post Checkout Repository",
+      "conclusion": "success"
+    },
+    {
+      "name": "Complete job",
+      "conclusion": "success"
+    }
+  ],
+  "redBaseline": {
+    "ciUrl": "https://github.com/illetyus/open-source-client-for-nextdns/actions/runs/38060835008",
+    "commit": "09871028624014dd1be4b7ceb45c1e8c998ff91d",
+    "tests": 76,
+    "failures": 9,
+    "previousTestsPassed": 67
+  },
+  "regressions": {
+    "schemaVersion": 1,
+    "builtCommit": "9eabdabd1a82bbca29ceef7169066a66f5fd8609",
+    "evidenceKind": "JVM_ROBOLECTRIC_COMPOSE_AND_CONTROLLED_NETWORK_FIXTURES",
+    "physicalDeviceAcceptance": "NOT_RUN",
+    "realAccountMutation": "NOT_RUN",
+    "allExecutedCases": 104,
+    "requiredUniqueCases": 37,
+    "defects": {
+      "NDNS-001": {
+        "result": "PASS",
+        "cases": [
+          {
+            "class": "com.example.data.repository.RepositoryRegressionTest",
+            "name": "lateLogsCannotPopulateAnotherProfile"
+          },
+          {
+            "class": "com.example.data.repository.RepositoryRegressionTest",
+            "name": "profileRoundTripStillRejectsOldLogs"
+          },
+          {
+            "class": "com.example.data.repository.RepositoryRegressionTest",
+            "name": "lateCreatedProfileCannotRestorePreferencesAfterLogout"
+          },
+          {
+            "class": "com.example.data.repository.RepositoryRegressionTest",
+            "name": "obsoleteSettingsCannotWriteAnotherProfilesCache"
+          },
+          {
+            "class": "com.example.data.repository.RepositoryRegressionTest",
+            "name": "normalCreatedProfileIsVerifiedPersistedAndSelected"
+          }
+        ]
+      },
+      "NDNS-002": {
+        "result": "PASS",
+        "cases": [
+          {
+            "class": "com.example.data.repository.RepositoryRegressionTest",
+            "name": "mutationForACannotBeVerifiedUsingB"
+          },
+          {
+            "class": "com.example.data.repository.RepositoryRegressionTest",
+            "name": "successfulMutationReadsAndCachesTheSameProfile"
+          },
+          {
+            "class": "com.example.data.repository.RepositoryRegressionTest",
+            "name": "successfulHttpReadDoesNotVerifyAnUnappliedMutation"
+          },
+          {
+            "class": "com.example.data.repository.RepositoryRegressionTest",
+            "name": "deletingSelectedProfileVerifiesRemovalBeforeSelectingReplacement"
+          },
+          {
+            "class": "com.example.data.repository.RepositoryRegressionTest",
+            "name": "deletingLastProfileVerifiesEmptyListAndClearsSelection"
+          },
+          {
+            "class": "com.example.data.repository.RepositoryRegressionTest",
+            "name": "acceptedDeleteDoesNotSucceedWhenServerStillContainsTarget"
+          }
+        ]
+      },
+      "NDNS-003": {
+        "result": "PASS",
+        "cases": [
+          {
+            "class": "com.example.data.repository.RepositoryRegressionTest",
+            "name": "diagnosticTimeoutDoesNotReplaceLastSuccessWithFreshSuccess"
+          },
+          {
+            "class": "com.example.data.api.CancellableCallTest",
+            "name": "diagnosticHttpFailureIgnoresSuccessLookingJson"
+          },
+          {
+            "class": "com.example.ui.screens.DiagnosticAndDeviceMenuTest",
+            "name": "diagnosticBannerRequiresSuccessfulMeasurementOfSelectedProfile"
+          }
+        ]
+      },
+      "NDNS-004": {
+        "result": "PASS",
+        "cases": [
+          {
+            "class": "com.example.data.repository.RepositoryRegressionTest",
+            "name": "web3TrueFalseAndMissingFieldPreserveAuthoritativeState"
+          }
+        ]
+      },
+      "NDNS-005": {
+        "result": "PASS",
+        "cases": [
+          {
+            "class": "com.example.ui.screens.DiagnosticPollingTest",
+            "name": "pauseStopsPollingAndCancelsInFlightCheckThenResumeStartsOneLoop"
+          },
+          {
+            "class": "com.example.data.repository.RepositoryRegressionTest",
+            "name": "cancelledDiagnosticClearsBothRepositoryAndViewModelBusyFlags"
+          }
+        ]
+      },
+      "NDNS-006": {
+        "result": "PASS",
+        "cases": [
+          {
+            "class": "com.example.data.api.CancellableCallTest",
+            "name": "cancellationBeforeHeadersClosesLateDeliveredResponse"
+          },
+          {
+            "class": "com.example.data.api.CancellableCallTest",
+            "name": "cancellationDuringBlockingBodyReadCancelsCallAndClosesBody"
+          },
+          {
+            "class": "com.example.data.repository.RepositoryRegressionTest",
+            "name": "stoppingRepositorySseCancelsTheActualNetworkCall"
+          }
+        ]
+      },
+      "NDNS-007": {
+        "result": "PASS",
+        "cases": [
+          {
+            "class": "com.example.data.api.CancellableCallTest",
+            "name": "ipLinkSuccessClosesUnconsumedBody"
+          },
+          {
+            "class": "com.example.data.api.CancellableCallTest",
+            "name": "allCatalogHttpFailurePathsCloseTheirUnconsumedBodies"
+          },
+          {
+            "class": "com.example.data.api.CancellableCallTest",
+            "name": "malformedDiagnosticJsonAlsoClosesBody"
+          },
+          {
+            "class": "com.example.data.api.CancellableCallTest",
+            "name": "exceptionInsideConsumerStillClosesResponse"
+          }
+        ]
+      },
+      "NDNS-008": {
+        "result": "PASS",
+        "cases": [
+          {
+            "class": "com.example.data.repository.RepositoryRegressionTest",
+            "name": "cancellingRefreshClearsItsBusyState"
+          },
+          {
+            "class": "com.example.data.repository.RepositoryRegressionTest",
+            "name": "oldRefreshCancellationCannotClearNewRefreshFlag"
+          },
+          {
+            "class": "com.example.data.repository.RepositoryRegressionTest",
+            "name": "differentSectionRefreshesKeepBothFlagsAndResults"
+          },
+          {
+            "class": "com.example.data.repository.RepositoryRegressionTest",
+            "name": "cancellingFullSyncClearsBusyStateWithoutStartingAnalytics"
+          }
+        ]
+      },
+      "NDNS-009": {
+        "result": "PASS",
+        "cases": [
+          {
+            "class": "com.example.ui.screens.DiagnosticAndDeviceMenuTest",
+            "name": "allDevicesMenuIsLocalizedWhileRealDeviceNamesRemainUnchanged"
+          }
+        ]
+      },
+      "NDNS-010": {
+        "result": "PASS",
+        "cases": [
+          {
+            "class": "com.example.data.repository.RepositoryRegressionTest",
+            "name": "malformedExportLinkReturnsFailureInsteadOfThrowing"
+          },
+          {
+            "class": "com.example.data.repository.RepositoryRegressionTest",
+            "name": "validExportUsesNoApiKeyAndOutputWriteFailureReturnsFailure"
+          },
+          {
+            "class": "com.example.data.repository.RepositoryRegressionTest",
+            "name": "providerFailureIsReportedByViewModelWithoutSuccess"
+          },
+          {
+            "class": "com.example.data.repository.ExportDocumentTest",
+            "name": "deniedProviderReturnsFailureWithoutWriting"
+          },
+          {
+            "class": "com.example.data.repository.ExportDocumentTest",
+            "name": "nullProviderStreamReturnsFailure"
+          },
+          {
+            "class": "com.example.data.repository.ExportDocumentTest",
+            "name": "closeFailurePreventsSuccess"
+          },
+          {
+            "class": "com.example.data.repository.ExportDocumentTest",
+            "name": "cancellationPropagatesAndClosesProviderStream"
+          },
+          {
+            "class": "com.example.data.repository.ExportDocumentTest",
+            "name": "successIncludesProviderCloseAndExpectedBytes"
+          }
+        ]
+      }
+    },
+    "xmlSha256": {
+      "app/build/test-results/testDebugUnitTest/TEST-com.example.ExampleRobolectricTest.xml": "84b7f3a116e1c4cc0e4fd44015de0a95f79a1932ae5df08b630c6aa10d348543",
+      "app/build/test-results/testDebugUnitTest/TEST-com.example.ExampleUnitTest.xml": "0b1970e112cb59b31b508afdad4006b1cdcad2c60da8b91a5698d4f8b9b12cfc",
+      "app/build/test-results/testDebugUnitTest/TEST-com.example.GreetingScreenshotTest.xml": "100fc7ecc79d99a6756cd439920092f6f8a193d8802ed2ed3ac88063f7f1f65b",
+      "app/build/test-results/testDebugUnitTest/TEST-com.example.LauncherAssetsTest.xml": "38eb67c1d60210a0e74517d9fadce62d41cbf8730ef36963ed806903bbb1f468",
+      "app/build/test-results/testDebugUnitTest/TEST-com.example.data.api.CancellableCallTest.xml": "9b1a6ba981c8234121b7fbfb9435ce39463448a0e5af15adcfe45bc97508776d",
+      "app/build/test-results/testDebugUnitTest/TEST-com.example.data.api.NextDnsApiContractTest.xml": "5a57259ddf8a9d02ca95d55986497a0e42cc3efa22f1640584b2d48ff24ca760",
+      "app/build/test-results/testDebugUnitTest/TEST-com.example.data.legal.LegalAcceptanceStoreTest.xml": "f49bf475964cfd14910507461b882b4a7956411206736dddf2a1490a62a71efa",
+      "app/build/test-results/testDebugUnitTest/TEST-com.example.data.legal.LegalDocumentLinksTest.xml": "7d18e82c049f619fde15cdeb1d93fc6139a27d8f8ac86204997af03986471c88",
+      "app/build/test-results/testDebugUnitTest/TEST-com.example.data.legal.LegalDocumentsTest.xml": "26f0087ebebe95231ab59113c952c62a8a121d56737330ed11b8c0effd683f14",
+      "app/build/test-results/testDebugUnitTest/TEST-com.example.data.legal.LegalWelcomeInteractionTest.xml": "dea5de93286fbf959671d148f33bf789f454949c8204fe1fcd96741993f41d69",
+      "app/build/test-results/testDebugUnitTest/TEST-com.example.data.local.NextDnsPreferencesClearTest.xml": "ba7c841dd7e25c7f91dc5b6fdcb8f757a4498beebcaa7a76f752f00de4c6dfc3",
+      "app/build/test-results/testDebugUnitTest/TEST-com.example.data.local.NextDnsPreferencesSecurityTest.xml": "a5210806a5f9788ed9f0d694d32bbdc5c855ca431643bce8562220eb24de1e35",
+      "app/build/test-results/testDebugUnitTest/TEST-com.example.data.notifications.ConfigSnapshotHasherTest.xml": "92f4a907302bf5eb29c18e379d1cda3c726a3a875bc522e94a85e1796c47b67f",
+      "app/build/test-results/testDebugUnitTest/TEST-com.example.data.notifications.NotificationPolicyTest.xml": "add886ded47755f7cc16676f11d1b5681f0b28863080f6e70411142709490078",
+      "app/build/test-results/testDebugUnitTest/TEST-com.example.data.notifications.NotificationPreferencesClearTest.xml": "fbf561f8194aa44248d2d29d19817ee7607b787a54171c3d49d0c3fd8aa88202",
+      "app/build/test-results/testDebugUnitTest/TEST-com.example.data.repository.ExportDocumentTest.xml": "462ceb9d275e8ec02efea7e469bd317db2c6305be7cd085035780bf1d13c29f7",
+      "app/build/test-results/testDebugUnitTest/TEST-com.example.data.repository.LegalRepositoryGateTest.xml": "71643fe846d07a04f8868a8ced6bb11693449dfe872cfdff7a72e192ed5c39d2",
+      "app/build/test-results/testDebugUnitTest/TEST-com.example.data.repository.RepositoryRegressionTest.xml": "d448fda8e2ba269f958a04610aee48cd6ce55ab8210e424f9f58cb2be0370132",
+      "app/build/test-results/testDebugUnitTest/TEST-com.example.data.repository.SectionMutationCoordinatorTest.xml": "bbe3e9ce2036f36d79e1319cd6c1e5a2db47f3e169af50d50b69e15e91bac561",
+      "app/build/test-results/testDebugUnitTest/TEST-com.example.data.repository.SyncPolicyTest.xml": "900dfc194724fd426ddd3ca5de620a8be11ba218629b7786589ec319fe58304f",
+      "app/build/test-results/testDebugUnitTest/TEST-com.example.i18n.LocalePreferencesTest.xml": "41dae7a823c7053053f83cfae5dbeb34cab4d4e95d28fcf5098e22d198bfc806",
+      "app/build/test-results/testDebugUnitTest/TEST-com.example.i18n.LocaleRenderingTest.xml": "6b747a5e2bfcbf25ce65fd8b50824465b729e4889b90d9af837009df5e8afb43",
+      "app/build/test-results/testDebugUnitTest/TEST-com.example.ui.components.CommonComponentsInteractionTest.xml": "a2c1f5c9ea15793e46dfc00f9d299b8c91744da7cc5f7d70e91fdd892e150a62",
+      "app/build/test-results/testDebugUnitTest/TEST-com.example.ui.screens.AdaptiveNavigationTest.xml": "1ff31265912a570b3df892a4d92d740ecf7ed23e938625ae7846712631a23d6d",
+      "app/build/test-results/testDebugUnitTest/TEST-com.example.ui.screens.DiagnosticAndDeviceMenuTest.xml": "7898388e418d43e78275a516fd93a395ef9efe3c78789530a68f123a82d0b125",
+      "app/build/test-results/testDebugUnitTest/TEST-com.example.ui.screens.DiagnosticPollingTest.xml": "048c92eb123c855a86e0e1e1fe5bd40fc4d5bb1193fbd8cdcd17d23147299f20"
+    }
+  },
+  "regressionArtifactSha256": "1db80833c6693ede1880d6673bff37a00e80824b1c0c9f2716abb14ef910c7c3",
+  "coverage": {
+    "total": {
+      "INSTRUCTION": {
+        "covered": 24753,
+        "missed": 70401,
+        "percent": 26.01
+      },
+      "BRANCH": {
+        "covered": 767,
+        "missed": 3634,
+        "percent": 17.43
+      },
+      "LINE": {
+        "covered": 2787,
+        "missed": 7213,
+        "percent": 27.87
+      },
+      "COMPLEXITY": {
+        "covered": 880,
+        "missed": 3485,
+        "percent": 20.16
+      },
+      "METHOD": {
+        "covered": 698,
+        "missed": 1501,
+        "percent": 31.74
+      },
+      "CLASS": {
+        "covered": 168,
+        "missed": 237,
+        "percent": 41.48
+      }
+    },
+    "repository": {
+      "INSTRUCTION": {
+        "covered": 2964,
+        "missed": 8636,
+        "percent": 25.55
+      },
+      "BRANCH": {
+        "covered": 157,
+        "missed": 1453,
+        "percent": 9.75
+      },
+      "LINE": {
+        "covered": 372,
+        "missed": 745,
+        "percent": 33.3
+      },
+      "COMPLEXITY": {
+        "covered": 105,
+        "missed": 887,
+        "percent": 10.58
+      },
+      "METHOD": {
+        "covered": 82,
+        "missed": 92,
+        "percent": 47.13
+      },
+      "CLASS": {
+        "covered": 1,
+        "missed": 0,
+        "percent": 100.0
+      }
+    },
+    "reportSha256": "b677dc39811f0d650fcf5a820838c03982ce343869e421eb38fc470addb6d328",
+    "scope": "JVM report; Android native tests excluded"
+  },
+  "releaseRuntime": {
+    "commit": "9eabdabd1a82bbca29ceef7169066a66f5fd8609",
+    "tests": 10,
+    "failures": 0,
+    "skipped": 0,
+    "emulator": {
+      "api": 35,
+      "image": "system-images;android-35;default;x86_64"
+    },
+    "unsignedApkSha256": "4a5a4a8c42f2a97c25f646310ba86ed4388567ed8af9de9386c8e1bfff84edd2",
+    "runtimeApkSha256": "2d2070423e77d75e35fe6c8a406d03084da1f88b772acbabe203018a49759e4e",
+    "payloadSha256": "1fd12a6516b8bc4ecd6b70b9bb70ecb57eee2363ffee5413df7da1414199e38a",
+    "payloadIdenticalExceptSignature": true,
+    "canaryAbsentFromLogcat": true,
+    "signer": "ephemeral CI key; never a production signing approval",
+    "networkScope": "local TLS fixtures, trust rejection, redirect/downgrade and cleartext rejection; no real account or BrowserStack run"
+  },
+  "dependencySecurity": {
+    "dependencies": 50,
+    "threshold": "high",
+    "reportedVulnerabilities": 0
+  },
+  "changedSourceFiles": [
+    {
+      "path": "app/src/main/java/com/example/data/api/CancellableCall.kt",
+      "sha256": "f78bc6fae5af938973067d2713ffb72c99880c95fd556021522eea2d80279000"
+    },
+    {
+      "path": "app/src/main/java/com/example/data/api/NextDnsApiService.kt",
+      "sha256": "e9a3765d007f8f6247b5e07349ffbff46e6bad17294164f99a67ba285a65b27f"
+    },
+    {
+      "path": "app/src/main/java/com/example/data/model/DiagnosticConnectionState.kt",
+      "sha256": "386981286efc06c7305d0ebfc2f22f7832f459e3d24580388b0271d0e569cdc5"
+    },
+    {
+      "path": "app/src/main/java/com/example/data/repository/ExportDocument.kt",
+      "sha256": "edc07dd610ecc67c96d42b8ed3dd8b158b5ef00f4e9f62091858fb8fc2851220"
+    },
+    {
+      "path": "app/src/main/java/com/example/data/repository/NextDnsRepository.kt",
+      "sha256": "ca51a952d37f1d4f2bed19e0f182b0824e15b8f3bb33327061765c0030b02f10"
+    },
+    {
+      "path": "app/src/main/java/com/example/ui/screens/DiagnosticPolling.kt",
+      "sha256": "9697d10cbd8494d0c1aeb7d73ed56d30cef0b166e5ae47b64ca8b60baaa66001"
+    },
+    {
+      "path": "app/src/main/java/com/example/ui/screens/LogsScreen.kt",
+      "sha256": "8d708f03a45118ad7b9fd0472e5925af3b1f0e2d9587f9b4578f4d5309717405"
+    },
+    {
+      "path": "app/src/main/java/com/example/ui/screens/SettingsScreen.kt",
+      "sha256": "ab1bb39a18991ca4f04e9736e645cfafef39f60ae9a39d219c7baf5f4e3c5d19"
+    },
+    {
+      "path": "app/src/main/java/com/example/ui/screens/SetupScreen.kt",
+      "sha256": "2d01ae438fe4dc489f92452eb87a15848a92a40a975cd7a2e539ca50b81eca2e"
+    },
+    {
+      "path": "app/src/main/java/com/example/ui/viewmodel/NextDnsViewModel.kt",
+      "sha256": "9292a3794e9a8a578e5775a2a76f5cf4afd4360c830efe0732737f8cff22db36"
+    },
+    {
+      "path": "app/src/main/res/values-de/strings.xml",
+      "sha256": "959c9f4683e643d3766a899e7c6a53049f2247000c4002f17adbeb335c038235"
+    },
+    {
+      "path": "app/src/main/res/values-es/strings.xml",
+      "sha256": "df7ce7fbb2f243a4c750ee389c57e5f6850e15326b5f5b35c8235a4d8232072a"
+    },
+    {
+      "path": "app/src/main/res/values-fr/strings.xml",
+      "sha256": "8a085148ccd9758df5ac894fac0a34cb7de4d36e58848030e7d61fd77991df10"
+    },
+    {
+      "path": "app/src/main/res/values-tr/strings.xml",
+      "sha256": "3504d7222d32331c2903249e4af2dc3f66b2d4ea4a7e95f2f6c97a0b8844818b"
+    },
+    {
+      "path": "app/src/main/res/values/strings.xml",
+      "sha256": "5fed2650a6203be2b04752be9cc244ac67e2f9d96c8a48ffcb23ec6b1d57b843"
+    },
+    {
+      "path": "app/src/test/java/com/example/data/api/CancellableCallTest.kt",
+      "sha256": "4111f5f61c775edacabd960458690b8369dba840f331428447b750b8e5e36fe0"
+    },
+    {
+      "path": "app/src/test/java/com/example/data/repository/ExportDocumentTest.kt",
+      "sha256": "a0ca84c6c29f4174e05b8a5acaf64e2592aaa2a763c3aa3cc15a99a7b837177f"
+    },
+    {
+      "path": "app/src/test/java/com/example/data/repository/RepositoryRegressionTest.kt",
+      "sha256": "5811022b0f4d504d324f778179cb6dcaa030a126458a3f1c6c5f583453f9e337"
+    },
+    {
+      "path": "app/src/test/java/com/example/ui/screens/DiagnosticAndDeviceMenuTest.kt",
+      "sha256": "7360766f7685ae49702935e228c972f946108d56f217ef3195505c1b5258f352"
+    },
+    {
+      "path": "app/src/test/java/com/example/ui/screens/DiagnosticPollingTest.kt",
+      "sha256": "496f40a26f5a717871b4d8bb33ffed07644450dfa665d369cba1794d5b431992"
+    },
+    {
+      "path": "scripts/verify_quality_regressions.py",
+      "sha256": "f4819b51508d8e41f656a5e44507fc5a2ccc746aa4678a62f3aa6e5f7660745c"
+    },
+    {
+      "path": "scripts/verify_test_evidence.py",
+      "sha256": "734f1fd6fd10cd344ded8802607e229e707d1fcc6e4f3a901e758a96b1be1700"
+    }
+  ],
+  "sourceHashFormat": "sha256-utf8-lf",
+  "evidenceGateNegativeChecks": {
+    "missingRequiredCase": "REJECTED",
+    "skippedCase": "REJECTED",
+    "failedCase": "REJECTED"
+  },
+  "physicalDeviceAcceptance": "NOT_RUN",
+  "browserstackCases": {
+    "NOT_RUN": 22
+  },
+  "legalStatus": "DRAFT",
+  "realAccountMutation": "NOT_RUN"
+}

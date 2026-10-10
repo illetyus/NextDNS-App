@@ -82,11 +82,11 @@ and legal texts remain **DRAFT**. Naming completion does not complete Phase 9.
 The project is under active development. Do not consider a draft PR or a
 successful unit-test run a public release approval.
 
-The [10 October code-quality review](docs/CODE_QUALITY_REVIEW_TR_2026-10-10.md)
-records 10 open source-confirmed defects (3 P1, 7 P2), with correction and retest
-criteria in the [defect ledger](docs/HATA_DEFTERI_TR.md). These conditional source
-findings are not completed device tests. Correct and verify them before final
-device acceptance; the existing legal and publication gates remain open.
+The [10 October review](docs/CODE_QUALITY_REVIEW_TR_2026-10-10.md) identified
+10 conditional defects (3 P1, 7 P2). The [fix report](docs/CODE_QUALITY_FIXES_TR_2026-10-10.md)
+records corrections and 37 required regressions within 104 passing JVM tests.
+The [defect ledger](docs/HATA_DEFTERI_TR.md) marks them as code/JVM verified
+and awaiting device acceptance. BrowserStack, legal and publication gates remain open.
 
 ## Source and feedback
 
