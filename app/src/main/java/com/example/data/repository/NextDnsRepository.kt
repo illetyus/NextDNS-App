@@ -35,7 +35,13 @@ private class ProfilesFetchException(
 ) : Exception(message)
 
 class NextDnsRepository(
-  private val preferences: NextDnsPreferences = NextDnsApp.preferences
+  private val preferences: NextDnsPreferences = NextDnsApp.preferences,
+  private val apiService: NextDnsApiService = NextDnsNetworkClient.api,
+  private val diagnosticService: NextDnsTestService = NextDnsNetworkClient.testApi,
+  private val diagnosticProbe: suspend (String?) -> NextDnsTestResponse? = { NextDnsNetworkClient.fetchTestConnectionDirect(it) },
+  private val downloadClient: okhttp3.OkHttpClient = NextDnsNetworkClient.publicDownloadClient,
+  private val streamClient: okhttp3.OkHttpClient = NextDnsNetworkClient.client,
+  private val backgroundWorkEnabled: Boolean = true
 ) {
   private val TAG = "NextDnsRepo"
   private val repoScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
@@ -324,6 +330,7 @@ class NextDnsRepository(
    * before an explicit current Terms revision is durably accepted.
    */
   fun resumeAfterTermsAccepted() {
+    if (!backgroundWorkEnabled) return
     if (!legalAcceptanceStore.isAccepted()) return
     if (!startupInitialized.compareAndSet(false, true)) return
 
@@ -388,7 +395,7 @@ class NextDnsRepository(
     try {
       // 1. Blocklists Catalog
       val blocklistDtos = fetchAllPages("availableBlocklists") { cursor ->
-        NextDnsNetworkClient.api.getAvailableBlocklists(apiKey = null, cursor = cursor)
+        apiService.getAvailableBlocklists(apiKey = null, cursor = cursor)
       } ?: NextDnsNetworkClient.fetchAvailableBlocklistsDirect()
       if (blocklistDtos != null && blocklistDtos.isNotEmpty()) {
         _availableBlocklistsCatalog.value = blocklistDtos.map { dto ->
@@ -409,7 +416,7 @@ class NextDnsRepository(
 
       // 2. Natives Catalog
       val nativesDtos = fetchAllPages("availableNatives") { cursor ->
-        NextDnsNetworkClient.api.getAvailableNatives(cursor = cursor)
+        apiService.getAvailableNatives(cursor = cursor)
       } ?: NextDnsNetworkClient.fetchAvailableNativesDirect()
       if (nativesDtos != null && nativesDtos.isNotEmpty()) {
         _availableNativesCatalog.value = nativesDtos
@@ -417,7 +424,7 @@ class NextDnsRepository(
 
       // 3. Parental Services Catalog
       val parentServices = fetchAllPages("availableParentalServices") { cursor ->
-        NextDnsNetworkClient.api.getAvailableParentalServices(cursor = cursor)
+        apiService.getAvailableParentalServices(cursor = cursor)
       } ?: NextDnsNetworkClient.fetchAvailableParentalServicesDirect()
       if (parentServices != null && parentServices.isNotEmpty()) {
         _availableParentalServicesCatalog.value = parentServices
@@ -425,7 +432,7 @@ class NextDnsRepository(
 
       // 4. Parental Categories Catalog
       val parentCats = fetchAllPages("availableParentalCategories") { cursor ->
-        NextDnsNetworkClient.api.getAvailableParentalCategories(cursor = cursor)
+        apiService.getAvailableParentalCategories(cursor = cursor)
       } ?: NextDnsNetworkClient.fetchAvailableParentalCategoriesDirect()
       if (parentCats != null && parentCats.isNotEmpty()) {
         _availableParentalCategoriesCatalog.value = parentCats
@@ -433,7 +440,7 @@ class NextDnsRepository(
 
       // 5. TLDs Catalog
       val tlds = fetchAllPages("availableTlds") { cursor ->
-        NextDnsNetworkClient.api.getAvailableTlds(cursor = cursor)
+        apiService.getAvailableTlds(cursor = cursor)
       } ?: NextDnsNetworkClient.fetchAvailableTldsDirect()
       if (tlds != null && tlds.isNotEmpty()) {
         _availableTldsCatalog.value = tlds
@@ -464,12 +471,12 @@ class NextDnsRepository(
     val profId = targetProfileId ?: _activeProfileId.value.takeIf { it.isNotBlank() }
 
     // Direct OkHttp with random subdomain per profile matching NextDNS website
-    var body = NextDnsNetworkClient.fetchTestConnectionDirect(profId)
+    var body = diagnosticProbe(profId)
 
     // Fallback if needed
     if (body == null) {
       body = safeApiCall("runDiagnosticTest") {
-        val resp = NextDnsNetworkClient.testApi.testConnection()
+        val resp = diagnosticService.testConnection()
         if (resp.isSuccessful) resp.body() else null
       }
     }
@@ -524,7 +531,7 @@ class NextDnsRepository(
 
     do {
       val response = safeApiCall("getProfiles") {
-        NextDnsNetworkClient.api.getProfiles(key, cursor)
+        apiService.getProfiles(key, cursor)
       } ?: return Result.failure(
         ProfilesFetchException(-1, AppStrings.get(R.string.ui_8520ff5f87))
       )
@@ -672,7 +679,7 @@ class NextDnsRepository(
 
   private suspend fun applyAccountFromApi(key: String): Boolean {
     try {
-      val accResp = NextDnsNetworkClient.api.getAccount(key)
+      val accResp = apiService.getAccount(key)
       val body = accResp.body()
       if (accResp.isSuccessful && body.isSemanticallySuccessful()) {
         val d = body?.data
@@ -706,7 +713,7 @@ class NextDnsRepository(
 
   private suspend fun applySetupFromApi(key: String, profileId: String): Boolean {
     val setupResp = safeApiCall("getProfileSetup") {
-      NextDnsNetworkClient.api.getProfileSetup(key, profileId)
+      apiService.getProfileSetup(key, profileId)
     } ?: return false
     if (!setupResp.isSuccessful) return false
     val d = setupResp.body() ?: return false
@@ -720,7 +727,7 @@ class NextDnsRepository(
 
   private suspend fun applySecuritySettingsFromApi(key: String, profileId: String): Boolean {
     val secResp = safeApiCall("applySecuritySettings") {
-      NextDnsNetworkClient.api.getSecurity(key, profileId)
+      apiService.getSecurity(key, profileId)
     } ?: return false
     val body = secResp.body() ?: return false
     if (!secResp.isSuccessful || body.hasApiErrors()) return false
@@ -755,19 +762,19 @@ class NextDnsRepository(
     var allowAffiliatesVal: Boolean? = null
 
     activeBlocklistDtos = fetchAllPages("getProfileBlocklists") { cursor ->
-      NextDnsNetworkClient.api.getProfileBlocklists(
+      apiService.getProfileBlocklists(
         key, profileId, cursor = cursor
       )
     }
 
     activeNativeDtos = fetchAllPages("getProfileNatives") { cursor ->
-      NextDnsNetworkClient.api.getProfileNatives(
+      apiService.getProfileNatives(
         key, profileId, cursor = cursor
       )
     }
 
     val privResp = safeApiCall("getPrivacy") {
-      NextDnsNetworkClient.api.getPrivacy(key, profileId)
+      apiService.getPrivacy(key, profileId)
     }
     val privBody = privResp?.body()
     if (privResp?.isSuccessful == true && privBody.isSemanticallySuccessful()) {
@@ -781,7 +788,7 @@ class NextDnsRepository(
     }
 
     var availableDtos = fetchAllPages("getAvailableBlocklists") { cursor ->
-      NextDnsNetworkClient.api.getAvailableBlocklists(
+      apiService.getAvailableBlocklists(
         apiKey = key,
         cursor = cursor
       )
@@ -907,7 +914,7 @@ class NextDnsRepository(
 
   private suspend fun applyParentalSettingsFromApi(key: String, profileId: String): Boolean {
     val parentResp = safeApiCall("getParentalControl") {
-      NextDnsNetworkClient.api.getParentalControl(key, profileId)
+      apiService.getParentalControl(key, profileId)
     } ?: return false
     val body = parentResp.body() ?: return false
     if (!parentResp.isSuccessful || body.hasApiErrors()) return false
@@ -980,7 +987,7 @@ class NextDnsRepository(
 
   private suspend fun applyDenylistFromApi(key: String, profileId: String): Boolean {
     val items = fetchAllPages("getDenylist") { cursor ->
-      NextDnsNetworkClient.api.getDenylist(
+      apiService.getDenylist(
         key, profileId, cursor = cursor
       )
     } ?: return false
@@ -993,7 +1000,7 @@ class NextDnsRepository(
 
   private suspend fun applyAllowlistFromApi(key: String, profileId: String): Boolean {
     val items = fetchAllPages("getAllowlist") { cursor ->
-      NextDnsNetworkClient.api.getAllowlist(
+      apiService.getAllowlist(
         key, profileId, cursor = cursor
       )
     } ?: return false
@@ -1006,7 +1013,7 @@ class NextDnsRepository(
 
   private suspend fun applyConfigSettingsFromApi(key: String, profileId: String): Boolean {
     val cfgResp = safeApiCall("getSettings") {
-      NextDnsNetworkClient.api.getSettings(key, profileId)
+      apiService.getSettings(key, profileId)
     } ?: return false
     val body = cfgResp.body() ?: return false
     if (!cfgResp.isSuccessful || body.hasApiErrors()) return false
@@ -1038,7 +1045,7 @@ class NextDnsRepository(
 
   private suspend fun applyLogsFromApi(key: String, profileId: String) {
     val logsResp = safeApiCall("getLogs") {
-      NextDnsNetworkClient.api.getLogs(key, profileId, limit = 100, raw = 1)
+      apiService.getLogs(key, profileId, limit = 100, raw = 1)
     } ?: return
     val body = logsResp.body() ?: return
     if (!logsResp.isSuccessful || body.hasApiErrors()) return
@@ -1051,7 +1058,7 @@ class NextDnsRepository(
   }
 
   private suspend fun applyDevicesAnalyticsFromApi(key: String, profileId: String) {
-    val devResp = safeApiCall("getAnalyticsDevices") { NextDnsNetworkClient.api.getAnalyticsDevices(key, profileId) } ?: return
+    val devResp = safeApiCall("getAnalyticsDevices") { apiService.getAnalyticsDevices(key, profileId) } ?: return
     val dtoList = devResp.body()?.data ?: return
     if (!devResp.isSuccessful) return
 
@@ -1157,12 +1164,12 @@ class NextDnsRepository(
     preferences.activeProfileId = profileId
     loadLocalProfileData(profileId)
     val key = _apiKey.value
-    if (key.isNotBlank()) {
+    if (backgroundWorkEnabled && key.isNotBlank()) {
       repoScope.launch {
         loadActiveProfileDataFromApi(key, profileId)
       }
     }
-    repoScope.launch {
+    if (backgroundWorkEnabled) repoScope.launch {
       runDiagnosticTest()
     }
   }
@@ -1174,7 +1181,7 @@ class NextDnsRepository(
     }
 
     val resp = safeApiCall("createProfile") {
-      NextDnsNetworkClient.api.createProfile(key, NameRequest(name = name))
+      apiService.createProfile(key, NameRequest(name = name))
     } ?: return@withContext Result.failure(IllegalStateException(AppStrings.get(R.string.ui_a5fc13d828)))
 
     val body = resp.body()
@@ -1187,7 +1194,7 @@ class NextDnsRepository(
       ?: return@withContext Result.failure(IllegalStateException(AppStrings.get(R.string.ui_51e119f7b9)))
 
     val verified = safeApiCall("getCreatedProfile") {
-      NextDnsNetworkClient.api.getProfile(key, newId)
+      apiService.getProfile(key, newId)
     }
     val verifiedBody = verified?.body()
     val profileDto = if (verified?.isSuccessful == true && verifiedBody.isSemanticallySuccessful()) {
@@ -1224,7 +1231,7 @@ class NextDnsRepository(
     }
 
     val response = safeApiCall("deleteProfile") {
-      NextDnsNetworkClient.api.deleteProfile(key, profileId)
+      apiService.deleteProfile(key, profileId)
     } ?: return@withContext Result.failure(
       IllegalStateException(AppStrings.get(R.string.ui_407ddb5dd2))
     )
@@ -1255,7 +1262,7 @@ class NextDnsRepository(
     }
 
     val response = safeApiCall("renameProfile") {
-      NextDnsNetworkClient.api.renameProfile(
+      apiService.renameProfile(
         key, profileId, NameRequest(name = newName)
       )
     } ?: return@withContext Result.failure(
@@ -1303,7 +1310,7 @@ class NextDnsRepository(
       section = SyncSection.SECURITY,
       operationName = "setSecurityFlag"
     ) { key, pid ->
-      NextDnsNetworkClient.api.updateSecurity(key, pid, request)
+      apiService.updateSecurity(key, pid, request)
     }
   }
 
@@ -1312,7 +1319,7 @@ class NextDnsRepository(
       section = SyncSection.SECURITY,
       operationName = "addBlockedTld"
     ) { key, pid ->
-      NextDnsNetworkClient.api.addSecurityTld(key, pid, IdRequest(id = tld))
+      apiService.addSecurityTld(key, pid, IdRequest(id = tld))
     }
 
   suspend fun removeBlockedTld(tld: String): Result<Unit> =
@@ -1320,7 +1327,7 @@ class NextDnsRepository(
       section = SyncSection.SECURITY,
       operationName = "removeBlockedTld"
     ) { key, pid ->
-      NextDnsNetworkClient.api.removeSecurityTld(key, pid, tld)
+      apiService.removeSecurityTld(key, pid, tld)
     }
 
   // =========================================================================
@@ -1337,7 +1344,7 @@ class NextDnsRepository(
       section = SyncSection.PRIVACY,
       operationName = "setPrivacyFlag"
     ) { key, pid ->
-      NextDnsNetworkClient.api.updatePrivacy(key, pid, request)
+      apiService.updatePrivacy(key, pid, request)
     }
   }
 
@@ -1351,9 +1358,9 @@ class NextDnsRepository(
       operationName = "toggleBlocklist"
     ) { key, pid ->
       if (activate) {
-        NextDnsNetworkClient.api.addBlocklist(key, pid, IdRequest(id = blocklistId))
+        apiService.addBlocklist(key, pid, IdRequest(id = blocklistId))
       } else {
-        NextDnsNetworkClient.api.removeBlocklist(key, pid, blocklistId)
+        apiService.removeBlocklist(key, pid, blocklistId)
       }
     }
   }
@@ -1368,9 +1375,9 @@ class NextDnsRepository(
       operationName = "toggleNativeTracking"
     ) { key, pid ->
       if (activate) {
-        NextDnsNetworkClient.api.addNativeTracking(key, pid, IdRequest(id = nativeId))
+        apiService.addNativeTracking(key, pid, IdRequest(id = nativeId))
       } else {
-        NextDnsNetworkClient.api.removeNativeTracking(key, pid, nativeId)
+        apiService.removeNativeTracking(key, pid, nativeId)
       }
     }
   }
@@ -1390,7 +1397,7 @@ class NextDnsRepository(
       section = SyncSection.PARENTAL,
       operationName = "setParentalFlag"
     ) { key, pid ->
-      NextDnsNetworkClient.api.updateParentalControl(key, pid, request)
+      apiService.updateParentalControl(key, pid, request)
     }
   }
 
@@ -1404,11 +1411,11 @@ class NextDnsRepository(
       operationName = "toggleParentalService"
     ) { key, pid ->
       if (activate) {
-        NextDnsNetworkClient.api.addParentalService(
+        apiService.addParentalService(
           key, pid, ParentalItemRequest(id = serviceId, active = true)
         )
       } else {
-        NextDnsNetworkClient.api.removeParentalService(key, pid, serviceId)
+        apiService.removeParentalService(key, pid, serviceId)
       }
     }
   }
@@ -1423,11 +1430,11 @@ class NextDnsRepository(
       operationName = "toggleParentalCategory"
     ) { key, pid ->
       if (activate) {
-        NextDnsNetworkClient.api.addParentalCategory(
+        apiService.addParentalCategory(
           key, pid, ParentalItemRequest(id = categoryId, active = true)
         )
       } else {
-        NextDnsNetworkClient.api.removeParentalCategory(key, pid, categoryId)
+        apiService.removeParentalCategory(key, pid, categoryId)
       }
     }
   }
@@ -1441,7 +1448,7 @@ class NextDnsRepository(
       section = SyncSection.DENYLIST,
       operationName = "addToDenylist"
     ) { key, pid ->
-      NextDnsNetworkClient.api.addDenylist(
+      apiService.addDenylist(
         key, pid, AllowDenyItemRequest(id = domain, active = true)
       )
     }
@@ -1451,7 +1458,7 @@ class NextDnsRepository(
       section = SyncSection.DENYLIST,
       operationName = "removeFromDenylist"
     ) { key, pid ->
-      NextDnsNetworkClient.api.removeDenylist(key, pid, domain)
+      apiService.removeDenylist(key, pid, domain)
     }
 
   suspend fun toggleDenylistItem(domain: String): Result<Unit> {
@@ -1463,7 +1470,7 @@ class NextDnsRepository(
       section = SyncSection.DENYLIST,
       operationName = "toggleDenylistItem"
     ) { key, pid ->
-      NextDnsNetworkClient.api.toggleDenylist(
+      apiService.toggleDenylist(
         key, pid, target.domain, AllowDenyActiveRequest(active = activate)
       )
     }
@@ -1474,7 +1481,7 @@ class NextDnsRepository(
       section = SyncSection.ALLOWLIST,
       operationName = "addToAllowlist"
     ) { key, pid ->
-      NextDnsNetworkClient.api.addAllowlist(
+      apiService.addAllowlist(
         key, pid, AllowDenyItemRequest(id = domain, active = true)
       )
     }
@@ -1484,7 +1491,7 @@ class NextDnsRepository(
       section = SyncSection.ALLOWLIST,
       operationName = "removeFromAllowlist"
     ) { key, pid ->
-      NextDnsNetworkClient.api.removeAllowlist(key, pid, domain)
+      apiService.removeAllowlist(key, pid, domain)
     }
 
   suspend fun toggleAllowlistItem(domain: String): Result<Unit> {
@@ -1496,7 +1503,7 @@ class NextDnsRepository(
       section = SyncSection.ALLOWLIST,
       operationName = "toggleAllowlistItem"
     ) { key, pid ->
-      NextDnsNetworkClient.api.toggleAllowlist(
+      apiService.toggleAllowlist(
         key, pid, target.domain, AllowDenyActiveRequest(active = activate)
       )
     }
@@ -1511,7 +1518,7 @@ class NextDnsRepository(
       section = SyncSection.SETTINGS,
       operationName = "setLogsEnabled"
     ) { key, pid ->
-      NextDnsNetworkClient.api.updateSettingsLogs(
+      apiService.updateSettingsLogs(
         key, pid, SettingsLogsUpdateRequest(enabled = enabled)
       )
     }
@@ -1521,7 +1528,7 @@ class NextDnsRepository(
       section = SyncSection.SETTINGS,
       operationName = "setLogClientIps"
     ) { key, pid ->
-      NextDnsNetworkClient.api.updateSettingsLogs(
+      apiService.updateSettingsLogs(
         key, pid, SettingsLogsUpdateRequest(
           drop = SettingsLogsDropDto(ip = !enabled)
         )
@@ -1533,7 +1540,7 @@ class NextDnsRepository(
       section = SyncSection.SETTINGS,
       operationName = "setLogDomains"
     ) { key, pid ->
-      NextDnsNetworkClient.api.updateSettingsLogs(
+      apiService.updateSettingsLogs(
         key, pid, SettingsLogsUpdateRequest(
           drop = SettingsLogsDropDto(domain = !enabled)
         )
@@ -1548,7 +1555,7 @@ class NextDnsRepository(
       section = SyncSection.SETTINGS,
       operationName = "setLogRetention"
     ) { key, pid ->
-      NextDnsNetworkClient.api.updateSettingsLogs(
+      apiService.updateSettingsLogs(
         key, pid, SettingsLogsUpdateRequest(retention = seconds)
       )
     }
@@ -1568,7 +1575,7 @@ class NextDnsRepository(
       section = SyncSection.SETTINGS,
       operationName = "setLogStorageLocation"
     ) { key, pid ->
-      NextDnsNetworkClient.api.updateSettingsLogs(
+      apiService.updateSettingsLogs(
         key, pid, SettingsLogsUpdateRequest(location = code)
       )
     }
@@ -1579,7 +1586,7 @@ class NextDnsRepository(
       section = SyncSection.SETTINGS,
       operationName = "setBlockPage"
     ) { key, pid ->
-      NextDnsNetworkClient.api.updateSettingsBlockPage(
+      apiService.updateSettingsBlockPage(
         key, pid, SettingsBlockPageUpdateRequest(enabled = enabled)
       )
     }
@@ -1598,7 +1605,7 @@ class NextDnsRepository(
       section = SyncSection.SETTINGS,
       operationName = "setPerformanceFlag"
     ) { key, pid ->
-      NextDnsNetworkClient.api.updateSettingsPerformance(key, pid, request)
+      apiService.updateSettingsPerformance(key, pid, request)
     }
   }
 
@@ -1607,7 +1614,7 @@ class NextDnsRepository(
       section = SyncSection.SETTINGS,
       operationName = "setWeb3"
     ) { key, pid ->
-      NextDnsNetworkClient.api.updateSettings(
+      apiService.updateSettings(
         key, pid, SettingsUpdateRequest(web3 = enabled)
       )
     }
@@ -1643,7 +1650,7 @@ class NextDnsRepository(
     }
 
     val linkResponse = safeApiCall("getLogsDownloadLink") {
-      NextDnsNetworkClient.api.getLogsDownloadLink(key, pid, redirect = 0)
+      apiService.getLogsDownloadLink(key, pid, redirect = 0)
     } ?: return@withContext Result.failure(
       IllegalStateException(AppStrings.get(R.string.ui_7d6197fbd4))
     )
@@ -1670,7 +1677,7 @@ class NextDnsRepository(
       .build()
 
     return@withContext try {
-      NextDnsNetworkClient.publicDownloadClient.newCall(request).execute().use { response ->
+      downloadClient.newCall(request).execute().use { response ->
         if (!response.isSuccessful) {
           return@use Result.failure(
             IllegalStateException(AppStrings.get(R.string.export_download_http, response.code))
@@ -1705,7 +1712,7 @@ class NextDnsRepository(
     }
 
     val response = safeApiCall("clearLogs") {
-      NextDnsNetworkClient.api.clearLogs(key, pid)
+      apiService.clearLogs(key, pid)
     } ?: return Result.failure(
       IllegalStateException(AppStrings.get(R.string.ui_b5f608bed2))
     )
@@ -1727,7 +1734,7 @@ class NextDnsRepository(
     if (key.isBlank() || pid.isBlank()) return false
 
     val logsResp = safeApiCall("refreshLogsFromApi") {
-      NextDnsNetworkClient.api.getLogs(key, pid, limit = limit, raw = 1)
+      apiService.getLogs(key, pid, limit = limit, raw = 1)
     } ?: return false
 
     val body = logsResp.body() ?: return false
@@ -1796,7 +1803,7 @@ class NextDnsRepository(
 
       if (lastId == null) {
         val seedResp = safeApiCall("seedLogsStream") {
-          NextDnsNetworkClient.api.getLogs(key, pid, limit = 100, raw = 1)
+          apiService.getLogs(key, pid, limit = 100, raw = 1)
         }
         val seedBody = seedResp?.body()
         if (seedResp?.isSuccessful == true && seedBody.isSemanticallySuccessful()) {
@@ -1812,7 +1819,7 @@ class NextDnsRepository(
       while (isActive) {
         try {
           val req = buildLogsStreamRequest(pid, key, lastId)
-          NextDnsNetworkClient.client.newCall(req).execute().use { response ->
+          streamClient.newCall(req).execute().use { response ->
             if (!response.isSuccessful) {
               throw java.io.IOException("Logs stream HTTP ${response.code}")
             }
@@ -2138,77 +2145,77 @@ class NextDnsRepository(
     val toParam = "now"
 
     val statusResp = safeApiCall("getAnalyticsStatus") {
-      NextDnsNetworkClient.api.getAnalyticsStatus(
+      apiService.getAnalyticsStatus(
         key, profileId, devParam, fromParam, to = toParam
       )
     }
     val devicesResp = safeApiCall("getAnalyticsDevices") {
-      NextDnsNetworkClient.api.getAnalyticsDevices(
+      apiService.getAnalyticsDevices(
         key, profileId, null, fromParam, to = toParam, limit = 500
       )
     }
     val allowedDomainsResp = safeApiCall("getAllowedDomains") {
-      NextDnsNetworkClient.api.getAnalyticsDomains(
+      apiService.getAnalyticsDomains(
         key, profileId, devParam, fromParam,
         status = "default", to = toParam, limit = 50
       )
     }
     val blockedDomainsResp = safeApiCall("getBlockedDomains") {
-      NextDnsNetworkClient.api.getAnalyticsDomains(
+      apiService.getAnalyticsDomains(
         key, profileId, devParam, fromParam,
         status = "blocked", to = toParam, limit = 50
       )
     }
     val rootDomainsResp = safeApiCall("getRootDomains") {
-      NextDnsNetworkClient.api.getAnalyticsDomains(
+      apiService.getAnalyticsDomains(
         key, profileId, devParam, fromParam,
         root = true, to = toParam, limit = 50
       )
     }
     val reasonsResp = safeApiCall("getReasons") {
-      NextDnsNetworkClient.api.getAnalyticsReasons(
+      apiService.getAnalyticsReasons(
         key, profileId, devParam, fromParam, to = toParam, limit = 100
       )
     }
     val companiesResp = safeApiCall("getCompanies") {
-      NextDnsNetworkClient.api.getAnalyticsDestinations(
+      apiService.getAnalyticsDestinations(
         key, profileId, devParam, fromParam,
         type = "gafam", to = toParam, limit = 50
       )
     }
     val destinationsResp = safeApiCall("getDestinations") {
-      NextDnsNetworkClient.api.getAnalyticsDestinations(
+      apiService.getAnalyticsDestinations(
         key, profileId, devParam, fromParam,
         type = "countries", to = toParam, limit = 50
       )
     }
     val dnssecResp = safeApiCall("getDnssec") {
-      NextDnsNetworkClient.api.getAnalyticsDnssec(
+      apiService.getAnalyticsDnssec(
         key, profileId, devParam, fromParam, to = toParam
       )
     }
     val encryptionResp = safeApiCall("getEncryption") {
-      NextDnsNetworkClient.api.getAnalyticsEncryption(
+      apiService.getAnalyticsEncryption(
         key, profileId, devParam, fromParam, to = toParam
       )
     }
     val protocolsResp = safeApiCall("getProtocols") {
-      NextDnsNetworkClient.api.getAnalyticsProtocols(
+      apiService.getAnalyticsProtocols(
         key, profileId, devParam, fromParam, to = toParam, limit = 50
       )
     }
     val queryTypesResp = safeApiCall("getQueryTypes") {
-      NextDnsNetworkClient.api.getAnalyticsQueryTypes(
+      apiService.getAnalyticsQueryTypes(
         key, profileId, devParam, fromParam, to = toParam, limit = 50
       )
     }
     val ipVersionsResp = safeApiCall("getIpVersions") {
-      NextDnsNetworkClient.api.getAnalyticsIpVersions(
+      apiService.getAnalyticsIpVersions(
         key, profileId, devParam, fromParam, to = toParam, limit = 10
       )
     }
     val ipsResp = safeApiCall("getIps") {
-      NextDnsNetworkClient.api.getAnalyticsIps(
+      apiService.getAnalyticsIps(
         key, profileId, devParam, fromParam, to = toParam, limit = 50
       )
     }
