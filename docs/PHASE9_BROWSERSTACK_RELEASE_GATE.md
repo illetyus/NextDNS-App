@@ -1,6 +1,6 @@
 # Faz 9 — BrowserStack gerçek cihaz test kapısı (ZORUNLU)
 
-**Karar:** Google Play herkese açık yayınından **önce** BrowserStack üzerinde test yapılmadan release kabul edilmeyecek. Bu dosya Faz 8'de planlandı. 10 Ekim 2026'da imzalı aday ile ilk App Live denemeleri yürütüldü; **tam cihaz kabulü sağlanmadı, Espresso çalıştırılmadı**. Pixel 7 yatay hukuk ekranı hatası `NDNS-011` olarak açıktır. Ayrıntılar: [ilk cihaz sonuçları](BROWSERSTACK_INITIAL_RESULTS_TR_2026-10-10.md) ve [adayla bağlı kayıt](release/browserstack-initial-results-2026-10-10.json).
+**Karar:** Google Play herkese açık yayınından **önce** BrowserStack üzerinde test yapılmadan release kabul edilmeyecek. Bu dosya Faz 8'de planlandı. 10 Ekim 2026'da Espresso ile dört gerçek cihazda hedefli düzeltmeler doğrulandı: `NDNS-011` hukuk ekranı ve `Q-005` bildirim testi kapatıldı. Son koşu **62 başarılı, 0 başarısız, 2 işletim sistemi koşullu atlama** içerir; 40 güvenlik kontrolü bu sayıya dahildir. **B01–B22 tam cihaz kabulü ve yayın hazırlığı tamamlanmadı; hukuki DRAFT statüsü korunur.** Ayrıntılar: [hedefli düzeltme sonuçları](BROWSERSTACK_LEGAL_NOTIFICATION_FIX_RESULTS_TR_2026-10-10.md) ve [adayla bağlı kayıt](release/browserstack-legal-notification-fix-results-2026-10-10.json). [İlk cihaz sonuçları](BROWSERSTACK_INITIAL_RESULTS_TR_2026-10-10.md) tarihsel olarak saklanır.
 
 ## 1. Kullanılacak hatlar
 

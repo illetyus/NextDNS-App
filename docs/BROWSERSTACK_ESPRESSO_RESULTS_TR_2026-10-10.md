@@ -1,5 +1,7 @@
 # BrowserStack Espresso gerçek cihaz sonuçları — 10 Ekim 2026
 
+> Bu rapor önceki koşuların tarihsel kaydıdır. Sonraki [hukuk ekranı ve bildirim düzeltme raporu](BROWSERSTACK_LEGAL_NOTIFICATION_FIX_RESULTS_TR_2026-10-10.md), NDNS-011 ve Q-005 kapanışını, başarısız ara koşuları ve dört cihazda başarılı tekrar testini belgeler. Tam yayın kabulü açık kalır.
+
 Yerel BrowserStack kimlik doğrulaması başarılıdır. İki CI APK çifti dört gerçek Android cihazında yürütülmüş; yerel sunucu ayarı eklendikten sonra aynı yüklemeler yeniden test edilmiştir. Sonuçlar tüm yayın kabulünün tamamlandığını göstermez. DRAFT ve önceki NDNS-011 bulgusu korunmuştur.
 
 | Hat | Cihaz | Android | Geçti | Başarısız | Atlandı | Oturum sonucu |

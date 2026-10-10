@@ -1,0 +1,67 @@
+<?xml version="1.0"?>
+<testsuites>
+  <testsuite name="com.example.ExampleInstrumentedTest" tests="1" failures="0" skipped="0" timedout="0" errors="0" time="0.003" timestamp="2026-10-10 20:19:34 +0000">
+    <properties>
+      <property session_id="05b846097a38f05b128d7cc0a603a8d168fee6ab"/>
+      <property devicename="Samsung Galaxy Tab S8"/>
+      <property os="Android"/>
+      <property version="12"/>
+    </properties>
+    <testcase name="useAppContext" classname="com.example.ExampleInstrumentedTest" result="passed" test_id="05b846097a38f05b128d7cc0a603a8d168fee6ab9a77928d" time="0.003" video_url="https://api.browserstack.com/app-automate/espresso/builds/2046297ec2e91b098b1ba8c9f21aa69ec77eb491/sessions/tests/05b846097a38f05b128d7cc0a603a8d168fee6ab9a77928d/video#t=1,6"/>
+  </testsuite>
+  <testsuite name="com.example.NativeApiFixtureTest" tests="1" failures="0" skipped="0" timedout="0" errors="0" time="0.405" timestamp="2026-10-10 20:19:47 +0000">
+    <properties>
+      <property session_id="05b846097a38f05b128d7cc0a603a8d168fee6ab"/>
+      <property devicename="Samsung Galaxy Tab S8"/>
+      <property os="Android"/>
+      <property version="12"/>
+    </properties>
+    <testcase name="tlsMutationKeepsPayloadMinimalAndRejectsSemanticErrors" classname="com.example.NativeApiFixtureTest" result="passed" test_id="05b846097a38f05b128d7cc0a603a8d168fee6ab8232503a" time="0.405" video_url="https://api.browserstack.com/app-automate/espresso/builds/2046297ec2e91b098b1ba8c9f21aa69ec77eb491/sessions/tests/05b846097a38f05b128d7cc0a603a8d168fee6ab8232503a/video#t=14,19"/>
+  </testsuite>
+  <testsuite name="com.example.NativeLoginNavigationTest" tests="1" failures="0" skipped="0" timedout="0" errors="0" time="2.408" timestamp="2026-10-10 20:19:59 +0000">
+    <properties>
+      <property session_id="05b846097a38f05b128d7cc0a603a8d168fee6ab"/>
+      <property devicename="Samsung Galaxy Tab S8"/>
+      <property os="Android"/>
+      <property version="12"/>
+    </properties>
+    <testcase name="freshInstallRequiresExplicitTermsBeforeGuestNavigation" classname="com.example.NativeLoginNavigationTest" result="passed" test_id="05b846097a38f05b128d7cc0a603a8d168fee6abb49474cd" time="2.408" video_url="https://api.browserstack.com/app-automate/espresso/builds/2046297ec2e91b098b1ba8c9f21aa69ec77eb491/sessions/tests/05b846097a38f05b128d7cc0a603a8d168fee6abb49474cd/video#t=26,34"/>
+  </testsuite>
+  <testsuite name="com.example.NativeLegalViewportTest" tests="1" failures="0" skipped="0" timedout="0" errors="0" time="9.413" timestamp="2026-10-10 20:20:14 +0000">
+    <properties>
+      <property session_id="05b846097a38f05b128d7cc0a603a8d168fee6ab"/>
+      <property devicename="Samsung Galaxy Tab S8"/>
+      <property os="Android"/>
+      <property version="12"/>
+    </properties>
+    <testcase name="fiveLanguagesAtLargeFontRemainReadableAcrossPortraitAndLandscape" classname="com.example.NativeLegalViewportTest" result="passed" test_id="05b846097a38f05b128d7cc0a603a8d168fee6ab3c7d584e" time="9.413" video_url="https://api.browserstack.com/app-automate/espresso/builds/2046297ec2e91b098b1ba8c9f21aa69ec77eb491/sessions/tests/05b846097a38f05b128d7cc0a603a8d168fee6ab3c7d584e/video#t=41,56"/>
+  </testsuite>
+  <testsuite name="com.example.NativeNotificationPermissionTest" tests="2" failures="0" skipped="1" timedout="0" errors="0" time="13.008" timestamp="2026-10-10 20:20:36 +0000">
+    <properties>
+      <property session_id="05b846097a38f05b128d7cc0a603a8d168fee6ab"/>
+      <property devicename="Samsung Galaxy Tab S8"/>
+      <property os="Android"/>
+      <property version="12"/>
+    </properties>
+    <testcase name="grantedPermissionPostsPrivateNotificationsWithGenericPublicVersions" classname="com.example.NativeNotificationPermissionTest" result="passed" test_id="05b846097a38f05b128d7cc0a603a8d168fee6aba820dc50" time="0.033" video_url="https://api.browserstack.com/app-automate/espresso/builds/2046297ec2e91b098b1ba8c9f21aa69ec77eb491/sessions/tests/05b846097a38f05b128d7cc0a603a8d168fee6aba820dc50/video#t=63,68"/>
+    <testcase name="android13PermissionDenialPreventsPrivateNotifications" classname="com.example.NativeNotificationPermissionTest" result="skipped" test_id="05b846097a38f05b128d7cc0a603a8d168fee6ab0682bff7" time="0.008" video_url="https://api.browserstack.com/app-automate/espresso/builds/2046297ec2e91b098b1ba8c9f21aa69ec77eb491/sessions/tests/05b846097a38f05b128d7cc0a603a8d168fee6ab0682bff7/video#t=76,81"/>
+  </testsuite>
+  <testsuite name="com.example.ReleaseSecurityRuntimeTest" tests="10" failures="0" skipped="0" timedout="0" errors="0" time="113.041" timestamp="2026-10-10 20:21:01 +0000">
+    <properties>
+      <property session_id="05b846097a38f05b128d7cc0a603a8d168fee6ab"/>
+      <property devicename="Samsung Galaxy Tab S8"/>
+      <property os="Android"/>
+      <property version="12"/>
+    </properties>
+    <testcase name="publicExportContainsNoCredentialAndCannotDowngradeToHttp" classname="com.example.ReleaseSecurityRuntimeTest" result="passed" test_id="05b846097a38f05b128d7cc0a603a8d168fee6abf7956b08" time="0.068" video_url="https://api.browserstack.com/app-automate/espresso/builds/2046297ec2e91b098b1ba8c9f21aa69ec77eb491/sessions/tests/05b846097a38f05b128d7cc0a603a8d168fee6abf7956b08/video#t=88,93"/>
+    <testcase name="backupAndTransferRulesExcludeCredentials" classname="com.example.ReleaseSecurityRuntimeTest" result="passed" test_id="05b846097a38f05b128d7cc0a603a8d168fee6ab3a05188a" time="0.006" video_url="https://api.browserstack.com/app-automate/espresso/builds/2046297ec2e91b098b1ba8c9f21aa69ec77eb491/sessions/tests/05b846097a38f05b128d7cc0a603a8d168fee6ab3a05188a/video#t=101,106"/>
+    <testcase name="releaseIsNotDebuggableAndNetworkLoggingIsDisabled" classname="com.example.ReleaseSecurityRuntimeTest" result="passed" test_id="05b846097a38f05b128d7cc0a603a8d168fee6ab41e884a5" time="0.011" video_url="https://api.browserstack.com/app-automate/espresso/builds/2046297ec2e91b098b1ba8c9f21aa69ec77eb491/sessions/tests/05b846097a38f05b128d7cc0a603a8d168fee6ab41e884a5/video#t=113,119"/>
+    <testcase name="bundledLicensesAreReadableWithoutAcceptingTerms" classname="com.example.ReleaseSecurityRuntimeTest" result="passed" test_id="05b846097a38f05b128d7cc0a603a8d168fee6abe81ab0f2" time="0.009" video_url="https://api.browserstack.com/app-automate/espresso/builds/2046297ec2e91b098b1ba8c9f21aa69ec77eb491/sessions/tests/05b846097a38f05b128d7cc0a603a8d168fee6abe81ab0f2/video#t=126,131"/>
+    <testcase name="cleartextTransportIsRejectedBeforeSendingCredentials" classname="com.example.ReleaseSecurityRuntimeTest" result="passed" test_id="05b846097a38f05b128d7cc0a603a8d168fee6ab62ff04e4" time="0.018" video_url="https://api.browserstack.com/app-automate/espresso/builds/2046297ec2e91b098b1ba8c9f21aa69ec77eb491/sessions/tests/05b846097a38f05b128d7cc0a603a8d168fee6ab62ff04e4/video#t=138,143"/>
+    <testcase name="legacyKeyMigratesAndAccountClearRemovesItsData" classname="com.example.ReleaseSecurityRuntimeTest" result="passed" test_id="05b846097a38f05b128d7cc0a603a8d168fee6ab9649cb22" time="0.086" video_url="https://api.browserstack.com/app-automate/espresso/builds/2046297ec2e91b098b1ba8c9f21aa69ec77eb491/sessions/tests/05b846097a38f05b128d7cc0a603a8d168fee6ab9649cb22/video#t=150,155"/>
+    <testcase name="allFiveLegalDocumentsStillHaveValidDraftHashes" classname="com.example.ReleaseSecurityRuntimeTest" result="passed" test_id="05b846097a38f05b128d7cc0a603a8d168fee6ab3403b7f2" time="0.017" video_url="https://api.browserstack.com/app-automate/espresso/builds/2046297ec2e91b098b1ba8c9f21aa69ec77eb491/sessions/tests/05b846097a38f05b128d7cc0a603a8d168fee6ab3403b7f2/video#t=163,168"/>
+    <testcase name="credentialedTlsRedirectNeverReachesAnotherHost" classname="com.example.ReleaseSecurityRuntimeTest" result="passed" test_id="05b846097a38f05b128d7cc0a603a8d168fee6ab9f20dc70" time="0.087" video_url="https://api.browserstack.com/app-automate/espresso/builds/2046297ec2e91b098b1ba8c9f21aa69ec77eb491/sessions/tests/05b846097a38f05b128d7cc0a603a8d168fee6ab9f20dc70/video#t=176,181"/>
+    <testcase name="defaultTrustRejectsUntrustedServerCertificate" classname="com.example.ReleaseSecurityRuntimeTest" result="passed" test_id="05b846097a38f05b128d7cc0a603a8d168fee6abf144c41d" time="0.049" video_url="https://api.browserstack.com/app-automate/espresso/builds/2046297ec2e91b098b1ba8c9f21aa69ec77eb491/sessions/tests/05b846097a38f05b128d7cc0a603a8d168fee6abf144c41d/video#t=188,193"/>
+    <testcase name="keystoreEncryptionPersistsNoPlaintextAndRejectsTampering" classname="com.example.ReleaseSecurityRuntimeTest" result="passed" test_id="05b846097a38f05b128d7cc0a603a8d168fee6abbbf990a4" time="0.041" video_url="https://api.browserstack.com/app-automate/espresso/builds/2046297ec2e91b098b1ba8c9f21aa69ec77eb491/sessions/tests/05b846097a38f05b128d7cc0a603a8d168fee6abbbf990a4/video#t=201,206"/>
+  </testsuite>
+</testsuites>

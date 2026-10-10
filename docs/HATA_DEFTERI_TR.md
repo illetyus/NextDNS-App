@@ -4,7 +4,7 @@
 
 **10 kod kusuru düzeltildi ve JVM regresyonuyla doğrulandı; cihaz kabulü bekliyor.** İlk inceleme öncelikleri 3 P1, 7 P2 olarak korunur. [Düzeltme raporu](CODE_QUALITY_FIXES_TR_2026-10-10.md) ve [saklanan kanıt](release/code-quality-fix-evidence-2026-10-10.json) güncel durumu gösterir. Ayrıca 3 kalite/süreç gözlemi vardır. Bu incelemede P0 düzeyinde bir kusur için kanıt elde edilmemiştir; bu ifade kusursuzluk veya tam güvenlik garantisi değildir.
 
-`SOURCE_CONFIRMED` kaynak kodda koşullu hata akışının doğrulandığını belirtir. Buradaki tekrar üretim senaryoları henüz Android/BrowserStack üzerinde çalıştırılmış sonuç değildir. B01–B22 kayıtları **22 NOT_RUN** olarak kalır. [İnceleme raporu](CODE_QUALITY_REVIEW_TR_2026-10-10.md) yöntem ve kapsam sınırını açıklar.
+`SOURCE_CONFIRMED` kaynak kodda koşullu hata akışının doğrulandığını belirtir. NDNS-001–010 kendi cihaz kapanış senaryolarını bekler. Sonraki NDNS-011 ve Q-005–007 hedefli gerçek cihaz tekrarlarıyla kapatılmıştır. B01–B22 bütün olarak tamamlanmamıştır; güncel `PARTIAL`/`NOT_RUN` durumları [yayın hazırlığı kaydında](release/readiness.json) izlenir. [İnceleme raporu](CODE_QUALITY_REVIEW_TR_2026-10-10.md) ilk incelemenin yöntem ve kapsam sınırını açıklar.
 
 P1, son kabul aşamasından önce düzeltilmesi gereken yüksek öncelik; P2, belirli akışlarda yanlış davranış/çökme/erişilebilirlik veya kaynak yönetimi kusuru; P3, bakım önerisi anlamındadır. Bir hata, düzeltme commit’i ve saklanan regresyon/tekrar test kanıtı olmadan kapatılmaz.
 
@@ -20,6 +20,7 @@ P1, son kabul aşamasından önce düzeltilmesi gereken yüksek öncelik; P2, be
 | NDNS-008 | P2 | Senkronizasyon bayrakları iptal ve eşzamanlı güncellemede tutarsızlaşabilir | KOD DÜZELTİLDİ; JVM PASS; cihaz bekliyor | B05, B08, B16 |
 | NDNS-009 | P2 | Günlük cihaz menüsünde Tüm cihazlar etiketi çevrilmiyor | KOD DÜZELTİLDİ; JVM PASS; cihaz bekliyor | B12, B17 |
 | NDNS-010 | P2 | Bozuk export URL veya çıktı açma hatası kontrolsüz istisna oluşturabilir | KOD DÜZELTİLDİ; JVM PASS; cihaz bekliyor | B07, B16, B19 |
+| NDNS-011 | P2 | Kısa yatay hukuk ekranında belge alanı ve devam kontrolü erişilemiyor | DÜZELTİLDİ; JVM VE HEDEFLİ CİHAZ PASS | B11, B18, B20 |
 
 ## Kod kusurları
 
@@ -183,6 +184,12 @@ P1, son kabul aşamasından önce düzeltilmesi gereken yüksek öncelik; P2, be
 
 **Cihaz tekrar testi:** B07, B16, B19.
 
+### NDNS-011 — P2: Kısa yatay hukuk ekranında belge alanı ve devam kontrolü erişilemiyor
+
+**Durum:** `FIXED_REAL_DEVICE_RETEST_VERIFIED`. İlk gerçek Pixel 7 gözlemi [ilk cihaz kaydında](release/browserstack-initial-results-2026-10-10.json) korunur. Eski yerleşime eklenen regresyon CI `38080658261` üzerinde **0 dp belge yüksekliği** ile başarısız oldu. Düzeltme commit’i: `20d9143f57133b998fe620a05d0fed26a9b006c7`.
+
+Belge alanının sonlu, en az 160 dp yüksekliği ve dış sayfanın kaydırılması, 2× yazı boyutunda kabul kontrollerini erişilebilir tutar. Beş dilde arayüz/Terms ve mevcut İngilizce Privacy, dikey/yatay döndürme, boş checkbox ve seçim öncesi devre dışı devam düğmesi dört gerçek cihazda başarılıdır. [Commit, APK hash ve yöntem kanıtı](release/browserstack-legal-notification-fix-results-2026-10-10.json). Bu kapanış tam B11/B18/B20 kabulü değildir.
+
 ## Kalite ve süreç gözlemleri
 
 | Kayıt | Öncelik | Gözlem | Durum |
@@ -190,6 +197,18 @@ P1, son kabul aşamasından önce düzeltilmesi gereken yüksek öncelik; P2, be
 | Q-001 | P2 | Repository oturum/mutasyon yollarının hedefli regresyon kanıtı eksik | 37 HEDEFLİ REGRESYON PASS; cihaz bekliyor |
 | Q-002 | P3 | Repository çok sayıda sorumluluğu ve statik API bağımlılığını topluyor | AÇIK |
 | Q-003 | P2 | PR/CI süreci uygulanıyor fakat main sunucu tarafında korunmuyor | AÇIK |
+| Q-004 | P2 | BrowserStack yerel MockWebServer ayarı eksik | ÖNCEKİ CİHAZ TEKRARINDA DÜZELTİLDİ |
+| Q-005 | P2 | Bildirim testi sistem kanal görünürlüğünü uygulama garantisi sayıyor | DÜZELTİLDİ; HEDEFLİ CİHAZ PASS |
+| Q-006 | P2 | Release test APK desugaring API eksikliği ve izin temizleme sırasında süreç sonlanması | DÜZELTİLDİ; HEDEFLİ CİHAZ PASS |
+| Q-007 | P2 | BrowserStack yöntemleri arasında bildirim izin durumu kalıyor | DÜZELTİLDİ; AYNI APK TEKRARI PASS |
+
+**Q-005:** Android kanal görünürlüğünü sistem yönetir. `03ac6dd000363c8ba2b23cf8767e1c140dbb881f` ile yanlış varsayım kaldırıldı; izin reddinde iki bildirim türünün de yayımlanmadığı, izin verildiğinde Android'e ulaşan gerçek bildirimlerin PRIVATE ve genel publicVersion taşıdığı denetlendi. Android 13/16 izin reddi kontrolleri geçti; Android 10/12 sürüm koşulu nedeniyle atlandı. Kullanıcı kanal ayarlarının bütün B09 kapsamı ayrıca açıktır.
+
+**Q-006:** İlk release tekrarındaki dört misafir akışı `j$.time.Instant.parse` test APK uyumsuzluğuyla durdu; iki pozitif izin testi süreç çökmesi bildirdi. `f3c2c465bf4e03678bc5a4c65df05577c07cf5c8` gerçek ISO API/log biçimlendirme kontrolünü test paketinde korur ve pozitif test sonunda süreç öldürebilen izin geri alma işlemini kaldırır. Üretim tarih/protokol kodu değişmedi.
+
+**Q-007:** Sonraki koşuda izin verilmiş yöntemden kalan durum Android 13/16 izin geri alma testini sonlandırdı. `bd2f3806cf5ae208aab67654eed72fe97820bf9f` ile BrowserStack gönderimine `clearPackageData=true` eklendi. Aynı yüklenmiş APK çiftinin tekrarında iki izin yolu bağımsız geçti; assertion atlanmadı. Önceki başarısız koşular ve başarılı son koşu [düzeltme raporunda](BROWSERSTACK_LEGAL_NOTIFICATION_FIX_RESULTS_TR_2026-10-10.md) korunur: toplam 62 PASS, 0 FAIL, 2 OS koşullu atlama; 40 güvenlik kontrolü bu toplam içindedir.
+
+**Güncel regresyon sayacı:** Son aday CI `38082499286` üzerinde 105 JVM testi, 38 zorunlu hedefli regresyon ve 12 ekran görüntüsü başarılıdır. Aşağıdaki Q-001 sayıları önceki düzeltme diliminin tarihsel kanıtıdır.
 
 **Q-001 güncelleme:** 37 gerekli regresyon gerçek XML üzerinden doğrulandı; 104 JVM testi ve 10 native güvenlik testi başarılı. Eksik/atlanmış vaka CI’ı durdurur. [Güncel sayaçlar](CODE_QUALITY_FIXES_TR_2026-10-10.md). **İlk inceleme:** JVM toplam LINE %20.73, BRANCH %10.28; NextDnsRepository sınıfı LINE %7.06. Coroutine/Compose üretilmiş kodu oranları etkiler; API 35 native güvenlik testleri bu JVM raporuna dahil değildir. Kritik bug yolları için mevcut testler başarı kanıtı vermez. Rastgele bir genel yüzde hedefi yerine yukarıdaki kapanış senaryoları gereklidir.
 
@@ -207,7 +226,7 @@ P1, son kabul aşamasından önce düzeltilmesi gereken yüksek öncelik; P2, be
 
 ## Kapatma ve son aşama sırası
 
-İlk iki adım PR #21 düzeltmeleri ve saklanan CI regresyonuyla tamamlandı. Cihaz kapanışı henüz verilmez. Aşağıdaki sıra planın izlenebilir kaydıdır.
+İlk iki adım PR #21 düzeltmeleri ve saklanan CI regresyonuyla tamamlandı. NDNS-011 ve Q-005–007 için hedefli cihaz kapanışı verilmiştir; NDNS-001–010 için kendi kapanış senaryoları beklenir. Aşağıdaki sıra planın izlenebilir kaydıdır.
 
 1. NDNS-001–003 için oturum/profil ayrımı ve bağlantı durumunu düzelt; diğer kayıtları ilgili küçük düzeltme dilimlerine ayır.
 2. Her düzeltmeyi hedefli regresyon, PR ve CI kanıtına bağla; mevcut kaydı koruyarak düzeltme commit’i ve tekrar test adresini ekle.
