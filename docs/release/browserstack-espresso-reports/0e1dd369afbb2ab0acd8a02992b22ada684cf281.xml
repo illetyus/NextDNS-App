@@ -1,0 +1,111 @@
+<?xml version="1.0"?>
+<testsuites>
+  <testsuite name="com.example.ReleaseSecurityRuntimeTest" tests="10" failures="2" skipped="0" timedout="0" errors="0" time="132.039" timestamp="2026-10-10 17:15:47 +0000">
+    <properties>
+      <property session_id="0e1dd369afbb2ab0acd8a02992b22ada684cf281"/>
+      <property devicename="Samsung Galaxy S20"/>
+      <property os="Android"/>
+      <property version="10"/>
+    </properties>
+    <testcase name="publicExportContainsNoCredentialAndCannotDowngradeToHttp" classname="com.example.ReleaseSecurityRuntimeTest" result="failed" test_id="0e1dd369afbb2ab0acd8a02992b22ada684cf281f7956b08" time="0.108" video_url="https://api.browserstack.com/app-automate/espresso/builds/c6b4b56e852174a894e9b7b416b2d9fa76bc1cca/sessions/tests/0e1dd369afbb2ab0acd8a02992b22ada684cf281f7956b08/video#t=5,9">
+      <failure>java.io.IOException: Unexpected response code for CONNECT: 503
+at okhttp3.internal.connection.RealConnection.createTunnel(RealConnection.kt:483)
+at okhttp3.internal.connection.RealConnection.connectTunnel(RealConnection.kt:262)
+at okhttp3.internal.connection.RealConnection.connect(RealConnection.kt:201)
+at okhttp3.internal.connection.ExchangeFinder.findConnection(ExchangeFinder.kt:226)
+at okhttp3.internal.connection.ExchangeFinder.findHealthyConnection(ExchangeFinder.kt:106)
+at okhttp3.internal.connection.ExchangeFinder.find(ExchangeFinder.kt:74)
+at okhttp3.internal.connection.RealCall.initExchange$okhttp(RealCall.kt:255)
+at okhttp3.internal.connection.ConnectInterceptor.intercept(ConnectInterceptor.kt:32)
+at okhttp3.internal.http.RealInterceptorChain.proceed(RealInterceptorChain.kt:109)
+at okhttp3.internal.cache.CacheInterceptor.intercept(CacheInterceptor.kt:95)
+at okhttp3.internal.http.RealInterceptorChain.proceed(RealInterceptorChain.kt:109)
+at okhttp3.internal.http.BridgeInterceptor.intercept(BridgeInterceptor.kt:83)
+at okhttp3.internal.http.RealInterceptorChain.proceed(RealInterceptorChain.kt:109)
+at okhttp3.internal.http.RetryAndFollowUpInterceptor.intercept(RetryAndFollowUpInterceptor.kt:76)
+at okhttp3.internal.http.RealInterceptorChain.proceed(RealInterceptorChain.kt:109)
+at okhttp3.internal.connection.RealCall.getResponseWithInterceptorChain$okhttp(RealCall.kt:201)
+at okhttp3.internal.connection.RealCall.execute(RealCall.kt:154)
+at com.example.ReleaseSecurityRuntimeTest.publicExportContainsNoCredentialAndCannotDowngradeToHttp(ReleaseSecurityRuntimeTest.kt:111)
+java.io.IOException: Unexpected response code for CONNECT: 503
+	at okhttp3.internal.connection.RealConnection.createTunnel(RealConnection.kt:483)
+	at okhttp3.internal.connection.RealConnection.connectTunnel(RealConnection.kt:262)
+	at okhttp3.internal.connection.RealConnection.connect(RealConnection.kt:201)
+	at okhttp3.internal.connection.ExchangeFinder.findConnection(ExchangeFinder.kt:226)
+	at okhttp3.internal.connection.ExchangeFinder.findHealthyConnection(ExchangeFinder.kt:106)
+	at okhttp3.internal.connection.ExchangeFinder.find(ExchangeFinder.kt:74)
+	at okhttp3.internal.connection.RealCall.initExchange$okhttp(RealCall.kt:255)
+	at okhttp3.internal.connection.ConnectInterceptor.intercept(ConnectInterceptor.kt:32)
+	at okhttp3.internal.http.RealInterceptorChain.proceed(RealInterceptorChain.kt:109)
+	at okhttp3.internal.cache.CacheInterceptor.intercept(CacheInterceptor.kt:95)
+	at okhttp3.internal.http.RealInterceptorChain.proceed(RealInterceptorChain.kt:109)
+	at okhttp3.internal.http.BridgeInterceptor.intercept(BridgeInterceptor.kt:83)
+	at okhttp3.internal.http.RealInterceptorChain.proceed(RealInterceptorChain.kt:109)
+	at okhttp3.internal.http.RetryAndFollowUpInterceptor.intercept(RetryAndFollowUpInterceptor.kt:76)
+	at okhttp3.internal.http.RealInterceptorChain.proceed(RealInterceptorChain.kt:109)
+	at okhttp3.internal.connection.RealCall.getResponseWithInterceptorChain$okhttp(RealCall.kt:201)
+	at okhttp3.internal.connection.RealCall.execute(RealCall.kt:154)
+	at com.example.ReleaseSecurityRuntimeTest.publicExportContainsNoCredentialAndCannotDowngradeToHttp(ReleaseSecurityRuntimeTest.kt:111)
+
+</failure>
+    </testcase>
+    <testcase name="backupAndTransferRulesExcludeCredentials" classname="com.example.ReleaseSecurityRuntimeTest" result="passed" test_id="0e1dd369afbb2ab0acd8a02992b22ada684cf2813a05188a" time="0.009" video_url="https://api.browserstack.com/app-automate/espresso/builds/c6b4b56e852174a894e9b7b416b2d9fa76bc1cca/sessions/tests/0e1dd369afbb2ab0acd8a02992b22ada684cf2813a05188a/video#t=20,24"/>
+    <testcase name="releaseIsNotDebuggableAndNetworkLoggingIsDisabled" classname="com.example.ReleaseSecurityRuntimeTest" result="passed" test_id="0e1dd369afbb2ab0acd8a02992b22ada684cf28141e884a5" time="0.038" video_url="https://api.browserstack.com/app-automate/espresso/builds/c6b4b56e852174a894e9b7b416b2d9fa76bc1cca/sessions/tests/0e1dd369afbb2ab0acd8a02992b22ada684cf28141e884a5/video#t=35,39"/>
+    <testcase name="bundledLicensesAreReadableWithoutAcceptingTerms" classname="com.example.ReleaseSecurityRuntimeTest" result="passed" test_id="0e1dd369afbb2ab0acd8a02992b22ada684cf281e81ab0f2" time="0.01" video_url="https://api.browserstack.com/app-automate/espresso/builds/c6b4b56e852174a894e9b7b416b2d9fa76bc1cca/sessions/tests/0e1dd369afbb2ab0acd8a02992b22ada684cf281e81ab0f2/video#t=49,53"/>
+    <testcase name="cleartextTransportIsRejectedBeforeSendingCredentials" classname="com.example.ReleaseSecurityRuntimeTest" result="passed" test_id="0e1dd369afbb2ab0acd8a02992b22ada684cf28162ff04e4" time="0.057" video_url="https://api.browserstack.com/app-automate/espresso/builds/c6b4b56e852174a894e9b7b416b2d9fa76bc1cca/sessions/tests/0e1dd369afbb2ab0acd8a02992b22ada684cf28162ff04e4/video#t=64,68"/>
+    <testcase name="legacyKeyMigratesAndAccountClearRemovesItsData" classname="com.example.ReleaseSecurityRuntimeTest" result="passed" test_id="0e1dd369afbb2ab0acd8a02992b22ada684cf2819649cb22" time="0.085" video_url="https://api.browserstack.com/app-automate/espresso/builds/c6b4b56e852174a894e9b7b416b2d9fa76bc1cca/sessions/tests/0e1dd369afbb2ab0acd8a02992b22ada684cf2819649cb22/video#t=79,82"/>
+    <testcase name="allFiveLegalDocumentsStillHaveValidDraftHashes" classname="com.example.ReleaseSecurityRuntimeTest" result="passed" test_id="0e1dd369afbb2ab0acd8a02992b22ada684cf2813403b7f2" time="0.034" video_url="https://api.browserstack.com/app-automate/espresso/builds/c6b4b56e852174a894e9b7b416b2d9fa76bc1cca/sessions/tests/0e1dd369afbb2ab0acd8a02992b22ada684cf2813403b7f2/video#t=93,97"/>
+    <testcase name="credentialedTlsRedirectNeverReachesAnotherHost" classname="com.example.ReleaseSecurityRuntimeTest" result="failed" test_id="0e1dd369afbb2ab0acd8a02992b22ada684cf2819f20dc70" time="0.1" video_url="https://api.browserstack.com/app-automate/espresso/builds/c6b4b56e852174a894e9b7b416b2d9fa76bc1cca/sessions/tests/0e1dd369afbb2ab0acd8a02992b22ada684cf2819f20dc70/video#t=108,112">
+      <failure>java.io.IOException: Unexpected response code for CONNECT: 503
+at okhttp3.internal.connection.RealConnection.createTunnel(RealConnection.kt:483)
+at okhttp3.internal.connection.RealConnection.connectTunnel(RealConnection.kt:262)
+at okhttp3.internal.connection.RealConnection.connect(RealConnection.kt:201)
+at okhttp3.internal.connection.ExchangeFinder.findConnection(ExchangeFinder.kt:226)
+at okhttp3.internal.connection.ExchangeFinder.findHealthyConnection(ExchangeFinder.kt:106)
+at okhttp3.internal.connection.ExchangeFinder.find(ExchangeFinder.kt:74)
+at okhttp3.internal.connection.RealCall.initExchange$okhttp(RealCall.kt:255)
+at okhttp3.internal.connection.ConnectInterceptor.intercept(ConnectInterceptor.kt:32)
+at okhttp3.internal.http.RealInterceptorChain.proceed(RealInterceptorChain.kt:109)
+at okhttp3.internal.cache.CacheInterceptor.intercept(CacheInterceptor.kt:95)
+at okhttp3.internal.http.RealInterceptorChain.proceed(RealInterceptorChain.kt:109)
+at okhttp3.internal.http.BridgeInterceptor.intercept(BridgeInterceptor.kt:83)
+at okhttp3.internal.http.RealInterceptorChain.proceed(RealInterceptorChain.kt:109)
+at okhttp3.internal.http.RetryAndFollowUpInterceptor.intercept(RetryAndFollowUpInterceptor.kt:76)
+at okhttp3.internal.http.RealInterceptorChain.proceed(RealInterceptorChain.kt:109)
+at okhttp3.logging.HttpLoggingInterceptor.intercept(HttpLoggingInterceptor.kt:154)
+at okhttp3.internal.http.RealInterceptorChain.proceed(RealInterceptorChain.kt:109)
+at com.example.data.api.NextDnsNetworkClient$special$$inlined$-addInterceptor$1.intercept(OkHttpClient.kt:1084)
+at okhttp3.internal.http.RealInterceptorChain.proceed(RealInterceptorChain.kt:109)
+at okhttp3.internal.connection.RealCall.getResponseWithInterceptorChain$okhttp(RealCall.kt:201)
+at okhttp3.internal.connection.RealCall.execute(RealCall.kt:154)
+at com.example.ReleaseSecurityRuntimeTest.credentialedTlsRedirectNeverReachesAnotherHost(ReleaseSecurityRuntimeTest.kt:91)
+java.io.IOException: Unexpected response code for CONNECT: 503
+	at okhttp3.internal.connection.RealConnection.createTunnel(RealConnection.kt:483)
+	at okhttp3.internal.connection.RealConnection.connectTunnel(RealConnection.kt:262)
+	at okhttp3.internal.connection.RealConnection.connect(RealConnection.kt:201)
+	at okhttp3.internal.connection.ExchangeFinder.findConnection(ExchangeFinder.kt:226)
+	at okhttp3.internal.connection.ExchangeFinder.findHealthyConnection(ExchangeFinder.kt:106)
+	at okhttp3.internal.connection.ExchangeFinder.find(ExchangeFinder.kt:74)
+	at okhttp3.internal.connection.RealCall.initExchange$okhttp(RealCall.kt:255)
+	at okhttp3.internal.connection.ConnectInterceptor.intercept(ConnectInterceptor.kt:32)
+	at okhttp3.internal.http.RealInterceptorChain.proceed(RealInterceptorChain.kt:109)
+	at okhttp3.internal.cache.CacheInterceptor.intercept(CacheInterceptor.kt:95)
+	at okhttp3.internal.http.RealInterceptorChain.proceed(RealInterceptorChain.kt:109)
+	at okhttp3.internal.http.BridgeInterceptor.intercept(BridgeInterceptor.kt:83)
+	at okhttp3.internal.http.RealInterceptorChain.proceed(RealInterceptorChain.kt:109)
+	at okhttp3.internal.http.RetryAndFollowUpInterceptor.intercept(RetryAndFollowUpInterceptor.kt:76)
+	at okhttp3.internal.http.RealInterceptorChain.proceed(RealInterceptorChain.kt:109)
+	at okhttp3.logging.HttpLoggingInterceptor.intercept(HttpLoggingInterceptor.kt:154)
+	at okhttp3.internal.http.RealInterceptorChain.proceed(RealInterceptorChain.kt:109)
+	at com.example.data.api.NextDnsNetworkClient$special$$inlined$-addInterceptor$1.intercept(OkHttpClient.kt:1084)
+	at okhttp3.internal.http.RealInterceptorChain.proceed(RealInterceptorChain.kt:109)
+	at okhttp3.internal.connection.RealCall.getResponseWithInterceptorChain$okhttp(RealCall.kt:201)
+	at okhttp3.internal.connection.RealCall.execute(RealCall.kt:154)
+	at com.example.ReleaseSecurityRuntimeTest.credentialedTlsRedirectNeverReachesAnotherHost(ReleaseSecurityRuntimeTest.kt:91)
+
+</failure>
+    </testcase>
+    <testcase name="defaultTrustRejectsUntrustedServerCertificate" classname="com.example.ReleaseSecurityRuntimeTest" result="passed" test_id="0e1dd369afbb2ab0acd8a02992b22ada684cf281f144c41d" time="0.092" video_url="https://api.browserstack.com/app-automate/espresso/builds/c6b4b56e852174a894e9b7b416b2d9fa76bc1cca/sessions/tests/0e1dd369afbb2ab0acd8a02992b22ada684cf281f144c41d/video#t=122,126"/>
+    <testcase name="keystoreEncryptionPersistsNoPlaintextAndRejectsTampering" classname="com.example.ReleaseSecurityRuntimeTest" result="passed" test_id="0e1dd369afbb2ab0acd8a02992b22ada684cf281bbf990a4" time="0.039" video_url="https://api.browserstack.com/app-automate/espresso/builds/c6b4b56e852174a894e9b7b416b2d9fa76bc1cca/sessions/tests/0e1dd369afbb2ab0acd8a02992b22ada684cf281bbf990a4/video#t=137,141"/>
+  </testsuite>
+</testsuites>

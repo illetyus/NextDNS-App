@@ -19,7 +19,8 @@
         "id": "B01",
         "status": "PARTIAL",
         "evidence": [
-          "docs/release/browserstack-initial-results-2026-10-10.json"
+          "docs/release/browserstack-initial-results-2026-10-10.json",
+          "docs/release/browserstack-espresso-results-2026-10-10.json"
         ]
       },
       {
@@ -39,8 +40,10 @@
       },
       {
         "id": "B05",
-        "status": "NOT_RUN",
-        "evidence": []
+        "status": "PARTIAL",
+        "evidence": [
+          "docs/release/browserstack-espresso-results-2026-10-10.json"
+        ]
       },
       {
         "id": "B06",
@@ -49,8 +52,10 @@
       },
       {
         "id": "B07",
-        "status": "NOT_RUN",
-        "evidence": []
+        "status": "PARTIAL",
+        "evidence": [
+          "docs/release/browserstack-espresso-results-2026-10-10.json"
+        ]
       },
       {
         "id": "B08",
@@ -59,8 +64,10 @@
       },
       {
         "id": "B09",
-        "status": "NOT_RUN",
-        "evidence": []
+        "status": "FAIL",
+        "evidence": [
+          "docs/release/browserstack-espresso-results-2026-10-10.json"
+        ]
       },
       {
         "id": "B10",
@@ -83,20 +90,25 @@
       },
       {
         "id": "B13",
-        "status": "NOT_RUN",
-        "evidence": []
+        "status": "PARTIAL",
+        "evidence": [
+          "docs/release/browserstack-espresso-results-2026-10-10.json"
+        ]
       },
       {
         "id": "B14",
         "status": "PARTIAL",
         "evidence": [
-          "docs/release/browserstack-initial-results-2026-10-10.json"
+          "docs/release/browserstack-initial-results-2026-10-10.json",
+          "docs/release/browserstack-espresso-results-2026-10-10.json"
         ]
       },
       {
         "id": "B15",
-        "status": "NOT_RUN",
-        "evidence": []
+        "status": "PARTIAL",
+        "evidence": [
+          "docs/release/browserstack-espresso-results-2026-10-10.json"
+        ]
       },
       {
         "id": "B16",
@@ -114,19 +126,23 @@
         "id": "B18",
         "status": "PARTIAL",
         "evidence": [
-          "docs/release/browserstack-initial-results-2026-10-10.json"
+          "docs/release/browserstack-initial-results-2026-10-10.json",
+          "docs/release/browserstack-espresso-results-2026-10-10.json"
         ]
       },
       {
         "id": "B19",
-        "status": "NOT_RUN",
-        "evidence": []
+        "status": "PARTIAL",
+        "evidence": [
+          "docs/release/browserstack-espresso-results-2026-10-10.json"
+        ]
       },
       {
         "id": "B20",
         "status": "PARTIAL",
         "evidence": [
-          "docs/release/browserstack-initial-results-2026-10-10.json"
+          "docs/release/browserstack-initial-results-2026-10-10.json",
+          "docs/release/browserstack-espresso-results-2026-10-10.json"
         ]
       },
       {
@@ -140,7 +156,8 @@
         "evidence": []
       }
     ],
-    "initialAppLiveEvidence": "docs/release/browserstack-initial-results-2026-10-10.json"
+    "initialAppLiveEvidence": "docs/release/browserstack-initial-results-2026-10-10.json",
+    "executedAppAutomateEvidence": "docs/release/browserstack-espresso-results-2026-10-10.json"
   },
   "play": {
     "internalTest": null,

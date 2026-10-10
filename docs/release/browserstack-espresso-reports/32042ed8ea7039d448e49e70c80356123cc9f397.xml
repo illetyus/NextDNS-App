@@ -1,0 +1,39 @@
+<?xml version="1.0"?>
+<testsuites>
+  <testsuite name="com.example.ExampleInstrumentedTest" tests="1" failures="0" skipped="0" timedout="0" errors="0" time="0.007" timestamp="2026-10-10 19:11:52 +0000">
+    <properties>
+      <property session_id="32042ed8ea7039d448e49e70c80356123cc9f397"/>
+      <property devicename="Samsung Galaxy S20"/>
+      <property os="Android"/>
+      <property version="10"/>
+    </properties>
+    <testcase name="useAppContext" classname="com.example.ExampleInstrumentedTest" result="passed" test_id="32042ed8ea7039d448e49e70c80356123cc9f3979a77928d" time="0.007" video_url="https://api.browserstack.com/app-automate/espresso/builds/838621ad17f25fa3755ddf9b70e264c4ff59a410/sessions/tests/32042ed8ea7039d448e49e70c80356123cc9f3979a77928d/video#t=5,9"/>
+  </testsuite>
+  <testsuite name="com.example.NativeApiFixtureTest" tests="1" failures="0" skipped="0" timedout="0" errors="0" time="0.737" timestamp="2026-10-10 19:12:06 +0000">
+    <properties>
+      <property session_id="32042ed8ea7039d448e49e70c80356123cc9f397"/>
+      <property devicename="Samsung Galaxy S20"/>
+      <property os="Android"/>
+      <property version="10"/>
+    </properties>
+    <testcase name="tlsMutationKeepsPayloadMinimalAndRejectsSemanticErrors" classname="com.example.NativeApiFixtureTest" result="passed" test_id="32042ed8ea7039d448e49e70c80356123cc9f3978232503a" time="0.737" video_url="https://api.browserstack.com/app-automate/espresso/builds/838621ad17f25fa3755ddf9b70e264c4ff59a410/sessions/tests/32042ed8ea7039d448e49e70c80356123cc9f3978232503a/video#t=19,24"/>
+  </testsuite>
+  <testsuite name="com.example.NativeLoginNavigationTest" tests="1" failures="0" skipped="0" timedout="0" errors="0" time="2.928" timestamp="2026-10-10 19:12:21 +0000">
+    <properties>
+      <property session_id="32042ed8ea7039d448e49e70c80356123cc9f397"/>
+      <property devicename="Samsung Galaxy S20"/>
+      <property os="Android"/>
+      <property version="10"/>
+    </properties>
+    <testcase name="freshInstallRequiresExplicitTermsBeforeGuestNavigation" classname="com.example.NativeLoginNavigationTest" result="passed" test_id="32042ed8ea7039d448e49e70c80356123cc9f397b49474cd" time="2.928" video_url="https://api.browserstack.com/app-automate/espresso/builds/838621ad17f25fa3755ddf9b70e264c4ff59a410/sessions/tests/32042ed8ea7039d448e49e70c80356123cc9f397b49474cd/video#t=34,41"/>
+  </testsuite>
+  <testsuite name="com.example.NativeNotificationPermissionTest" tests="1" failures="0" skipped="1" timedout="0" errors="0" time="0.011" timestamp="2026-10-10 19:12:39 +0000">
+    <properties>
+      <property session_id="32042ed8ea7039d448e49e70c80356123cc9f397"/>
+      <property devicename="Samsung Galaxy S20"/>
+      <property os="Android"/>
+      <property version="10"/>
+    </properties>
+    <testcase name="android13PermissionDenialPreventsPrivateNotifications" classname="com.example.NativeNotificationPermissionTest" result="skipped" test_id="32042ed8ea7039d448e49e70c80356123cc9f3970682bff7" time="0.011" video_url="https://api.browserstack.com/app-automate/espresso/builds/838621ad17f25fa3755ddf9b70e264c4ff59a410/sessions/tests/32042ed8ea7039d448e49e70c80356123cc9f3970682bff7/video#t=52,55"/>
+  </testsuite>
+</testsuites>

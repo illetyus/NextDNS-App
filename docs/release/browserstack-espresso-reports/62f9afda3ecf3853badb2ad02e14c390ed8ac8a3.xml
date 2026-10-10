@@ -1,0 +1,54 @@
+<?xml version="1.0"?>
+<testsuites>
+  <testsuite name="com.example.ExampleInstrumentedTest" tests="1" failures="0" skipped="0" timedout="0" errors="0" time="0.003" timestamp="2026-10-10 19:11:51 +0000">
+    <properties>
+      <property session_id="62f9afda3ecf3853badb2ad02e14c390ed8ac8a3"/>
+      <property devicename="Samsung Galaxy S26"/>
+      <property os="Android"/>
+      <property version="16"/>
+    </properties>
+    <testcase name="useAppContext" classname="com.example.ExampleInstrumentedTest" result="passed" test_id="62f9afda3ecf3853badb2ad02e14c390ed8ac8a39a77928d" time="0.003" video_url="https://api.browserstack.com/app-automate/espresso/builds/838621ad17f25fa3755ddf9b70e264c4ff59a410/sessions/tests/62f9afda3ecf3853badb2ad02e14c390ed8ac8a39a77928d/video#t=5,7"/>
+  </testsuite>
+  <testsuite name="com.example.NativeApiFixtureTest" tests="1" failures="0" skipped="0" timedout="0" errors="0" time="0.46" timestamp="2026-10-10 19:12:08 +0000">
+    <properties>
+      <property session_id="62f9afda3ecf3853badb2ad02e14c390ed8ac8a3"/>
+      <property devicename="Samsung Galaxy S26"/>
+      <property os="Android"/>
+      <property version="16"/>
+    </properties>
+    <testcase name="tlsMutationKeepsPayloadMinimalAndRejectsSemanticErrors" classname="com.example.NativeApiFixtureTest" result="passed" test_id="62f9afda3ecf3853badb2ad02e14c390ed8ac8a38232503a" time="0.46" video_url="https://api.browserstack.com/app-automate/espresso/builds/838621ad17f25fa3755ddf9b70e264c4ff59a410/sessions/tests/62f9afda3ecf3853badb2ad02e14c390ed8ac8a38232503a/video#t=22,25"/>
+  </testsuite>
+  <testsuite name="com.example.NativeLoginNavigationTest" tests="1" failures="0" skipped="0" timedout="0" errors="0" time="2.169" timestamp="2026-10-10 19:12:25 +0000">
+    <properties>
+      <property session_id="62f9afda3ecf3853badb2ad02e14c390ed8ac8a3"/>
+      <property devicename="Samsung Galaxy S26"/>
+      <property os="Android"/>
+      <property version="16"/>
+    </properties>
+    <testcase name="freshInstallRequiresExplicitTermsBeforeGuestNavigation" classname="com.example.NativeLoginNavigationTest" result="passed" test_id="62f9afda3ecf3853badb2ad02e14c390ed8ac8a3b49474cd" time="2.169" video_url="https://api.browserstack.com/app-automate/espresso/builds/838621ad17f25fa3755ddf9b70e264c4ff59a410/sessions/tests/62f9afda3ecf3853badb2ad02e14c390ed8ac8a3b49474cd/video#t=39,44"/>
+  </testsuite>
+  <testsuite name="com.example.NativeNotificationPermissionTest" tests="1" failures="1" skipped="0" timedout="0" errors="0" time="0.015" timestamp="2026-10-10 19:12:43 +0000">
+    <properties>
+      <property session_id="62f9afda3ecf3853badb2ad02e14c390ed8ac8a3"/>
+      <property devicename="Samsung Galaxy S26"/>
+      <property os="Android"/>
+      <property version="16"/>
+    </properties>
+    <testcase name="android13PermissionDenialPreventsPrivateNotifications" classname="com.example.NativeNotificationPermissionTest" result="failed" test_id="62f9afda3ecf3853badb2ad02e14c390ed8ac8a30682bff7" time="0.015" video_url="https://api.browserstack.com/app-automate/espresso/builds/838621ad17f25fa3755ddf9b70e264c4ff59a410/sessions/tests/62f9afda3ecf3853badb2ad02e14c390ed8ac8a30682bff7/video#t=57,59">
+      <failure>java.lang.AssertionError: expected:&lt;0&gt; but was:&lt;-1000&gt;
+at org.junit.Assert.fail(Assert.java:89)
+at org.junit.Assert.failNotEquals(Assert.java:835)
+at org.junit.Assert.assertEquals(Assert.java:120)
+at org.junit.Assert.assertEquals(Assert.java:146)
+at com.example.NativeNotificationPermissionTest.android13PermissionDenialPreventsPrivateNotifications(NativeNotificationPermissionTest.kt:25)
+java.lang.AssertionError: expected:&lt;0&gt; but was:&lt;-1000&gt;
+	at org.junit.Assert.fail(Assert.java:89)
+	at org.junit.Assert.failNotEquals(Assert.java:835)
+	at org.junit.Assert.assertEquals(Assert.java:120)
+	at org.junit.Assert.assertEquals(Assert.java:146)
+	at com.example.NativeNotificationPermissionTest.android13PermissionDenialPreventsPrivateNotifications(NativeNotificationPermissionTest.kt:25)
+
+</failure>
+    </testcase>
+  </testsuite>
+</testsuites>

@@ -1,0 +1,110 @@
+<?xml version="1.0"?>
+<testsuites>
+  <testsuite name="com.example.ExampleInstrumentedTest" tests="1" failures="0" skipped="0" timedout="0" errors="0" time="0.005" timestamp="2026-10-10 17:12:57 +0000">
+    <properties>
+      <property session_id="b162a764379e24fc7e0b64e5da0520c2b174ae2f"/>
+      <property devicename="Samsung Galaxy Tab S8"/>
+      <property os="Android"/>
+      <property version="12"/>
+    </properties>
+    <testcase name="useAppContext" classname="com.example.ExampleInstrumentedTest" result="passed" test_id="b162a764379e24fc7e0b64e5da0520c2b174ae2f9a77928d" time="0.005" video_url="https://api.browserstack.com/app-automate/espresso/builds/790ada7432ea56b1e9ec6deaf811313ccc19a4ef/sessions/tests/b162a764379e24fc7e0b64e5da0520c2b174ae2f9a77928d/video#t=1,7"/>
+  </testsuite>
+  <testsuite name="com.example.NativeApiFixtureTest" tests="1" failures="1" skipped="0" timedout="0" errors="0" time="0.373" timestamp="2026-10-10 17:13:11 +0000">
+    <properties>
+      <property session_id="b162a764379e24fc7e0b64e5da0520c2b174ae2f"/>
+      <property devicename="Samsung Galaxy Tab S8"/>
+      <property os="Android"/>
+      <property version="12"/>
+    </properties>
+    <testcase name="tlsMutationKeepsPayloadMinimalAndRejectsSemanticErrors" classname="com.example.NativeApiFixtureTest" result="failed" test_id="b162a764379e24fc7e0b64e5da0520c2b174ae2f8232503a" time="0.373" video_url="https://api.browserstack.com/app-automate/espresso/builds/790ada7432ea56b1e9ec6deaf811313ccc19a4ef/sessions/tests/b162a764379e24fc7e0b64e5da0520c2b174ae2f8232503a/video#t=15,21">
+      <failure>java.io.IOException: Unexpected response code for CONNECT: 503
+at okhttp3.internal.connection.RealConnection.createTunnel(RealConnection.kt:483)
+at okhttp3.internal.connection.RealConnection.connectTunnel(RealConnection.kt:262)
+at okhttp3.internal.connection.RealConnection.connect(RealConnection.kt:201)
+at okhttp3.internal.connection.ExchangeFinder.findConnection(ExchangeFinder.kt:226)
+at okhttp3.internal.connection.ExchangeFinder.findHealthyConnection(ExchangeFinder.kt:106)
+at okhttp3.internal.connection.ExchangeFinder.find(ExchangeFinder.kt:74)
+at okhttp3.internal.connection.RealCall.initExchange$okhttp(RealCall.kt:255)
+at okhttp3.internal.connection.ConnectInterceptor.intercept(ConnectInterceptor.kt:32)
+at okhttp3.internal.http.RealInterceptorChain.proceed(RealInterceptorChain.kt:109)
+at okhttp3.internal.cache.CacheInterceptor.intercept(CacheInterceptor.kt:95)
+at okhttp3.internal.http.RealInterceptorChain.proceed(RealInterceptorChain.kt:109)
+at okhttp3.internal.http.BridgeInterceptor.intercept(BridgeInterceptor.kt:83)
+at okhttp3.internal.http.RealInterceptorChain.proceed(RealInterceptorChain.kt:109)
+at okhttp3.internal.http.RetryAndFollowUpInterceptor.intercept(RetryAndFollowUpInterceptor.kt:76)
+at okhttp3.internal.http.RealInterceptorChain.proceed(RealInterceptorChain.kt:109)
+at okhttp3.logging.HttpLoggingInterceptor.intercept(HttpLoggingInterceptor.kt:221)
+at okhttp3.internal.http.RealInterceptorChain.proceed(RealInterceptorChain.kt:109)
+at com.example.data.api.NextDnsNetworkClient$special$$inlined$-addInterceptor$1.intercept(OkHttpClient.kt:1084)
+at okhttp3.internal.http.RealInterceptorChain.proceed(RealInterceptorChain.kt:109)
+at okhttp3.internal.connection.RealCall.getResponseWithInterceptorChain$okhttp(RealCall.kt:201)
+at okhttp3.internal.connection.RealCall$AsyncCall.run(RealCall.kt:517)
+at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1167)
+at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:641)
+at java.lang.Thread.run(Thread.java:920)
+java.io.IOException: Unexpected response code for CONNECT: 503
+	at okhttp3.internal.connection.RealConnection.createTunnel(RealConnection.kt:483)
+	at okhttp3.internal.connection.RealConnection.connectTunnel(RealConnection.kt:262)
+	at okhttp3.internal.connection.RealConnection.connect(RealConnection.kt:201)
+	at okhttp3.internal.connection.ExchangeFinder.findConnection(ExchangeFinder.kt:226)
+	at okhttp3.internal.connection.ExchangeFinder.findHealthyConnection(ExchangeFinder.kt:106)
+	at okhttp3.internal.connection.ExchangeFinder.find(ExchangeFinder.kt:74)
+	at okhttp3.internal.connection.RealCall.initExchange$okhttp(RealCall.kt:255)
+	at okhttp3.internal.connection.ConnectInterceptor.intercept(ConnectInterceptor.kt:32)
+	at okhttp3.internal.http.RealInterceptorChain.proceed(RealInterceptorChain.kt:109)
+	at okhttp3.internal.cache.CacheInterceptor.intercept(CacheInterceptor.kt:95)
+	at okhttp3.internal.http.RealInterceptorChain.proceed(RealInterceptorChain.kt:109)
+	at okhttp3.internal.http.BridgeInterceptor.intercept(BridgeInterceptor.kt:83)
+	at okhttp3.internal.http.RealInterceptorChain.proceed(RealInterceptorChain.kt:109)
+	at okhttp3.internal.http.RetryAndFollowUpInterceptor.intercept(RetryAndFollowUpInterceptor.kt:76)
+	at okhttp3.internal.http.RealInterceptorChain.proceed(RealInterceptorChain.kt:109)
+	at okhttp3.logging.HttpLoggingInterceptor.intercept(HttpLoggingInterceptor.kt:221)
+	at okhttp3.internal.http.RealInterceptorChain.proceed(RealInterceptorChain.kt:109)
+	at com.example.data.api.NextDnsNetworkClient$special$$inlined$-addInterceptor$1.intercept(OkHttpClient.kt:1084)
+	at okhttp3.internal.http.RealInterceptorChain.proceed(RealInterceptorChain.kt:109)
+	at okhttp3.internal.connection.RealCall.getResponseWithInterceptorChain$okhttp(RealCall.kt:201)
+	at okhttp3.internal.connection.RealCall$AsyncCall.run(RealCall.kt:517)
+	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1167)
+	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:641)
+	at java.lang.Thread.run(Thread.java:920)
+
+</failure>
+    </testcase>
+  </testsuite>
+  <testsuite name="com.example.NativeLoginNavigationTest" tests="1" failures="0" skipped="0" timedout="0" errors="0" time="2.819" timestamp="2026-10-10 17:13:25 +0000">
+    <properties>
+      <property session_id="b162a764379e24fc7e0b64e5da0520c2b174ae2f"/>
+      <property devicename="Samsung Galaxy Tab S8"/>
+      <property os="Android"/>
+      <property version="12"/>
+    </properties>
+    <testcase name="freshInstallRequiresExplicitTermsBeforeGuestNavigation" classname="com.example.NativeLoginNavigationTest" result="passed" test_id="b162a764379e24fc7e0b64e5da0520c2b174ae2fb49474cd" time="2.819" video_url="https://api.browserstack.com/app-automate/espresso/builds/790ada7432ea56b1e9ec6deaf811313ccc19a4ef/sessions/tests/b162a764379e24fc7e0b64e5da0520c2b174ae2fb49474cd/video#t=29,38"/>
+  </testsuite>
+  <testsuite name="com.example.NativeNotificationPermissionTest" tests="1" failures="0" skipped="1" timedout="0" errors="0" time="0.016" timestamp="2026-10-10 17:13:41 +0000">
+    <properties>
+      <property session_id="b162a764379e24fc7e0b64e5da0520c2b174ae2f"/>
+      <property devicename="Samsung Galaxy Tab S8"/>
+      <property os="Android"/>
+      <property version="12"/>
+    </properties>
+    <testcase name="android13PermissionDenialPreventsPrivateNotifications" classname="com.example.NativeNotificationPermissionTest" result="skipped" test_id="b162a764379e24fc7e0b64e5da0520c2b174ae2f0682bff7" time="0.016" video_url="https://api.browserstack.com/app-automate/espresso/builds/790ada7432ea56b1e9ec6deaf811313ccc19a4ef/sessions/tests/b162a764379e24fc7e0b64e5da0520c2b174ae2f0682bff7/video#t=45,51"/>
+  </testsuite>
+  <testsuite name="com.example.ReleaseSecurityRuntimeTest" tests="10" failures="0" skipped="10" timedout="0" errors="0" time="121.014" timestamp="2026-10-10 17:13:54 +0000">
+    <properties>
+      <property session_id="b162a764379e24fc7e0b64e5da0520c2b174ae2f"/>
+      <property devicename="Samsung Galaxy Tab S8"/>
+      <property os="Android"/>
+      <property version="12"/>
+    </properties>
+    <testcase name="publicExportContainsNoCredentialAndCannotDowngradeToHttp" classname="com.example.ReleaseSecurityRuntimeTest" result="skipped" test_id="b162a764379e24fc7e0b64e5da0520c2b174ae2ff7956b08" time="0.012" video_url="https://api.browserstack.com/app-automate/espresso/builds/790ada7432ea56b1e9ec6deaf811313ccc19a4ef/sessions/tests/b162a764379e24fc7e0b64e5da0520c2b174ae2ff7956b08/video#t=58,64"/>
+    <testcase name="backupAndTransferRulesExcludeCredentials" classname="com.example.ReleaseSecurityRuntimeTest" result="skipped" test_id="b162a764379e24fc7e0b64e5da0520c2b174ae2f3a05188a" time="0.014" video_url="https://api.browserstack.com/app-automate/espresso/builds/790ada7432ea56b1e9ec6deaf811313ccc19a4ef/sessions/tests/b162a764379e24fc7e0b64e5da0520c2b174ae2f3a05188a/video#t=72,78"/>
+    <testcase name="releaseIsNotDebuggableAndNetworkLoggingIsDisabled" classname="com.example.ReleaseSecurityRuntimeTest" result="skipped" test_id="b162a764379e24fc7e0b64e5da0520c2b174ae2f41e884a5" time="0.016" video_url="https://api.browserstack.com/app-automate/espresso/builds/790ada7432ea56b1e9ec6deaf811313ccc19a4ef/sessions/tests/b162a764379e24fc7e0b64e5da0520c2b174ae2f41e884a5/video#t=86,92"/>
+    <testcase name="bundledLicensesAreReadableWithoutAcceptingTerms" classname="com.example.ReleaseSecurityRuntimeTest" result="skipped" test_id="b162a764379e24fc7e0b64e5da0520c2b174ae2fe81ab0f2" time="0.014" video_url="https://api.browserstack.com/app-automate/espresso/builds/790ada7432ea56b1e9ec6deaf811313ccc19a4ef/sessions/tests/b162a764379e24fc7e0b64e5da0520c2b174ae2fe81ab0f2/video#t=99,105"/>
+    <testcase name="cleartextTransportIsRejectedBeforeSendingCredentials" classname="com.example.ReleaseSecurityRuntimeTest" result="skipped" test_id="b162a764379e24fc7e0b64e5da0520c2b174ae2f62ff04e4" time="0.011" video_url="https://api.browserstack.com/app-automate/espresso/builds/790ada7432ea56b1e9ec6deaf811313ccc19a4ef/sessions/tests/b162a764379e24fc7e0b64e5da0520c2b174ae2f62ff04e4/video#t=112,118"/>
+    <testcase name="legacyKeyMigratesAndAccountClearRemovesItsData" classname="com.example.ReleaseSecurityRuntimeTest" result="skipped" test_id="b162a764379e24fc7e0b64e5da0520c2b174ae2f9649cb22" time="0.014" video_url="https://api.browserstack.com/app-automate/espresso/builds/790ada7432ea56b1e9ec6deaf811313ccc19a4ef/sessions/tests/b162a764379e24fc7e0b64e5da0520c2b174ae2f9649cb22/video#t=125,131"/>
+    <testcase name="allFiveLegalDocumentsStillHaveValidDraftHashes" classname="com.example.ReleaseSecurityRuntimeTest" result="skipped" test_id="b162a764379e24fc7e0b64e5da0520c2b174ae2f3403b7f2" time="0.014" video_url="https://api.browserstack.com/app-automate/espresso/builds/790ada7432ea56b1e9ec6deaf811313ccc19a4ef/sessions/tests/b162a764379e24fc7e0b64e5da0520c2b174ae2f3403b7f2/video#t=139,145"/>
+    <testcase name="credentialedTlsRedirectNeverReachesAnotherHost" classname="com.example.ReleaseSecurityRuntimeTest" result="skipped" test_id="b162a764379e24fc7e0b64e5da0520c2b174ae2f9f20dc70" time="0.012" video_url="https://api.browserstack.com/app-automate/espresso/builds/790ada7432ea56b1e9ec6deaf811313ccc19a4ef/sessions/tests/b162a764379e24fc7e0b64e5da0520c2b174ae2f9f20dc70/video#t=153,159"/>
+    <testcase name="defaultTrustRejectsUntrustedServerCertificate" classname="com.example.ReleaseSecurityRuntimeTest" result="skipped" test_id="b162a764379e24fc7e0b64e5da0520c2b174ae2ff144c41d" time="0.013" video_url="https://api.browserstack.com/app-automate/espresso/builds/790ada7432ea56b1e9ec6deaf811313ccc19a4ef/sessions/tests/b162a764379e24fc7e0b64e5da0520c2b174ae2ff144c41d/video#t=166,172"/>
+    <testcase name="keystoreEncryptionPersistsNoPlaintextAndRejectsTampering" classname="com.example.ReleaseSecurityRuntimeTest" result="skipped" test_id="b162a764379e24fc7e0b64e5da0520c2b174ae2fbbf990a4" time="0.014" video_url="https://api.browserstack.com/app-automate/espresso/builds/790ada7432ea56b1e9ec6deaf811313ccc19a4ef/sessions/tests/b162a764379e24fc7e0b64e5da0520c2b174ae2fbbf990a4/video#t=179,185"/>
+  </testsuite>
+</testsuites>
