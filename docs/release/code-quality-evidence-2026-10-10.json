@@ -1,0 +1,412 @@
+{
+  "schemaVersion": 1,
+  "recordedAt": "2026-10-10T13:50:10.597502+00:00",
+  "sourceHashFormat": "sha256-utf8-lf",
+  "reviewedCommit": "4abf26a1a556cf42235fbf05c70f89cb5ad79e8c",
+  "ciUrl": "https://github.com/illetyus/open-source-client-for-nextdns/actions/runs/38004548934",
+  "ciConclusion": "success",
+  "ciSteps": [
+    {
+      "name": "Set up job",
+      "conclusion": "success"
+    },
+    {
+      "name": "Checkout Repository",
+      "conclusion": "success"
+    },
+    {
+      "name": "Set up JDK 17",
+      "conclusion": "success"
+    },
+    {
+      "name": "Setup Gradle",
+      "conclusion": "success"
+    },
+    {
+      "name": "Verify Gradle Wrapper",
+      "conclusion": "success"
+    },
+    {
+      "name": "Android Lint",
+      "conclusion": "success"
+    },
+    {
+      "name": "Draft store metadata and device evidence schema",
+      "conclusion": "success"
+    },
+    {
+      "name": "Five-language resources and UI label gate",
+      "conclusion": "success"
+    },
+    {
+      "name": "Legal draft integrity and acceptance revision",
+      "conclusion": "success"
+    },
+    {
+      "name": "Unit, Contract, Compose and Screenshot Tests",
+      "conclusion": "success"
+    },
+    {
+      "name": "Verify actual test, screenshot and coverage evidence",
+      "conclusion": "success"
+    },
+    {
+      "name": "Assemble Debug",
+      "conclusion": "success"
+    },
+    {
+      "name": "Upload UI branding screenshots",
+      "conclusion": "success"
+    },
+    {
+      "name": "Assemble Release (unsigned on CI)",
+      "conclusion": "success"
+    },
+    {
+      "name": "Release Dependency and Privacy SDK Gate",
+      "conclusion": "success"
+    },
+    {
+      "name": "Verify bundled full license and NOTICE distribution",
+      "conclusion": "success"
+    },
+    {
+      "name": "Record actual package, manifest and signature evidence",
+      "conclusion": "success"
+    },
+    {
+      "name": "Reject test DEX types and validate against real test APK",
+      "conclusion": "success"
+    },
+    {
+      "name": "Upload coverage to Codecov",
+      "conclusion": "success"
+    },
+    {
+      "name": "Setup Snyk CLI",
+      "conclusion": "success"
+    },
+    {
+      "name": "Snyk High-Severity Dependency Gate",
+      "conclusion": "success"
+    },
+    {
+      "name": "Snyk Monitor Main",
+      "conclusion": "success"
+    },
+    {
+      "name": "Signed release payload security on Android emulator",
+      "conclusion": "success"
+    },
+    {
+      "name": "Upload resolved release and device-test artifacts",
+      "conclusion": "success"
+    },
+    {
+      "name": "Post Setup Gradle",
+      "conclusion": "success"
+    },
+    {
+      "name": "Post Set up JDK 17",
+      "conclusion": "success"
+    },
+    {
+      "name": "Post Checkout Repository",
+      "conclusion": "success"
+    },
+    {
+      "name": "Complete job",
+      "conclusion": "success"
+    }
+  ],
+  "unitResults": {
+    "tests": 67,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  "coverage": {
+    "scope": "Retained JVM/Compose JaCoCo report; does not include API 35 native instrumentation",
+    "reportSha256": "7c5b8fe1b2ffef41607e08dbdea43139ec82f5d8083354ec9c0064732870f243",
+    "total": {
+      "INSTRUCTION": {
+        "covered": 17536,
+        "missed": 73323,
+        "percent": 19.3
+      },
+      "BRANCH": {
+        "covered": 428,
+        "missed": 3735,
+        "percent": 10.28
+      },
+      "LINE": {
+        "covered": 2021,
+        "missed": 7729,
+        "percent": 20.73
+      },
+      "COMPLEXITY": {
+        "covered": 615,
+        "missed": 3486,
+        "percent": 15.0
+      },
+      "METHOD": {
+        "covered": 504,
+        "missed": 1557,
+        "percent": 24.45
+      },
+      "CLASS": {
+        "covered": 115,
+        "missed": 241,
+        "percent": 32.3
+      }
+    },
+    "classes": {
+      "com/example/ui/viewmodel/NextDnsViewModel": {
+        "INSTRUCTION": {
+          "covered": 464,
+          "missed": 1107,
+          "percent": 29.54
+        },
+        "BRANCH": {
+          "covered": 10,
+          "missed": 47,
+          "percent": 17.54
+        },
+        "LINE": {
+          "covered": 70,
+          "missed": 161,
+          "percent": 30.3
+        },
+        "COMPLEXITY": {
+          "covered": 20,
+          "missed": 118,
+          "percent": 14.49
+        },
+        "METHOD": {
+          "covered": 16,
+          "missed": 89,
+          "percent": 15.24
+        },
+        "CLASS": {
+          "covered": 1,
+          "missed": 0,
+          "percent": 100.0
+        }
+      },
+      "com/example/data/repository/NextDnsRepository": {
+        "INSTRUCTION": {
+          "covered": 628,
+          "missed": 11728,
+          "percent": 5.08
+        },
+        "BRANCH": {
+          "covered": 5,
+          "missed": 1691,
+          "percent": 0.29
+        },
+        "LINE": {
+          "covered": 82,
+          "missed": 1079,
+          "percent": 7.06
+        },
+        "COMPLEXITY": {
+          "covered": 35,
+          "missed": 957,
+          "percent": 3.53
+        },
+        "METHOD": {
+          "covered": 35,
+          "missed": 99,
+          "percent": 26.12
+        },
+        "CLASS": {
+          "covered": 1,
+          "missed": 0,
+          "percent": 100.0
+        }
+      }
+    },
+    "packages": {
+      "com/example/data/legal": {
+        "INSTRUCTION": {
+          "covered": 505,
+          "missed": 49,
+          "percent": 91.16
+        },
+        "BRANCH": {
+          "covered": 28,
+          "missed": 8,
+          "percent": 77.78
+        },
+        "LINE": {
+          "covered": 40,
+          "missed": 0,
+          "percent": 100.0
+        },
+        "COMPLEXITY": {
+          "covered": 27,
+          "missed": 8,
+          "percent": 77.14
+        },
+        "METHOD": {
+          "covered": 17,
+          "missed": 0,
+          "percent": 100.0
+        },
+        "CLASS": {
+          "covered": 3,
+          "missed": 0,
+          "percent": 100.0
+        }
+      },
+      "com/example/data/repository": {
+        "INSTRUCTION": {
+          "covered": 828,
+          "missed": 16001,
+          "percent": 4.92
+        },
+        "BRANCH": {
+          "covered": 9,
+          "missed": 1964,
+          "percent": 0.46
+        },
+        "LINE": {
+          "covered": 110,
+          "missed": 1538,
+          "percent": 6.67
+        },
+        "COMPLEXITY": {
+          "covered": 49,
+          "missed": 1186,
+          "percent": 3.97
+        },
+        "METHOD": {
+          "covered": 48,
+          "missed": 190,
+          "percent": 20.17
+        },
+        "CLASS": {
+          "covered": 7,
+          "missed": 86,
+          "percent": 7.53
+        }
+      }
+    }
+  },
+  "runtime": {
+    "commit": "4abf26a1a556cf42235fbf05c70f89cb5ad79e8c",
+    "tests": 10,
+    "failures": 0,
+    "skipped": 0,
+    "emulator": {
+      "api": 35,
+      "image": "system-images;android-35;default;x86_64"
+    },
+    "unsignedApkSha256": "bd41f9ff1837f5604d6d00df5e3a4913f583abc791201d228774329ad7955c9b",
+    "runtimeApkSha256": "d2e8405d2cf9b14cb02aa0af470a9777bfeee0555e1ef2773b2a779a840d7fd9",
+    "payloadSha256": "d57c6d600837a3b7527bd443d1d986ff1fa5888fbf166be8876802405e2881f5",
+    "payloadIdenticalExceptSignature": true,
+    "canaryAbsentFromLogcat": true,
+    "signer": "ephemeral CI key; never a production signing approval",
+    "networkScope": "local TLS fixtures, trust rejection, redirect/downgrade and cleartext rejection; no real account or BrowserStack run"
+  },
+  "snyk": {
+    "severityThreshold": "high",
+    "dependencyCount": 50,
+    "reportedVulnerabilities": 0
+  },
+  "apk": {
+    "name": "OpenSourceClientForNextDNS-1.0-review.apk",
+    "bytes": 14321583,
+    "sha256": "c8655f88c12b469042f30b43ea7fc99fcbf3e741b412f8f6a322c3c7b3ef5450"
+  },
+  "signedPackageEvidenceSha256": "9d759cff937dab4fd23ac140431b98c33693eb78f87f33656e46b8482858311b",
+  "binaryAuditEvidenceSha256": "69a7e44b3b71023d1f5503eccfaf212655ee2e0605f2262938e6028d9449a9af",
+  "binaryAuditScope": "Application namespace Android Log calls only. Runtime credential checks and fixture traffic are in the signed review receipt; this is not a full external library logging audit.",
+  "releaseDebuggable": false,
+  "cleartextTraffic": false,
+  "validatorsRunInThisReview": [
+    {
+      "script": "scripts/verify_localization.py",
+      "arguments": [],
+      "exitCode": 0,
+      "output": "Localization verified: 552 resources in all five locales; format and UI-label checks passed."
+    },
+    {
+      "script": "scripts/verify_legal_assets.py",
+      "arguments": [],
+      "exitCode": 0,
+      "output": "Legal bundle integrity and revision verified; status: DRAFT"
+    },
+    {
+      "script": "scripts/verify_publication_ready.py",
+      "arguments": [
+        "--draft"
+      ],
+      "exitCode": 0,
+      "output": "Five store localizations and B01–B22 ledger structure verified; publication not authorized."
+    }
+  ],
+  "pythonSyntax": {
+    "files": 14,
+    "result": "PASS"
+  },
+  "publicationGateNegativeCheck": {
+    "exitCode": 1,
+    "result": "EXPECTED_BLOCK_FOR_DRAFT_LEGAL_TEXT"
+  },
+  "browserstackCases": {
+    "NOT_RUN": 22
+  },
+  "sourceInventory": [
+    {
+      "path": "app/src/main/java/com/example/data/api/NextDnsApiService.kt",
+      "sha256": "0b6001f573c43c334029674259fe4e7b4825c1ac6d187e0ae96d2c1519b0d3d2",
+      "lines": 1121
+    },
+    {
+      "path": "app/src/main/java/com/example/data/repository/NextDnsRepository.kt",
+      "sha256": "3465498d3a0bd0dac20020168defc458196a3c6ddefa7a824f50210b6d2a23df",
+      "lines": 2456
+    },
+    {
+      "path": "app/src/main/java/com/example/ui/screens/HomeScreen.kt",
+      "sha256": "f52705360d7054fbc17fa45efa1318c936792f9477714c12ab52018a2e773f9e",
+      "lines": 787
+    },
+    {
+      "path": "app/src/main/java/com/example/ui/screens/LogsScreen.kt",
+      "sha256": "31186ceeaa1e56b595487926e4001e8dc64b2d96ea6353f75729b3356abc506b",
+      "lines": 661
+    },
+    {
+      "path": "app/src/main/java/com/example/ui/screens/SettingsScreen.kt",
+      "sha256": "11647fe19ca0afa9213f965df3f4ec702d06f79b45effdb774f905a5ea184eec",
+      "lines": 869
+    },
+    {
+      "path": "app/src/main/java/com/example/ui/screens/SetupScreen.kt",
+      "sha256": "b7512b522984872c1f26fce5b43a026c7371e022a47e3d9f8335c9d460bb3844",
+      "lines": 1248
+    },
+    {
+      "path": "app/src/main/java/com/example/ui/viewmodel/NextDnsViewModel.kt",
+      "sha256": "e5e482173dc295c02c33091a9b09f41a2b5d16ad8c0f442fd2804959385a2158",
+      "lines": 738
+    }
+  ],
+  "mainProtection": {
+    "legacyBranchProtection": "NOT_PROTECTED",
+    "activeBranchRules": []
+  },
+  "defectCounts": {
+    "P1": 3,
+    "P2": 7
+  },
+  "limitations": [
+    "No new Android/device/BrowserStack acceptance run.",
+    "No real-account requests or mutations.",
+    "No legal approval or publication.",
+    "Conditional bug scenarios are source-confirmed; runtime reproduction remains required."
+  ]
+}
