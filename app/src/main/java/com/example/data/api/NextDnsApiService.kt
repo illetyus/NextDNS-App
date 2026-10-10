@@ -959,6 +959,7 @@ object NextDnsNetworkClient {
         .header("User-Agent", "Mozilla/5.0 (Linux; Android 14) OpenSourceClientForNextDNS/1.0")
         .build()
       callFactory.newCall(request).withCancellableResponse { response ->
+        if (!response.isSuccessful) return@withCancellableResponse null
         val bodyStr = response.body?.string() ?: return@withCancellableResponse null
         val json = org.json.JSONObject(bodyStr)
         NextDnsTestResponse(

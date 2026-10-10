@@ -12,11 +12,18 @@ import com.example.data.api.NextDnsTestService
 import com.example.data.local.NextDnsPreferences
 import com.example.data.model.NextDnsProfile
 import com.example.data.security.ApiKeyProtector
+import com.example.ui.viewmodel.NextDnsViewModel
 import kotlinx.coroutines.*
 import okhttp3.mockwebserver.Dispatcher
 import okhttp3.mockwebserver.MockResponse
 import okhttp3.mockwebserver.MockWebServer
 import okhttp3.mockwebserver.RecordedRequest
+import okhttp3.Call
+import okhttp3.EventListener
+import okhttp3.OkHttpClient
+import okhttp3.Protocol
+import okhttp3.Response
+import okhttp3.ResponseBody.Companion.toResponseBody
 import org.junit.After
 import org.junit.Assert.*
 import org.junit.Before
@@ -27,6 +34,8 @@ import org.robolectric.annotation.Config
 import retrofit2.Retrofit
 import retrofit2.converter.moshi.MoshiConverterFactory
 import java.io.ByteArrayOutputStream
+import java.io.IOException
+import java.io.OutputStream
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
 
@@ -255,6 +264,86 @@ class RepositoryRegressionTest {
     assertTrue(settings.await()); assertTrue(security.await())
     assertTrue(repository.configSettings.value.web3)
     assertTrue(repository.securitySettings.value.ddns)
+  }
+
+  @Test fun normalCreatedProfileIsVerifiedPersistedAndSelected() = runBlocking {
+    response = { req -> if (req.method == "POST") json("""{"data":{"id":"cccccc"}}""")
+      else json("""{"data":{"id":"cccccc","name":"Created"}}""") }
+    assertTrue(repository.createProfileRemote("Created").isSuccess)
+    assertEquals("cccccc", repository.activeProfileId.value)
+    assertEquals("cccccc", preferences.activeProfileId)
+    assertEquals(3, preferences.getProfiles()?.size)
+  }
+
+  @Test fun cancellingFullSyncClearsBusyStateWithoutStartingAnalytics() = runBlocking {
+    val entered = gate(); val release = gate()
+    response = { entered.countDown(); await(release); json("{}", 404) }
+    val pending = async(Dispatchers.IO) { repository.loadActiveProfileDataFromApi() }
+    await(entered)
+    assertTrue(repository.isSyncing.value)
+    pending.cancelAndJoin()
+    release.countDown()
+    assertFalse(repository.isSyncing.value)
+    assertFalse(requests.any { it.contains("/analytics/") })
+  }
+
+  @Test fun cancelledDiagnosticClearsBothRepositoryAndViewModelBusyFlags() = runBlocking {
+    val entered = gate()
+    repository = newRepository { entered.countDown(); awaitCancellation() }
+    val viewModel = NextDnsViewModel(repository)
+    val pending = async(Dispatchers.IO) { viewModel.refreshDiagnostic() }
+    await(entered)
+    assertTrue(viewModel.isDiagnosticRunning.value)
+    pending.cancelAndJoin()
+    assertFalse(repository.testResult.value.isTesting)
+    assertFalse(viewModel.isDiagnosticRunning.value)
+  }
+
+  @Test fun providerFailureIsReportedByViewModelWithoutSuccess() = runBlocking {
+    val viewModel = NextDnsViewModel(repository)
+    assertTrue(viewModel.exportLogsToDocument { throw SecurityException("Fixture denied") }.isFailure)
+    assertEquals(true, viewModel.uiMessage.value?.isError)
+  }
+
+  @Test fun validExportUsesNoApiKeyAndOutputWriteFailureReturnsFailure() = runBlocking {
+    val client = OkHttpClient.Builder().addInterceptor { chain ->
+      assertNull(chain.request().header("X-Api-Key"))
+      Response.Builder().request(chain.request()).protocol(Protocol.HTTP_1_1)
+        .code(200).message("Fixture").body("csv".toResponseBody()).build()
+    }.build()
+    repository = NextDnsRepository(preferences, apiService = api, diagnosticService = testApi,
+      diagnosticProbe = { null }, downloadClient = client, backgroundWorkEnabled = false)
+    response = { json("""{"data":{"url":"https://export.fixture.invalid/logs.csv"}}""") }
+    val output = ByteArrayOutputStream()
+    assertTrue(repository.exportLogs(output).isSuccess)
+    assertEquals("csv", output.toString("UTF-8"))
+    assertTrue(repository.exportLogs(object : OutputStream() {
+      override fun write(value: Int) { throw IOException("Fixture disk full") }
+    }).isFailure)
+  }
+
+  @Test fun stoppingRepositorySseCancelsTheActualNetworkCall() = runBlocking {
+    val headers = gate(); val failed = gate()
+    val activeCall = java.util.concurrent.atomic.AtomicReference<Call>()
+    val client = OkHttpClient.Builder()
+      .addInterceptor { chain -> chain.proceed(chain.request().newBuilder().url(server.url("/stream")).build()) }
+      .eventListener(object : EventListener() {
+        override fun responseHeadersEnd(call: Call, response: Response) { activeCall.set(call); headers.countDown() }
+        override fun callFailed(call: Call, ioe: IOException) { failed.countDown() }
+      }).build()
+    repository = NextDnsRepository(preferences, apiService = api, diagnosticService = testApi,
+      diagnosticProbe = { null }, streamClient = client, backgroundWorkEnabled = false)
+    response = { request ->
+      if (request.requestUrl!!.encodedPath == "/stream") MockResponse().setBody(":" + "x".repeat(1_000))
+        .throttleBody(1, 1, TimeUnit.DAYS)
+      else json("""{"data":[],"meta":{"stream":{"id":"fixture-stream"}}}""")
+    }
+    repository.startLogsStream()
+    await(headers)
+    repository.stopLogsStream()
+    await(failed)
+    assertTrue(activeCall.get().isCanceled())
+    assertFalse(repository.isLiveStreaming.value)
   }
 
   companion object {

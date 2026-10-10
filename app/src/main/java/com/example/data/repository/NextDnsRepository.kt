@@ -330,7 +330,9 @@ class NextDnsRepository(
     try {
       commitCurrentSession { updateSectionSyncState(section) { it.copy(isSaving = true, errorMessage = null) } }
       if (affectsNotifications) {
-        suppression = NotificationWorkScheduler.beginLocalConfigMutation(NextDnsApp.instance, profileId)
+        suppression = safeApiCall("beginLocalConfigMutation") {
+          NotificationWorkScheduler.beginLocalConfigMutation(NextDnsApp.instance, profileId)
+        } ?: false
       }
       val response = safeApiCall(operationName) { action(key, profileId) }
       val message = when {
@@ -347,7 +349,9 @@ class NextDnsRepository(
       }
       ensureOperationActive()
       verified = true
-      if (affectsNotifications) NotificationWorkScheduler.refreshConfigBaselineIfEnabled(NextDnsApp.instance)
+      if (affectsNotifications) safeApiCall("refreshConfigBaseline") {
+        NotificationWorkScheduler.refreshConfigBaselineIfEnabled(NextDnsApp.instance)
+      }
       ensureOperationActive()
       Result.success(Unit)
     } finally {
@@ -685,7 +689,7 @@ class NextDnsRepository(
       }
       loadActiveProfileDataFromApi(key, target)
       withSessionContext(expectedKey = key, expectedProfile = target) {
-        NotificationWorkScheduler.reconcile(NextDnsApp.instance)
+        safeApiCall("reconcileNotifications") { NotificationWorkScheduler.reconcile(NextDnsApp.instance) }
         ensureOperationActive()
       }
       Result.success(mapped.size)

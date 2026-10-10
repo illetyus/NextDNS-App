@@ -1,0 +1,85 @@
+"""Require executed regression cases for NDNS-001..010; emit JVM fixture evidence."""
+from pathlib import Path
+import hashlib
+import json
+import subprocess
+import xml.etree.ElementTree as ET
+
+ROOT = Path(__file__).resolve().parents[1]
+REPOSITORY = "com.example.data.repository.RepositoryRegressionTest"
+NETWORK = "com.example.data.api.CancellableCallTest"
+DOCUMENT = "com.example.data.repository.ExportDocumentTest"
+UI = "com.example.ui.screens.DiagnosticAndDeviceMenuTest"
+POLLING = "com.example.ui.screens.DiagnosticPollingTest"
+
+REQUIRED = {
+    "NDNS-001": [(REPOSITORY, name) for name in (
+        "lateLogsCannotPopulateAnotherProfile", "profileRoundTripStillRejectsOldLogs",
+        "lateCreatedProfileCannotRestorePreferencesAfterLogout", "obsoleteSettingsCannotWriteAnotherProfilesCache",
+        "normalCreatedProfileIsVerifiedPersistedAndSelected")],
+    "NDNS-002": [(REPOSITORY, name) for name in (
+        "mutationForACannotBeVerifiedUsingB", "successfulMutationReadsAndCachesTheSameProfile",
+        "successfulHttpReadDoesNotVerifyAnUnappliedMutation")],
+    "NDNS-003": [(REPOSITORY, "diagnosticTimeoutDoesNotReplaceLastSuccessWithFreshSuccess"),
+        (UI, "diagnosticBannerRequiresSuccessfulMeasurementOfSelectedProfile")],
+    "NDNS-004": [(REPOSITORY, "web3TrueFalseAndMissingFieldPreserveAuthoritativeState")],
+    "NDNS-005": [(POLLING, "pauseStopsPollingAndCancelsInFlightCheckThenResumeStartsOneLoop"),
+        (REPOSITORY, "cancelledDiagnosticClearsBothRepositoryAndViewModelBusyFlags")],
+    "NDNS-006": [(NETWORK, "cancellationBeforeHeadersClosesLateDeliveredResponse"),
+        (NETWORK, "cancellationDuringBlockingBodyReadCancelsCallAndClosesBody"),
+        (REPOSITORY, "stoppingRepositorySseCancelsTheActualNetworkCall")],
+    "NDNS-007": [(NETWORK, "ipLinkSuccessClosesUnconsumedBody"),
+        (NETWORK, "allCatalogHttpFailurePathsCloseTheirUnconsumedBodies"),
+        (NETWORK, "malformedDiagnosticJsonAlsoClosesBody"),
+        (NETWORK, "exceptionInsideConsumerStillClosesResponse")],
+    "NDNS-008": [(REPOSITORY, name) for name in (
+        "cancellingRefreshClearsItsBusyState", "oldRefreshCancellationCannotClearNewRefreshFlag",
+        "differentSectionRefreshesKeepBothFlagsAndResults", "cancellingFullSyncClearsBusyStateWithoutStartingAnalytics")],
+    "NDNS-009": [(UI, "allDevicesMenuIsLocalizedWhileRealDeviceNamesRemainUnchanged")],
+    "NDNS-010": [(REPOSITORY, "malformedExportLinkReturnsFailureInsteadOfThrowing"),
+        (REPOSITORY, "validExportUsesNoApiKeyAndOutputWriteFailureReturnsFailure"),
+        (REPOSITORY, "providerFailureIsReportedByViewModelWithoutSuccess")] +
+        [(DOCUMENT, name) for name in ("deniedProviderReturnsFailureWithoutWriting",
+        "nullProviderStreamReturnsFailure", "closeFailurePreventsSuccess",
+        "cancellationPropagatesAndClosesProviderStream", "successIncludesProviderCloseAndExpectedBytes")],
+}
+
+
+def verify(root=ROOT):
+    reports = sorted((root / "app/build/test-results/testDebugUnitTest").glob("TEST-*.xml"))
+    assert reports, "No executed JVM test reports"
+    executed = set()
+    hashes = {}
+    for path in reports:
+        suite = ET.parse(path).getroot()
+        assert int(suite.get("failures", 0)) + int(suite.get("errors", 0)) == 0, path.name
+        assert int(suite.get("skipped", 0)) == 0, path.name
+        hashes[str(path.relative_to(root))] = hashlib.sha256(path.read_bytes()).hexdigest()
+        for case in suite.findall("testcase"):
+            assert not any(case.find(tag) is not None for tag in ("failure", "error", "skipped"))
+            executed.add((case.get("classname"), case.get("name")))
+    for defect, cases in REQUIRED.items():
+        missing = set(cases) - executed
+        assert not missing, f"{defect} regression did not execute: {sorted(missing)}"
+    evidence = {
+        "schemaVersion": 1,
+        "builtCommit": subprocess.check_output(["git", "rev-parse", "HEAD"], cwd=root, text=True).strip(),
+        "evidenceKind": "JVM_ROBOLECTRIC_COMPOSE_AND_CONTROLLED_NETWORK_FIXTURES",
+        "physicalDeviceAcceptance": "NOT_RUN",
+        "realAccountMutation": "NOT_RUN",
+        "allExecutedCases": len(executed),
+        "requiredUniqueCases": len({case for cases in REQUIRED.values() for case in cases}),
+        "defects": {defect: {"result": "PASS", "cases": [
+            {"class": classname, "name": name} for classname, name in cases
+        ]} for defect, cases in REQUIRED.items()},
+        "xmlSha256": hashes,
+    }
+    output = root / "build/compliance/quality-regressions.json"
+    output.parent.mkdir(parents=True, exist_ok=True)
+    output.write_text(json.dumps(evidence, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+    print(f"PASS: all 10 defect regressions executed; {evidence['requiredUniqueCases']} required cases; {len(executed)} JVM cases total")
+    return evidence
+
+
+if __name__ == "__main__":
+    verify()
