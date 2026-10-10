@@ -1,4 +1,4 @@
-"""Require executed regression cases for NDNS-001..010; emit JVM fixture evidence."""
+"""Require executed regression cases for NDNS-001..011; emit JVM fixture evidence."""
 from pathlib import Path
 import hashlib
 import json
@@ -46,6 +46,8 @@ REQUIRED = {
         [(DOCUMENT, name) for name in ("deniedProviderReturnsFailureWithoutWriting",
         "nullProviderStreamReturnsFailure", "closeFailurePreventsSuccess",
         "cancellationPropagatesAndClosesProviderStream", "successIncludesProviderCloseAndExpectedBytes")],
+    "NDNS-011": [("com.example.data.legal.LegalWelcomeViewportTest",
+        "shortLandscapeAtLargeFontKeepsDocumentsAndConsentReachableInFiveLanguages")],
 }
 
 
@@ -81,7 +83,7 @@ def verify(root=ROOT):
     output = root / "build/compliance/quality-regressions.json"
     output.parent.mkdir(parents=True, exist_ok=True)
     output.write_text(json.dumps(evidence, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
-    print(f"PASS: all 10 defect regressions executed; {evidence['requiredUniqueCases']} required cases; {len(executed)} JVM cases total")
+    print(f"PASS: all {len(REQUIRED)} defect regressions executed; {evidence['requiredUniqueCases']} required cases; {len(executed)} JVM cases total")
     return evidence
 
 

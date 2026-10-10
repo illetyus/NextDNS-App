@@ -27,12 +27,12 @@ class NativeLoginNavigationTest {
       rule.onNodeWithTag("welcome_accept_checkbox").assertIsOff()
       rule.onNodeWithTag("welcome_continue").assertIsNotEnabled()
       rule.onAllNodesWithTag("login_guest").assertCountEquals(0)
-      rule.onNodeWithTag("welcome_privacy").performClick()
+      rule.onNodeWithTag("welcome_privacy").performScrollTo().performClick()
       rule.runOnIdle { assertFalse(acceptance.isAccepted()) }
       rule.onNodeWithTag("welcome_continue").assertIsNotEnabled()
-      rule.onNodeWithTag("welcome_terms").performClick()
-      rule.onNodeWithTag("welcome_accept_checkbox").performClick()
-      rule.onNodeWithTag("welcome_continue").performClick()
+      rule.onNodeWithTag("welcome_terms").performScrollTo().performClick()
+      rule.onNodeWithTag("welcome_accept_checkbox").performScrollTo().performClick()
+      rule.onNodeWithTag("welcome_continue").performScrollTo().performClick()
       rule.waitUntil(20_000) { rule.onAllNodesWithTag("login_guest").fetchSemanticsNodes().isNotEmpty() }
       rule.runOnIdle { assertTrue(acceptance.isAccepted()) }
       rule.onNodeWithTag("login_submit").assertIsNotEnabled()

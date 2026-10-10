@@ -22,7 +22,7 @@ class LegalWelcomeInteractionTest {
     rule.setContent { AppTheme { LegalWelcomeScreen(onAccept = { attempts++; true }) } }
     rule.onNodeWithTag("welcome_accept_checkbox").assertIsOff()
     rule.onNodeWithTag("welcome_continue").assertIsNotEnabled()
-    rule.onNodeWithTag("welcome_privacy").performClick()
+    rule.onNodeWithTag("welcome_privacy").performScrollTo().performClick()
     rule.onNodeWithTag("welcome_accept_checkbox").assertIsOff()
     rule.onNodeWithTag("welcome_continue").assertIsNotEnabled()
     rule.runOnIdle { assertEquals(0, attempts) }
@@ -31,9 +31,9 @@ class LegalWelcomeInteractionTest {
   @Test fun failedAcceptanceRemainsOnTheLegalScreen() {
     var attempts = 0
     rule.setContent { AppTheme { LegalWelcomeScreen(onAccept = { attempts++; false }) } }
-    rule.onNodeWithTag("welcome_terms").performClick()
-    rule.onNodeWithTag("welcome_accept_checkbox").performClick()
-    rule.onNodeWithTag("welcome_continue").assertIsEnabled().performClick()
+    rule.onNodeWithTag("welcome_terms").performScrollTo().performClick()
+    rule.onNodeWithTag("welcome_accept_checkbox").performScrollTo().performClick()
+    rule.onNodeWithTag("welcome_continue").performScrollTo().assertIsEnabled().performClick()
     rule.onNodeWithTag("welcome_accept_checkbox").assertIsOn()
     rule.onNodeWithTag("welcome_continue").assertIsDisplayed()
     rule.runOnIdle { assertEquals(1, attempts) }
