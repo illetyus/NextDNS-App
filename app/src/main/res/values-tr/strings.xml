@@ -565,4 +565,8 @@
     <string name="copy_ddns">"DDNS URL"</string>
     <string name="copy_chromeos_doh">"ChromeOS DoH adresi"</string>
     <string name="source_licenses_label">Kaynak ve lisanslar</string>
+    <string name="diagnostic_unverified_title">"Seçili profil doğrulanamadı"</string>
+    <string name="diagnostic_unverified_subtitle">"NextDNS algılandı ancak ölçülen profil seçili profille eşleşmiyor."</string>
+    <string name="diagnostic_detected_title">"NextDNS algılandı"</string>
+    <string name="diagnostic_unselected_subtitle">"Bu cihaz NextDNS kullanıyor; seçili bir profil yok."</string>
 </resources>

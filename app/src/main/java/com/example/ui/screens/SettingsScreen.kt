@@ -63,14 +63,7 @@ fun SettingsScreen(
   val exportLauncher = rememberLauncherForActivityResult(ActivityResultContracts.CreateDocument("text/csv")) { uri ->
     if (uri != null) {
       screenScope.launch {
-        val output = context.contentResolver.openOutputStream(uri)
-        if (output == null) {
-          viewModel.showMessage(AppStrings.get(R.string.ui_5d465cd584), isError = true)
-        } else {
-          output.use { stream ->
-            viewModel.exportLogs(stream)
-          }
-        }
+        viewModel.exportLogsToDocument { context.contentResolver.openOutputStream(uri) }
       }
     }
   }

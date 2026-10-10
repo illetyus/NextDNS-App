@@ -18,6 +18,9 @@ import com.example.data.repository.SectionSyncState
 import com.example.data.repository.SyncPolicy
 import com.example.data.repository.SyncSection
 import com.example.ui.theme.ThemeMode
+import com.example.data.repository.exportToDocument
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.*
@@ -165,6 +168,7 @@ class NextDnsViewModel(
   private val _uiMessage = MutableStateFlow<UiMessage?>(null)
   val uiMessage = _uiMessage.asStateFlow()
 
+  private val diagnosticMutex = Mutex()
   private val _isDiagnosticRunning = MutableStateFlow(false)
   val isDiagnosticRunning = _isDiagnosticRunning.asStateFlow()
 
@@ -601,29 +605,35 @@ class NextDnsViewModel(
 
   // Diagnostics
   fun runDiagnostic(showToast: Boolean = false) {
-    viewModelScope.launch {
-      _isDiagnosticRunning.value = true
-      val activePid = activeProfile.value?.id
-      val res = repository.runDiagnosticTest(activePid)
-      _isDiagnosticRunning.value = false
+    viewModelScope.launch { refreshDiagnostic(showToast) }
+  }
+
+  suspend fun refreshDiagnostic(showToast: Boolean = false) = diagnosticMutex.withLock {
+    _isDiagnosticRunning.value = true
+    try {
+      val activePid = repository.activeProfileId.value
+      val result = repository.runDiagnosticTest(activePid.takeIf { it.isNotBlank() })
       if (showToast) {
-        val currentPid = activePid ?: ""
-        val isUsingNextDns = res.status.equals("ok", ignoreCase = true) || res.status.equals("using-nextdns", ignoreCase = true)
-        val msg = if (isUsingNextDns) {
-          val details = buildList {
-            if (res.latencyMs > 0) add("${res.latencyMs} ms")
-            res.protocol.takeIf { it.isNotBlank() }?.let(::add)
-          }.joinToString(" • ")
-          if (details.isBlank()) {
-            AppStrings.get(R.string.ui_eb367c1e14)
-          } else {
-            AppStrings.get(R.string.protection_details, details)
+        val state = diagnosticConnectionState(activePid, result)
+        val matched = state == DiagnosticConnectionState.MATCHED_PROFILE
+        val message = when (state) {
+          DiagnosticConnectionState.MATCHED_PROFILE -> {
+            val details = buildList {
+              if (result.latencyMs > 0) add("${result.latencyMs} ms")
+              result.protocol.takeIf { it.isNotBlank() }?.let(::add)
+            }.joinToString(" • ")
+            if (details.isBlank()) AppStrings.get(R.string.ui_eb367c1e14)
+            else AppStrings.get(R.string.protection_details, details)
           }
-        } else {
-          AppStrings.get(R.string.ui_cab8dbe1ad)
+          DiagnosticConnectionState.UNVERIFIED_PROFILE -> AppStrings.get(R.string.diagnostic_unverified_title)
+          DiagnosticConnectionState.NO_SELECTED_PROFILE -> AppStrings.get(R.string.diagnostic_detected_title)
+          DiagnosticConnectionState.ERROR -> AppStrings.get(R.string.ui_19b9ff3444)
+          else -> AppStrings.get(R.string.ui_cab8dbe1ad)
         }
-        showMessage(msg)
+        showMessage(message, isError = !matched && state != DiagnosticConnectionState.NO_SELECTED_PROFILE)
       }
+    } finally {
+      _isDiagnosticRunning.value = false
     }
   }
 
@@ -681,6 +691,15 @@ class NextDnsViewModel(
       result,
       successMessage = AppStrings.get(R.string.ui_a5562d8e36)
     )
+    return result
+  }
+
+  suspend fun exportLogsToDocument(openOutput: () -> OutputStream?): Result<Unit> {
+    val written = exportToDocument(openOutput) { repository.exportLogs(it) }
+    val result = written.fold(onSuccess = { Result.success(Unit) }, onFailure = {
+      Result.failure(IllegalStateException(AppStrings.get(R.string.ui_0813aca08b), it))
+    })
+    reportMutationResult(result, successMessage = AppStrings.get(R.string.ui_a5562d8e36))
     return result
   }
 
