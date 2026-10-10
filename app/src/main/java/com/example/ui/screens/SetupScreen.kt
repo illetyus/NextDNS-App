@@ -34,6 +34,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.compose.LocalLifecycleOwner
+import kotlinx.coroutines.delay
 import com.example.data.model.DiagnosticConnectionState
 import com.example.data.model.diagnosticConnectionState
 import com.example.data.model.DiagnosticTestResult

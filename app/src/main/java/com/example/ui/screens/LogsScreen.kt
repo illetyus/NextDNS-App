@@ -1,5 +1,6 @@
 package com.example.ui.screens
 
+import com.example.i18n.UiLabels
 import com.example.R
 import com.example.i18n.AppStrings
 
