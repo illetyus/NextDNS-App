@@ -311,6 +311,7 @@ class NextDnsRepository(
   private suspend fun mutateSection(
     section: SyncSection,
     operationName: String,
+    verify: () -> Boolean,
     action: suspend (apiKey: String, profileId: String) -> Response<NextDnsMutationResponse>
   ): Result<Unit> = withSessionContext {
     val snapshot = checkNotNull(currentCoroutineContext()[SessionContext]).snapshot
@@ -337,7 +338,7 @@ class NextDnsRepository(
         !response.isMutationAccepted() -> response.body()?.errors?.firstOrNull()?.detail
           ?: AppStrings.get(R.string.operation_http, response.code())
         // Read back the captured target, never recapture a different active profile.
-        !refreshSectionForSession(section) -> AppStrings.get(R.string.ui_4940b95279)
+        !refreshSectionForSession(section) || !commitCurrentSession { verify() } -> AppStrings.get(R.string.ui_4940b95279)
         else -> null
       }
       if (message != null) {
@@ -1269,7 +1270,7 @@ class NextDnsRepository(
       null
     }
 
-    val verifiedProfile = profileDto
+    val verifiedProfile = profileDto?.takeIf { it.id == newId }
       ?: return@withSessionContext Result.failure(
         IllegalStateException(AppStrings.get(R.string.ui_d635045839))
       )
@@ -1315,7 +1316,7 @@ class NextDnsRepository(
     }
 
     val verified = refreshProfilesFromApi()
-    if (!verified) {
+    if (!verified || !commitCurrentSession { _profiles.value.none { it.id == profileId } }) {
       return@withSessionContext Result.failure(
         IllegalStateException(AppStrings.get(R.string.ui_9cac51a42b))
       )
@@ -1348,7 +1349,7 @@ class NextDnsRepository(
     }
 
     val verified = refreshProfilesFromApi()
-    if (!verified) {
+    if (!verified || !commitCurrentSession { _profiles.value.any { it.id == profileId && it.name == newName } }) {
       return@withSessionContext Result.failure(
         IllegalStateException(AppStrings.get(R.string.ui_e144829518))
       )
@@ -1379,7 +1380,23 @@ class NextDnsRepository(
 
     return mutateSection(
       section = SyncSection.SECURITY,
-      operationName = "setSecurityFlag"
+      operationName = "setSecurityFlag",
+      verify = {
+        when (flag) {
+          SecurityFlag.THREAT_INTELLIGENCE_FEEDS -> _securitySettings.value.threatIntelligenceFeeds
+          SecurityFlag.AI_THREAT_DETECTION -> _securitySettings.value.aiThreatDetection
+          SecurityFlag.GOOGLE_SAFE_BROWSING -> _securitySettings.value.googleSafeBrowsing
+          SecurityFlag.CRYPTOJACKING -> _securitySettings.value.cryptojacking
+          SecurityFlag.DNS_REBINDING -> _securitySettings.value.dnsRebinding
+          SecurityFlag.IDN_HOMOGRAPHS -> _securitySettings.value.idnHomographs
+          SecurityFlag.TYPOSQUATTING -> _securitySettings.value.typosquatting
+          SecurityFlag.DGA -> _securitySettings.value.dga
+          SecurityFlag.NRD -> _securitySettings.value.nrd
+          SecurityFlag.DDNS -> _securitySettings.value.ddns
+          SecurityFlag.PARKING -> _securitySettings.value.parkedDomains
+          SecurityFlag.CSAM -> _securitySettings.value.csam
+        } == enabled
+      }
     ) { key, pid ->
       apiService.updateSecurity(key, pid, request)
     }
@@ -1388,7 +1405,8 @@ class NextDnsRepository(
   suspend fun addBlockedTld(tld: String): Result<Unit> =
     mutateSection(
       section = SyncSection.SECURITY,
-      operationName = "addBlockedTld"
+      operationName = "addBlockedTld",
+      verify = { _securitySettings.value.blockedTlds.any { it.equals(tld, true) } }
     ) { key, pid ->
       apiService.addSecurityTld(key, pid, IdRequest(id = tld))
     }
@@ -1396,7 +1414,8 @@ class NextDnsRepository(
   suspend fun removeBlockedTld(tld: String): Result<Unit> =
     mutateSection(
       section = SyncSection.SECURITY,
-      operationName = "removeBlockedTld"
+      operationName = "removeBlockedTld",
+      verify = { _securitySettings.value.blockedTlds.none { it.equals(tld, true) } }
     ) { key, pid ->
       apiService.removeSecurityTld(key, pid, tld)
     }
@@ -1413,7 +1432,13 @@ class NextDnsRepository(
 
     return mutateSection(
       section = SyncSection.PRIVACY,
-      operationName = "setPrivacyFlag"
+      operationName = "setPrivacyFlag",
+      verify = {
+        when (flag) {
+          PrivacyFlag.DISGUISED_TRACKERS -> _privacySettings.value.disguisedTrackers
+          PrivacyFlag.ALLOW_AFFILIATE_LINKS -> _privacySettings.value.allowAffiliates
+        } == enabled
+      }
     ) { key, pid ->
       apiService.updatePrivacy(key, pid, request)
     }
@@ -1426,7 +1451,8 @@ class NextDnsRepository(
     val activate = !target.active
     return mutateSection(
       section = SyncSection.PRIVACY,
-      operationName = "toggleBlocklist"
+      operationName = "toggleBlocklist",
+      verify = { (_privacySettings.value.blocklists.firstOrNull { it.id == blocklistId }?.active == true) == activate }
     ) { key, pid ->
       if (activate) {
         apiService.addBlocklist(key, pid, IdRequest(id = blocklistId))
@@ -1443,7 +1469,8 @@ class NextDnsRepository(
     val activate = !target.active
     return mutateSection(
       section = SyncSection.PRIVACY,
-      operationName = "toggleNativeTracking"
+      operationName = "toggleNativeTracking",
+      verify = { (_privacySettings.value.nativeTracking.firstOrNull { it.id == nativeId }?.active == true) == activate }
     ) { key, pid ->
       if (activate) {
         apiService.addNativeTracking(key, pid, IdRequest(id = nativeId))
@@ -1466,7 +1493,14 @@ class NextDnsRepository(
 
     return mutateSection(
       section = SyncSection.PARENTAL,
-      operationName = "setParentalFlag"
+      operationName = "setParentalFlag",
+      verify = {
+        when (flag) {
+          ParentalFlag.SAFE_SEARCH -> _parentalControlSettings.value.safeSearch
+          ParentalFlag.YOUTUBE_RESTRICTED_MODE -> _parentalControlSettings.value.youtubeRestrictedMode
+          ParentalFlag.BLOCK_BYPASS -> _parentalControlSettings.value.blockBypass
+        } == enabled
+      }
     ) { key, pid ->
       apiService.updateParentalControl(key, pid, request)
     }
@@ -1479,7 +1513,8 @@ class NextDnsRepository(
     val activate = !target.active
     return mutateSection(
       section = SyncSection.PARENTAL,
-      operationName = "toggleParentalService"
+      operationName = "toggleParentalService",
+      verify = { (_parentalControlSettings.value.services.firstOrNull { it.id == serviceId }?.active == true) == activate }
     ) { key, pid ->
       if (activate) {
         apiService.addParentalService(
@@ -1498,7 +1533,8 @@ class NextDnsRepository(
     val activate = !target.active
     return mutateSection(
       section = SyncSection.PARENTAL,
-      operationName = "toggleParentalCategory"
+      operationName = "toggleParentalCategory",
+      verify = { (_parentalControlSettings.value.categories.firstOrNull { it.id == categoryId }?.active == true) == activate }
     ) { key, pid ->
       if (activate) {
         apiService.addParentalCategory(
@@ -1517,7 +1553,8 @@ class NextDnsRepository(
   suspend fun addToDenylist(domain: String): Result<Unit> =
     mutateSection(
       section = SyncSection.DENYLIST,
-      operationName = "addToDenylist"
+      operationName = "addToDenylist",
+      verify = { _denylist.value.any { it.domain == domain && it.active } }
     ) { key, pid ->
       apiService.addDenylist(
         key, pid, AllowDenyItemRequest(id = domain, active = true)
@@ -1527,7 +1564,8 @@ class NextDnsRepository(
   suspend fun removeFromDenylist(domain: String): Result<Unit> =
     mutateSection(
       section = SyncSection.DENYLIST,
-      operationName = "removeFromDenylist"
+      operationName = "removeFromDenylist",
+      verify = { _denylist.value.none { it.domain == domain } }
     ) { key, pid ->
       apiService.removeDenylist(key, pid, domain)
     }
@@ -1539,7 +1577,8 @@ class NextDnsRepository(
     val activate = !target.active
     return mutateSection(
       section = SyncSection.DENYLIST,
-      operationName = "toggleDenylistItem"
+      operationName = "toggleDenylistItem",
+      verify = { (_denylist.value.firstOrNull { it.domain == target.domain }?.active == true) == activate }
     ) { key, pid ->
       apiService.toggleDenylist(
         key, pid, target.domain, AllowDenyActiveRequest(active = activate)
@@ -1550,7 +1589,8 @@ class NextDnsRepository(
   suspend fun addToAllowlist(domain: String): Result<Unit> =
     mutateSection(
       section = SyncSection.ALLOWLIST,
-      operationName = "addToAllowlist"
+      operationName = "addToAllowlist",
+      verify = { _allowlist.value.any { it.domain == domain && it.active } }
     ) { key, pid ->
       apiService.addAllowlist(
         key, pid, AllowDenyItemRequest(id = domain, active = true)
@@ -1560,7 +1600,8 @@ class NextDnsRepository(
   suspend fun removeFromAllowlist(domain: String): Result<Unit> =
     mutateSection(
       section = SyncSection.ALLOWLIST,
-      operationName = "removeFromAllowlist"
+      operationName = "removeFromAllowlist",
+      verify = { _allowlist.value.none { it.domain == domain } }
     ) { key, pid ->
       apiService.removeAllowlist(key, pid, domain)
     }
@@ -1572,7 +1613,8 @@ class NextDnsRepository(
     val activate = !target.active
     return mutateSection(
       section = SyncSection.ALLOWLIST,
-      operationName = "toggleAllowlistItem"
+      operationName = "toggleAllowlistItem",
+      verify = { (_allowlist.value.firstOrNull { it.domain == target.domain }?.active == true) == activate }
     ) { key, pid ->
       apiService.toggleAllowlist(
         key, pid, target.domain, AllowDenyActiveRequest(active = activate)
@@ -1587,7 +1629,8 @@ class NextDnsRepository(
   suspend fun setLogsEnabled(enabled: Boolean): Result<Unit> =
     mutateSection(
       section = SyncSection.SETTINGS,
-      operationName = "setLogsEnabled"
+      operationName = "setLogsEnabled",
+      verify = { _configSettings.value.logsEnabled == enabled }
     ) { key, pid ->
       apiService.updateSettingsLogs(
         key, pid, SettingsLogsUpdateRequest(enabled = enabled)
@@ -1597,7 +1640,8 @@ class NextDnsRepository(
   suspend fun setLogClientIps(enabled: Boolean): Result<Unit> =
     mutateSection(
       section = SyncSection.SETTINGS,
-      operationName = "setLogClientIps"
+      operationName = "setLogClientIps",
+      verify = { _configSettings.value.logClientIps == enabled }
     ) { key, pid ->
       apiService.updateSettingsLogs(
         key, pid, SettingsLogsUpdateRequest(
@@ -1609,7 +1653,8 @@ class NextDnsRepository(
   suspend fun setLogDomains(enabled: Boolean): Result<Unit> =
     mutateSection(
       section = SyncSection.SETTINGS,
-      operationName = "setLogDomains"
+      operationName = "setLogDomains",
+      verify = { _configSettings.value.logDomains == enabled }
     ) { key, pid ->
       apiService.updateSettingsLogs(
         key, pid, SettingsLogsUpdateRequest(
@@ -1624,7 +1669,8 @@ class NextDnsRepository(
 
     return mutateSection(
       section = SyncSection.SETTINGS,
-      operationName = "setLogRetention"
+      operationName = "setLogRetention",
+      verify = { LogRetentionCodec.toSeconds(_configSettings.value.logRetention) == seconds }
     ) { key, pid ->
       apiService.updateSettingsLogs(
         key, pid, SettingsLogsUpdateRequest(retention = seconds)
@@ -1644,7 +1690,8 @@ class NextDnsRepository(
 
     return mutateSection(
       section = SyncSection.SETTINGS,
-      operationName = "setLogStorageLocation"
+      operationName = "setLogStorageLocation",
+      verify = { _configSettings.value.logStorageLocation == location }
     ) { key, pid ->
       apiService.updateSettingsLogs(
         key, pid, SettingsLogsUpdateRequest(location = code)
@@ -1655,7 +1702,8 @@ class NextDnsRepository(
   suspend fun setBlockPage(enabled: Boolean): Result<Unit> =
     mutateSection(
       section = SyncSection.SETTINGS,
-      operationName = "setBlockPage"
+      operationName = "setBlockPage",
+      verify = { _configSettings.value.blockPage == enabled }
     ) { key, pid ->
       apiService.updateSettingsBlockPage(
         key, pid, SettingsBlockPageUpdateRequest(enabled = enabled)
@@ -1674,7 +1722,14 @@ class NextDnsRepository(
 
     return mutateSection(
       section = SyncSection.SETTINGS,
-      operationName = "setPerformanceFlag"
+      operationName = "setPerformanceFlag",
+      verify = {
+        when (flag) {
+          SettingsPerformanceFlag.ECS -> _configSettings.value.ednsClientSubnet
+          SettingsPerformanceFlag.CACHE_BOOST -> _configSettings.value.cacheBoost
+          SettingsPerformanceFlag.CNAME_FLATTENING -> _configSettings.value.cnameFlattening
+        } == enabled
+      }
     ) { key, pid ->
       apiService.updateSettingsPerformance(key, pid, request)
     }
@@ -1683,7 +1738,8 @@ class NextDnsRepository(
   suspend fun setWeb3(enabled: Boolean): Result<Unit> =
     mutateSection(
       section = SyncSection.SETTINGS,
-      operationName = "setWeb3"
+      operationName = "setWeb3",
+      verify = { _configSettings.value.web3 == enabled }
     ) { key, pid ->
       apiService.updateSettings(
         key, pid, SettingsUpdateRequest(web3 = enabled)

@@ -198,6 +198,65 @@ class RepositoryRegressionTest {
     assertTrue(repository.exportLogs(ByteArrayOutputStream()).isFailure)
   }
 
+  @Test fun successfulHttpReadDoesNotVerifyAnUnappliedMutation() = runBlocking {
+    response = { req -> if (req.method == "PATCH") json("{}") else json("""{"data":{"web3":false}}""") }
+    assertTrue(repository.setWeb3(true).isFailure)
+    assertFalse(repository.configSettings.value.web3)
+    assertFalse(repository.sectionSyncStates.value.getValue(SyncSection.SETTINGS).isSaving)
+  }
+
+  @Test fun obsoleteSettingsCannotWriteAnotherProfilesCache() = runBlocking {
+    val entered = gate(); val release = gate()
+    response = { entered.countDown(); await(release); json("""{"data":{"web3":true}}""") }
+    val pending = async(Dispatchers.IO) { repository.refreshSection(SyncSection.SETTINGS) }
+    await(entered)
+    repository.setActiveProfile("bbbbbb")
+    release.countDown()
+    assertCancelled(pending)
+    assertNull(preferences.getConfigSettings("aaaaaa"))
+    assertNull(preferences.getConfigSettings("bbbbbb"))
+    assertFalse(repository.configSettings.value.web3)
+  }
+
+  @Test fun oldRefreshCancellationCannotClearNewRefreshFlag() = runBlocking {
+    val firstEntered = gate(); val secondEntered = gate()
+    val firstRelease = gate(); val secondRelease = gate()
+    val count = java.util.concurrent.atomic.AtomicInteger()
+    response = {
+      if (count.incrementAndGet() == 1) { firstEntered.countDown(); await(firstRelease) }
+      else { secondEntered.countDown(); await(secondRelease) }
+      json("""{"data":{"web3":true}}""")
+    }
+    val first = async(Dispatchers.IO) { repository.refreshSection(SyncSection.SETTINGS) }
+    await(firstEntered)
+    val second = async(Dispatchers.IO) { repository.refreshSection(SyncSection.SETTINGS) }
+    await(secondEntered)
+    first.cancelAndJoin()
+    firstRelease.countDown()
+    assertTrue(repository.sectionSyncStates.value.getValue(SyncSection.SETTINGS).isRefreshing)
+    secondRelease.countDown()
+    assertTrue(second.await())
+    assertFalse(repository.sectionSyncStates.value.getValue(SyncSection.SETTINGS).isRefreshing)
+  }
+
+  @Test fun differentSectionRefreshesKeepBothFlagsAndResults() = runBlocking {
+    val settingsEntered = gate(); val securityEntered = gate(); val release = gate()
+    response = { request ->
+      if (request.requestUrl!!.encodedPath.endsWith("settings")) settingsEntered.countDown() else securityEntered.countDown()
+      await(release)
+      json("""{"data":{"web3":true,"ddns":true}}""")
+    }
+    val settings = async(Dispatchers.IO) { repository.refreshSection(SyncSection.SETTINGS) }
+    val security = async(Dispatchers.IO) { repository.refreshSection(SyncSection.SECURITY) }
+    await(settingsEntered); await(securityEntered)
+    assertTrue(repository.sectionSyncStates.value.getValue(SyncSection.SETTINGS).isRefreshing)
+    assertTrue(repository.sectionSyncStates.value.getValue(SyncSection.SECURITY).isRefreshing)
+    release.countDown()
+    assertTrue(settings.await()); assertTrue(security.await())
+    assertTrue(repository.configSettings.value.web3)
+    assertTrue(repository.securitySettings.value.ddns)
+  }
+
   companion object {
     private fun json(body: String, code: Int = 200) = MockResponse()
       .setResponseCode(code).setHeader("Content-Type", "application/json").setBody(body)
