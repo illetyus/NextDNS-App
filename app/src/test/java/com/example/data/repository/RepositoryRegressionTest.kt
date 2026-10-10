@@ -323,13 +323,13 @@ class RepositoryRegressionTest {
   }
 
   @Test fun stoppingRepositorySseCancelsTheActualNetworkCall() = runBlocking {
-    val headers = gate(); val failed = gate()
+    val headers = gate(); val released = gate()
     val activeCall = java.util.concurrent.atomic.AtomicReference<Call>()
     val client = OkHttpClient.Builder()
       .addInterceptor { chain -> chain.proceed(chain.request().newBuilder().url(server.url("/stream")).build()) }
       .eventListener(object : EventListener() {
         override fun responseHeadersEnd(call: Call, response: Response) { activeCall.set(call); headers.countDown() }
-        override fun callFailed(call: Call, ioe: IOException) { failed.countDown() }
+        override fun connectionReleased(call: Call, connection: okhttp3.Connection) { released.countDown() }
       }).build()
     repository = NextDnsRepository(preferences, apiService = api, diagnosticService = testApi,
       diagnosticProbe = { null }, streamClient = client, backgroundWorkEnabled = false)
@@ -341,7 +341,9 @@ class RepositoryRegressionTest {
     repository.startLogsStream()
     await(headers)
     repository.stopLogsStream()
-    await(failed)
+    // Cancellation can finish as callEnd when the response closes before another read.
+    // Verify resource release and the Call's actual cancellation state in either case.
+    await(released)
     assertTrue(activeCall.get().isCanceled())
     assertFalse(repository.isLiveStreaming.value)
   }
