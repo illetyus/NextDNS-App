@@ -528,15 +528,15 @@ class NextDnsRepository(
   fun loadLocalProfileData(profileId: String) {
     synchronized(sessionLock) {
       if (profileId != _activeProfileId.value) return
-
-    _securitySettings.value = preferences.getSecuritySettings(profileId) ?: SecuritySettings()
-    _privacySettings.value = preferences.getPrivacySettings(profileId) ?: PrivacySettings()
-    _parentalControlSettings.value = preferences.getParentalControlSettings(profileId) ?: ParentalControlSettings()
-    _denylist.value = preferences.getDenylist(profileId) ?: emptyList()
-    _allowlist.value = preferences.getAllowlist(profileId) ?: emptyList()
-    _configSettings.value = preferences.getConfigSettings(profileId) ?: ConfigSettings()
-    _logs.value = emptyList()
+      _securitySettings.value = preferences.getSecuritySettings(profileId) ?: SecuritySettings()
+      _privacySettings.value = preferences.getPrivacySettings(profileId) ?: PrivacySettings()
+      _parentalControlSettings.value = preferences.getParentalControlSettings(profileId) ?: ParentalControlSettings()
+      _denylist.value = preferences.getDenylist(profileId) ?: emptyList()
+      _allowlist.value = preferences.getAllowlist(profileId) ?: emptyList()
+      _configSettings.value = preferences.getConfigSettings(profileId) ?: ConfigSettings()
+      _logs.value = emptyList()
       }
+
   }
 
   // =========================================================================
@@ -766,7 +766,7 @@ class NextDnsRepository(
     val d = setupResp.body() ?: return false
     return commitCurrentSession {
       _profileSetup.value = d
-      return@commitCurrentSession true
+      true
     }
   }
 
@@ -802,7 +802,7 @@ class NextDnsRepository(
       )
       _securitySettings.value = updated
       preferences.saveSecuritySettings(profileId, updated)
-      return@commitCurrentSession true
+      true
     }
   }
 
@@ -1036,7 +1036,7 @@ class NextDnsRepository(
       )
       _parentalControlSettings.value = updated
       preferences.saveParentalControlSettings(profileId, updated)
-      return@commitCurrentSession true
+      true
     }
   }
 
@@ -1051,7 +1051,7 @@ class NextDnsRepository(
       val list = items.map { AllowDenyItem(id = it.id, domain = it.id, active = it.active != false) }
       _denylist.value = list
       preferences.saveDenylist(profileId, list)
-      return@commitCurrentSession true
+      true
     }
   }
 
@@ -1066,7 +1066,7 @@ class NextDnsRepository(
       val list = items.map { AllowDenyItem(id = it.id, domain = it.id, active = it.active != false) }
       _allowlist.value = list
       preferences.saveAllowlist(profileId, list)
-      return@commitCurrentSession true
+      true
     }
   }
 
@@ -1101,7 +1101,7 @@ class NextDnsRepository(
       )
       _configSettings.value = updated
       preferences.saveConfigSettings(profileId, updated)
-      return@commitCurrentSession true
+      true
     }
   }
 
@@ -1448,12 +1448,12 @@ class NextDnsRepository(
     }
   }
 
-  suspend fun toggleBlocklist(blocklistId: String): Result<Unit> {
+  suspend fun toggleBlocklist(blocklistId: String): Result<Unit> = withSessionContext {
     val target = _privacySettings.value.blocklists.firstOrNull { it.id == blocklistId }
-      ?: return Result.failure(IllegalArgumentException(AppStrings.get(R.string.ui_0e194a1fda)))
+      ?: return@withSessionContext Result.failure(IllegalArgumentException(AppStrings.get(R.string.ui_0e194a1fda)))
 
     val activate = !target.active
-    return mutateSection(
+    return@withSessionContext mutateSection(
       section = SyncSection.PRIVACY,
       operationName = "toggleBlocklist",
       verify = { (_privacySettings.value.blocklists.firstOrNull { it.id == blocklistId }?.active == true) == activate }
@@ -1466,12 +1466,12 @@ class NextDnsRepository(
     }
   }
 
-  suspend fun toggleNativeTracking(nativeId: String): Result<Unit> {
+  suspend fun toggleNativeTracking(nativeId: String): Result<Unit> = withSessionContext {
     val target = _privacySettings.value.nativeTracking.firstOrNull { it.id == nativeId }
-      ?: return Result.failure(IllegalArgumentException(AppStrings.get(R.string.ui_bdcf657cbe)))
+      ?: return@withSessionContext Result.failure(IllegalArgumentException(AppStrings.get(R.string.ui_bdcf657cbe)))
 
     val activate = !target.active
-    return mutateSection(
+    return@withSessionContext mutateSection(
       section = SyncSection.PRIVACY,
       operationName = "toggleNativeTracking",
       verify = { (_privacySettings.value.nativeTracking.firstOrNull { it.id == nativeId }?.active == true) == activate }
@@ -1510,12 +1510,12 @@ class NextDnsRepository(
     }
   }
 
-  suspend fun toggleParentalService(serviceId: String): Result<Unit> {
+  suspend fun toggleParentalService(serviceId: String): Result<Unit> = withSessionContext {
     val target = _parentalControlSettings.value.services.firstOrNull { it.id == serviceId }
-      ?: return Result.failure(IllegalArgumentException(AppStrings.get(R.string.ui_1705477f10)))
+      ?: return@withSessionContext Result.failure(IllegalArgumentException(AppStrings.get(R.string.ui_1705477f10)))
 
     val activate = !target.active
-    return mutateSection(
+    return@withSessionContext mutateSection(
       section = SyncSection.PARENTAL,
       operationName = "toggleParentalService",
       verify = { (_parentalControlSettings.value.services.firstOrNull { it.id == serviceId }?.active == true) == activate }
@@ -1530,12 +1530,12 @@ class NextDnsRepository(
     }
   }
 
-  suspend fun toggleParentalCategory(categoryId: String): Result<Unit> {
+  suspend fun toggleParentalCategory(categoryId: String): Result<Unit> = withSessionContext {
     val target = _parentalControlSettings.value.categories.firstOrNull { it.id == categoryId }
-      ?: return Result.failure(IllegalArgumentException(AppStrings.get(R.string.ui_b9861c3200)))
+      ?: return@withSessionContext Result.failure(IllegalArgumentException(AppStrings.get(R.string.ui_b9861c3200)))
 
     val activate = !target.active
-    return mutateSection(
+    return@withSessionContext mutateSection(
       section = SyncSection.PARENTAL,
       operationName = "toggleParentalCategory",
       verify = { (_parentalControlSettings.value.categories.firstOrNull { it.id == categoryId }?.active == true) == activate }
@@ -1574,12 +1574,12 @@ class NextDnsRepository(
       apiService.removeDenylist(key, pid, domain)
     }
 
-  suspend fun toggleDenylistItem(domain: String): Result<Unit> {
+  suspend fun toggleDenylistItem(domain: String): Result<Unit> = withSessionContext {
     val target = _denylist.value.firstOrNull { it.id == domain || it.domain == domain }
-      ?: return Result.failure(IllegalArgumentException(AppStrings.get(R.string.ui_75e8c7e60b)))
+      ?: return@withSessionContext Result.failure(IllegalArgumentException(AppStrings.get(R.string.ui_75e8c7e60b)))
 
     val activate = !target.active
-    return mutateSection(
+    return@withSessionContext mutateSection(
       section = SyncSection.DENYLIST,
       operationName = "toggleDenylistItem",
       verify = { (_denylist.value.firstOrNull { it.domain == target.domain }?.active == true) == activate }
@@ -1610,12 +1610,12 @@ class NextDnsRepository(
       apiService.removeAllowlist(key, pid, domain)
     }
 
-  suspend fun toggleAllowlistItem(domain: String): Result<Unit> {
+  suspend fun toggleAllowlistItem(domain: String): Result<Unit> = withSessionContext {
     val target = _allowlist.value.firstOrNull { it.id == domain || it.domain == domain }
-      ?: return Result.failure(IllegalArgumentException(AppStrings.get(R.string.ui_e09828adaa)))
+      ?: return@withSessionContext Result.failure(IllegalArgumentException(AppStrings.get(R.string.ui_e09828adaa)))
 
     val activate = !target.active
-    return mutateSection(
+    return@withSessionContext mutateSection(
       section = SyncSection.ALLOWLIST,
       operationName = "toggleAllowlistItem",
       verify = { (_allowlist.value.firstOrNull { it.domain == target.domain }?.active == true) == activate }
@@ -1920,54 +1920,54 @@ class NextDnsRepository(
 
     streamJob = repoScope.launch(Dispatchers.IO) {
       withSessionContext(snapshot = snapshot) {
-      var lastId: String? = logsStreamSeedId
+        var lastId: String? = logsStreamSeedId
 
-      if (lastId == null) {
-        val seedResp = safeApiCall("seedLogsStream") {
-          apiService.getLogs(key, pid, limit = 100, raw = 1)
-        }
-        val seedBody = seedResp?.body()
-        if (seedResp?.isSuccessful == true && seedBody.isSemanticallySuccessful()) {
-          commitCurrentSession {
-            val seededLogs = parseLogsResponse(seedBody?.data.orEmpty())
-            _logs.value = seededLogs
-            logsStreamSeedId = seedBody?.meta?.stream?.id
-            nextLogsCursor = seedBody?.meta?.pagination?.cursor
-            lastId = logsStreamSeedId
+        if (lastId == null) {
+          val seedResp = safeApiCall("seedLogsStream") {
+            apiService.getLogs(key, pid, limit = 100, raw = 1)
+          }
+          val seedBody = seedResp?.body()
+          if (seedResp?.isSuccessful == true && seedBody.isSemanticallySuccessful()) {
+            commitCurrentSession {
+              val seededLogs = parseLogsResponse(seedBody?.data.orEmpty())
+              _logs.value = seededLogs
+              logsStreamSeedId = seedBody?.meta?.stream?.id
+              nextLogsCursor = seedBody?.meta?.pagination?.cursor
+              lastId = logsStreamSeedId
+            }
           }
         }
-      }
 
-      var reconnectDelayMs = 2_000L
-      while (isActive) {
-        try {
-          val req = buildLogsStreamRequest(pid, key, lastId)
-          streamClient.newCall(req).withCancellableResponse { response ->
-            if (!response.isSuccessful) {
-              throw java.io.IOException("Logs stream HTTP ${response.code}")
-            }
-            val body = response.body
-              ?: throw java.io.IOException("Logs stream body is empty")
+        var reconnectDelayMs = 2_000L
+        while (isActive) {
+          try {
+            val req = buildLogsStreamRequest(pid, key, lastId)
+            streamClient.newCall(req).withCancellableResponse { response ->
+              if (!response.isSuccessful) {
+                throw java.io.IOException("Logs stream HTTP ${response.code}")
+              }
+              val body = response.body
+                ?: throw java.io.IOException("Logs stream body is empty")
 
-            reconnectDelayMs = 2_000L
-            consumeSseStream(body) { newId ->
-              commitCurrentSession {
-                lastId = newId
-                logsStreamSeedId = newId
+              reconnectDelayMs = 2_000L
+              consumeSseStream(body) { newId ->
+                commitCurrentSession {
+                  lastId = newId
+                  logsStreamSeedId = newId
+                }
               }
             }
-          }
 
-          if (isActive) delay(500L)
-        } catch (e: CancellationException) {
-          throw e
-        } catch (e: Exception) {
-          if (BuildConfig.DEBUG) Log.e(TAG, "Stream error: ${e.message}")
-          delay(reconnectDelayMs)
-          reconnectDelayMs = (reconnectDelayMs * 2).coerceAtMost(60_000L)
+            if (isActive) delay(500L)
+          } catch (e: CancellationException) {
+            throw e
+          } catch (e: Exception) {
+            if (BuildConfig.DEBUG) Log.e(TAG, "Stream error: ${e.message}")
+            delay(reconnectDelayMs)
+            reconnectDelayMs = (reconnectDelayMs * 2).coerceAtMost(60_000L)
+          }
         }
       }
-    }
     }
   }
 
@@ -2048,13 +2048,13 @@ class NextDnsRepository(
   private suspend fun emitLogEntry(entry: DnsLogEntry) {
     withContext(Dispatchers.Main) {
       commitCurrentSession {
-      val current = _logs.value
-      val isDuplicate = current.take(15).any {
-        it.timestamp == entry.timestamp && it.domain == entry.domain && it.deviceName == entry.deviceName
-      }
-      if (!isDuplicate) {
-        _logs.value = (listOf(entry) + current).take(500)
-      }
+        val current = _logs.value
+        val isDuplicate = current.take(15).any {
+          it.timestamp == entry.timestamp && it.domain == entry.domain && it.deviceName == entry.deviceName
+        }
+        if (!isDuplicate) {
+          _logs.value = (listOf(entry) + current).take(500)
+        }
       }
     }
   }
