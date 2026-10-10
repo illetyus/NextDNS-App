@@ -1,0 +1,546 @@
+{
+  "schemaVersion": 1,
+  "reviewDate": "2026-10-10",
+  "reviewedCommit": "4abf26a1a556cf42235fbf05c70f89cb5ad79e8c",
+  "sourceHashFormat": "sha256-utf8-lf",
+  "status": "OPEN_FINDINGS",
+  "decision": "CORRECTIONS_REQUIRED_BEFORE_FINAL_DEVICE_ACCEPTANCE",
+  "severityCounts": {
+    "P1": 3,
+    "P2": 7
+  },
+  "codeDefects": [
+    {
+      "id": "NDNS-001",
+      "severity": "P1",
+      "type": "CODE_DEFECT",
+      "status": "OPEN",
+      "verification": "SOURCE_CONFIRMED",
+      "runtimeReproduced": false,
+      "reviewedCommit": "4abf26a1a556cf42235fbf05c70f89cb5ad79e8c",
+      "title": "Geciken API yanıtı eski hesap/profil verisini yeniden uygulayabilir",
+      "locations": [
+        {
+          "path": "app/src/main/java/com/example/data/repository/NextDnsRepository.kt",
+          "lineStart": 1724,
+          "lineEnd": 1747,
+          "sha256": "3465498d3a0bd0dac20020168defc458196a3c6ddefa7a824f50210b6d2a23df",
+          "url": "https://github.com/illetyus/open-source-client-for-nextdns/blob/4abf26a1a556cf42235fbf05c70f89cb5ad79e8c/app/src/main/java/com/example/data/repository/NextDnsRepository.kt#L1724-L1747",
+          "excerpt": "1724:   suspend fun refreshLogsFromApi(limit: Int = 100): Boolean {\n1725:     val key = _apiKey.value\n1726:     val pid = _activeProfileId.value\n1727:     if (key.isBlank() || pid.isBlank()) return false\n1728: \n1729:     val logsResp = safeApiCall(\"refreshLogsFromApi\") {\n1730:       NextDnsNetworkClient.api.getLogs(key, pid, limit = limit, raw = 1)\n1731:     } ?: return false\n1732: \n1733:     val body = logsResp.body() ?: return false\n1734:     if (!logsResp.isSuccessful || body.hasApiErrors()) return false\n1735: \n1736:     logsStreamSeedId = body.meta?.stream?.id ?: logsStreamSeedId\n1737:     nextLogsCursor = body.meta?.pagination?.cursor\n1738: \n1739:     val fetchedLogs = parseLogsResponse(body.data.orEmpty())\n1740:     if (fetchedLogs.isNotEmpty()) {\n1741:       val existing = _logs.value\n1742:       val merged = (fetchedLogs + existing).distinctBy {\n1743:         \"${it.timestamp}_${it.domain}_${it.deviceName}_${it.blocked}\"\n1744:       }.take(500)\n1745:       _logs.value = merged\n1746:     }\n1747:     return true"
+        },
+        {
+          "path": "app/src/main/java/com/example/data/repository/NextDnsRepository.kt",
+          "lineStart": 1199,
+          "lineEnd": 1215,
+          "sha256": "3465498d3a0bd0dac20020168defc458196a3c6ddefa7a824f50210b6d2a23df",
+          "url": "https://github.com/illetyus/open-source-client-for-nextdns/blob/4abf26a1a556cf42235fbf05c70f89cb5ad79e8c/app/src/main/java/com/example/data/repository/NextDnsRepository.kt#L1199-L1215",
+          "excerpt": "1199:     val verifiedProfile = profileDto\n1200:       ?: return@withContext Result.failure(\n1201:         IllegalStateException(AppStrings.get(R.string.ui_d635045839))\n1202:       )\n1203: \n1204:     val created = NextDnsProfile(\n1205:       id = newId,\n1206:       name = verifiedProfile.name,\n1207:       fingerprint = verifiedProfile.fingerprint ?: \"\"\n1208:     )\n1209:     val updatedList = _profiles.value.filterNot { it.id == newId } + created\n1210:     _profiles.value = updatedList\n1211:     preferences.saveProfiles(updatedList)\n1212:     _activeProfileId.value = newId\n1213:     preferences.activeProfileId = newId\n1214:     loadLocalProfileData(newId)\n1215:     Result.success(created)"
+        },
+        {
+          "path": "app/src/main/java/com/example/data/repository/NextDnsRepository.kt",
+          "lineStart": 1125,
+          "lineEnd": 1152,
+          "sha256": "3465498d3a0bd0dac20020168defc458196a3c6ddefa7a824f50210b6d2a23df",
+          "url": "https://github.com/illetyus/open-source-client-for-nextdns/blob/4abf26a1a556cf42235fbf05c70f89cb5ad79e8c/app/src/main/java/com/example/data/repository/NextDnsRepository.kt#L1125-L1152",
+          "excerpt": "1125:   suspend fun logout(): Result<Unit> {\n1126:     // Shut down account-scoped work before clearing its credentials.\n1127:     NotificationWorkScheduler.cancel(NextDnsApp.instance)\n1128:     repoScope.coroutineContext.cancelChildren()\n1129:     resetProfileScopedRuntimeState()\n1130:     val localDataCleared = preferences.clear()\n1131:     _apiKey.value = \"\"\n1132:     _activeProfileId.value = \"\"\n1133:     _profiles.value = emptyList()\n1134:     _denylist.value = emptyList()\n1135:     _allowlist.value = emptyList()\n1136:     _logs.value = emptyList()\n1137:     _accountInfo.value = NextDnsAccountInfo()\n1138:     _profileSetup.value = SetupDto()\n1139:     _securitySettings.value = SecuritySettings()\n1140:     _privacySettings.value = PrivacySettings()\n1141:     _parentalControlSettings.value = ParentalControlSettings()\n1142:     _configSettings.value = ConfigSettings()\n1143:     _apiStatus.value = ApiConnectionStatus.Disconnected\n1144: \n1145:     if (!localDataCleared) {\n1146:       return Result.failure(IllegalStateException(AppStrings.get(R.string.local_clear_failed)))\n1147:     }\n1148: \n1149:     return runCatching {\n1150:       NotificationPreferences(NextDnsApp.instance).clearAccountState()\n1151:     }\n1152:   }"
+        },
+        {
+          "path": "app/src/main/java/com/example/ui/viewmodel/NextDnsViewModel.kt",
+          "lineStart": 316,
+          "lineEnd": 332,
+          "sha256": "e5e482173dc295c02c33091a9b09f41a2b5d16ad8c0f442fd2804959385a2158",
+          "url": "https://github.com/illetyus/open-source-client-for-nextdns/blob/4abf26a1a556cf42235fbf05c70f89cb5ad79e8c/app/src/main/java/com/example/ui/viewmodel/NextDnsViewModel.kt#L316-L332",
+          "excerpt": "316:   fun logout() {\n317:     authenticationJob?.cancel()\n318:     authenticationJob = null\n319:     stopVisibleTabSync()\n320:     stopForegroundProfileSync()\n321:     _isGuestMode.value = false\n322:     viewModelScope.launch {\n323:       val result = repository.logout()\n324:       if (result.isSuccess) {\n325:         showMessage(AppStrings.get(R.string.ui_90f2c9060d))\n326:       } else {\n327:         showMessage(\n328:           result.exceptionOrNull()?.message ?: AppStrings.get(R.string.ui_0a6b6417d9),\n329:           isError = true\n330:         )\n331:       }\n332:     }"
+        }
+      ],
+      "trigger": "A profilinde manuel log yenileme veya profil oluşturma sürerken B profiline geç ya da çıkış yap; A isteğini daha sonra tamamlat.",
+      "observedSourceBehavior": "Yanıt sonrası mevcut API anahtarı/profil/oturum nesli kontrol edilmeden StateFlow ve preferences yazılıyor. ViewModel kapsamındaki bu işler repository kapsamının cancelChildren çağrısıyla iptal edilmiyor. loadLocalProfileData geçmişi temizler; eksik olan geç yanıtı reddetme kontrolüdür.",
+      "recommendedCorrection": "Hesap ve profil bağlamına ait bir nesil/snapshot doğrulamasıyla eski cevapların UI ve diske yazılmasını engelle; oturuma ait işlerin kapsamını açıkça yönet.",
+      "closureCriteria": "Geciktirilmiş A yanıtı B ekranına taşınmaz; çıkıştan sonra prefs/profil listesi yeniden oluşmaz; yeniden girişte önceki hesabın cache verisi gösterilmez.",
+      "browserstackCases": [
+        "B08",
+        "B13",
+        "B21"
+      ],
+      "fixCommit": null,
+      "retestEvidence": []
+    },
+    {
+      "id": "NDNS-002",
+      "severity": "P1",
+      "type": "CODE_DEFECT",
+      "status": "OPEN",
+      "verification": "SOURCE_CONFIRMED",
+      "runtimeReproduced": false,
+      "reviewedCommit": "4abf26a1a556cf42235fbf05c70f89cb5ad79e8c",
+      "title": "A profiline gönderilen mutasyon B profili okunarak doğrulanabilir",
+      "locations": [
+        {
+          "path": "app/src/main/java/com/example/data/repository/NextDnsRepository.kt",
+          "lineStart": 197,
+          "lineEnd": 205,
+          "sha256": "3465498d3a0bd0dac20020168defc458196a3c6ddefa7a824f50210b6d2a23df",
+          "url": "https://github.com/illetyus/open-source-client-for-nextdns/blob/4abf26a1a556cf42235fbf05c70f89cb5ad79e8c/app/src/main/java/com/example/data/repository/NextDnsRepository.kt#L197-L205",
+          "excerpt": "197:   private suspend fun mutateSection(\n198:     section: SyncSection,\n199:     operationName: String,\n200:     action: suspend (apiKey: String, profileId: String) -> Response<NextDnsMutationResponse>\n201:   ): Result<Unit> {\n202:     val key = _apiKey.value\n203:     val profileId = _activeProfileId.value\n204: \n205:     if (key.isBlank() || profileId.isBlank()) {"
+        },
+        {
+          "path": "app/src/main/java/com/example/data/repository/NextDnsRepository.kt",
+          "lineStart": 242,
+          "lineEnd": 275,
+          "sha256": "3465498d3a0bd0dac20020168defc458196a3c6ddefa7a824f50210b6d2a23df",
+          "url": "https://github.com/illetyus/open-source-client-for-nextdns/blob/4abf26a1a556cf42235fbf05c70f89cb5ad79e8c/app/src/main/java/com/example/data/repository/NextDnsRepository.kt#L242-L275",
+          "excerpt": "242:     return try {\n243:       val response = safeApiCall(operationName) {\n244:         action(key, profileId)\n245:       } ?: run {\n246:         val message = AppStrings.get(R.string.ui_0e6df5dfd7)\n247:         updateSectionSyncState(section) { it.copy(errorMessage = message) }\n248:         return Result.failure(IllegalStateException(message))\n249:       }\n250: \n251:       val apiError = response.body()?.errors?.firstOrNull()?.detail\n252:       if (!response.isSuccessful || !response.body()?.errors.isNullOrEmpty()) {\n253:         val message = apiError ?: AppStrings.get(R.string.operation_http, response.code())\n254:         updateSectionSyncState(section) { it.copy(errorMessage = message) }\n255:         return Result.failure(IllegalStateException(message))\n256:       }\n257: \n258:       val verified = refreshSection(section)\n259:       if (!verified) {\n260:         val message = AppStrings.get(R.string.ui_4940b95279)\n261:         updateSectionSyncState(section) { it.copy(errorMessage = message) }\n262:         return Result.failure(IllegalStateException(message))\n263:       }\n264: \n265:       mutationVerified = true\n266: \n267:       if (affectsConfigNotifications) {\n268:         runCatching {\n269:           NotificationWorkScheduler.refreshConfigBaselineIfEnabled(\n270:             NextDnsApp.instance\n271:           )\n272:         }\n273:       }\n274: \n275:       Result.success(Unit)"
+        },
+        {
+          "path": "app/src/main/java/com/example/data/repository/NextDnsRepository.kt",
+          "lineStart": 152,
+          "lineEnd": 170,
+          "sha256": "3465498d3a0bd0dac20020168defc458196a3c6ddefa7a824f50210b6d2a23df",
+          "url": "https://github.com/illetyus/open-source-client-for-nextdns/blob/4abf26a1a556cf42235fbf05c70f89cb5ad79e8c/app/src/main/java/com/example/data/repository/NextDnsRepository.kt#L152-L170",
+          "excerpt": "152:   suspend fun refreshSection(section: SyncSection): Boolean {\n153:     val key = _apiKey.value\n154:     val profileId = _activeProfileId.value\n155:     if (key.isBlank() || profileId.isBlank()) return false\n156: \n157:     val attemptAt = System.currentTimeMillis()\n158:     updateSectionSyncState(section) {\n159:       it.copy(isRefreshing = true, lastAttemptAt = attemptAt, errorMessage = null)\n160:     }\n161: \n162:     val success = try {\n163:       when (section) {\n164:         SyncSection.SETUP -> applySetupFromApi(key, profileId)\n165:         SyncSection.SECURITY -> applySecuritySettingsFromApi(key, profileId)\n166:         SyncSection.PRIVACY -> applyPrivacySettingsFromApi(key, profileId)\n167:         SyncSection.PARENTAL -> applyParentalSettingsFromApi(key, profileId)\n168:         SyncSection.DENYLIST -> applyDenylistFromApi(key, profileId)\n169:         SyncSection.ALLOWLIST -> applyAllowlistFromApi(key, profileId)\n170:         SyncSection.SETTINGS -> applyConfigSettingsFromApi(key, profileId)"
+        }
+      ],
+      "trigger": "A için PATCH/POST gönder; yanıt beklerken B profiline geç; A yazma yanıtını tamamlat.",
+      "observedSourceBehavior": "mutateSection ilk key/profileId çiftini action için yakalıyor fakat refreshSection yeni aktif key/profileId çiftini yeniden okuyor. B GET başarılı olursa A işlemi doğrulanmış sayılabiliyor.",
+      "recommendedCorrection": "Yazma ve doğrulama GET isteklerini aynı oturum/profil snapshotına bağla; hedef durumun uygulandığını doğrula ve profil değişmişse yeni ekrana eski işlem başarısı uygulama.",
+      "closureCriteria": "İstek kaydında PATCH ve doğrulama GET aynı hedefe gider; profil/hesap değişimi doğrulamayı geçersiz kılar; başka profil GET başarısı yazma başarısı sayılmaz.",
+      "browserstackCases": [
+        "B04",
+        "B08",
+        "B19",
+        "B21"
+      ],
+      "fixCommit": null,
+      "retestEvidence": []
+    },
+    {
+      "id": "NDNS-003",
+      "severity": "P1",
+      "type": "CODE_DEFECT",
+      "status": "OPEN",
+      "verification": "SOURCE_CONFIRMED",
+      "runtimeReproduced": false,
+      "reviewedCommit": "4abf26a1a556cf42235fbf05c70f89cb5ad79e8c",
+      "title": "Başarısız veya başka profile ait DNS ölçümü olumlu koruma durumu gösterir",
+      "locations": [
+        {
+          "path": "app/src/main/java/com/example/data/repository/NextDnsRepository.kt",
+          "lineStart": 498,
+          "lineEnd": 506,
+          "sha256": "3465498d3a0bd0dac20020168defc458196a3c6ddefa7a824f50210b6d2a23df",
+          "url": "https://github.com/illetyus/open-source-client-for-nextdns/blob/4abf26a1a556cf42235fbf05c70f89cb5ad79e8c/app/src/main/java/com/example/data/repository/NextDnsRepository.kt#L498-L506",
+          "excerpt": "498:     } else {\n499:       _testResult.value.copy(\n500:         isTesting = false,\n501:         lastTestedTime = System.currentTimeMillis(),\n502:         errorMessage = AppStrings.get(R.string.ui_6da43a7f63)\n503:       )\n504:     }\n505: \n506:     _testResult.value = result"
+        },
+        {
+          "path": "app/src/main/java/com/example/ui/screens/SetupScreen.kt",
+          "lineStart": 148,
+          "lineEnd": 187,
+          "sha256": "b7512b522984872c1f26fce5b43a026c7371e022a47e3d9f8335c9d460bb3844",
+          "url": "https://github.com/illetyus/open-source-client-for-nextdns/blob/4abf26a1a556cf42235fbf05c70f89cb5ad79e8c/app/src/main/java/com/example/ui/screens/SetupScreen.kt#L148-L187",
+          "excerpt": "148: internal fun ConnectionStatusBanner(\n149:   activeProfile: NextDnsProfile?,\n150:   testResult: DiagnosticTestResult,\n151:   isDiagnosticRunning: Boolean,\n152:   onRefreshDiagnostic: () -> Unit,\n153:   onOpenDnsSettings: () -> Unit,\n154:   modifier: Modifier = Modifier\n155: ) {\n156:   val isTesting = testResult.isTesting || isDiagnosticRunning\n157:   val rawStatus = testResult.status.lowercase().trim()\n158:   val isUsingNextDns = rawStatus == \"ok\" || rawStatus == \"using-nextdns\"\n159:   val isOffline = rawStatus == \"error\" || (testResult.errorMessage != null && !isUsingNextDns)\n160: \n161:   val borderColor = when {\n162:     isTesting -> MaterialTheme.colorScheme.primary.copy(alpha = 0.5f)\n163:     isUsingNextDns -> MaterialTheme.colorScheme.tertiary.copy(alpha = 0.5f)\n164:     isOffline -> MaterialTheme.colorScheme.outline\n165:     else -> MaterialTheme.colorScheme.error.copy(alpha = 0.5f)\n166:   }\n167: \n168:   val beaconColor = when {\n169:     isTesting -> MaterialTheme.colorScheme.primary\n170:     isUsingNextDns -> MaterialTheme.colorScheme.tertiary\n171:     isOffline -> MaterialTheme.colorScheme.onSurfaceVariant\n172:     else -> MaterialTheme.colorScheme.error\n173:   }\n174: \n175:   val title = when {\n176:     isTesting -> AppStrings.get(R.string.ui_5ed3c5cf66)\n177:     isUsingNextDns -> AppStrings.get(R.string.ui_934b24bdc9)\n178:     isOffline -> AppStrings.get(R.string.ui_97c1211397)\n179:     else -> AppStrings.get(R.string.ui_48016c5791)\n180:   }\n181: \n182:   val subtitle = when {\n183:     isTesting -> AppStrings.get(R.string.ui_40f866a700)\n184:     isUsingNextDns -> AppStrings.get(R.string.ui_ebbbefad7b)\n185:     isOffline -> AppStrings.get(R.string.ui_19b9ff3444)\n186:     !testResult.resolver.isNullOrBlank() -> AppStrings.get(R.string.current_resolver, testResult.resolver ?: AppStrings.get(R.string.unavailable))\n187:     else -> AppStrings.get(R.string.ui_38cde25084)"
+        }
+      ],
+      "trigger": "Önce status=ok sonucu al, sonraki ölçümün iki yolunu da başarısız kıl. Ayrı durumda seçili A profili varken ölçüm profileId=B ve status=ok dönsün.",
+      "observedSourceBehavior": "Hata yolu önceki status/protocol/profileId değerlerini copy ile koruyor. Banner hata mesajı varken ok durumuna öncelik veriyor ve activeProfile ile ölçülen profileId değerini karşılaştırmıyor; bu profille kullanılıyor alt yazısı seçili profil için yanlış olabiliyor.",
+      "recommendedCorrection": "Son ölçüm başarısını, güncelliği ve ölçülen profil eşleşmesini ayrı durumlarla göster; eski ölçümü yeni başarı gibi işaretleme.",
+      "closureCriteria": "ok→timeout yolu güncel başarı göstermez; A seçili/B ölçülü durum profil uyuşmazlığı gösterir; son başarılı ölçüm zamanı yeni başarısız ölçüm zamanı ile değiştirilmez.",
+      "browserstackCases": [
+        "B02",
+        "B05",
+        "B08",
+        "B19"
+      ],
+      "fixCommit": null,
+      "retestEvidence": []
+    },
+    {
+      "id": "NDNS-004",
+      "severity": "P2",
+      "type": "CODE_DEFECT",
+      "status": "OPEN",
+      "verification": "SOURCE_CONFIRMED",
+      "runtimeReproduced": false,
+      "reviewedCommit": "4abf26a1a556cf42235fbf05c70f89cb5ad79e8c",
+      "title": "Web3 değeri sunucudan yerel ayar modeline aktarılmıyor",
+      "locations": [
+        {
+          "path": "app/src/main/java/com/example/data/api/NextDnsApiService.kt",
+          "lineStart": 262,
+          "lineEnd": 267,
+          "sha256": "0b6001f573c43c334029674259fe4e7b4825c1ac6d187e0ae96d2c1519b0d3d2",
+          "url": "https://github.com/illetyus/open-source-client-for-nextdns/blob/4abf26a1a556cf42235fbf05c70f89cb5ad79e8c/app/src/main/java/com/example/data/api/NextDnsApiService.kt#L262-L267",
+          "excerpt": "262: data class SettingsDto(\n263:   val logs: SettingsLogsDto? = null,\n264:   val blockPage: SettingsBlockPageDto? = null,\n265:   val performance: SettingsPerformanceDto? = null,\n266:   val web3: Boolean? = null\n267: )"
+        },
+        {
+          "path": "app/src/main/java/com/example/data/repository/NextDnsRepository.kt",
+          "lineStart": 1023,
+          "lineEnd": 1035,
+          "sha256": "3465498d3a0bd0dac20020168defc458196a3c6ddefa7a824f50210b6d2a23df",
+          "url": "https://github.com/illetyus/open-source-client-for-nextdns/blob/4abf26a1a556cf42235fbf05c70f89cb5ad79e8c/app/src/main/java/com/example/data/repository/NextDnsRepository.kt#L1023-L1035",
+          "excerpt": "1023:     val updated = _configSettings.value.copy(\n1024:       logsEnabled = s.logs?.enabled ?: _configSettings.value.logsEnabled,\n1025:       logClientIps = if (s.logs?.drop?.ip != null) !s.logs.drop.ip else _configSettings.value.logClientIps,\n1026:       logDomains = if (s.logs?.drop?.domain != null) !s.logs.drop.domain else _configSettings.value.logDomains,\n1027:       logRetention = retName,\n1028:       logStorageLocation = locName,\n1029:       blockPage = s.blockPage?.enabled ?: _configSettings.value.blockPage,\n1030:       ednsClientSubnet = s.performance?.ecs ?: _configSettings.value.ednsClientSubnet,\n1031:       cacheBoost = s.performance?.cacheBoost ?: _configSettings.value.cacheBoost,\n1032:       cnameFlattening = s.performance?.cnameFlattening ?: _configSettings.value.cnameFlattening\n1033:     )\n1034:     _configSettings.value = updated\n1035:     preferences.saveConfigSettings(profileId, updated)"
+        },
+        {
+          "path": "app/src/main/java/com/example/data/repository/NextDnsRepository.kt",
+          "lineStart": 1605,
+          "lineEnd": 1613,
+          "sha256": "3465498d3a0bd0dac20020168defc458196a3c6ddefa7a824f50210b6d2a23df",
+          "url": "https://github.com/illetyus/open-source-client-for-nextdns/blob/4abf26a1a556cf42235fbf05c70f89cb5ad79e8c/app/src/main/java/com/example/data/repository/NextDnsRepository.kt#L1605-L1613",
+          "excerpt": "1605:   suspend fun setWeb3(enabled: Boolean): Result<Unit> =\n1606:     mutateSection(\n1607:       section = SyncSection.SETTINGS,\n1608:       operationName = \"setWeb3\"\n1609:     ) { key, pid ->\n1610:       NextDnsNetworkClient.api.updateSettings(\n1611:         key, pid, SettingsUpdateRequest(web3 = enabled)\n1612:       )\n1613:     }"
+        },
+        {
+          "path": "app/src/main/java/com/example/ui/screens/SettingsScreen.kt",
+          "lineStart": 221,
+          "lineEnd": 225,
+          "sha256": "11647fe19ca0afa9213f965df3f4ec702d06f79b45effdb774f905a5ea184eec",
+          "url": "https://github.com/illetyus/open-source-client-for-nextdns/blob/4abf26a1a556cf42235fbf05c70f89cb5ad79e8c/app/src/main/java/com/example/ui/screens/SettingsScreen.kt#L221-L225",
+          "excerpt": "221:     // 7. Web3\n222:     item {\n223:       Web3Section(\n224:         web3Enabled = configSettings.web3,\n225:         onToggleWeb3 = { viewModel.toggleWeb3(it) }"
+        }
+      ],
+      "trigger": "GET settings yanıtı web3=true dönsün veya Web3 açma PATCH işlemini başarılı kıl.",
+      "observedSourceBehavior": "SettingsDto.web3 var; applyConfigSettingsFromApi copy çağrısında s.web3 yok. Varsayılan false korunur ve ekrandaki switch false kalır; yerel cache de eski değeri saklar.",
+      "recommendedCorrection": "Web3 alanını yetkili sunucu yanıtından modele ve cache içine aktar; true, false ve eksik alan davranışını açıkça sınayarak doğrula.",
+      "closureCriteria": "GET true/false ekranda ve cache içinde eşleşir; aç/kapat işlemi ve yeniden açılış aynı sunucu durumunu gösterir.",
+      "browserstackCases": [
+        "B04",
+        "B15",
+        "B19"
+      ],
+      "fixCommit": null,
+      "retestEvidence": []
+    },
+    {
+      "id": "NDNS-005",
+      "severity": "P2",
+      "type": "CODE_DEFECT",
+      "status": "OPEN",
+      "verification": "SOURCE_CONFIRMED",
+      "runtimeReproduced": false,
+      "reviewedCommit": "4abf26a1a556cf42235fbf05c70f89cb5ad79e8c",
+      "title": "Kurulum ekranının tanılama döngüsü arka planda da çalışır",
+      "locations": [
+        {
+          "path": "app/src/main/java/com/example/ui/screens/SetupScreen.kt",
+          "lineStart": 64,
+          "lineEnd": 73,
+          "sha256": "b7512b522984872c1f26fce5b43a026c7371e022a47e3d9f8335c9d460bb3844",
+          "url": "https://github.com/illetyus/open-source-client-for-nextdns/blob/4abf26a1a556cf42235fbf05c70f89cb5ad79e8c/app/src/main/java/com/example/ui/screens/SetupScreen.kt#L64-L73",
+          "excerpt": "64:   // Live polling: initial check on profile change and periodic refresh while on screen\n65:   LaunchedEffect(activeProfile?.id) {\n66:     viewModel.runDiagnostic(showToast = false)\n67:   }\n68: \n69:   LaunchedEffect(Unit) {\n70:     while (isActive) {\n71:       delay(15_000L) // 15 seconds live polling\n72:       viewModel.runDiagnostic(showToast = false)\n73:     }"
+        },
+        {
+          "path": "app/src/main/java/com/example/ui/viewmodel/NextDnsViewModel.kt",
+          "lineStart": 603,
+          "lineEnd": 608,
+          "sha256": "e5e482173dc295c02c33091a9b09f41a2b5d16ad8c0f442fd2804959385a2158",
+          "url": "https://github.com/illetyus/open-source-client-for-nextdns/blob/4abf26a1a556cf42235fbf05c70f89cb5ad79e8c/app/src/main/java/com/example/ui/viewmodel/NextDnsViewModel.kt#L603-L608",
+          "excerpt": "603:   fun runDiagnostic(showToast: Boolean = false) {\n604:     viewModelScope.launch {\n605:       _isDiagnosticRunning.value = true\n606:       val activePid = activeProfile.value?.id\n607:       val res = repository.runDiagnosticTest(activePid)\n608:       _isDiagnosticRunning.value = false"
+        },
+        {
+          "path": "app/src/main/java/com/example/ui/screens/HomeScreen.kt",
+          "lineStart": 70,
+          "lineEnd": 87,
+          "sha256": "f52705360d7054fbc17fa45efa1318c936792f9477714c12ab52018a2e773f9e",
+          "url": "https://github.com/illetyus/open-source-client-for-nextdns/blob/4abf26a1a556cf42235fbf05c70f89cb5ad79e8c/app/src/main/java/com/example/ui/screens/HomeScreen.kt#L70-L87",
+          "excerpt": "70:   DisposableEffect(lifecycleOwner) {\n71:     val observer = LifecycleEventObserver { _, event ->\n72:       when (event) {\n73:         Lifecycle.Event.ON_RESUME -> viewModel.startForegroundProfileSync()\n74:         Lifecycle.Event.ON_PAUSE -> viewModel.stopForegroundProfileSync()\n75:         else -> Unit\n76:       }\n77:     }\n78: \n79:     lifecycleOwner.lifecycle.addObserver(observer)\n80:     if (lifecycleOwner.lifecycle.currentState.isAtLeast(Lifecycle.State.RESUMED)) {\n81:       viewModel.startForegroundProfileSync()\n82:     }\n83: \n84:     onDispose {\n85:       lifecycleOwner.lifecycle.removeObserver(observer)\n86:       viewModel.stopForegroundProfileSync()\n87:     }"
+        }
+      ],
+      "trigger": "Kurulum ekranı açıkken uygulamayı arka plana al ve 15 saniyeden uzun bekle.",
+      "observedSourceBehavior": "LaunchedEffect(Unit) bileşimde kaldığı sürece her 15 saniyede ViewModel işi başlatıyor; yaşam döngüsü RESUMED kontrolü yok. HomeScreen yalnız profil/sekme sorgularını durduruyor.",
+      "recommendedCorrection": "Tanılama üreticisini RESUMED yaşam döngüsüne bağla; başlatılan tanılama işini de aynı kapsama bağlayıp tek aktif isteği koru.",
+      "closureCriteria": "Arka planda yeni tanılama isteği oluşmaz; ön plana dönüşte tek döngü çalışır; ekran ve Activity kapanışı işi sonlandırır.",
+      "browserstackCases": [
+        "B05",
+        "B08",
+        "B16"
+      ],
+      "fixCommit": null,
+      "retestEvidence": []
+    },
+    {
+      "id": "NDNS-006",
+      "severity": "P2",
+      "type": "CODE_DEFECT",
+      "status": "OPEN",
+      "verification": "SOURCE_CONFIRMED",
+      "runtimeReproduced": false,
+      "reviewedCommit": "4abf26a1a556cf42235fbf05c70f89cb5ad79e8c",
+      "title": "Coroutine iptali senkron OkHttp çağrısını kapatmıyor",
+      "locations": [
+        {
+          "path": "app/src/main/java/com/example/data/repository/NextDnsRepository.kt",
+          "lineStart": 1814,
+          "lineEnd": 1826,
+          "sha256": "3465498d3a0bd0dac20020168defc458196a3c6ddefa7a824f50210b6d2a23df",
+          "url": "https://github.com/illetyus/open-source-client-for-nextdns/blob/4abf26a1a556cf42235fbf05c70f89cb5ad79e8c/app/src/main/java/com/example/data/repository/NextDnsRepository.kt#L1814-L1826",
+          "excerpt": "1814:           val req = buildLogsStreamRequest(pid, key, lastId)\n1815:           NextDnsNetworkClient.client.newCall(req).execute().use { response ->\n1816:             if (!response.isSuccessful) {\n1817:               throw java.io.IOException(\"Logs stream HTTP ${response.code}\")\n1818:             }\n1819:             val body = response.body\n1820:               ?: throw java.io.IOException(\"Logs stream body is empty\")\n1821: \n1822:             reconnectDelayMs = 2_000L\n1823:             consumeSseStream(body) { newId ->\n1824:               lastId = newId\n1825:               logsStreamSeedId = newId\n1826:             }"
+        },
+        {
+          "path": "app/src/main/java/com/example/data/repository/NextDnsRepository.kt",
+          "lineStart": 1925,
+          "lineEnd": 1928,
+          "sha256": "3465498d3a0bd0dac20020168defc458196a3c6ddefa7a824f50210b6d2a23df",
+          "url": "https://github.com/illetyus/open-source-client-for-nextdns/blob/4abf26a1a556cf42235fbf05c70f89cb5ad79e8c/app/src/main/java/com/example/data/repository/NextDnsRepository.kt#L1925-L1928",
+          "excerpt": "1925:   fun stopLogsStream() {\n1926:     streamJob?.cancel()\n1927:     streamJob = null\n1928:     _isLiveStreaming.value = false"
+        },
+        {
+          "path": "app/src/main/java/com/example/data/repository/NextDnsRepository.kt",
+          "lineStart": 1672,
+          "lineEnd": 1689,
+          "sha256": "3465498d3a0bd0dac20020168defc458196a3c6ddefa7a824f50210b6d2a23df",
+          "url": "https://github.com/illetyus/open-source-client-for-nextdns/blob/4abf26a1a556cf42235fbf05c70f89cb5ad79e8c/app/src/main/java/com/example/data/repository/NextDnsRepository.kt#L1672-L1689",
+          "excerpt": "1672:     return@withContext try {\n1673:       NextDnsNetworkClient.publicDownloadClient.newCall(request).execute().use { response ->\n1674:         if (!response.isSuccessful) {\n1675:           return@use Result.failure(\n1676:             IllegalStateException(AppStrings.get(R.string.export_download_http, response.code))\n1677:           )\n1678:         }\n1679: \n1680:         val body = response.body\n1681:           ?: return@use Result.failure(\n1682:             IllegalStateException(AppStrings.get(R.string.ui_90e9c703f0))\n1683:           )\n1684: \n1685:         body.byteStream().use { input ->\n1686:           input.copyTo(outputStream)\n1687:         }\n1688:         outputStream.flush()\n1689:         Result.success(Unit)"
+        },
+        {
+          "path": "app/src/main/java/com/example/data/api/NextDnsApiService.kt",
+          "lineStart": 948,
+          "lineEnd": 963,
+          "sha256": "0b6001f573c43c334029674259fe4e7b4825c1ac6d187e0ae96d2c1519b0d3d2",
+          "url": "https://github.com/illetyus/open-source-client-for-nextdns/blob/4abf26a1a556cf42235fbf05c70f89cb5ad79e8c/app/src/main/java/com/example/data/api/NextDnsApiService.kt#L948-L963",
+          "excerpt": "948:   fun fetchTestConnectionDirect(profileId: String? = null): NextDnsTestResponse? {\n949:     return try {\n950:       val testUrl = if (!profileId.isNullOrBlank()) {\n951:         val rand = java.util.UUID.randomUUID().toString().replace(\"-\", \"\").take(12)\n952:         \"https://$rand-$profileId.test.nextdns.io/\"\n953:       } else {\n954:         TEST_URL\n955:       }\n956:       val request = Request.Builder()\n957:         .url(testUrl)\n958:         .header(\"Accept\", \"application/json\")\n959:         .header(\"User-Agent\", \"Mozilla/5.0 (Linux; Android 14) OpenSourceClientForNextDNS/1.0\")\n960:         .build()\n961:       val response = client.newCall(request).execute()\n962:       val bodyStr = response.body?.string() ?: return null\n963:       val json = org.json.JSONObject(bodyStr)"
+        }
+      ],
+      "trigger": "SSE veya export yanıtını açık/bekleyen durumda tut; profil değiştir, çıkış yap veya ilgili ekranı kapat.",
+      "observedSourceBehavior": "Call.execute/read işlemi bloklayıcı; Call nesnesi saklanmıyor ve Job iptalinde Call.cancel çağrılmıyor. stopLogsStream yalnız Job.cancel kullanır. İşin iptal edilmesi açık ağ aktarımının anında durduğunu kanıtlamaz.",
+      "recommendedCorrection": "Çağrı iptalini coroutine iptaline bağla; response/body kapatmayı finally/use ile garanti et; sonuç yazımından önce oturum kontrolü yap.",
+      "closureCriteria": "Bekleyen fixture çağrısının iptal edildiği ve response kaynaklarının kapandığı ölçülür; eski iş tekrar bağlanmaz veya veri yazmaz.",
+      "browserstackCases": [
+        "B06",
+        "B08",
+        "B13",
+        "B21"
+      ],
+      "fixCommit": null,
+      "retestEvidence": []
+    },
+    {
+      "id": "NDNS-007",
+      "severity": "P2",
+      "type": "CODE_DEFECT",
+      "status": "OPEN",
+      "verification": "SOURCE_CONFIRMED",
+      "runtimeReproduced": false,
+      "reviewedCommit": "4abf26a1a556cf42235fbf05c70f89cb5ad79e8c",
+      "title": "IP bağlama ve katalog hata yollarında Response kaynakları açık kalabilir",
+      "locations": [
+        {
+          "path": "app/src/main/java/com/example/data/api/NextDnsApiService.kt",
+          "lineStart": 979,
+          "lineEnd": 988,
+          "sha256": "0b6001f573c43c334029674259fe4e7b4825c1ac6d187e0ae96d2c1519b0d3d2",
+          "url": "https://github.com/illetyus/open-source-client-for-nextdns/blob/4abf26a1a556cf42235fbf05c70f89cb5ad79e8c/app/src/main/java/com/example/data/api/NextDnsApiService.kt#L979-L988",
+          "excerpt": "979:   fun linkIpAddress(profileId: String): Boolean {\n980:     return try {\n981:       val request = Request.Builder()\n982:         .url(\"https://link-ip.nextdns.io/$profileId\")\n983:         .header(\"Accept\", \"*/*\")\n984:         .build()\n985:       val resp = client.newCall(request).execute()\n986:       resp.isSuccessful\n987:     } catch (_: Exception) {\n988:       false"
+        },
+        {
+          "path": "app/src/main/java/com/example/data/api/NextDnsApiService.kt",
+          "lineStart": 999,
+          "lineEnd": 1006,
+          "sha256": "0b6001f573c43c334029674259fe4e7b4825c1ac6d187e0ae96d2c1519b0d3d2",
+          "url": "https://github.com/illetyus/open-source-client-for-nextdns/blob/4abf26a1a556cf42235fbf05c70f89cb5ad79e8c/app/src/main/java/com/example/data/api/NextDnsApiService.kt#L999-L1006",
+          "excerpt": "999:       val response = client.newCall(request).execute()\n1000:       if (!response.isSuccessful) return null\n1001:       val bodyStr = response.body?.string() ?: return null\n1002:       val json = org.json.JSONObject(bodyStr)\n1003:       val arr = json.optJSONArray(\"data\") ?: return null\n1004:       val list = mutableListOf<BlocklistDto>()\n1005:       for (i in 0 until arr.length()) {\n1006:         val obj = arr.getJSONObject(i)"
+        },
+        {
+          "path": "app/src/main/java/com/example/data/api/NextDnsApiService.kt",
+          "lineStart": 1032,
+          "lineEnd": 1041,
+          "sha256": "0b6001f573c43c334029674259fe4e7b4825c1ac6d187e0ae96d2c1519b0d3d2",
+          "url": "https://github.com/illetyus/open-source-client-for-nextdns/blob/4abf26a1a556cf42235fbf05c70f89cb5ad79e8c/app/src/main/java/com/example/data/api/NextDnsApiService.kt#L1032-L1041",
+          "excerpt": "1032:       val bodyStr = response.body?.string() ?: return null\n1033:       val json = org.json.JSONObject(bodyStr)\n1034:       val arr = json.optJSONArray(\"data\") ?: return null\n1035:       val list = mutableListOf<NativeTrackingDto>()\n1036:       for (i in 0 until arr.length()) {\n1037:         val obj = arr.getJSONObject(i)\n1038:         list.add(NativeTrackingDto(id = obj.getString(\"id\")))\n1039:       }\n1040:       list\n1041:     } catch (_: Exception) {"
+        }
+      ],
+      "trigger": "IP bağlamayı tekrar çalıştır; katalog fallback isteğine body içeren non-2xx yanıtlar döndür.",
+      "observedSourceBehavior": "linkIpAddress yalnız isSuccessful okur; body tüketilmez ve response kapatılmaz. Katalog fallback erken non-2xx dönüşleri de body tüketilmeden gerçekleşir. Başarılı body.string yolları zaten kapanır ve bu bulguya dahil değildir.",
+      "recommendedCorrection": "Bütün senkron Response sahipliğini use kapsamına al; erken dönüş/istisnalarda da body kapansın.",
+      "closureCriteria": "Başarı, non-2xx ve parse hatası yollarında her response kapatılır; tekrarlı fixture çağrılarında açık kaynak birikmez.",
+      "browserstackCases": [
+        "B03",
+        "B05",
+        "B19"
+      ],
+      "fixCommit": null,
+      "retestEvidence": []
+    },
+    {
+      "id": "NDNS-008",
+      "severity": "P2",
+      "type": "CODE_DEFECT",
+      "status": "OPEN",
+      "verification": "SOURCE_CONFIRMED",
+      "runtimeReproduced": false,
+      "reviewedCommit": "4abf26a1a556cf42235fbf05c70f89cb5ad79e8c",
+      "title": "Senkronizasyon bayrakları iptal ve eşzamanlı güncellemede tutarsızlaşabilir",
+      "locations": [
+        {
+          "path": "app/src/main/java/com/example/data/repository/NextDnsRepository.kt",
+          "lineStart": 143,
+          "lineEnd": 150,
+          "sha256": "3465498d3a0bd0dac20020168defc458196a3c6ddefa7a824f50210b6d2a23df",
+          "url": "https://github.com/illetyus/open-source-client-for-nextdns/blob/4abf26a1a556cf42235fbf05c70f89cb5ad79e8c/app/src/main/java/com/example/data/repository/NextDnsRepository.kt#L143-L150",
+          "excerpt": "143:   private fun updateSectionSyncState(\n144:     section: SyncSection,\n145:     transform: (SectionSyncState) -> SectionSyncState\n146:   ) {\n147:     val current = _sectionSyncStates.value\n148:     val state = current[section] ?: SectionSyncState()\n149:     _sectionSyncStates.value = current + (section to transform(state))\n150:   }"
+        },
+        {
+          "path": "app/src/main/java/com/example/data/repository/NextDnsRepository.kt",
+          "lineStart": 157,
+          "lineEnd": 180,
+          "sha256": "3465498d3a0bd0dac20020168defc458196a3c6ddefa7a824f50210b6d2a23df",
+          "url": "https://github.com/illetyus/open-source-client-for-nextdns/blob/4abf26a1a556cf42235fbf05c70f89cb5ad79e8c/app/src/main/java/com/example/data/repository/NextDnsRepository.kt#L157-L180",
+          "excerpt": "157:     val attemptAt = System.currentTimeMillis()\n158:     updateSectionSyncState(section) {\n159:       it.copy(isRefreshing = true, lastAttemptAt = attemptAt, errorMessage = null)\n160:     }\n161: \n162:     val success = try {\n163:       when (section) {\n164:         SyncSection.SETUP -> applySetupFromApi(key, profileId)\n165:         SyncSection.SECURITY -> applySecuritySettingsFromApi(key, profileId)\n166:         SyncSection.PRIVACY -> applyPrivacySettingsFromApi(key, profileId)\n167:         SyncSection.PARENTAL -> applyParentalSettingsFromApi(key, profileId)\n168:         SyncSection.DENYLIST -> applyDenylistFromApi(key, profileId)\n169:         SyncSection.ALLOWLIST -> applyAllowlistFromApi(key, profileId)\n170:         SyncSection.SETTINGS -> applyConfigSettingsFromApi(key, profileId)\n171:         SyncSection.ACCOUNT -> applyAccountFromApi(key)\n172:       }\n173:     } catch (cancel: CancellationException) {\n174:       throw cancel\n175:     } catch (error: Exception) {\n176:       if (BuildConfig.DEBUG) Log.e(TAG, \"[refreshSection] error\", error)\n177:       false\n178:     }\n179: \n180:     updateSectionSyncState(section) { previous ->"
+        },
+        {
+          "path": "app/src/main/java/com/example/ui/screens/HomeScreen.kt",
+          "lineStart": 454,
+          "lineEnd": 457,
+          "sha256": "f52705360d7054fbc17fa45efa1318c936792f9477714c12ab52018a2e773f9e",
+          "url": "https://github.com/illetyus/open-source-client-for-nextdns/blob/4abf26a1a556cf42235fbf05c70f89cb5ad79e8c/app/src/main/java/com/example/ui/screens/HomeScreen.kt#L454-L457",
+          "excerpt": "454:           currentSectionSyncState?.let { syncState ->\n455:             val syncText = when {\n456:               syncState.isSaving -> AppStrings.get(R.string.saving_server)\n457:               syncState.isRefreshing -> AppStrings.get(R.string.ui_a3b98b8a79)"
+        }
+      ],
+      "trigger": "refreshSection isRefreshing=true olduktan sonra sekme sorgusunu iptal et. Ayrı durumda farklı section güncellemelerini eşzamanlı tamamlat.",
+      "observedSourceBehavior": "CancellationException güncel bayrak temizlenmeden yeniden fırlatılır; temizleme finally içinde değil. Harita read/value→copy→write ile güncellenir; eşzamanlı değişiklikler birbirini kaybedebilir.",
+      "recommendedCorrection": "İstek kimliğine bağlı finally temizliği ve atomik StateFlow.update kullan; eski isteğin yeni isteğin bayrağını temizlemesine izin verme.",
+      "closureCriteria": "İptalde eski isRefreshing kalmaz; iki section değişikliği korunur; ardışık eski/yeni istek tamamlanması yeni isteğin durumunu bozmaz.",
+      "browserstackCases": [
+        "B05",
+        "B08",
+        "B16"
+      ],
+      "fixCommit": null,
+      "retestEvidence": []
+    },
+    {
+      "id": "NDNS-009",
+      "severity": "P2",
+      "type": "CODE_DEFECT",
+      "status": "OPEN",
+      "verification": "SOURCE_CONFIRMED",
+      "runtimeReproduced": false,
+      "reviewedCommit": "4abf26a1a556cf42235fbf05c70f89cb5ad79e8c",
+      "title": "Günlük cihaz menüsünde Tüm cihazlar etiketi çevrilmiyor",
+      "locations": [
+        {
+          "path": "app/src/main/java/com/example/ui/screens/LogsScreen.kt",
+          "lineStart": 118,
+          "lineEnd": 120,
+          "sha256": "31186ceeaa1e56b595487926e4001e8dc64b2d96ea6353f75729b3356abc506b",
+          "url": "https://github.com/illetyus/open-source-client-for-nextdns/blob/4abf26a1a556cf42235fbf05c70f89cb5ad79e8c/app/src/main/java/com/example/ui/screens/LogsScreen.kt#L118-L120",
+          "excerpt": "118:   var searchQuery by remember { mutableStateOf(\"\") }\n119:   var selectedDeviceFilter by remember { mutableStateOf(\"Tüm cihazlar\") }\n120:   var showDeviceMenu by remember { mutableStateOf(false) }"
+        },
+        {
+          "path": "app/src/main/java/com/example/ui/screens/LogsScreen.kt",
+          "lineStart": 140,
+          "lineEnd": 142,
+          "sha256": "31186ceeaa1e56b595487926e4001e8dc64b2d96ea6353f75729b3356abc506b",
+          "url": "https://github.com/illetyus/open-source-client-for-nextdns/blob/4abf26a1a556cf42235fbf05c70f89cb5ad79e8c/app/src/main/java/com/example/ui/screens/LogsScreen.kt#L140-L142",
+          "excerpt": "140:       }\n141:     }\n142:     listOf(\"Tüm cihazlar\") + list.distinct()"
+        },
+        {
+          "path": "app/src/main/java/com/example/ui/screens/LogsScreen.kt",
+          "lineStart": 270,
+          "lineEnd": 271,
+          "sha256": "31186ceeaa1e56b595487926e4001e8dc64b2d96ea6353f75729b3356abc506b",
+          "url": "https://github.com/illetyus/open-source-client-for-nextdns/blob/4abf26a1a556cf42235fbf05c70f89cb5ad79e8c/app/src/main/java/com/example/ui/screens/LogsScreen.kt#L270-L271",
+          "excerpt": "270:           Text(\n271:             text = UiLabels.canonical(selectedDeviceFilter),"
+        },
+        {
+          "path": "app/src/main/java/com/example/ui/screens/LogsScreen.kt",
+          "lineStart": 292,
+          "lineEnd": 299,
+          "sha256": "31186ceeaa1e56b595487926e4001e8dc64b2d96ea6353f75729b3356abc506b",
+          "url": "https://github.com/illetyus/open-source-client-for-nextdns/blob/4abf26a1a556cf42235fbf05c70f89cb5ad79e8c/app/src/main/java/com/example/ui/screens/LogsScreen.kt#L292-L299",
+          "excerpt": "292:         detectedDevices.forEach { dev ->\n293:           DropdownMenuItem(\n294:             text = {\n295:               Text(\n296:                 text = dev,\n297:                 color = if (dev == selectedDeviceFilter) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurface,\n298:                 fontSize = 12.sp\n299:               )"
+        }
+      ],
+      "trigger": "EN/DE/FR/ES seç; Logs cihaz filtresi menüsünü aç.",
+      "observedSourceBehavior": "Seçili başlık UiLabels.canonical ile çevrilir fakat menü Text(text=dev) kullanır. Listeye eklenen Türkçe Tüm cihazlar sentinel değeri menüde aynen görünür; statik kaynak eşitliği kapısı bunu yakalamaz.",
+      "recommendedCorrection": "Sabit sentinel etiketlerini menüde de çevir; gerçek sunucu cihaz adlarını aynen koru.",
+      "closureCriteria": "Beş dilde başlık ve menü etiketi aynı anlamda çevrilir; kullanıcı cihaz adları çeviri yüzünden değiştirilmez.",
+      "browserstackCases": [
+        "B12",
+        "B17"
+      ],
+      "fixCommit": null,
+      "retestEvidence": []
+    },
+    {
+      "id": "NDNS-010",
+      "severity": "P2",
+      "type": "CODE_DEFECT",
+      "status": "OPEN",
+      "verification": "SOURCE_CONFIRMED",
+      "runtimeReproduced": false,
+      "reviewedCommit": "4abf26a1a556cf42235fbf05c70f89cb5ad79e8c",
+      "title": "Bozuk export URL veya çıktı açma hatası kontrolsüz istisna oluşturabilir",
+      "locations": [
+        {
+          "path": "app/src/main/java/com/example/data/repository/NextDnsRepository.kt",
+          "lineStart": 1615,
+          "lineEnd": 1618,
+          "sha256": "3465498d3a0bd0dac20020168defc458196a3c6ddefa7a824f50210b6d2a23df",
+          "url": "https://github.com/illetyus/open-source-client-for-nextdns/blob/4abf26a1a556cf42235fbf05c70f89cb5ad79e8c/app/src/main/java/com/example/data/repository/NextDnsRepository.kt#L1615-L1618",
+          "excerpt": "1615:   private fun extractDownloadUrl(rawJson: String): String? {\n1616:     fun find(value: Any?): String? = when (value) {\n1617:       is String -> value.takeIf { it.startsWith(\"https://\", ignoreCase = true) }\n1618:       is org.json.JSONObject -> {"
+        },
+        {
+          "path": "app/src/main/java/com/example/data/repository/NextDnsRepository.kt",
+          "lineStart": 1662,
+          "lineEnd": 1673,
+          "sha256": "3465498d3a0bd0dac20020168defc458196a3c6ddefa7a824f50210b6d2a23df",
+          "url": "https://github.com/illetyus/open-source-client-for-nextdns/blob/4abf26a1a556cf42235fbf05c70f89cb5ad79e8c/app/src/main/java/com/example/data/repository/NextDnsRepository.kt#L1662-L1673",
+          "excerpt": "1662:     val publicUrl = extractDownloadUrl(rawJson)\n1663:       ?: return@withContext Result.failure(\n1664:         IllegalStateException(AppStrings.get(R.string.ui_e51fbaad5c))\n1665:       )\n1666: \n1667:     val request = Request.Builder()\n1668:       .url(publicUrl)\n1669:       .header(\"Accept\", \"*/*\")\n1670:       .build()\n1671: \n1672:     return@withContext try {\n1673:       NextDnsNetworkClient.publicDownloadClient.newCall(request).execute().use { response ->"
+        },
+        {
+          "path": "app/src/main/java/com/example/ui/screens/SettingsScreen.kt",
+          "lineStart": 63,
+          "lineEnd": 73,
+          "sha256": "11647fe19ca0afa9213f965df3f4ec702d06f79b45effdb774f905a5ea184eec",
+          "url": "https://github.com/illetyus/open-source-client-for-nextdns/blob/4abf26a1a556cf42235fbf05c70f89cb5ad79e8c/app/src/main/java/com/example/ui/screens/SettingsScreen.kt#L63-L73",
+          "excerpt": "63:   val exportLauncher = rememberLauncherForActivityResult(ActivityResultContracts.CreateDocument(\"text/csv\")) { uri ->\n64:     if (uri != null) {\n65:       screenScope.launch {\n66:         val output = context.contentResolver.openOutputStream(uri)\n67:         if (output == null) {\n68:           viewModel.showMessage(AppStrings.get(R.string.ui_5d465cd584), isError = true)\n69:         } else {\n70:           output.use { stream ->\n71:             viewModel.exportLogs(stream)\n72:           }\n73:         }"
+        },
+        {
+          "path": "app/src/main/java/com/example/ui/viewmodel/NextDnsViewModel.kt",
+          "lineStart": 678,
+          "lineEnd": 684,
+          "sha256": "e5e482173dc295c02c33091a9b09f41a2b5d16ad8c0f442fd2804959385a2158",
+          "url": "https://github.com/illetyus/open-source-client-for-nextdns/blob/4abf26a1a556cf42235fbf05c70f89cb5ad79e8c/app/src/main/java/com/example/ui/viewmodel/NextDnsViewModel.kt#L678-L684",
+          "excerpt": "678:   suspend fun exportLogs(outputStream: OutputStream): Result<Unit> {\n679:     val result = repository.exportLogs(outputStream)\n680:     reportMutationResult(\n681:       result,\n682:       successMessage = AppStrings.get(R.string.ui_a5562d8e36)\n683:     )\n684:     return result"
+        }
+      ],
+      "trigger": "Export link yanıtında https:// gibi geçersiz ama prefix kontrolünü geçen bir değer kullan. Ayrı durumda belge sağlayıcısının openOutputStream çağrısını hata ile sonlandır.",
+      "observedSourceBehavior": "Request.Builder.url try bloğundan önce çalışır; geçersiz URL IllegalArgumentException üretir ve Result akışından kaçar. UI openOutputStream çağrısı da try içinde değildir; sağlayıcı istisnası screenScope.launch içinde kontrolsüz kalır.",
+      "recommendedCorrection": "URLyi HttpUrl ile doğrula, bütün export/sağlayıcı işlemini yönetilen hata akışına al; cancellation istisnasını yeniden fırlat ve kısmi dosyayı başarı sayma.",
+      "closureCriteria": "Geçersiz URL, silinen/revoked URI, sağlayıcı erişim hatası ve IO hatası kullanıcıya hata gösterir; çökme/başarı bildirimi olmaz; tüm akışlar kapanır.",
+      "browserstackCases": [
+        "B07",
+        "B16",
+        "B19"
+      ],
+      "fixCommit": null,
+      "retestEvidence": []
+    }
+  ],
+  "qualityObservations": [
+    {
+      "id": "Q-001",
+      "severity": "P2",
+      "type": "TEST_COVERAGE_GAP",
+      "status": "OPEN",
+      "title": "Repository oturum/mutasyon yollarının hedefli regresyon kanıtı eksik",
+      "detail": "JVM toplam LINE %20.73, BRANCH %10.28; NextDnsRepository sınıfı LINE %7.06. Coroutine/Compose üretilmiş kodu oranları etkiler; API 35 native güvenlik testleri bu JVM raporuna dahil değildir. Kritik bug yolları için mevcut testler başarı kanıtı vermez. Rastgele bir genel yüzde hedefi yerine yukarıdaki kapanış senaryoları gereklidir."
+    },
+    {
+      "id": "Q-002",
+      "severity": "P3",
+      "type": "MAINTAINABILITY",
+      "status": "OPEN",
+      "title": "Repository çok sayıda sorumluluğu ve statik API bağımlılığını topluyor",
+      "detail": "2456 satırlık repository ağ, cache, profil, SSE, analytics ve sunum formatlamasını birlikte yönetir. Test edilebilir API/clock/session bağımlılıkları ve küçük saf mapper sınırları bakım işidir; önceki fazları baştan geliştirme gerekçesi değildir."
+    },
+    {
+      "id": "Q-003",
+      "severity": "P2",
+      "type": "PROCESS_ENFORCEMENT",
+      "status": "OPEN",
+      "title": "PR/CI süreci uygulanıyor fakat main sunucu tarafında korunmuyor",
+      "detail": "GitHub branch protection API main için 404 Branch not protected verdi; etkin branch rules yanıtı boş listedir. Normal PR/CI izlendiği doğrulandı; zorunlu review/check kuralı platform tarafından dayatılmıyor. Bu inceleme depo yönetim ayarlarını değiştirmez."
+    }
+  ],
+  "meaning": "SOURCE_CONFIRMED is a source inspection finding, not an executed Android or BrowserStack reproduction.",
+  "closureRule": "OPEN becomes VERIFIED_FIXED only with fix commit and retained regression/retest evidence; then rerun affected BrowserStack cases on the new candidate."
+}
