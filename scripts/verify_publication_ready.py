@@ -20,8 +20,8 @@ assert readiness['territories']==['TR','EU']
 assert readiness['free'] and not readiness['ads'] and not readiness['inAppPurchases']
 cases=readiness['browserstack']['cases']
 assert len(cases)==22 and {c['id'] for c in cases}=={f'B{x:02}' for x in range(1,23)}
-assert all(c['status'] in ('NOT_RUN','PASS','FAIL','BLOCKED') for c in cases)
-assert all(c['status']!='PASS' or c['evidence'] for c in cases),'PASS requires retained evidence'
+assert all(c['status'] in ('NOT_RUN','PARTIAL','PASS','FAIL','BLOCKED') for c in cases)
+assert all(c['status'] not in ('PARTIAL','PASS') or c['evidence'] for c in cases),'PARTIAL/PASS requires retained evidence'
 if '--draft' in sys.argv:
  print('Five store localizations and B01–B22 ledger structure verified; publication not authorized.')
  sys.exit(0)
