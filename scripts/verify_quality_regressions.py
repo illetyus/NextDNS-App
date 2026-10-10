@@ -19,7 +19,10 @@ REQUIRED = {
         "normalCreatedProfileIsVerifiedPersistedAndSelected")],
     "NDNS-002": [(REPOSITORY, name) for name in (
         "mutationForACannotBeVerifiedUsingB", "successfulMutationReadsAndCachesTheSameProfile",
-        "successfulHttpReadDoesNotVerifyAnUnappliedMutation")],
+        "successfulHttpReadDoesNotVerifyAnUnappliedMutation",
+        "deletingSelectedProfileVerifiesRemovalBeforeSelectingReplacement",
+        "deletingLastProfileVerifiesEmptyListAndClearsSelection",
+        "acceptedDeleteDoesNotSucceedWhenServerStillContainsTarget")],
     "NDNS-003": [(REPOSITORY, "diagnosticTimeoutDoesNotReplaceLastSuccessWithFreshSuccess"),
         (NETWORK, "diagnosticHttpFailureIgnoresSuccessLookingJson"),
         (UI, "diagnosticBannerRequiresSuccessfulMeasurementOfSelectedProfile")],

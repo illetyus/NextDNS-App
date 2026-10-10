@@ -287,6 +287,34 @@ class RepositoryRegressionTest {
     assertFalse(requests.any { it.contains("/analytics/") })
   }
 
+  @Test fun deletingSelectedProfileVerifiesRemovalBeforeSelectingReplacement() = runBlocking {
+    response = { req -> if (req.method == "DELETE") json("{}")
+      else json("""{"data":[{"id":"bbbbbb","name":"B"}]}""") }
+    assertTrue(repository.deleteProfileRemote("aaaaaa").isSuccess)
+    assertEquals("bbbbbb", repository.activeProfileId.value)
+    assertEquals("bbbbbb", preferences.activeProfileId)
+    assertEquals(listOf("bbbbbb"), preferences.getProfiles()?.map { it.id })
+    assertTrue(requests.contains("DELETE /profiles/aaaaaa"))
+    assertTrue(requests.contains("GET /profiles"))
+  }
+
+  @Test fun deletingLastProfileVerifiesEmptyListAndClearsSelection() = runBlocking {
+    response = { req -> if (req.method == "DELETE") json("{}") else json("""{"data":[]}""") }
+    assertTrue(repository.deleteProfileRemote("aaaaaa").isSuccess)
+    assertEquals("", repository.activeProfileId.value)
+    assertEquals("", preferences.activeProfileId)
+    assertTrue(preferences.getProfiles().orEmpty().isEmpty())
+    assertFalse(repository.isSyncing.value)
+  }
+
+  @Test fun acceptedDeleteDoesNotSucceedWhenServerStillContainsTarget() = runBlocking {
+    response = { req -> if (req.method == "DELETE") json("{}")
+      else json("""{"data":[{"id":"aaaaaa","name":"A"},{"id":"bbbbbb","name":"B"}]}""") }
+    assertTrue(repository.deleteProfileRemote("aaaaaa").isFailure)
+    assertEquals("aaaaaa", repository.activeProfileId.value)
+    assertEquals("aaaaaa", preferences.activeProfileId)
+  }
+
   @Test fun cancelledDiagnosticClearsBothRepositoryAndViewModelBusyFlags() = runBlocking {
     val entered = gate()
     repository = newRepository { entered.countDown(); awaitCancellation() }

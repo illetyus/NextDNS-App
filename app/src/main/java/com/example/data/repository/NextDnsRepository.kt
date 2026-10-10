@@ -535,8 +535,7 @@ class NextDnsRepository(
       _allowlist.value = preferences.getAllowlist(profileId) ?: emptyList()
       _configSettings.value = preferences.getConfigSettings(profileId) ?: ConfigSettings()
       _logs.value = emptyList()
-      }
-
+    }
   }
 
   // =========================================================================
@@ -697,11 +696,19 @@ class NextDnsRepository(
   }
 
   suspend fun refreshProfilesFromApi(): Boolean = withSessionContext {
+    refreshProfilesForSession()
+  }
+
+  private suspend fun refreshProfilesForSession(
+    verify: (List<NextDnsProfile>) -> Boolean = { true }
+  ): Boolean {
     val key = checkNotNull(currentCoroutineContext()[SessionContext]).snapshot.apiKey
-    if (key.isBlank()) return@withSessionContext false
+    if (key.isBlank()) return false
     val result = fetchAllProfilesFromApi(key)
-    if (result.isFailure) return@withSessionContext false
+    if (result.isFailure) return false
     val remote = result.getOrThrow().map { NextDnsProfile(it.id, it.name, it.fingerprint.orEmpty()) }
+    // Verify the mutation before a legitimate selected-profile transition advances the session.
+    if (!verify(remote)) return false
     val owner = currentCoroutineContext()[SessionContext]?.owner
     val replacement = commitCurrentSession {
       _profiles.value = remote
@@ -717,8 +724,8 @@ class NextDnsRepository(
         next
       } else null
     }
-    if (!replacement.isNullOrBlank()) loadActiveProfileDataFromApi(key, replacement)
-    true
+    if (backgroundWorkEnabled && !replacement.isNullOrBlank()) loadActiveProfileDataFromApi(key, replacement)
+    return true
   }
 
   suspend fun loadActiveProfileDataFromApi(
@@ -1319,8 +1326,8 @@ class NextDnsRepository(
       )
     }
 
-    val verified = refreshProfilesFromApi()
-    if (!verified || !commitCurrentSession { _profiles.value.none { it.id == profileId } }) {
+    val verified = refreshProfilesForSession { remote -> remote.none { it.id == profileId } }
+    if (!verified) {
       return@withSessionContext Result.failure(
         IllegalStateException(AppStrings.get(R.string.ui_9cac51a42b))
       )
@@ -1352,8 +1359,8 @@ class NextDnsRepository(
       )
     }
 
-    val verified = refreshProfilesFromApi()
-    if (!verified || !commitCurrentSession { _profiles.value.any { it.id == profileId && it.name == newName } }) {
+    val verified = refreshProfilesForSession { remote -> remote.any { it.id == profileId && it.name == newName } }
+    if (!verified) {
       return@withSessionContext Result.failure(
         IllegalStateException(AppStrings.get(R.string.ui_e144829518))
       )
