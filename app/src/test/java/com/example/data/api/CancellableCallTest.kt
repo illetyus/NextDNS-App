@@ -128,4 +128,11 @@ class CancellableCallTest {
     assertNull(NextDnsNetworkClient.fetchTestConnectionDirect("aaaaaa", Call.Factory { FixtureCall(it, body) }))
     assertTrue(body.closed.get())
   }
+
+  @Test fun diagnosticHttpFailureIgnoresSuccessLookingJson() = runBlocking {
+    val body = TrackingBody("""{"status":"ok","profile":"aaaaaa"}""")
+    assertNull(NextDnsNetworkClient.fetchTestConnectionDirect("aaaaaa",
+      Call.Factory { FixtureCall(it, body, code = 503) }))
+    assertTrue(body.closed.get())
+  }
 }

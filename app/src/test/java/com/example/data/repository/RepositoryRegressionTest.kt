@@ -335,7 +335,7 @@ class RepositoryRegressionTest {
       diagnosticProbe = { null }, streamClient = client, backgroundWorkEnabled = false)
     response = { request ->
       if (request.requestUrl!!.encodedPath == "/stream") MockResponse().setBody(":" + "x".repeat(1_000))
-        .throttleBody(1, 1, TimeUnit.DAYS)
+        .throttleBody(1, 1, TimeUnit.SECONDS)
       else json("""{"data":[],"meta":{"stream":{"id":"fixture-stream"}}}""")
     }
     repository.startLogsStream()

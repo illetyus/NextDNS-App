@@ -21,6 +21,7 @@ REQUIRED = {
         "mutationForACannotBeVerifiedUsingB", "successfulMutationReadsAndCachesTheSameProfile",
         "successfulHttpReadDoesNotVerifyAnUnappliedMutation")],
     "NDNS-003": [(REPOSITORY, "diagnosticTimeoutDoesNotReplaceLastSuccessWithFreshSuccess"),
+        (NETWORK, "diagnosticHttpFailureIgnoresSuccessLookingJson"),
         (UI, "diagnosticBannerRequiresSuccessfulMeasurementOfSelectedProfile")],
     "NDNS-004": [(REPOSITORY, "web3TrueFalseAndMissingFieldPreserveAuthoritativeState")],
     "NDNS-005": [(POLLING, "pauseStopsPollingAndCancelsInFlightCheckThenResumeStartsOneLoop"),
