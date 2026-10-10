@@ -62,8 +62,10 @@ def main():
     app=upload(args.app,'app'); suite=upload(args.test_suite,'test-suite')
     # Native fixture tests bind a TLS MockWebServer on the device itself.
     # BrowserStack otherwise routes localhost through its proxy (CONNECT 503).
+    # Permission changes can kill a running instrumented process. Reset the
+    # disposable installation between methods so grant/denial tests are independent.
     payload={'app':app['app_url'],'testSuite':suite['test_suite_url'],'devices':devices,
-             'allowDeviceMockServer':True}
+             'allowDeviceMockServer':True,'clearPackageData':True}
     build=request('build',json.dumps(payload).encode(),'application/json')
     root=Path(__file__).resolve().parents[1]
     evidence={'status':'SUBMITTED','commit':commit,'appSha256':app_hash,

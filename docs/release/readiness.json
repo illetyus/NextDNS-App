@@ -20,7 +20,8 @@
         "status": "PARTIAL",
         "evidence": [
           "docs/release/browserstack-initial-results-2026-10-10.json",
-          "docs/release/browserstack-espresso-results-2026-10-10.json"
+          "docs/release/browserstack-espresso-results-2026-10-10.json",
+          "docs/release/browserstack-legal-notification-fix-results-2026-10-10.json"
         ]
       },
       {
@@ -42,7 +43,8 @@
         "id": "B05",
         "status": "PARTIAL",
         "evidence": [
-          "docs/release/browserstack-espresso-results-2026-10-10.json"
+          "docs/release/browserstack-espresso-results-2026-10-10.json",
+          "docs/release/browserstack-legal-notification-fix-results-2026-10-10.json"
         ]
       },
       {
@@ -54,7 +56,8 @@
         "id": "B07",
         "status": "PARTIAL",
         "evidence": [
-          "docs/release/browserstack-espresso-results-2026-10-10.json"
+          "docs/release/browserstack-espresso-results-2026-10-10.json",
+          "docs/release/browserstack-legal-notification-fix-results-2026-10-10.json"
         ]
       },
       {
@@ -64,9 +67,10 @@
       },
       {
         "id": "B09",
-        "status": "FAIL",
+        "status": "PARTIAL",
         "evidence": [
-          "docs/release/browserstack-espresso-results-2026-10-10.json"
+          "docs/release/browserstack-espresso-results-2026-10-10.json",
+          "docs/release/browserstack-legal-notification-fix-results-2026-10-10.json"
         ]
       },
       {
@@ -76,23 +80,26 @@
       },
       {
         "id": "B11",
-        "status": "FAIL",
+        "status": "PARTIAL",
         "evidence": [
-          "docs/release/browserstack-initial-results-2026-10-10.json"
+          "docs/release/browserstack-initial-results-2026-10-10.json",
+          "docs/release/browserstack-legal-notification-fix-results-2026-10-10.json"
         ]
       },
       {
         "id": "B12",
         "status": "PARTIAL",
         "evidence": [
-          "docs/release/browserstack-initial-results-2026-10-10.json"
+          "docs/release/browserstack-initial-results-2026-10-10.json",
+          "docs/release/browserstack-legal-notification-fix-results-2026-10-10.json"
         ]
       },
       {
         "id": "B13",
         "status": "PARTIAL",
         "evidence": [
-          "docs/release/browserstack-espresso-results-2026-10-10.json"
+          "docs/release/browserstack-espresso-results-2026-10-10.json",
+          "docs/release/browserstack-legal-notification-fix-results-2026-10-10.json"
         ]
       },
       {
@@ -100,14 +107,16 @@
         "status": "PARTIAL",
         "evidence": [
           "docs/release/browserstack-initial-results-2026-10-10.json",
-          "docs/release/browserstack-espresso-results-2026-10-10.json"
+          "docs/release/browserstack-espresso-results-2026-10-10.json",
+          "docs/release/browserstack-legal-notification-fix-results-2026-10-10.json"
         ]
       },
       {
         "id": "B15",
         "status": "PARTIAL",
         "evidence": [
-          "docs/release/browserstack-espresso-results-2026-10-10.json"
+          "docs/release/browserstack-espresso-results-2026-10-10.json",
+          "docs/release/browserstack-legal-notification-fix-results-2026-10-10.json"
         ]
       },
       {
@@ -127,14 +136,16 @@
         "status": "PARTIAL",
         "evidence": [
           "docs/release/browserstack-initial-results-2026-10-10.json",
-          "docs/release/browserstack-espresso-results-2026-10-10.json"
+          "docs/release/browserstack-espresso-results-2026-10-10.json",
+          "docs/release/browserstack-legal-notification-fix-results-2026-10-10.json"
         ]
       },
       {
         "id": "B19",
         "status": "PARTIAL",
         "evidence": [
-          "docs/release/browserstack-espresso-results-2026-10-10.json"
+          "docs/release/browserstack-espresso-results-2026-10-10.json",
+          "docs/release/browserstack-legal-notification-fix-results-2026-10-10.json"
         ]
       },
       {
@@ -142,7 +153,8 @@
         "status": "PARTIAL",
         "evidence": [
           "docs/release/browserstack-initial-results-2026-10-10.json",
-          "docs/release/browserstack-espresso-results-2026-10-10.json"
+          "docs/release/browserstack-espresso-results-2026-10-10.json",
+          "docs/release/browserstack-legal-notification-fix-results-2026-10-10.json"
         ]
       },
       {
@@ -157,7 +169,8 @@
       }
     ],
     "initialAppLiveEvidence": "docs/release/browserstack-initial-results-2026-10-10.json",
-    "executedAppAutomateEvidence": "docs/release/browserstack-espresso-results-2026-10-10.json"
+    "executedAppAutomateEvidence": "docs/release/browserstack-espresso-results-2026-10-10.json",
+    "legalNotificationFixEvidence": "docs/release/browserstack-legal-notification-fix-results-2026-10-10.json"
   },
   "play": {
     "internalTest": null,

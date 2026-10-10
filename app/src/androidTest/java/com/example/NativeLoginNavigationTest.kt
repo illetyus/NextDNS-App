@@ -8,6 +8,7 @@ import androidx.test.platform.app.InstrumentationRegistry
 import androidx.compose.ui.test.*
 import androidx.compose.ui.test.junit4.createEmptyComposeRule
 import com.example.data.legal.LegalAcceptanceStore
+import com.example.ui.screens.formatRelativeTime
 import org.junit.Assert.*
 import org.junit.Rule
 import org.junit.Test
@@ -19,6 +20,19 @@ class NativeLoginNavigationTest {
   @get:Rule val rule = createEmptyComposeRule()
 
   @Test fun freshInstallRequiresExplicitTermsBeforeGuestNavigation() {
+    // The instrumentation APK's desugared runtime also serves target-app code.
+    // Exercise all ISO parsers used by production logs, so L8 retains those
+    // methods in release tests and a missing API fails before guest navigation.
+    val epoch = 1609459200000L
+    val utc = "2021-01-01T00:00:00Z"
+    val offset = "2021-01-01T01:00:00+01:00"
+    val local = "2021-01-01T00:00:00"
+    assertEquals(epoch, java.time.Instant.parse(utc).toEpochMilli())
+    assertEquals(epoch, java.time.OffsetDateTime.parse(offset).toInstant().toEpochMilli())
+    assertEquals(epoch, java.time.LocalDateTime.parse(local).toInstant(java.time.ZoneOffset.UTC).toEpochMilli())
+    for (timestamp in listOf(utc, offset, local)) {
+      assertEquals(formatRelativeTime(epoch.toString()), formatRelativeTime(timestamp))
+    }
     val context = InstrumentationRegistry.getInstrumentation().targetContext
     assertTrue(context.getSharedPreferences("legal_acceptance", Context.MODE_PRIVATE).edit().clear().commit())
     assertTrue(context.getSharedPreferences("nextdns_secure_prefs", Context.MODE_PRIVATE).edit().clear().commit())
@@ -27,12 +41,12 @@ class NativeLoginNavigationTest {
       rule.onNodeWithTag("welcome_accept_checkbox").assertIsOff()
       rule.onNodeWithTag("welcome_continue").assertIsNotEnabled()
       rule.onAllNodesWithTag("login_guest").assertCountEquals(0)
-      rule.onNodeWithTag("welcome_privacy").performClick()
+      rule.onNodeWithTag("welcome_privacy").performScrollTo().performClick()
       rule.runOnIdle { assertFalse(acceptance.isAccepted()) }
       rule.onNodeWithTag("welcome_continue").assertIsNotEnabled()
-      rule.onNodeWithTag("welcome_terms").performClick()
-      rule.onNodeWithTag("welcome_accept_checkbox").performClick()
-      rule.onNodeWithTag("welcome_continue").performClick()
+      rule.onNodeWithTag("welcome_terms").performScrollTo().performClick()
+      rule.onNodeWithTag("welcome_accept_checkbox").performScrollTo().performClick()
+      rule.onNodeWithTag("welcome_continue").performScrollTo().performClick()
       rule.waitUntil(20_000) { rule.onAllNodesWithTag("login_guest").fetchSemanticsNodes().isNotEmpty() }
       rule.runOnIdle { assertTrue(acceptance.isAccepted()) }
       rule.onNodeWithTag("login_submit").assertIsNotEnabled()

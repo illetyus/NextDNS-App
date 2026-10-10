@@ -3,8 +3,8 @@
   "reviewDate": "2026-10-10",
   "reviewedCommit": "4abf26a1a556cf42235fbf05c70f89cb5ad79e8c",
   "sourceHashFormat": "sha256-utf8-lf",
-  "status": "DEVICE_REVIEW_PARTIAL_WITH_OPEN_DEFECT",
-  "decision": "FIX_NDNS_011_AND_COMPLETE_DEVICE_ACCEPTANCE",
+  "status": "TARGETED_DEVICE_FIXES_VERIFIED_ACCEPTANCE_PARTIAL",
+  "decision": "COMPLETE_REMAINING_PHASE9_DEVICE_AND_PUBLICATION_GATES",
   "severityCounts": {
     "P1": 3,
     "P2": 8
@@ -786,8 +786,8 @@
       "id": "NDNS-011",
       "severity": "P2",
       "type": "CODE_DEFECT",
-      "status": "OPEN",
-      "verification": "BROWSERSTACK_APP_LIVE_REAL_DEVICE_REPRODUCTION",
+      "status": "FIXED_REAL_DEVICE_RETEST_VERIFIED",
+      "verification": "FAILURE_FIRST_JVM_AND_SIGNED_RELEASE_REAL_DEVICE_REGRESSIONS",
       "runtimeReproduced": true,
       "reviewedCommit": "d63aea420207b8aacf7eb7866820bd173c42a519",
       "title": "Landscape legal welcome hides the document reader and continue control",
@@ -810,7 +810,11 @@
         "B20"
       ],
       "deviceEvidence": "docs/release/browserstack-initial-results-2026-10-10.json",
-      "fixCommit": null
+      "fixCommit": "20d9143f57133b998fe620a05d0fed26a9b006c7",
+      "correction": "Bounded document viewport and outer page scroll preserve offline reading and explicit terms selection in short windows.",
+      "deviceRetestStatus": "PASS",
+      "controlledRegressionResult": "PASS",
+      "fixRetestEvidence": "docs/release/browserstack-legal-notification-fix-results-2026-10-10.json"
     }
   ],
   "qualityObservations": [
@@ -855,23 +859,52 @@
       "id": "Q-005",
       "severity": "P2",
       "type": "NATIVE_TEST_PLATFORM_ASSUMPTION",
-      "status": "OPEN",
+      "status": "FIXED_REAL_DEVICE_RETEST_VERIFIED",
       "title": "Bildirim testi sistem tarafından yönetilen kanal görünürlüğünü PRIVATE varsayıyor",
       "runtimeReproduced": true,
       "detail": "Pixel 7 Android 13 ve Galaxy S26 Android 16 gerçek cihazlarında beklenen 0 yerine -1000 döndü. Android dokümanı setLockscreenVisibility alanının yalnız sistem ve notification ranker tarafından değiştirilebildiğini belirtir. Test izin reddi/no-post assertlerine ulaşmadı; bu kayıt tek başına bildirim sızıntısı kanıtı değildir.",
       "source": "https://developer.android.com/reference/android/app/NotificationChannel#setLockscreenVisibility(int)",
       "followUp": "Sistem kanal alanını uygulama garantisi olarak kullanmadan gerçek bildirim PRIVATE görünürlüğünü ve izin reddi/no-post akışını bağımsız test et; mevcut başarısızlığı atlayarak PASS üretme.",
-      "evidence": "docs/release/browserstack-espresso-results-2026-10-10.json"
+      "evidence": "docs/release/browserstack-espresso-results-2026-10-10.json",
+      "fixCommit": "03ac6dd000363c8ba2b23cf8767e1c140dbb881f",
+      "correction": "Permission denial verifies no config/daily notification; granted permission verifies both delivered PRIVATE notifications and generic publicVersion. The system-managed channel visibility assertion is removed.",
+      "fixRetestEvidence": "docs/release/browserstack-legal-notification-fix-results-2026-10-10.json"
+    },
+    {
+      "id": "Q-006",
+      "severity": "P2",
+      "type": "INSTRUMENTED_RELEASE_PACKAGE_COMPATIBILITY",
+      "status": "FIXED_REAL_DEVICE_RETEST_VERIFIED",
+      "runtimeReproduced": true,
+      "title": "Release test APK desugaring omits ISO APIs used by the instrumented application",
+      "detail": "The initial all-class release run failed guest navigation on four devices with NoSuchMethodError for j$.time.Instant.parse from the test APK. Positive notification cases also reported process crashes on Android 13/16.",
+      "correction": "Native navigation executes UTC/offset/local ISO APIs and production log formatting, retaining required L8 methods; granted-permission cleanup cancels notifications without revoking permission inside the running test process. Disposable BrowserStack installations are reset by the provider.",
+      "fixCommit": "f3c2c465bf4e03678bc5a4c65df05577c07cf5c8",
+      "evidence": "docs/release/browserstack-legal-notification-fix-results-2026-10-10.json"
+    },
+    {
+      "id": "Q-007",
+      "severity": "P2",
+      "type": "AUTOMATION_DATA_ISOLATION",
+      "status": "FIXED_REAL_DEVICE_RETEST_VERIFIED",
+      "runtimeReproduced": true,
+      "title": "BrowserStack permission state persists between method invocations",
+      "detail": "Android 13/16 executed the granted test before denial; retained grant caused revokeRuntimePermission to terminate the later instrumented process. Both methods pass on the same uploaded APK pair when the provider resets disposable app state between methods.",
+      "correction": "scripts/run_browserstack_espresso.py now submits clearPackageData=true; no permission assertion was skipped or weakened.",
+      "fixCommit": "bd2f3806cf5ae208aab67654eed72fe97820bf9f",
+      "source": "https://www.browserstack.com/docs/app-automate/espresso/clear-app-data",
+      "evidence": "docs/release/browserstack-legal-notification-fix-results-2026-10-10.json"
     }
   ],
-  "meaning": "Earlier audit and executed JVM regression records are retained. Initial BrowserStack App Live observations are partial; NDNS-011 is reproduced on the signed candidate. No previous device-pending defect is closed by this record. Executed Espresso methods are retained separately; Q-005 and NDNS-011 remain open and no full acceptance case is closed.",
-  "closureRule": "FIXED_JVM_VERIFIED_DEVICE_PENDING requires a fix commit and retained executed regressions. Device closure requires the affected B cases on the new signed candidate.",
+  "meaning": "Earlier audit and failed runs are retained. NDNS-011 and Q-005 are closed only by their targeted signed-release device regressions. NDNS-001..010 still await their own device closure criteria; no complete B01-B22 case or publication approval is inferred.",
+  "closureRule": "A targeted finding requires retained regressions and new signed-candidate device evidence satisfying its closureCriteria. Complete B01-B22 acceptance and publication approvals remain tracked separately.",
   "openCodeSeverityCounts": {
     "P1": 0,
-    "P2": 1
+    "P2": 0
   },
   "fixedAwaitingDevice": 10,
   "fixEvidence": "code-quality-fix-evidence-2026-10-10.json",
   "deviceReviewEvidence": "docs/release/browserstack-initial-results-2026-10-10.json",
-  "espressoReviewEvidence": "docs/release/browserstack-espresso-results-2026-10-10.json"
+  "espressoReviewEvidence": "docs/release/browserstack-espresso-results-2026-10-10.json",
+  "legalNotificationFixEvidence": "docs/release/browserstack-legal-notification-fix-results-2026-10-10.json"
 }
