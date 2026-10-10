@@ -54,7 +54,7 @@ class LegalWelcomeViewportTest {
         rule.onNodeWithTag("welcome_document_text").assertTextContains("privacy-2026-10-DRAFT-2", substring = true)
         rule.onNodeWithTag("welcome_accept_checkbox").performScrollTo().assertIsDisplayed().assertIsOff()
         rule.onNodeWithTag("welcome_continue").performScrollTo().assertIsDisplayed().assertIsNotEnabled()
-        rule.runOnIdle { assertEquals(0, attempts) }
+        rule.runOnIdle { assertEquals(LocalePreferences.supportedLanguages.indexOf(selected), attempts) }
         rule.onNodeWithTag("welcome_accept_checkbox").performScrollTo().performClick()
         rule.onNodeWithTag("welcome_continue").performScrollTo().assertIsEnabled().performClick()
         rule.runOnIdle { assertEquals(LocalePreferences.supportedLanguages.indexOf(selected) + 1, attempts) }
