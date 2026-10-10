@@ -81,7 +81,7 @@ fun LegalWelcomeScreen(
     }
 
     Surface(
-      modifier = Modifier.weight(1f).fillMaxWidth(),
+      modifier = Modifier.weight(1f).fillMaxWidth().testTag("welcome_document_viewport"),
       shape = MaterialTheme.shapes.medium,
       color = MaterialTheme.colorScheme.surfaceVariant
     ) {
@@ -92,6 +92,7 @@ fun LegalWelcomeScreen(
           SelectionContainer {
             Text(
               if (selectedTerms) terms ?: labels.error else privacy ?: labels.error,
+              modifier = Modifier.testTag("welcome_document_text"),
               style = MaterialTheme.typography.bodyMedium
             )
           }
