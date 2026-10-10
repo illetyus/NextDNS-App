@@ -34,7 +34,6 @@ object NotificationCenter {
       NotificationManager.IMPORTANCE_DEFAULT
     ).apply {
       description = AppStrings.get(R.string.ui_50bdef725a)
-      lockscreenVisibility = Notification.VISIBILITY_PRIVATE
     }
 
     val summaryChannel = NotificationChannel(
@@ -43,9 +42,10 @@ object NotificationCenter {
       NotificationManager.IMPORTANCE_LOW
     ).apply {
       description = AppStrings.get(R.string.ui_25243a32a1)
-      lockscreenVisibility = Notification.VISIBILITY_PRIVATE
     }
 
+    // Channel lockscreen visibility is controlled by Android/user settings.
+    // The application sets PRIVATE and a generic publicVersion on each notification.
     manager.createNotificationChannels(listOf(changeChannel, summaryChannel))
   }
 
