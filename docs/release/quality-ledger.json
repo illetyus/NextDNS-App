@@ -3,11 +3,11 @@
   "reviewDate": "2026-10-10",
   "reviewedCommit": "4abf26a1a556cf42235fbf05c70f89cb5ad79e8c",
   "sourceHashFormat": "sha256-utf8-lf",
-  "status": "CODE_FIXES_JVM_VERIFIED_DEVICE_PENDING",
-  "decision": "PRODUCE_NEW_CANDIDATE_THEN_DEVICE_ACCEPTANCE",
+  "status": "DEVICE_REVIEW_PARTIAL_WITH_OPEN_DEFECT",
+  "decision": "FIX_NDNS_011_AND_COMPLETE_DEVICE_ACCEPTANCE",
   "severityCounts": {
     "P1": 3,
-    "P2": 7
+    "P2": 8
   },
   "codeDefects": [
     {
@@ -781,6 +781,36 @@
       "correction": "URL, belge sağlayıcısı açma/yazma/kapama işlemleri yönetilen Result sınırına alınır; iptal yeniden fırlatılır, kapama hatası başarı sayılmaz.",
       "deviceRetestStatus": "NOT_RUN",
       "controlledRegressionResult": "PASS"
+    },
+    {
+      "id": "NDNS-011",
+      "severity": "P2",
+      "type": "CODE_DEFECT",
+      "status": "OPEN",
+      "verification": "BROWSERSTACK_APP_LIVE_REAL_DEVICE_REPRODUCTION",
+      "runtimeReproduced": true,
+      "reviewedCommit": "d63aea420207b8aacf7eb7866820bd173c42a519",
+      "title": "Landscape legal welcome hides the document reader and continue control",
+      "locations": [
+        {
+          "path": "app/src/main/java/com/example/ui/screens/LegalWelcomeScreen.kt",
+          "lineStart": 61,
+          "lineEnd": 125,
+          "sha256": "8b6956aacd80c6cd8b180f73762bd30311e059aee638b85e661abf13606ba836",
+          "url": "https://github.com/illetyus/open-source-client-for-nextdns/blob/d63aea420207b8aacf7eb7866820bd173c42a519/app/src/main/java/com/example/ui/screens/LegalWelcomeScreen.kt#L61"
+        }
+      ],
+      "trigger": "Install signed review APK on Google Pixel 7 Android 13; open Privacy before acceptance; rotate to landscape and attempt to scroll the page.",
+      "observedSourceBehavior": "The non-scrollable outer Column contains fixed-height controls around a weight(1f) reader. At the real device landscape height the reader has no visible area and the continue control is unreachable.",
+      "recommendedCorrection": "Provide a scrollable constrained-height layout with a usable minimum document viewport and reachable acceptance controls; preserve the unchecked default, offline access and DRAFT status.",
+      "closureCriteria": "On the new signed candidate, terms and privacy text are readable and all controls are reachable in short landscape windows and large fonts; continue stays disabled before explicit selection.",
+      "browserstackCases": [
+        "B11",
+        "B18",
+        "B20"
+      ],
+      "deviceEvidence": "docs/release/browserstack-initial-results-2026-10-10.json",
+      "fixCommit": null
     }
   ],
   "qualityObservations": [
@@ -811,12 +841,13 @@
       "detail": "GitHub branch protection API main için 404 Branch not protected verdi; etkin branch rules yanıtı boş listedir. Normal PR/CI izlendiği doğrulandı; zorunlu review/check kuralı platform tarafından dayatılmıyor. Bu inceleme depo yönetim ayarlarını değiştirmez."
     }
   ],
-  "meaning": "runtimeReproduced retains the original audit state. controlledRegressionResult records executed JVM fixtures; Android/BrowserStack acceptance remains NOT_RUN.",
+  "meaning": "Earlier audit and executed JVM regression records are retained. Initial BrowserStack App Live observations are partial; NDNS-011 is reproduced on the signed candidate. No previous device-pending defect is closed by this record.",
   "closureRule": "FIXED_JVM_VERIFIED_DEVICE_PENDING requires a fix commit and retained executed regressions. Device closure requires the affected B cases on the new signed candidate.",
   "openCodeSeverityCounts": {
     "P1": 0,
-    "P2": 0
+    "P2": 1
   },
   "fixedAwaitingDevice": 10,
-  "fixEvidence": "code-quality-fix-evidence-2026-10-10.json"
+  "fixEvidence": "code-quality-fix-evidence-2026-10-10.json",
+  "deviceReviewEvidence": "docs/release/browserstack-initial-results-2026-10-10.json"
 }

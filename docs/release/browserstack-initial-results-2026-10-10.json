@@ -1,0 +1,99 @@
+{
+  "schemaVersion": 1,
+  "date": "2026-10-10",
+  "status": "PARTIAL_WITH_OPEN_DEFECT",
+  "candidate": {
+    "commit": "d63aea420207b8aacf7eb7866820bd173c42a519",
+    "versionName": "1.0",
+    "versionCode": 1,
+    "applicationId": "com.aistudio.nextdns.mgrqvt",
+    "apkSha256": "80503ac215330cc26140b7f7252574b94850dd10ba0959164351f9f548e9a3d2",
+    "apkFilename": "OpenSourceClientForNextDNS-1.0-review.apk",
+    "sourceCiRun": "38065297405"
+  },
+  "lanes": {
+    "appLive": "EXECUTED_PARTIAL",
+    "appAutomate": "NOT_RUN_CREDENTIALS_REQUIRED"
+  },
+  "sessions": [
+    {
+      "device": "Google Pixel 7",
+      "android": "13.0",
+      "observations": [
+        "App installed and visible legal welcome screen opened",
+        "Initial acceptance unchecked and continue disabled",
+        "Welcome language and terms switched through English, Turkish, German, French and Spanish",
+        "English draft privacy document opened from Spanish welcome without accepting",
+        "Landscape rotation removed visible document body and continue control; swipe did not reveal them"
+      ],
+      "result": "FAIL_LANDSCAPE_LAYOUT",
+      "defect": "NDNS-011"
+    },
+    {
+      "device": "Samsung Galaxy Tab S8",
+      "android": "12.0",
+      "observations": [
+        "App installed and visible portrait legal welcome screen opened",
+        "Draft English terms and privacy displayed; acceptance remained unchecked and continue disabled",
+        "BrowserStack Screen Reader control enabled; full spoken semantics and navigation not verified"
+      ],
+      "result": "PARTIAL",
+      "limits": [
+        "Portrait only; no authenticated navigation",
+        "No retained audio evidence or complete TalkBack result"
+      ]
+    },
+    {
+      "device": "Samsung Galaxy Z Fold 5",
+      "android": "13.0",
+      "observations": [
+        "App installed and visible folded portrait legal welcome screen opened",
+        "Acceptance unchecked and continue disabled",
+        "Unfold action issued; free device time expired before expanded screen result could be verified"
+      ],
+      "result": "PARTIAL_TRIAL_TIME_LIMIT"
+    }
+  ],
+  "caseResults": {
+    "B01": "PARTIAL",
+    "B11": "FAIL",
+    "B12": "PARTIAL",
+    "B14": "PARTIAL",
+    "B17": "PARTIAL",
+    "B18": "PARTIAL",
+    "B20": "PARTIAL"
+  },
+  "evidence": {
+    "type": "LIVE_BROWSER_UI_OBSERVATIONS",
+    "screenshots": "Inspected in tool outputs; permanent screenshot export did not complete",
+    "screenshotFiles": [],
+    "sessionIds": [],
+    "fullDeviceLogsRetained": false,
+    "appAutomateBuildId": null
+  },
+  "limitations": [
+    "No full B case PASS is recorded",
+    "BrowserStack App Automate dashboard showed 100 free minutes, separate from App Live per-device trial limits",
+    "App Live effective session limits varied: Pixel 7 5 minutes, Tab S8 2 minutes, Fold 5 1 minute",
+    "Android 15/16 devices shown disabled for this account; API 24/25 availability not verified",
+    "No real NextDNS test account or profile mutation executed",
+    "No terms acceptance submitted and DRAFT status preserved",
+    "Synthetic JVM and emulator results remain separate from these manual real-device observations"
+  ],
+  "logs": {
+    "observation": "Visible warning/error rows only; no complete crash/ANR acceptance evidence",
+    "rows": [
+      "Pixel 7: OnBackInvokedCallback is not enabled for the application",
+      "Device logs: Not starting debugger since process cannot load the jdwp agent",
+      "Samsung device: Could not find QSPM HAL service",
+      "Fold 5: Unable to open libpenguin.so"
+    ],
+    "classification": "These platform/vendor diagnostics are not treated as proof of an application crash"
+  },
+  "followUp": [
+    "Fix NDNS-011 and rerun portrait/landscape with readable document and reachable unchecked acceptance/disabled continue",
+    "Configure existing BrowserStack API credentials securely; submit and retrieve Espresso results on actual available devices",
+    "Retain candidate-bound session identifiers, screenshots, logs and completed case evidence",
+    "Complete dedicated-account, accessibility, lifecycle, notification, API and remaining device-matrix scenarios"
+  ]
+}
