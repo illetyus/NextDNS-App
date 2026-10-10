@@ -60,7 +60,10 @@ def main():
         body=(f'--{boundary}\r\nContent-Disposition: form-data; name="file"; filename="{path.name}"\r\nContent-Type: application/octet-stream\r\n\r\n').encode()+path.read_bytes()+f'\r\n--{boundary}--\r\n'.encode()
         return request(api_path,body,'multipart/form-data; boundary='+boundary)
     app=upload(args.app,'app'); suite=upload(args.test_suite,'test-suite')
-    payload={'app':app['app_url'],'testSuite':suite['test_suite_url'],'devices':devices}
+    # Native fixture tests bind a TLS MockWebServer on the device itself.
+    # BrowserStack otherwise routes localhost through its proxy (CONNECT 503).
+    payload={'app':app['app_url'],'testSuite':suite['test_suite_url'],'devices':devices,
+             'allowDeviceMockServer':True}
     build=request('build',json.dumps(payload).encode(),'application/json')
     root=Path(__file__).resolve().parents[1]
     evidence={'status':'SUBMITTED','commit':commit,'appSha256':app_hash,

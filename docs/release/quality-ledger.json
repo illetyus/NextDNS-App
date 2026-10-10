@@ -839,9 +839,32 @@
       "status": "OPEN",
       "title": "PR/CI süreci uygulanıyor fakat main sunucu tarafında korunmuyor",
       "detail": "GitHub branch protection API main için 404 Branch not protected verdi; etkin branch rules yanıtı boş listedir. Normal PR/CI izlendiği doğrulandı; zorunlu review/check kuralı platform tarafından dayatılmıyor. Bu inceleme depo yönetim ayarlarını değiştirmez."
+    },
+    {
+      "id": "Q-004",
+      "severity": "P2",
+      "type": "AUTOMATION_CONFIGURATION",
+      "status": "FIXED_REAL_DEVICE_RETEST_VERIFIED",
+      "title": "BrowserStack Espresso yerel MockWebServer ayarı eksik",
+      "runtimeReproduced": true,
+      "detail": "İlk native TLS fixture ve release export/redirect kontrolleri CONNECT 503 ile durdu. Resmî allowDeviceMockServer=true ayarıyla aynı yüklü APK çiftleri yeniden çalıştırıldı.",
+      "correction": "scripts/run_browserstack_espresso.py gönderim payloadına allowDeviceMockServer=true eklendi; uygulama ağ/güvenlik politikası değiştirilmedi.",
+      "evidence": "docs/release/browserstack-espresso-results-2026-10-10.json"
+    },
+    {
+      "id": "Q-005",
+      "severity": "P2",
+      "type": "NATIVE_TEST_PLATFORM_ASSUMPTION",
+      "status": "OPEN",
+      "title": "Bildirim testi sistem tarafından yönetilen kanal görünürlüğünü PRIVATE varsayıyor",
+      "runtimeReproduced": true,
+      "detail": "Pixel 7 Android 13 ve Galaxy S26 Android 16 gerçek cihazlarında beklenen 0 yerine -1000 döndü. Android dokümanı setLockscreenVisibility alanının yalnız sistem ve notification ranker tarafından değiştirilebildiğini belirtir. Test izin reddi/no-post assertlerine ulaşmadı; bu kayıt tek başına bildirim sızıntısı kanıtı değildir.",
+      "source": "https://developer.android.com/reference/android/app/NotificationChannel#setLockscreenVisibility(int)",
+      "followUp": "Sistem kanal alanını uygulama garantisi olarak kullanmadan gerçek bildirim PRIVATE görünürlüğünü ve izin reddi/no-post akışını bağımsız test et; mevcut başarısızlığı atlayarak PASS üretme.",
+      "evidence": "docs/release/browserstack-espresso-results-2026-10-10.json"
     }
   ],
-  "meaning": "Earlier audit and executed JVM regression records are retained. Initial BrowserStack App Live observations are partial; NDNS-011 is reproduced on the signed candidate. No previous device-pending defect is closed by this record.",
+  "meaning": "Earlier audit and executed JVM regression records are retained. Initial BrowserStack App Live observations are partial; NDNS-011 is reproduced on the signed candidate. No previous device-pending defect is closed by this record. Executed Espresso methods are retained separately; Q-005 and NDNS-011 remain open and no full acceptance case is closed.",
   "closureRule": "FIXED_JVM_VERIFIED_DEVICE_PENDING requires a fix commit and retained executed regressions. Device closure requires the affected B cases on the new signed candidate.",
   "openCodeSeverityCounts": {
     "P1": 0,
@@ -849,5 +872,6 @@
   },
   "fixedAwaitingDevice": 10,
   "fixEvidence": "code-quality-fix-evidence-2026-10-10.json",
-  "deviceReviewEvidence": "docs/release/browserstack-initial-results-2026-10-10.json"
+  "deviceReviewEvidence": "docs/release/browserstack-initial-results-2026-10-10.json",
+  "espressoReviewEvidence": "docs/release/browserstack-espresso-results-2026-10-10.json"
 }

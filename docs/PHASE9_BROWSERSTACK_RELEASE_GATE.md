@@ -4,6 +4,8 @@
 
 ## 1. Kullanılacak hatlar
 
+İlk App Live kaydından sonra yerel BrowserStack kimlik doğrulaması yapılmış ve Espresso hatları çalıştırılmıştır. Yöntem sonuçları, ayrı debug/release paketleri, çalışma kimlikleri ve kalan bulgular [Espresso cihaz raporunda](BROWSERSTACK_ESPRESSO_RESULTS_TR_2026-10-10.md) izlenir. İlk kaydın `NOT_RUN` bilgisi kendi yürütüm anına aittir.
+
 - **App Live:** Gerçek Android cihazlarında manuel keşif, kullanıcı akışı, konuşma ekranları, farklı form faktörleri, ekran okuyucu ve izin akışları.
 - **App Automate / Espresso:** Uygulama APK (veya AAB) ve ayrıca `androidTest` test APK'sı ile tekrarlanabilir otomatik E2E.
 - Android `testDebugUnitTest` / Robolectric/Compose JVM testleri **BrowserStack gerçek cihaz Espresso testi değildir**; ayrı gerçek cihaz testleri yazılmalıdır.
@@ -78,7 +80,7 @@ Gerçek cihaz modeli ve Android sürümü **test anındaki BrowserStack katalogu
 
 **Son sıra:** Faz 8 uygunluk -> entegre paket -> BrowserStack App Live + App Automate -> düzeltmeler ve yeniden test -> Play internal/closed testing + prelaunch -> kademeli prod yayın.
 
-**Durum:** **NOT RUN — yayın kapısı açık.**
+**Durum:** **Kısmi gerçek cihaz yürütümü — yayın kapısı açık.** İlk App Live bulguları ve Espresso yöntem sonuçları tam B01–B22 kabulünün yerine geçmez.
 
 ## 7. Faz 9 dil kapsamı
 

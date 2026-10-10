@@ -1,0 +1,39 @@
+<?xml version="1.0"?>
+<testsuites>
+  <testsuite name="com.example.ExampleInstrumentedTest" tests="1" failures="0" skipped="0" timedout="0" errors="0" time="0.008" timestamp="2026-10-10 19:11:47 +0000">
+    <properties>
+      <property session_id="4ccd71c46b22c46b588883adfb09997081450180"/>
+      <property devicename="Samsung Galaxy Tab S8"/>
+      <property os="Android"/>
+      <property version="12"/>
+    </properties>
+    <testcase name="useAppContext" classname="com.example.ExampleInstrumentedTest" result="passed" test_id="4ccd71c46b22c46b588883adfb099970814501809a77928d" time="0.008" video_url="https://api.browserstack.com/app-automate/espresso/builds/838621ad17f25fa3755ddf9b70e264c4ff59a410/sessions/tests/4ccd71c46b22c46b588883adfb099970814501809a77928d/video#t=1,7"/>
+  </testsuite>
+  <testsuite name="com.example.NativeApiFixtureTest" tests="1" failures="0" skipped="0" timedout="0" errors="0" time="0.473" timestamp="2026-10-10 19:12:00 +0000">
+    <properties>
+      <property session_id="4ccd71c46b22c46b588883adfb09997081450180"/>
+      <property devicename="Samsung Galaxy Tab S8"/>
+      <property os="Android"/>
+      <property version="12"/>
+    </properties>
+    <testcase name="tlsMutationKeepsPayloadMinimalAndRejectsSemanticErrors" classname="com.example.NativeApiFixtureTest" result="passed" test_id="4ccd71c46b22c46b588883adfb099970814501808232503a" time="0.473" video_url="https://api.browserstack.com/app-automate/espresso/builds/838621ad17f25fa3755ddf9b70e264c4ff59a410/sessions/tests/4ccd71c46b22c46b588883adfb099970814501808232503a/video#t=14,21"/>
+  </testsuite>
+  <testsuite name="com.example.NativeLoginNavigationTest" tests="1" failures="0" skipped="0" timedout="0" errors="0" time="2.38" timestamp="2026-10-10 19:12:14 +0000">
+    <properties>
+      <property session_id="4ccd71c46b22c46b588883adfb09997081450180"/>
+      <property devicename="Samsung Galaxy Tab S8"/>
+      <property os="Android"/>
+      <property version="12"/>
+    </properties>
+    <testcase name="freshInstallRequiresExplicitTermsBeforeGuestNavigation" classname="com.example.NativeLoginNavigationTest" result="passed" test_id="4ccd71c46b22c46b588883adfb09997081450180b49474cd" time="2.38" video_url="https://api.browserstack.com/app-automate/espresso/builds/838621ad17f25fa3755ddf9b70e264c4ff59a410/sessions/tests/4ccd71c46b22c46b588883adfb09997081450180b49474cd/video#t=28,37"/>
+  </testsuite>
+  <testsuite name="com.example.NativeNotificationPermissionTest" tests="1" failures="0" skipped="1" timedout="0" errors="0" time="0.01" timestamp="2026-10-10 19:12:30 +0000">
+    <properties>
+      <property session_id="4ccd71c46b22c46b588883adfb09997081450180"/>
+      <property devicename="Samsung Galaxy Tab S8"/>
+      <property os="Android"/>
+      <property version="12"/>
+    </properties>
+    <testcase name="android13PermissionDenialPreventsPrivateNotifications" classname="com.example.NativeNotificationPermissionTest" result="skipped" test_id="4ccd71c46b22c46b588883adfb099970814501800682bff7" time="0.01" video_url="https://api.browserstack.com/app-automate/espresso/builds/838621ad17f25fa3755ddf9b70e264c4ff59a410/sessions/tests/4ccd71c46b22c46b588883adfb099970814501800682bff7/video#t=44,50"/>
+  </testsuite>
+</testsuites>

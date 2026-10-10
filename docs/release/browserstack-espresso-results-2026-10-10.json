@@ -1,0 +1,1433 @@
+{
+  "schemaVersion": 1,
+  "date": "2026-10-10",
+  "status": "PARTIAL_WITH_OPEN_FINDINGS",
+  "candidateCommit": "d63aea420207b8aacf7eb7866820bd173c42a519",
+  "sourceCiRun": "38065297405",
+  "documentOnlyMainCommit": "0279d9f6cc48c0d171476761e92206246f046155",
+  "compiledSourcesUnchangedAtDocumentOnlyMain": true,
+  "productionSigningApproved": false,
+  "releaseReviewPayloadSha256": "b3606d4ab5b0b3287cd2d3100f8eed36bf0baad4f05a27077303603f5f07131f",
+  "runs": [
+    {
+      "lane": "debug-initial",
+      "buildId": "790ada7432ea56b1e9ec6deaf811313ccc19a4ef",
+      "status": "failed",
+      "startTime": "2026-10-10 17:12:28 UTC",
+      "allowDeviceMockServer": false,
+      "uploadedAppUrl": "bs://dc93027522fed477e468c6cd53a442a9f2f25a67",
+      "uploadedTestSuiteUrl": "bs://35262651f23c7d9d356af9e1de4f906de4db1984",
+      "sessions": [
+        {
+          "sessionId": "26b826d09cfb9c55da7eea94c3f65fb96ae78dba",
+          "status": "failed",
+          "device": "Samsung Galaxy S20",
+          "android": "10.0",
+          "durationSeconds": 239,
+          "counts": {
+            "passed": 2,
+            "failed": 1,
+            "skipped": 11,
+            "timedout": 0,
+            "error": 0
+          },
+          "tests": [
+            {
+              "class": "com.example.ExampleInstrumentedTest",
+              "name": "useAppContext",
+              "status": "passed",
+              "seconds": "0.009",
+              "failure": null
+            },
+            {
+              "class": "com.example.NativeApiFixtureTest",
+              "name": "tlsMutationKeepsPayloadMinimalAndRejectsSemanticErrors",
+              "status": "failed",
+              "seconds": "0.519",
+              "failure": "java.io.IOException: Unexpected response code for CONNECT: 503"
+            },
+            {
+              "class": "com.example.NativeLoginNavigationTest",
+              "name": "freshInstallRequiresExplicitTermsBeforeGuestNavigation",
+              "status": "passed",
+              "seconds": "3.042",
+              "failure": null
+            },
+            {
+              "class": "com.example.NativeNotificationPermissionTest",
+              "name": "android13PermissionDenialPreventsPrivateNotifications",
+              "status": "skipped",
+              "seconds": "0.011",
+              "failure": null
+            },
+            {
+              "class": "com.example.ReleaseSecurityRuntimeTest",
+              "name": "publicExportContainsNoCredentialAndCannotDowngradeToHttp",
+              "status": "skipped",
+              "seconds": "0.012",
+              "failure": null
+            },
+            {
+              "class": "com.example.ReleaseSecurityRuntimeTest",
+              "name": "backupAndTransferRulesExcludeCredentials",
+              "status": "skipped",
+              "seconds": "0.012",
+              "failure": null
+            },
+            {
+              "class": "com.example.ReleaseSecurityRuntimeTest",
+              "name": "releaseIsNotDebuggableAndNetworkLoggingIsDisabled",
+              "status": "skipped",
+              "seconds": "0.023",
+              "failure": null
+            },
+            {
+              "class": "com.example.ReleaseSecurityRuntimeTest",
+              "name": "bundledLicensesAreReadableWithoutAcceptingTerms",
+              "status": "skipped",
+              "seconds": "0.013",
+              "failure": null
+            },
+            {
+              "class": "com.example.ReleaseSecurityRuntimeTest",
+              "name": "cleartextTransportIsRejectedBeforeSendingCredentials",
+              "status": "skipped",
+              "seconds": "0.012",
+              "failure": null
+            },
+            {
+              "class": "com.example.ReleaseSecurityRuntimeTest",
+              "name": "legacyKeyMigratesAndAccountClearRemovesItsData",
+              "status": "skipped",
+              "seconds": "0.017",
+              "failure": null
+            },
+            {
+              "class": "com.example.ReleaseSecurityRuntimeTest",
+              "name": "allFiveLegalDocumentsStillHaveValidDraftHashes",
+              "status": "skipped",
+              "seconds": "0.014",
+              "failure": null
+            },
+            {
+              "class": "com.example.ReleaseSecurityRuntimeTest",
+              "name": "credentialedTlsRedirectNeverReachesAnotherHost",
+              "status": "skipped",
+              "seconds": "0.013",
+              "failure": null
+            },
+            {
+              "class": "com.example.ReleaseSecurityRuntimeTest",
+              "name": "defaultTrustRejectsUntrustedServerCertificate",
+              "status": "skipped",
+              "seconds": "0.011",
+              "failure": null
+            },
+            {
+              "class": "com.example.ReleaseSecurityRuntimeTest",
+              "name": "keystoreEncryptionPersistsNoPlaintextAndRejectsTampering",
+              "status": "skipped",
+              "seconds": "0.016",
+              "failure": null
+            }
+          ],
+          "junitFile": "docs/release/browserstack-espresso-reports/26b826d09cfb9c55da7eea94c3f65fb96ae78dba.xml",
+          "junitSha256": "080c7cd53035ad3dff4fcc6ca011843fe4bc4d4740853ed46975e3da194355bf"
+        },
+        {
+          "sessionId": "b162a764379e24fc7e0b64e5da0520c2b174ae2f",
+          "status": "failed",
+          "device": "Samsung Galaxy Tab S8",
+          "android": "12.0",
+          "durationSeconds": 219,
+          "counts": {
+            "passed": 2,
+            "failed": 1,
+            "skipped": 11,
+            "timedout": 0,
+            "error": 0
+          },
+          "tests": [
+            {
+              "class": "com.example.ExampleInstrumentedTest",
+              "name": "useAppContext",
+              "status": "passed",
+              "seconds": "0.005",
+              "failure": null
+            },
+            {
+              "class": "com.example.NativeApiFixtureTest",
+              "name": "tlsMutationKeepsPayloadMinimalAndRejectsSemanticErrors",
+              "status": "failed",
+              "seconds": "0.373",
+              "failure": "java.io.IOException: Unexpected response code for CONNECT: 503"
+            },
+            {
+              "class": "com.example.NativeLoginNavigationTest",
+              "name": "freshInstallRequiresExplicitTermsBeforeGuestNavigation",
+              "status": "passed",
+              "seconds": "2.819",
+              "failure": null
+            },
+            {
+              "class": "com.example.NativeNotificationPermissionTest",
+              "name": "android13PermissionDenialPreventsPrivateNotifications",
+              "status": "skipped",
+              "seconds": "0.016",
+              "failure": null
+            },
+            {
+              "class": "com.example.ReleaseSecurityRuntimeTest",
+              "name": "publicExportContainsNoCredentialAndCannotDowngradeToHttp",
+              "status": "skipped",
+              "seconds": "0.012",
+              "failure": null
+            },
+            {
+              "class": "com.example.ReleaseSecurityRuntimeTest",
+              "name": "backupAndTransferRulesExcludeCredentials",
+              "status": "skipped",
+              "seconds": "0.014",
+              "failure": null
+            },
+            {
+              "class": "com.example.ReleaseSecurityRuntimeTest",
+              "name": "releaseIsNotDebuggableAndNetworkLoggingIsDisabled",
+              "status": "skipped",
+              "seconds": "0.016",
+              "failure": null
+            },
+            {
+              "class": "com.example.ReleaseSecurityRuntimeTest",
+              "name": "bundledLicensesAreReadableWithoutAcceptingTerms",
+              "status": "skipped",
+              "seconds": "0.014",
+              "failure": null
+            },
+            {
+              "class": "com.example.ReleaseSecurityRuntimeTest",
+              "name": "cleartextTransportIsRejectedBeforeSendingCredentials",
+              "status": "skipped",
+              "seconds": "0.011",
+              "failure": null
+            },
+            {
+              "class": "com.example.ReleaseSecurityRuntimeTest",
+              "name": "legacyKeyMigratesAndAccountClearRemovesItsData",
+              "status": "skipped",
+              "seconds": "0.014",
+              "failure": null
+            },
+            {
+              "class": "com.example.ReleaseSecurityRuntimeTest",
+              "name": "allFiveLegalDocumentsStillHaveValidDraftHashes",
+              "status": "skipped",
+              "seconds": "0.014",
+              "failure": null
+            },
+            {
+              "class": "com.example.ReleaseSecurityRuntimeTest",
+              "name": "credentialedTlsRedirectNeverReachesAnotherHost",
+              "status": "skipped",
+              "seconds": "0.012",
+              "failure": null
+            },
+            {
+              "class": "com.example.ReleaseSecurityRuntimeTest",
+              "name": "defaultTrustRejectsUntrustedServerCertificate",
+              "status": "skipped",
+              "seconds": "0.013",
+              "failure": null
+            },
+            {
+              "class": "com.example.ReleaseSecurityRuntimeTest",
+              "name": "keystoreEncryptionPersistsNoPlaintextAndRejectsTampering",
+              "status": "skipped",
+              "seconds": "0.014",
+              "failure": null
+            }
+          ],
+          "junitFile": "docs/release/browserstack-espresso-reports/b162a764379e24fc7e0b64e5da0520c2b174ae2f.xml",
+          "junitSha256": "a64e7087e0272d8c47e5ea5b1ed5c9de4c99b58e9849face3182bf24998868e3"
+        },
+        {
+          "sessionId": "11bff9d5a80958de5e2a6e872b8db5a95b0dbe3f",
+          "status": "failed",
+          "device": "Google Pixel 7",
+          "android": "13.0",
+          "durationSeconds": 226,
+          "counts": {
+            "passed": 2,
+            "failed": 2,
+            "skipped": 10,
+            "timedout": 0,
+            "error": 0
+          },
+          "tests": [
+            {
+              "class": "com.example.ExampleInstrumentedTest",
+              "name": "useAppContext",
+              "status": "passed",
+              "seconds": "0.008",
+              "failure": null
+            },
+            {
+              "class": "com.example.NativeApiFixtureTest",
+              "name": "tlsMutationKeepsPayloadMinimalAndRejectsSemanticErrors",
+              "status": "failed",
+              "seconds": "0.431",
+              "failure": "java.io.IOException: Unexpected response code for CONNECT: 503"
+            },
+            {
+              "class": "com.example.NativeLoginNavigationTest",
+              "name": "freshInstallRequiresExplicitTermsBeforeGuestNavigation",
+              "status": "passed",
+              "seconds": "2.838",
+              "failure": null
+            },
+            {
+              "class": "com.example.NativeNotificationPermissionTest",
+              "name": "android13PermissionDenialPreventsPrivateNotifications",
+              "status": "failed",
+              "seconds": "0.029",
+              "failure": "java.lang.AssertionError: expected:<0> but was:<-1000>"
+            },
+            {
+              "class": "com.example.ReleaseSecurityRuntimeTest",
+              "name": "publicExportContainsNoCredentialAndCannotDowngradeToHttp",
+              "status": "skipped",
+              "seconds": "0.014",
+              "failure": null
+            },
+            {
+              "class": "com.example.ReleaseSecurityRuntimeTest",
+              "name": "backupAndTransferRulesExcludeCredentials",
+              "status": "skipped",
+              "seconds": "0.014",
+              "failure": null
+            },
+            {
+              "class": "com.example.ReleaseSecurityRuntimeTest",
+              "name": "releaseIsNotDebuggableAndNetworkLoggingIsDisabled",
+              "status": "skipped",
+              "seconds": "0.012",
+              "failure": null
+            },
+            {
+              "class": "com.example.ReleaseSecurityRuntimeTest",
+              "name": "bundledLicensesAreReadableWithoutAcceptingTerms",
+              "status": "skipped",
+              "seconds": "0.014",
+              "failure": null
+            },
+            {
+              "class": "com.example.ReleaseSecurityRuntimeTest",
+              "name": "cleartextTransportIsRejectedBeforeSendingCredentials",
+              "status": "skipped",
+              "seconds": "0.019",
+              "failure": null
+            },
+            {
+              "class": "com.example.ReleaseSecurityRuntimeTest",
+              "name": "legacyKeyMigratesAndAccountClearRemovesItsData",
+              "status": "skipped",
+              "seconds": "0.016",
+              "failure": null
+            },
+            {
+              "class": "com.example.ReleaseSecurityRuntimeTest",
+              "name": "allFiveLegalDocumentsStillHaveValidDraftHashes",
+              "status": "skipped",
+              "seconds": "0.013",
+              "failure": null
+            },
+            {
+              "class": "com.example.ReleaseSecurityRuntimeTest",
+              "name": "credentialedTlsRedirectNeverReachesAnotherHost",
+              "status": "skipped",
+              "seconds": "0.012",
+              "failure": null
+            },
+            {
+              "class": "com.example.ReleaseSecurityRuntimeTest",
+              "name": "defaultTrustRejectsUntrustedServerCertificate",
+              "status": "skipped",
+              "seconds": "0.012",
+              "failure": null
+            },
+            {
+              "class": "com.example.ReleaseSecurityRuntimeTest",
+              "name": "keystoreEncryptionPersistsNoPlaintextAndRejectsTampering",
+              "status": "skipped",
+              "seconds": "0.012",
+              "failure": null
+            }
+          ],
+          "junitFile": "docs/release/browserstack-espresso-reports/11bff9d5a80958de5e2a6e872b8db5a95b0dbe3f.xml",
+          "junitSha256": "819443be92829e8ea0005eb8fc9bc9925687ea7e57dc6cc20b16a9d3a530767b"
+        },
+        {
+          "sessionId": "4e0cd8571039f37f49b534cf57d50d7526f5334c",
+          "status": "failed",
+          "device": "Samsung Galaxy S26",
+          "android": "16.0",
+          "durationSeconds": 207,
+          "counts": {
+            "passed": 2,
+            "failed": 2,
+            "skipped": 10,
+            "timedout": 0,
+            "error": 0
+          },
+          "tests": [
+            {
+              "class": "com.example.ExampleInstrumentedTest",
+              "name": "useAppContext",
+              "status": "passed",
+              "seconds": "0.002",
+              "failure": null
+            },
+            {
+              "class": "com.example.NativeApiFixtureTest",
+              "name": "tlsMutationKeepsPayloadMinimalAndRejectsSemanticErrors",
+              "status": "failed",
+              "seconds": "0.289",
+              "failure": "java.io.IOException: Unexpected response code for CONNECT: 503"
+            },
+            {
+              "class": "com.example.NativeLoginNavigationTest",
+              "name": "freshInstallRequiresExplicitTermsBeforeGuestNavigation",
+              "status": "passed",
+              "seconds": "2.161",
+              "failure": null
+            },
+            {
+              "class": "com.example.NativeNotificationPermissionTest",
+              "name": "android13PermissionDenialPreventsPrivateNotifications",
+              "status": "failed",
+              "seconds": "0.017",
+              "failure": "java.lang.AssertionError: expected:<0> but was:<-1000>"
+            },
+            {
+              "class": "com.example.ReleaseSecurityRuntimeTest",
+              "name": "publicExportContainsNoCredentialAndCannotDowngradeToHttp",
+              "status": "skipped",
+              "seconds": "0.005",
+              "failure": null
+            },
+            {
+              "class": "com.example.ReleaseSecurityRuntimeTest",
+              "name": "backupAndTransferRulesExcludeCredentials",
+              "status": "skipped",
+              "seconds": "0.005",
+              "failure": null
+            },
+            {
+              "class": "com.example.ReleaseSecurityRuntimeTest",
+              "name": "releaseIsNotDebuggableAndNetworkLoggingIsDisabled",
+              "status": "skipped",
+              "seconds": "0.005",
+              "failure": null
+            },
+            {
+              "class": "com.example.ReleaseSecurityRuntimeTest",
+              "name": "bundledLicensesAreReadableWithoutAcceptingTerms",
+              "status": "skipped",
+              "seconds": "0.006",
+              "failure": null
+            },
+            {
+              "class": "com.example.ReleaseSecurityRuntimeTest",
+              "name": "cleartextTransportIsRejectedBeforeSendingCredentials",
+              "status": "skipped",
+              "seconds": "0.006",
+              "failure": null
+            },
+            {
+              "class": "com.example.ReleaseSecurityRuntimeTest",
+              "name": "legacyKeyMigratesAndAccountClearRemovesItsData",
+              "status": "skipped",
+              "seconds": "0.005",
+              "failure": null
+            },
+            {
+              "class": "com.example.ReleaseSecurityRuntimeTest",
+              "name": "allFiveLegalDocumentsStillHaveValidDraftHashes",
+              "status": "skipped",
+              "seconds": "0.005",
+              "failure": null
+            },
+            {
+              "class": "com.example.ReleaseSecurityRuntimeTest",
+              "name": "credentialedTlsRedirectNeverReachesAnotherHost",
+              "status": "skipped",
+              "seconds": "0.004",
+              "failure": null
+            },
+            {
+              "class": "com.example.ReleaseSecurityRuntimeTest",
+              "name": "defaultTrustRejectsUntrustedServerCertificate",
+              "status": "skipped",
+              "seconds": "0.005",
+              "failure": null
+            },
+            {
+              "class": "com.example.ReleaseSecurityRuntimeTest",
+              "name": "keystoreEncryptionPersistsNoPlaintextAndRejectsTampering",
+              "status": "skipped",
+              "seconds": "0.006",
+              "failure": null
+            }
+          ],
+          "junitFile": "docs/release/browserstack-espresso-reports/4e0cd8571039f37f49b534cf57d50d7526f5334c.xml",
+          "junitSha256": "5d1a54944141de39e680532a6345552aee93c7b7c1e2ebfcab164008bb702bac"
+        }
+      ],
+      "commit": "d63aea420207b8aacf7eb7866820bd173c42a519",
+      "appSha256": "f4059de47bcc5bd9c0b9c37e3a1d919b839cb14df2871f8ccbb770f8bbf21748",
+      "testSuiteSha256": "91ce1e8dd57e01cee3b0b8d98c708ea1dd1a3eb06a6f93d5dfd22c3573345cf4"
+    },
+    {
+      "lane": "release-initial",
+      "buildId": "c6b4b56e852174a894e9b7b416b2d9fa76bc1cca",
+      "status": "failed",
+      "startTime": "2026-10-10 17:15:11 UTC",
+      "allowDeviceMockServer": false,
+      "uploadedAppUrl": "bs://0a76a39ee4cbf27583d619da54c81dc389f64e9e",
+      "uploadedTestSuiteUrl": "bs://1340b0144604bb0d9afd0819f78b9dc264d633be",
+      "sessions": [
+        {
+          "sessionId": "0e1dd369afbb2ab0acd8a02992b22ada684cf281",
+          "status": "failed",
+          "device": "Samsung Galaxy S20",
+          "android": "10.0",
+          "durationSeconds": 180,
+          "counts": {
+            "passed": 8,
+            "failed": 2,
+            "skipped": 0,
+            "timedout": 0,
+            "error": 0
+          },
+          "tests": [
+            {
+              "class": "com.example.ReleaseSecurityRuntimeTest",
+              "name": "publicExportContainsNoCredentialAndCannotDowngradeToHttp",
+              "status": "failed",
+              "seconds": "0.108",
+              "failure": "java.io.IOException: Unexpected response code for CONNECT: 503"
+            },
+            {
+              "class": "com.example.ReleaseSecurityRuntimeTest",
+              "name": "backupAndTransferRulesExcludeCredentials",
+              "status": "passed",
+              "seconds": "0.009",
+              "failure": null
+            },
+            {
+              "class": "com.example.ReleaseSecurityRuntimeTest",
+              "name": "releaseIsNotDebuggableAndNetworkLoggingIsDisabled",
+              "status": "passed",
+              "seconds": "0.038",
+              "failure": null
+            },
+            {
+              "class": "com.example.ReleaseSecurityRuntimeTest",
+              "name": "bundledLicensesAreReadableWithoutAcceptingTerms",
+              "status": "passed",
+              "seconds": "0.01",
+              "failure": null
+            },
+            {
+              "class": "com.example.ReleaseSecurityRuntimeTest",
+              "name": "cleartextTransportIsRejectedBeforeSendingCredentials",
+              "status": "passed",
+              "seconds": "0.057",
+              "failure": null
+            },
+            {
+              "class": "com.example.ReleaseSecurityRuntimeTest",
+              "name": "legacyKeyMigratesAndAccountClearRemovesItsData",
+              "status": "passed",
+              "seconds": "0.085",
+              "failure": null
+            },
+            {
+              "class": "com.example.ReleaseSecurityRuntimeTest",
+              "name": "allFiveLegalDocumentsStillHaveValidDraftHashes",
+              "status": "passed",
+              "seconds": "0.034",
+              "failure": null
+            },
+            {
+              "class": "com.example.ReleaseSecurityRuntimeTest",
+              "name": "credentialedTlsRedirectNeverReachesAnotherHost",
+              "status": "failed",
+              "seconds": "0.1",
+              "failure": "java.io.IOException: Unexpected response code for CONNECT: 503"
+            },
+            {
+              "class": "com.example.ReleaseSecurityRuntimeTest",
+              "name": "defaultTrustRejectsUntrustedServerCertificate",
+              "status": "passed",
+              "seconds": "0.092",
+              "failure": null
+            },
+            {
+              "class": "com.example.ReleaseSecurityRuntimeTest",
+              "name": "keystoreEncryptionPersistsNoPlaintextAndRejectsTampering",
+              "status": "passed",
+              "seconds": "0.039",
+              "failure": null
+            }
+          ],
+          "junitFile": "docs/release/browserstack-espresso-reports/0e1dd369afbb2ab0acd8a02992b22ada684cf281.xml",
+          "junitSha256": "060a5ff35f203f869d1fec09161954ecdf793b240038799b072efb55c5300e8d"
+        },
+        {
+          "sessionId": "616e373a95903b0c6ba2ffa97f1c60ba01ef27b0",
+          "status": "failed",
+          "device": "Samsung Galaxy Tab S8",
+          "android": "12.0",
+          "durationSeconds": 159,
+          "counts": {
+            "passed": 8,
+            "failed": 2,
+            "skipped": 0,
+            "timedout": 0,
+            "error": 0
+          },
+          "tests": [
+            {
+              "class": "com.example.ReleaseSecurityRuntimeTest",
+              "name": "publicExportContainsNoCredentialAndCannotDowngradeToHttp",
+              "status": "failed",
+              "seconds": "0.095",
+              "failure": "java.io.IOException: Unexpected response code for CONNECT: 503"
+            },
+            {
+              "class": "com.example.ReleaseSecurityRuntimeTest",
+              "name": "backupAndTransferRulesExcludeCredentials",
+              "status": "passed",
+              "seconds": "0.005",
+              "failure": null
+            },
+            {
+              "class": "com.example.ReleaseSecurityRuntimeTest",
+              "name": "releaseIsNotDebuggableAndNetworkLoggingIsDisabled",
+              "status": "passed",
+              "seconds": "0.017",
+              "failure": null
+            },
+            {
+              "class": "com.example.ReleaseSecurityRuntimeTest",
+              "name": "bundledLicensesAreReadableWithoutAcceptingTerms",
+              "status": "passed",
+              "seconds": "0.008",
+              "failure": null
+            },
+            {
+              "class": "com.example.ReleaseSecurityRuntimeTest",
+              "name": "cleartextTransportIsRejectedBeforeSendingCredentials",
+              "status": "passed",
+              "seconds": "0.017",
+              "failure": null
+            },
+            {
+              "class": "com.example.ReleaseSecurityRuntimeTest",
+              "name": "legacyKeyMigratesAndAccountClearRemovesItsData",
+              "status": "passed",
+              "seconds": "0.045",
+              "failure": null
+            },
+            {
+              "class": "com.example.ReleaseSecurityRuntimeTest",
+              "name": "allFiveLegalDocumentsStillHaveValidDraftHashes",
+              "status": "passed",
+              "seconds": "0.015",
+              "failure": null
+            },
+            {
+              "class": "com.example.ReleaseSecurityRuntimeTest",
+              "name": "credentialedTlsRedirectNeverReachesAnotherHost",
+              "status": "failed",
+              "seconds": "0.073",
+              "failure": "java.io.IOException: Unexpected response code for CONNECT: 503"
+            },
+            {
+              "class": "com.example.ReleaseSecurityRuntimeTest",
+              "name": "defaultTrustRejectsUntrustedServerCertificate",
+              "status": "passed",
+              "seconds": "0.062",
+              "failure": null
+            },
+            {
+              "class": "com.example.ReleaseSecurityRuntimeTest",
+              "name": "keystoreEncryptionPersistsNoPlaintextAndRejectsTampering",
+              "status": "passed",
+              "seconds": "0.037",
+              "failure": null
+            }
+          ],
+          "junitFile": "docs/release/browserstack-espresso-reports/616e373a95903b0c6ba2ffa97f1c60ba01ef27b0.xml",
+          "junitSha256": "c6de010f23e0c7314914743388cc37c9c9fbce56363deba051286b068e920b1b"
+        },
+        {
+          "sessionId": "c34070fd9adf1a8530ef693be149182f5d7a9308",
+          "status": "failed",
+          "device": "Google Pixel 7",
+          "android": "13.0",
+          "durationSeconds": 147,
+          "counts": {
+            "passed": 8,
+            "failed": 2,
+            "skipped": 0,
+            "timedout": 0,
+            "error": 0
+          },
+          "tests": [
+            {
+              "class": "com.example.ReleaseSecurityRuntimeTest",
+              "name": "publicExportContainsNoCredentialAndCannotDowngradeToHttp",
+              "status": "failed",
+              "seconds": "0.07",
+              "failure": "java.io.IOException: Unexpected response code for CONNECT: 503"
+            },
+            {
+              "class": "com.example.ReleaseSecurityRuntimeTest",
+              "name": "backupAndTransferRulesExcludeCredentials",
+              "status": "passed",
+              "seconds": "0.007",
+              "failure": null
+            },
+            {
+              "class": "com.example.ReleaseSecurityRuntimeTest",
+              "name": "releaseIsNotDebuggableAndNetworkLoggingIsDisabled",
+              "status": "passed",
+              "seconds": "0.012",
+              "failure": null
+            },
+            {
+              "class": "com.example.ReleaseSecurityRuntimeTest",
+              "name": "bundledLicensesAreReadableWithoutAcceptingTerms",
+              "status": "passed",
+              "seconds": "0.012",
+              "failure": null
+            },
+            {
+              "class": "com.example.ReleaseSecurityRuntimeTest",
+              "name": "cleartextTransportIsRejectedBeforeSendingCredentials",
+              "status": "passed",
+              "seconds": "0.029",
+              "failure": null
+            },
+            {
+              "class": "com.example.ReleaseSecurityRuntimeTest",
+              "name": "legacyKeyMigratesAndAccountClearRemovesItsData",
+              "status": "passed",
+              "seconds": "0.037",
+              "failure": null
+            },
+            {
+              "class": "com.example.ReleaseSecurityRuntimeTest",
+              "name": "allFiveLegalDocumentsStillHaveValidDraftHashes",
+              "status": "passed",
+              "seconds": "0.014",
+              "failure": null
+            },
+            {
+              "class": "com.example.ReleaseSecurityRuntimeTest",
+              "name": "credentialedTlsRedirectNeverReachesAnotherHost",
+              "status": "failed",
+              "seconds": "0.044",
+              "failure": "java.io.IOException: Unexpected response code for CONNECT: 503"
+            },
+            {
+              "class": "com.example.ReleaseSecurityRuntimeTest",
+              "name": "defaultTrustRejectsUntrustedServerCertificate",
+              "status": "passed",
+              "seconds": "0.056",
+              "failure": null
+            },
+            {
+              "class": "com.example.ReleaseSecurityRuntimeTest",
+              "name": "keystoreEncryptionPersistsNoPlaintextAndRejectsTampering",
+              "status": "passed",
+              "seconds": "0.036",
+              "failure": null
+            }
+          ],
+          "junitFile": "docs/release/browserstack-espresso-reports/c34070fd9adf1a8530ef693be149182f5d7a9308.xml",
+          "junitSha256": "23752efecda25685e902d2ed431e915527197ca0aed6a689b2e10ce3292f00bf"
+        },
+        {
+          "sessionId": "5118e48fe06150afdb66c1beca3abf7425309674",
+          "status": "failed",
+          "device": "Samsung Galaxy S26",
+          "android": "16.0",
+          "durationSeconds": 147,
+          "counts": {
+            "passed": 8,
+            "failed": 2,
+            "skipped": 0,
+            "timedout": 0,
+            "error": 0
+          },
+          "tests": [
+            {
+              "class": "com.example.ReleaseSecurityRuntimeTest",
+              "name": "publicExportContainsNoCredentialAndCannotDowngradeToHttp",
+              "status": "failed",
+              "seconds": "0.044",
+              "failure": "java.io.IOException: Unexpected response code for CONNECT: 503"
+            },
+            {
+              "class": "com.example.ReleaseSecurityRuntimeTest",
+              "name": "backupAndTransferRulesExcludeCredentials",
+              "status": "passed",
+              "seconds": "0.003",
+              "failure": null
+            },
+            {
+              "class": "com.example.ReleaseSecurityRuntimeTest",
+              "name": "releaseIsNotDebuggableAndNetworkLoggingIsDisabled",
+              "status": "passed",
+              "seconds": "0.013",
+              "failure": null
+            },
+            {
+              "class": "com.example.ReleaseSecurityRuntimeTest",
+              "name": "bundledLicensesAreReadableWithoutAcceptingTerms",
+              "status": "passed",
+              "seconds": "0.007",
+              "failure": null
+            },
+            {
+              "class": "com.example.ReleaseSecurityRuntimeTest",
+              "name": "cleartextTransportIsRejectedBeforeSendingCredentials",
+              "status": "passed",
+              "seconds": "0.023",
+              "failure": null
+            },
+            {
+              "class": "com.example.ReleaseSecurityRuntimeTest",
+              "name": "legacyKeyMigratesAndAccountClearRemovesItsData",
+              "status": "passed",
+              "seconds": "0.021",
+              "failure": null
+            },
+            {
+              "class": "com.example.ReleaseSecurityRuntimeTest",
+              "name": "allFiveLegalDocumentsStillHaveValidDraftHashes",
+              "status": "passed",
+              "seconds": "0.008",
+              "failure": null
+            },
+            {
+              "class": "com.example.ReleaseSecurityRuntimeTest",
+              "name": "credentialedTlsRedirectNeverReachesAnotherHost",
+              "status": "failed",
+              "seconds": "0.036",
+              "failure": "java.io.IOException: Unexpected response code for CONNECT: 503"
+            },
+            {
+              "class": "com.example.ReleaseSecurityRuntimeTest",
+              "name": "defaultTrustRejectsUntrustedServerCertificate",
+              "status": "passed",
+              "seconds": "0.041",
+              "failure": null
+            },
+            {
+              "class": "com.example.ReleaseSecurityRuntimeTest",
+              "name": "keystoreEncryptionPersistsNoPlaintextAndRejectsTampering",
+              "status": "passed",
+              "seconds": "0.025",
+              "failure": null
+            }
+          ],
+          "junitFile": "docs/release/browserstack-espresso-reports/5118e48fe06150afdb66c1beca3abf7425309674.xml",
+          "junitSha256": "11632cb423e598620be739dde9ecc4b769462c8c44f59790579ccf04b85c653a"
+        }
+      ],
+      "commit": "d63aea420207b8aacf7eb7866820bd173c42a519",
+      "appSha256": "e6845d35ed28a109c80d2968ed3ac37915f3b0640b96b7d02f400884f5302961",
+      "testSuiteSha256": "c5ead538b64df5c306db249ad403575af569e906cd631e95f7f082f13aa7c5a6"
+    },
+    {
+      "lane": "debug-retry",
+      "buildId": "838621ad17f25fa3755ddf9b70e264c4ff59a410",
+      "status": "failed",
+      "startTime": "2026-10-10 19:11:23 UTC",
+      "allowDeviceMockServer": true,
+      "uploadedAppUrl": "bs://dc93027522fed477e468c6cd53a442a9f2f25a67",
+      "uploadedTestSuiteUrl": "bs://35262651f23c7d9d356af9e1de4f906de4db1984",
+      "sessions": [
+        {
+          "sessionId": "32042ed8ea7039d448e49e70c80356123cc9f397",
+          "status": "passed",
+          "device": "Samsung Galaxy S20",
+          "android": "10.0",
+          "durationSeconds": 91,
+          "counts": {
+            "passed": 3,
+            "failed": 0,
+            "skipped": 1,
+            "timedout": 0,
+            "error": 0
+          },
+          "tests": [
+            {
+              "class": "com.example.ExampleInstrumentedTest",
+              "name": "useAppContext",
+              "status": "passed",
+              "seconds": "0.007",
+              "failure": null
+            },
+            {
+              "class": "com.example.NativeApiFixtureTest",
+              "name": "tlsMutationKeepsPayloadMinimalAndRejectsSemanticErrors",
+              "status": "passed",
+              "seconds": "0.737",
+              "failure": null
+            },
+            {
+              "class": "com.example.NativeLoginNavigationTest",
+              "name": "freshInstallRequiresExplicitTermsBeforeGuestNavigation",
+              "status": "passed",
+              "seconds": "2.928",
+              "failure": null
+            },
+            {
+              "class": "com.example.NativeNotificationPermissionTest",
+              "name": "android13PermissionDenialPreventsPrivateNotifications",
+              "status": "skipped",
+              "seconds": "0.011",
+              "failure": null
+            }
+          ],
+          "junitFile": "docs/release/browserstack-espresso-reports/32042ed8ea7039d448e49e70c80356123cc9f397.xml",
+          "junitSha256": "7897c82639c9a517e6ed88750de141e6d64c1172cc28f54363c919e296ca1cec"
+        },
+        {
+          "sessionId": "4ccd71c46b22c46b588883adfb09997081450180",
+          "status": "passed",
+          "device": "Samsung Galaxy Tab S8",
+          "android": "12.0",
+          "durationSeconds": 81,
+          "counts": {
+            "passed": 3,
+            "failed": 0,
+            "skipped": 1,
+            "timedout": 0,
+            "error": 0
+          },
+          "tests": [
+            {
+              "class": "com.example.ExampleInstrumentedTest",
+              "name": "useAppContext",
+              "status": "passed",
+              "seconds": "0.008",
+              "failure": null
+            },
+            {
+              "class": "com.example.NativeApiFixtureTest",
+              "name": "tlsMutationKeepsPayloadMinimalAndRejectsSemanticErrors",
+              "status": "passed",
+              "seconds": "0.473",
+              "failure": null
+            },
+            {
+              "class": "com.example.NativeLoginNavigationTest",
+              "name": "freshInstallRequiresExplicitTermsBeforeGuestNavigation",
+              "status": "passed",
+              "seconds": "2.38",
+              "failure": null
+            },
+            {
+              "class": "com.example.NativeNotificationPermissionTest",
+              "name": "android13PermissionDenialPreventsPrivateNotifications",
+              "status": "skipped",
+              "seconds": "0.01",
+              "failure": null
+            }
+          ],
+          "junitFile": "docs/release/browserstack-espresso-reports/4ccd71c46b22c46b588883adfb09997081450180.xml",
+          "junitSha256": "9e532103a48f04b6708445e918482dd09a5d9e9f9936d1c7d66a6e1c918b3d1d"
+        },
+        {
+          "sessionId": "d6d3dae03bbad6e57f7313f5b7b95559907972a2",
+          "status": "failed",
+          "device": "Google Pixel 7",
+          "android": "13.0",
+          "durationSeconds": 84,
+          "counts": {
+            "passed": 3,
+            "failed": 1,
+            "skipped": 0,
+            "timedout": 0,
+            "error": 0
+          },
+          "tests": [
+            {
+              "class": "com.example.ExampleInstrumentedTest",
+              "name": "useAppContext",
+              "status": "passed",
+              "seconds": "0.006",
+              "failure": null
+            },
+            {
+              "class": "com.example.NativeApiFixtureTest",
+              "name": "tlsMutationKeepsPayloadMinimalAndRejectsSemanticErrors",
+              "status": "passed",
+              "seconds": "0.578",
+              "failure": null
+            },
+            {
+              "class": "com.example.NativeLoginNavigationTest",
+              "name": "freshInstallRequiresExplicitTermsBeforeGuestNavigation",
+              "status": "passed",
+              "seconds": "2.598",
+              "failure": null
+            },
+            {
+              "class": "com.example.NativeNotificationPermissionTest",
+              "name": "android13PermissionDenialPreventsPrivateNotifications",
+              "status": "failed",
+              "seconds": "0.039",
+              "failure": "java.lang.AssertionError: expected:<0> but was:<-1000>"
+            }
+          ],
+          "junitFile": "docs/release/browserstack-espresso-reports/d6d3dae03bbad6e57f7313f5b7b95559907972a2.xml",
+          "junitSha256": "ec68e62c8672439d9de3820abf75be5346f7c5a3a255c3cfceb2b3f42a7bc4df"
+        },
+        {
+          "sessionId": "62f9afda3ecf3853badb2ad02e14c390ed8ac8a3",
+          "status": "failed",
+          "device": "Samsung Galaxy S26",
+          "android": "16.0",
+          "durationSeconds": 100,
+          "counts": {
+            "passed": 3,
+            "failed": 1,
+            "skipped": 0,
+            "timedout": 0,
+            "error": 0
+          },
+          "tests": [
+            {
+              "class": "com.example.ExampleInstrumentedTest",
+              "name": "useAppContext",
+              "status": "passed",
+              "seconds": "0.003",
+              "failure": null
+            },
+            {
+              "class": "com.example.NativeApiFixtureTest",
+              "name": "tlsMutationKeepsPayloadMinimalAndRejectsSemanticErrors",
+              "status": "passed",
+              "seconds": "0.46",
+              "failure": null
+            },
+            {
+              "class": "com.example.NativeLoginNavigationTest",
+              "name": "freshInstallRequiresExplicitTermsBeforeGuestNavigation",
+              "status": "passed",
+              "seconds": "2.169",
+              "failure": null
+            },
+            {
+              "class": "com.example.NativeNotificationPermissionTest",
+              "name": "android13PermissionDenialPreventsPrivateNotifications",
+              "status": "failed",
+              "seconds": "0.015",
+              "failure": "java.lang.AssertionError: expected:<0> but was:<-1000>"
+            }
+          ],
+          "junitFile": "docs/release/browserstack-espresso-reports/62f9afda3ecf3853badb2ad02e14c390ed8ac8a3.xml",
+          "junitSha256": "13b7a5153cb896840f68f8230e4de6d55837a74f2b52b4e462e79675d35602ae"
+        }
+      ],
+      "commit": "d63aea420207b8aacf7eb7866820bd173c42a519",
+      "appSha256": "f4059de47bcc5bd9c0b9c37e3a1d919b839cb14df2871f8ccbb770f8bbf21748",
+      "testSuiteSha256": "91ce1e8dd57e01cee3b0b8d98c708ea1dd1a3eb06a6f93d5dfd22c3573345cf4"
+    },
+    {
+      "lane": "release-retry",
+      "buildId": "e7507395180c18cfcdfc14d9003ad963a7a611e5",
+      "status": "passed",
+      "startTime": "2026-10-10 19:11:26 UTC",
+      "allowDeviceMockServer": true,
+      "uploadedAppUrl": "bs://0a76a39ee4cbf27583d619da54c81dc389f64e9e",
+      "uploadedTestSuiteUrl": "bs://1340b0144604bb0d9afd0819f78b9dc264d633be",
+      "sessions": [
+        {
+          "sessionId": "d3944e53eb48342b80b13dafefcbd2798cceaeb4",
+          "status": "passed",
+          "device": "Samsung Galaxy S20",
+          "android": "10.0",
+          "durationSeconds": 176,
+          "counts": {
+            "passed": 10,
+            "failed": 0,
+            "skipped": 0,
+            "timedout": 0,
+            "error": 0
+          },
+          "tests": [
+            {
+              "class": "com.example.ReleaseSecurityRuntimeTest",
+              "name": "publicExportContainsNoCredentialAndCannotDowngradeToHttp",
+              "status": "passed",
+              "seconds": "0.168",
+              "failure": null
+            },
+            {
+              "class": "com.example.ReleaseSecurityRuntimeTest",
+              "name": "backupAndTransferRulesExcludeCredentials",
+              "status": "passed",
+              "seconds": "0.006",
+              "failure": null
+            },
+            {
+              "class": "com.example.ReleaseSecurityRuntimeTest",
+              "name": "releaseIsNotDebuggableAndNetworkLoggingIsDisabled",
+              "status": "passed",
+              "seconds": "0.046",
+              "failure": null
+            },
+            {
+              "class": "com.example.ReleaseSecurityRuntimeTest",
+              "name": "bundledLicensesAreReadableWithoutAcceptingTerms",
+              "status": "passed",
+              "seconds": "0.011",
+              "failure": null
+            },
+            {
+              "class": "com.example.ReleaseSecurityRuntimeTest",
+              "name": "cleartextTransportIsRejectedBeforeSendingCredentials",
+              "status": "passed",
+              "seconds": "0.06",
+              "failure": null
+            },
+            {
+              "class": "com.example.ReleaseSecurityRuntimeTest",
+              "name": "legacyKeyMigratesAndAccountClearRemovesItsData",
+              "status": "passed",
+              "seconds": "0.043",
+              "failure": null
+            },
+            {
+              "class": "com.example.ReleaseSecurityRuntimeTest",
+              "name": "allFiveLegalDocumentsStillHaveValidDraftHashes",
+              "status": "passed",
+              "seconds": "0.034",
+              "failure": null
+            },
+            {
+              "class": "com.example.ReleaseSecurityRuntimeTest",
+              "name": "credentialedTlsRedirectNeverReachesAnotherHost",
+              "status": "passed",
+              "seconds": "0.163",
+              "failure": null
+            },
+            {
+              "class": "com.example.ReleaseSecurityRuntimeTest",
+              "name": "defaultTrustRejectsUntrustedServerCertificate",
+              "status": "passed",
+              "seconds": "0.117",
+              "failure": null
+            },
+            {
+              "class": "com.example.ReleaseSecurityRuntimeTest",
+              "name": "keystoreEncryptionPersistsNoPlaintextAndRejectsTampering",
+              "status": "passed",
+              "seconds": "0.058",
+              "failure": null
+            }
+          ],
+          "junitFile": "docs/release/browserstack-espresso-reports/d3944e53eb48342b80b13dafefcbd2798cceaeb4.xml",
+          "junitSha256": "1fc66f091aae51a0517667c53d756b82153a3815277a722e7db6f6fcd3fa7606"
+        },
+        {
+          "sessionId": "5ca145007eee9c14605533bdf0cce5ac8e74a871",
+          "status": "passed",
+          "device": "Samsung Galaxy Tab S8",
+          "android": "12.0",
+          "durationSeconds": 167,
+          "counts": {
+            "passed": 10,
+            "failed": 0,
+            "skipped": 0,
+            "timedout": 0,
+            "error": 0
+          },
+          "tests": [
+            {
+              "class": "com.example.ReleaseSecurityRuntimeTest",
+              "name": "publicExportContainsNoCredentialAndCannotDowngradeToHttp",
+              "status": "passed",
+              "seconds": "0.075",
+              "failure": null
+            },
+            {
+              "class": "com.example.ReleaseSecurityRuntimeTest",
+              "name": "backupAndTransferRulesExcludeCredentials",
+              "status": "passed",
+              "seconds": "0.005",
+              "failure": null
+            },
+            {
+              "class": "com.example.ReleaseSecurityRuntimeTest",
+              "name": "releaseIsNotDebuggableAndNetworkLoggingIsDisabled",
+              "status": "passed",
+              "seconds": "0.012",
+              "failure": null
+            },
+            {
+              "class": "com.example.ReleaseSecurityRuntimeTest",
+              "name": "bundledLicensesAreReadableWithoutAcceptingTerms",
+              "status": "passed",
+              "seconds": "0.008",
+              "failure": null
+            },
+            {
+              "class": "com.example.ReleaseSecurityRuntimeTest",
+              "name": "cleartextTransportIsRejectedBeforeSendingCredentials",
+              "status": "passed",
+              "seconds": "0.019",
+              "failure": null
+            },
+            {
+              "class": "com.example.ReleaseSecurityRuntimeTest",
+              "name": "legacyKeyMigratesAndAccountClearRemovesItsData",
+              "status": "passed",
+              "seconds": "0.051",
+              "failure": null
+            },
+            {
+              "class": "com.example.ReleaseSecurityRuntimeTest",
+              "name": "allFiveLegalDocumentsStillHaveValidDraftHashes",
+              "status": "passed",
+              "seconds": "0.011",
+              "failure": null
+            },
+            {
+              "class": "com.example.ReleaseSecurityRuntimeTest",
+              "name": "credentialedTlsRedirectNeverReachesAnotherHost",
+              "status": "passed",
+              "seconds": "0.099",
+              "failure": null
+            },
+            {
+              "class": "com.example.ReleaseSecurityRuntimeTest",
+              "name": "defaultTrustRejectsUntrustedServerCertificate",
+              "status": "passed",
+              "seconds": "0.038",
+              "failure": null
+            },
+            {
+              "class": "com.example.ReleaseSecurityRuntimeTest",
+              "name": "keystoreEncryptionPersistsNoPlaintextAndRejectsTampering",
+              "status": "passed",
+              "seconds": "0.036",
+              "failure": null
+            }
+          ],
+          "junitFile": "docs/release/browserstack-espresso-reports/5ca145007eee9c14605533bdf0cce5ac8e74a871.xml",
+          "junitSha256": "81cb935389c9d593f0ad32e994736244b1efc22a748e7ed516c6c87e95a22153"
+        },
+        {
+          "sessionId": "2d08712f68ca8f37c689a17cf053ded6af2a6663",
+          "status": "passed",
+          "device": "Google Pixel 7",
+          "android": "13.0",
+          "durationSeconds": 158,
+          "counts": {
+            "passed": 10,
+            "failed": 0,
+            "skipped": 0,
+            "timedout": 0,
+            "error": 0
+          },
+          "tests": [
+            {
+              "class": "com.example.ReleaseSecurityRuntimeTest",
+              "name": "publicExportContainsNoCredentialAndCannotDowngradeToHttp",
+              "status": "passed",
+              "seconds": "0.077",
+              "failure": null
+            },
+            {
+              "class": "com.example.ReleaseSecurityRuntimeTest",
+              "name": "backupAndTransferRulesExcludeCredentials",
+              "status": "passed",
+              "seconds": "0.008",
+              "failure": null
+            },
+            {
+              "class": "com.example.ReleaseSecurityRuntimeTest",
+              "name": "releaseIsNotDebuggableAndNetworkLoggingIsDisabled",
+              "status": "passed",
+              "seconds": "0.011",
+              "failure": null
+            },
+            {
+              "class": "com.example.ReleaseSecurityRuntimeTest",
+              "name": "bundledLicensesAreReadableWithoutAcceptingTerms",
+              "status": "passed",
+              "seconds": "0.009",
+              "failure": null
+            },
+            {
+              "class": "com.example.ReleaseSecurityRuntimeTest",
+              "name": "cleartextTransportIsRejectedBeforeSendingCredentials",
+              "status": "passed",
+              "seconds": "0.029",
+              "failure": null
+            },
+            {
+              "class": "com.example.ReleaseSecurityRuntimeTest",
+              "name": "legacyKeyMigratesAndAccountClearRemovesItsData",
+              "status": "passed",
+              "seconds": "0.028",
+              "failure": null
+            },
+            {
+              "class": "com.example.ReleaseSecurityRuntimeTest",
+              "name": "allFiveLegalDocumentsStillHaveValidDraftHashes",
+              "status": "passed",
+              "seconds": "0.012",
+              "failure": null
+            },
+            {
+              "class": "com.example.ReleaseSecurityRuntimeTest",
+              "name": "credentialedTlsRedirectNeverReachesAnotherHost",
+              "status": "passed",
+              "seconds": "0.062",
+              "failure": null
+            },
+            {
+              "class": "com.example.ReleaseSecurityRuntimeTest",
+              "name": "defaultTrustRejectsUntrustedServerCertificate",
+              "status": "passed",
+              "seconds": "0.05",
+              "failure": null
+            },
+            {
+              "class": "com.example.ReleaseSecurityRuntimeTest",
+              "name": "keystoreEncryptionPersistsNoPlaintextAndRejectsTampering",
+              "status": "passed",
+              "seconds": "0.042",
+              "failure": null
+            }
+          ],
+          "junitFile": "docs/release/browserstack-espresso-reports/2d08712f68ca8f37c689a17cf053ded6af2a6663.xml",
+          "junitSha256": "fa2f9c521221edf273c6edb0e89037e324ce051752bf25ddf9da7ff330ef4f11"
+        },
+        {
+          "sessionId": "73407808ae3ef9e1bdbf171bc48e3c5f480feefb",
+          "status": "passed",
+          "device": "Samsung Galaxy S26",
+          "android": "16.0",
+          "durationSeconds": 155,
+          "counts": {
+            "passed": 10,
+            "failed": 0,
+            "skipped": 0,
+            "timedout": 0,
+            "error": 0
+          },
+          "tests": [
+            {
+              "class": "com.example.ReleaseSecurityRuntimeTest",
+              "name": "publicExportContainsNoCredentialAndCannotDowngradeToHttp",
+              "status": "passed",
+              "seconds": "0.124",
+              "failure": null
+            },
+            {
+              "class": "com.example.ReleaseSecurityRuntimeTest",
+              "name": "backupAndTransferRulesExcludeCredentials",
+              "status": "passed",
+              "seconds": "0.004",
+              "failure": null
+            },
+            {
+              "class": "com.example.ReleaseSecurityRuntimeTest",
+              "name": "releaseIsNotDebuggableAndNetworkLoggingIsDisabled",
+              "status": "passed",
+              "seconds": "0.011",
+              "failure": null
+            },
+            {
+              "class": "com.example.ReleaseSecurityRuntimeTest",
+              "name": "bundledLicensesAreReadableWithoutAcceptingTerms",
+              "status": "passed",
+              "seconds": "0.005",
+              "failure": null
+            },
+            {
+              "class": "com.example.ReleaseSecurityRuntimeTest",
+              "name": "cleartextTransportIsRejectedBeforeSendingCredentials",
+              "status": "passed",
+              "seconds": "0.018",
+              "failure": null
+            },
+            {
+              "class": "com.example.ReleaseSecurityRuntimeTest",
+              "name": "legacyKeyMigratesAndAccountClearRemovesItsData",
+              "status": "passed",
+              "seconds": "0.016",
+              "failure": null
+            },
+            {
+              "class": "com.example.ReleaseSecurityRuntimeTest",
+              "name": "allFiveLegalDocumentsStillHaveValidDraftHashes",
+              "status": "passed",
+              "seconds": "0.01",
+              "failure": null
+            },
+            {
+              "class": "com.example.ReleaseSecurityRuntimeTest",
+              "name": "credentialedTlsRedirectNeverReachesAnotherHost",
+              "status": "passed",
+              "seconds": "0.131",
+              "failure": null
+            },
+            {
+              "class": "com.example.ReleaseSecurityRuntimeTest",
+              "name": "defaultTrustRejectsUntrustedServerCertificate",
+              "status": "passed",
+              "seconds": "0.033",
+              "failure": null
+            },
+            {
+              "class": "com.example.ReleaseSecurityRuntimeTest",
+              "name": "keystoreEncryptionPersistsNoPlaintextAndRejectsTampering",
+              "status": "passed",
+              "seconds": "0.025",
+              "failure": null
+            }
+          ],
+          "junitFile": "docs/release/browserstack-espresso-reports/73407808ae3ef9e1bdbf171bc48e3c5f480feefb.xml",
+          "junitSha256": "787f38cd26e12f49a4f187a416a41aca3f408db1b258d0a910114f1971b9d8f5"
+        }
+      ],
+      "commit": "d63aea420207b8aacf7eb7866820bd173c42a519",
+      "appSha256": "e6845d35ed28a109c80d2968ed3ac37915f3b0640b96b7d02f400884f5302961",
+      "testSuiteSha256": "c5ead538b64df5c306db249ad403575af569e906cd631e95f7f082f13aa7c5a6"
+    }
+  ],
+  "localFixtureRetestPassed": true,
+  "releaseSecurityRetestPassed": true,
+  "limits": [
+    "No real NextDNS account or API mutation was exercised.",
+    "Test legal acceptance belongs only to disposable device installations; DRAFT remains.",
+    "Release APK uses the ephemeral CI audit signer, not approved production signing.",
+    "Uploaded APK hashes are not hashes of BrowserStack-resigned installed packages.",
+    "API 24/25 and foldable devices are absent from the authenticated catalog.",
+    "The native notification test stops before the permission-denial assertions because of its channel visibility assertion.",
+    "Landscape defect NDNS-011 remains open.",
+    "Passing test methods do not close the complete B01-B22 acceptance cases."
+  ]
+}
