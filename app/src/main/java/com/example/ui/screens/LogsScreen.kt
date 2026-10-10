@@ -1,7 +1,6 @@
 package com.example.ui.screens
 
 import com.example.i18n.UiLabels
-
 import com.example.R
 import com.example.i18n.AppStrings
 
@@ -116,7 +115,7 @@ fun LogsScreen(
   val isLiveStreaming by viewModel.isLiveStreaming.collectAsStateWithLifecycle()
 
   var searchQuery by remember { mutableStateOf("") }
-  var selectedDeviceFilter by remember { mutableStateOf("Tüm cihazlar") }
+  var selectedDeviceFilter by remember { mutableStateOf<String?>(null) }
   var showDeviceMenu by remember { mutableStateOf(false) }
   var expandedLogId by remember { mutableStateOf<String?>(null) }
   var showLiveStreamInfo by remember { mutableStateOf(false) }
@@ -139,7 +138,7 @@ fun LogsScreen(
         list.add(dn)
       }
     }
-    listOf("Tüm cihazlar") + list.distinct()
+    list.distinct()
   }
 
   val filteredLogs = remember(logs, searchQuery, selectedDeviceFilter) {
@@ -149,7 +148,7 @@ fun LogsScreen(
         (log.deviceName?.contains(searchQuery.trim(), ignoreCase = true) == true) ||
         (log.blockReason?.contains(searchQuery.trim(), ignoreCase = true) == true)
 
-      val matchesDevice = selectedDeviceFilter == "Tüm cihazlar" ||
+      val matchesDevice = selectedDeviceFilter == null ||
         log.deviceName?.equals(selectedDeviceFilter, ignoreCase = true) == true
 
       matchesSearch && matchesDevice
@@ -234,12 +233,12 @@ fun LogsScreen(
 // =========================================================================
 
 @Composable
-private fun LogsHeaderControls(
-  selectedDeviceFilter: String,
+internal fun LogsHeaderControls(
+  selectedDeviceFilter: String?,
   detectedDevices: List<String>,
   showDeviceMenu: Boolean,
   onToggleDeviceMenu: (Boolean) -> Unit,
-  onSelectDevice: (String) -> Unit,
+  onSelectDevice: (String?) -> Unit,
   isLiveStreaming: Boolean,
   onToggleLiveStream: () -> Unit,
   showLiveStreamInfo: Boolean,
@@ -268,7 +267,7 @@ private fun LogsHeaderControls(
           horizontalArrangement = Arrangement.spacedBy(6.dp)
         ) {
           Text(
-            text = UiLabels.canonical(selectedDeviceFilter),
+            text = selectedDeviceFilter ?: AppStrings.get(R.string.all_devices),
             color = MaterialTheme.colorScheme.onSurface,
             fontSize = 12.5.sp,
             fontWeight = FontWeight.Medium
@@ -289,11 +288,11 @@ private fun LogsHeaderControls(
           .background(MaterialTheme.colorScheme.surface)
           .border(1.dp, MaterialTheme.colorScheme.outline, RoundedCornerShape(12.dp))
       ) {
-        detectedDevices.forEach { dev ->
+        (listOf(null) + detectedDevices).forEach { dev ->
           DropdownMenuItem(
             text = {
               Text(
-                text = dev,
+                text = dev ?: AppStrings.get(R.string.all_devices),
                 color = if (dev == selectedDeviceFilter) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurface,
                 fontSize = 12.sp
               )

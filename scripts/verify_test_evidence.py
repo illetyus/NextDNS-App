@@ -57,3 +57,6 @@ for class_name in ("LegalAcceptanceStoreTest", "LegalDocumentsTest", "LegalDocum
 instructions = next((item for item in coverage.findall("counter") if item.get("type") == "INSTRUCTION"), None)
 assert instructions is not None and int(instructions.get("covered", 0)) > 0, "No executed application instructions in coverage"
 print(f"PASS: {tests} tests, {failures} failures, {skipped} skipped; {len(screenshots)} generated screenshots; {len(classes)} coverage classes")
+
+from verify_quality_regressions import verify
+verify(root)

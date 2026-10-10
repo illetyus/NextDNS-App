@@ -1,5 +1,7 @@
 # Kod kalitesi incelemesi — 10 Ekim 2026
 
+> Bu dosya ilk incelemenin tarihsel kaydıdır. Güncel durum: [10 kusurun düzeltme raporu](CODE_QUALITY_FIXES_TR_2026-10-10.md); kod/JVM doğrulandı, cihaz kabulü bekliyor.
+
 **Sonuç:** Teknik temel ve teslim kanıtı tutarlıdır; kaynak incelemesi **3 yüksek öncelikli ve 7 orta öncelikli kod kusuru** ortaya çıkarmıştır. Son cihaz kabulü/yayın sürecine geçmeden bu kayıtlar için düzeltme ve hedefli doğrulama gerekir. Başarılı CI sonucu, aşağıdaki koşullu hata yollarının doğru çalıştığını kanıtlamaz.
 
 İncelenen kaynak commit’i: [`4abf26a1a556cf42235fbf05c70f89cb5ad79e8c`](https://github.com/illetyus/open-source-client-for-nextdns/tree/4abf26a1a556cf42235fbf05c70f89cb5ad79e8c). Başarılı [main CI #38004548934](https://github.com/illetyus/open-source-client-for-nextdns/actions/runs/38004548934) ve imzalı APK/AAB kanıtları aynı commit’e bağlıdır. Bu denetim belgeleri uygulama kodunu veya imzalı APK içeriğini değiştirmez.

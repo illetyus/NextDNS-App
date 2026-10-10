@@ -565,4 +565,8 @@
     <string name="copy_ddns">"URL DDNS"</string>
     <string name="copy_chromeos_doh">"Adresse DoH de ChromeOS"</string>
     <string name="source_licenses_label">Code source et licences</string>
+    <string name="diagnostic_unverified_title">"Le profil sélectionné n’a pas pu être vérifié"</string>
+    <string name="diagnostic_unverified_subtitle">"NextDNS est détecté, mais le profil mesuré ne correspond pas au profil sélectionné."</string>
+    <string name="diagnostic_detected_title">"NextDNS détecté"</string>
+    <string name="diagnostic_unselected_subtitle">"Cet appareil utilise NextDNS ; aucun profil n’est sélectionné."</string>
 </resources>

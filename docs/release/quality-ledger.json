@@ -3,8 +3,8 @@
   "reviewDate": "2026-10-10",
   "reviewedCommit": "4abf26a1a556cf42235fbf05c70f89cb5ad79e8c",
   "sourceHashFormat": "sha256-utf8-lf",
-  "status": "OPEN_FINDINGS",
-  "decision": "CORRECTIONS_REQUIRED_BEFORE_FINAL_DEVICE_ACCEPTANCE",
+  "status": "CODE_FIXES_JVM_VERIFIED_DEVICE_PENDING",
+  "decision": "PRODUCE_NEW_CANDIDATE_THEN_DEVICE_ACCEPTANCE",
   "severityCounts": {
     "P1": 3,
     "P2": 7
@@ -14,8 +14,8 @@
       "id": "NDNS-001",
       "severity": "P1",
       "type": "CODE_DEFECT",
-      "status": "OPEN",
-      "verification": "SOURCE_CONFIRMED",
+      "status": "FIXED_JVM_VERIFIED_DEVICE_PENDING",
+      "verification": "SOURCE_FIX_AND_EXECUTED_JVM_REGRESSIONS",
       "runtimeReproduced": false,
       "reviewedCommit": "4abf26a1a556cf42235fbf05c70f89cb5ad79e8c",
       "title": "Geciken API yanıtı eski hesap/profil verisini yeniden uygulayabilir",
@@ -62,15 +62,47 @@
         "B13",
         "B21"
       ],
-      "fixCommit": null,
-      "retestEvidence": []
+      "fixCommit": "40aefa8a6446bd1f16824cc14e290b6307f35440",
+      "retestEvidence": [
+        {
+          "kind": "JVM_ROBOLECTRIC_COMPOSE_AND_CONTROLLED_NETWORK_FIXTURES",
+          "ciUrl": "https://github.com/illetyus/open-source-client-for-nextdns/actions/runs/38063979745",
+          "builtCommit": "9eabdabd1a82bbca29ceef7169066a66f5fd8609",
+          "tests": [
+            {
+              "class": "com.example.data.repository.RepositoryRegressionTest",
+              "name": "lateLogsCannotPopulateAnotherProfile"
+            },
+            {
+              "class": "com.example.data.repository.RepositoryRegressionTest",
+              "name": "profileRoundTripStillRejectsOldLogs"
+            },
+            {
+              "class": "com.example.data.repository.RepositoryRegressionTest",
+              "name": "lateCreatedProfileCannotRestorePreferencesAfterLogout"
+            },
+            {
+              "class": "com.example.data.repository.RepositoryRegressionTest",
+              "name": "obsoleteSettingsCannotWriteAnotherProfilesCache"
+            },
+            {
+              "class": "com.example.data.repository.RepositoryRegressionTest",
+              "name": "normalCreatedProfileIsVerifiedPersistedAndSelected"
+            }
+          ],
+          "retainedSummary": "code-quality-fix-evidence-2026-10-10.json"
+        }
+      ],
+      "correction": "Oturum nesli ve değişmez hesap/profil bağlamı, eski yanıtların UI/cache yazmasını engeller; oturum işleri iptal edilir.",
+      "deviceRetestStatus": "NOT_RUN",
+      "controlledRegressionResult": "PASS"
     },
     {
       "id": "NDNS-002",
       "severity": "P1",
       "type": "CODE_DEFECT",
-      "status": "OPEN",
-      "verification": "SOURCE_CONFIRMED",
+      "status": "FIXED_JVM_VERIFIED_DEVICE_PENDING",
+      "verification": "SOURCE_FIX_AND_EXECUTED_JVM_REGRESSIONS",
       "runtimeReproduced": false,
       "reviewedCommit": "4abf26a1a556cf42235fbf05c70f89cb5ad79e8c",
       "title": "A profiline gönderilen mutasyon B profili okunarak doğrulanabilir",
@@ -110,15 +142,51 @@
         "B19",
         "B21"
       ],
-      "fixCommit": null,
-      "retestEvidence": []
+      "fixCommit": "40aefa8a6446bd1f16824cc14e290b6307f35440",
+      "retestEvidence": [
+        {
+          "kind": "JVM_ROBOLECTRIC_COMPOSE_AND_CONTROLLED_NETWORK_FIXTURES",
+          "ciUrl": "https://github.com/illetyus/open-source-client-for-nextdns/actions/runs/38063979745",
+          "builtCommit": "9eabdabd1a82bbca29ceef7169066a66f5fd8609",
+          "tests": [
+            {
+              "class": "com.example.data.repository.RepositoryRegressionTest",
+              "name": "mutationForACannotBeVerifiedUsingB"
+            },
+            {
+              "class": "com.example.data.repository.RepositoryRegressionTest",
+              "name": "successfulMutationReadsAndCachesTheSameProfile"
+            },
+            {
+              "class": "com.example.data.repository.RepositoryRegressionTest",
+              "name": "successfulHttpReadDoesNotVerifyAnUnappliedMutation"
+            },
+            {
+              "class": "com.example.data.repository.RepositoryRegressionTest",
+              "name": "deletingSelectedProfileVerifiesRemovalBeforeSelectingReplacement"
+            },
+            {
+              "class": "com.example.data.repository.RepositoryRegressionTest",
+              "name": "deletingLastProfileVerifiesEmptyListAndClearsSelection"
+            },
+            {
+              "class": "com.example.data.repository.RepositoryRegressionTest",
+              "name": "acceptedDeleteDoesNotSucceedWhenServerStillContainsTarget"
+            }
+          ],
+          "retainedSummary": "code-quality-fix-evidence-2026-10-10.json"
+        }
+      ],
+      "correction": "Yazma ve doğrulama aynı hedefe bağlanır; 23 bölüm mutasyonunda istenen değerin geri okunduğu doğrulanır.",
+      "deviceRetestStatus": "NOT_RUN",
+      "controlledRegressionResult": "PASS"
     },
     {
       "id": "NDNS-003",
       "severity": "P1",
       "type": "CODE_DEFECT",
-      "status": "OPEN",
-      "verification": "SOURCE_CONFIRMED",
+      "status": "FIXED_JVM_VERIFIED_DEVICE_PENDING",
+      "verification": "SOURCE_FIX_AND_EXECUTED_JVM_REGRESSIONS",
       "runtimeReproduced": false,
       "reviewedCommit": "4abf26a1a556cf42235fbf05c70f89cb5ad79e8c",
       "title": "Başarısız veya başka profile ait DNS ölçümü olumlu koruma durumu gösterir",
@@ -150,15 +218,39 @@
         "B08",
         "B19"
       ],
-      "fixCommit": null,
-      "retestEvidence": []
+      "fixCommit": "40aefa8a6446bd1f16824cc14e290b6307f35440",
+      "retestEvidence": [
+        {
+          "kind": "JVM_ROBOLECTRIC_COMPOSE_AND_CONTROLLED_NETWORK_FIXTURES",
+          "ciUrl": "https://github.com/illetyus/open-source-client-for-nextdns/actions/runs/38063979745",
+          "builtCommit": "9eabdabd1a82bbca29ceef7169066a66f5fd8609",
+          "tests": [
+            {
+              "class": "com.example.data.repository.RepositoryRegressionTest",
+              "name": "diagnosticTimeoutDoesNotReplaceLastSuccessWithFreshSuccess"
+            },
+            {
+              "class": "com.example.data.api.CancellableCallTest",
+              "name": "diagnosticHttpFailureIgnoresSuccessLookingJson"
+            },
+            {
+              "class": "com.example.ui.screens.DiagnosticAndDeviceMenuTest",
+              "name": "diagnosticBannerRequiresSuccessfulMeasurementOfSelectedProfile"
+            }
+          ],
+          "retainedSummary": "code-quality-fix-evidence-2026-10-10.json"
+        }
+      ],
+      "correction": "Başarısız ölçüm eski başarıyı güncel göstermez; olumlu profil durumu seçili ve ölçülen profil eşleşmesini gerektirir.",
+      "deviceRetestStatus": "NOT_RUN",
+      "controlledRegressionResult": "PASS"
     },
     {
       "id": "NDNS-004",
       "severity": "P2",
       "type": "CODE_DEFECT",
-      "status": "OPEN",
-      "verification": "SOURCE_CONFIRMED",
+      "status": "FIXED_JVM_VERIFIED_DEVICE_PENDING",
+      "verification": "SOURCE_FIX_AND_EXECUTED_JVM_REGRESSIONS",
       "runtimeReproduced": false,
       "reviewedCommit": "4abf26a1a556cf42235fbf05c70f89cb5ad79e8c",
       "title": "Web3 değeri sunucudan yerel ayar modeline aktarılmıyor",
@@ -205,15 +297,31 @@
         "B15",
         "B19"
       ],
-      "fixCommit": null,
-      "retestEvidence": []
+      "fixCommit": "40aefa8a6446bd1f16824cc14e290b6307f35440",
+      "retestEvidence": [
+        {
+          "kind": "JVM_ROBOLECTRIC_COMPOSE_AND_CONTROLLED_NETWORK_FIXTURES",
+          "ciUrl": "https://github.com/illetyus/open-source-client-for-nextdns/actions/runs/38063979745",
+          "builtCommit": "9eabdabd1a82bbca29ceef7169066a66f5fd8609",
+          "tests": [
+            {
+              "class": "com.example.data.repository.RepositoryRegressionTest",
+              "name": "web3TrueFalseAndMissingFieldPreserveAuthoritativeState"
+            }
+          ],
+          "retainedSummary": "code-quality-fix-evidence-2026-10-10.json"
+        }
+      ],
+      "correction": "Web3 true/false sunucudan modele ve cache içine aktarılır; eksik alan önceki yetkili değeri korur.",
+      "deviceRetestStatus": "NOT_RUN",
+      "controlledRegressionResult": "PASS"
     },
     {
       "id": "NDNS-005",
       "severity": "P2",
       "type": "CODE_DEFECT",
-      "status": "OPEN",
-      "verification": "SOURCE_CONFIRMED",
+      "status": "FIXED_JVM_VERIFIED_DEVICE_PENDING",
+      "verification": "SOURCE_FIX_AND_EXECUTED_JVM_REGRESSIONS",
       "runtimeReproduced": false,
       "reviewedCommit": "4abf26a1a556cf42235fbf05c70f89cb5ad79e8c",
       "title": "Kurulum ekranının tanılama döngüsü arka planda da çalışır",
@@ -252,15 +360,35 @@
         "B08",
         "B16"
       ],
-      "fixCommit": null,
-      "retestEvidence": []
+      "fixCommit": "40aefa8a6446bd1f16824cc14e290b6307f35440",
+      "retestEvidence": [
+        {
+          "kind": "JVM_ROBOLECTRIC_COMPOSE_AND_CONTROLLED_NETWORK_FIXTURES",
+          "ciUrl": "https://github.com/illetyus/open-source-client-for-nextdns/actions/runs/38063979745",
+          "builtCommit": "9eabdabd1a82bbca29ceef7169066a66f5fd8609",
+          "tests": [
+            {
+              "class": "com.example.ui.screens.DiagnosticPollingTest",
+              "name": "pauseStopsPollingAndCancelsInFlightCheckThenResumeStartsOneLoop"
+            },
+            {
+              "class": "com.example.data.repository.RepositoryRegressionTest",
+              "name": "cancelledDiagnosticClearsBothRepositoryAndViewModelBusyFlags"
+            }
+          ],
+          "retainedSummary": "code-quality-fix-evidence-2026-10-10.json"
+        }
+      ],
+      "correction": "Tanılama RESUMED yaşam döngüsünde tek sıralı döngü olarak çalışır; arka plana geçiş devam eden kontrolü iptal eder.",
+      "deviceRetestStatus": "NOT_RUN",
+      "controlledRegressionResult": "PASS"
     },
     {
       "id": "NDNS-006",
       "severity": "P2",
       "type": "CODE_DEFECT",
-      "status": "OPEN",
-      "verification": "SOURCE_CONFIRMED",
+      "status": "FIXED_JVM_VERIFIED_DEVICE_PENDING",
+      "verification": "SOURCE_FIX_AND_EXECUTED_JVM_REGRESSIONS",
       "runtimeReproduced": false,
       "reviewedCommit": "4abf26a1a556cf42235fbf05c70f89cb5ad79e8c",
       "title": "Coroutine iptali senkron OkHttp çağrısını kapatmıyor",
@@ -308,15 +436,39 @@
         "B13",
         "B21"
       ],
-      "fixCommit": null,
-      "retestEvidence": []
+      "fixCommit": "40aefa8a6446bd1f16824cc14e290b6307f35440",
+      "retestEvidence": [
+        {
+          "kind": "JVM_ROBOLECTRIC_COMPOSE_AND_CONTROLLED_NETWORK_FIXTURES",
+          "ciUrl": "https://github.com/illetyus/open-source-client-for-nextdns/actions/runs/38063979745",
+          "builtCommit": "9eabdabd1a82bbca29ceef7169066a66f5fd8609",
+          "tests": [
+            {
+              "class": "com.example.data.api.CancellableCallTest",
+              "name": "cancellationBeforeHeadersClosesLateDeliveredResponse"
+            },
+            {
+              "class": "com.example.data.api.CancellableCallTest",
+              "name": "cancellationDuringBlockingBodyReadCancelsCallAndClosesBody"
+            },
+            {
+              "class": "com.example.data.repository.RepositoryRegressionTest",
+              "name": "stoppingRepositorySseCancelsTheActualNetworkCall"
+            }
+          ],
+          "retainedSummary": "code-quality-fix-evidence-2026-10-10.json"
+        }
+      ],
+      "correction": "Coroutine iptali doğrudan OkHttp Call.cancel çağrısına bağlanır; SSE, tanılama ve export yanıtları yönetilir.",
+      "deviceRetestStatus": "NOT_RUN",
+      "controlledRegressionResult": "PASS"
     },
     {
       "id": "NDNS-007",
       "severity": "P2",
       "type": "CODE_DEFECT",
-      "status": "OPEN",
-      "verification": "SOURCE_CONFIRMED",
+      "status": "FIXED_JVM_VERIFIED_DEVICE_PENDING",
+      "verification": "SOURCE_FIX_AND_EXECUTED_JVM_REGRESSIONS",
       "runtimeReproduced": false,
       "reviewedCommit": "4abf26a1a556cf42235fbf05c70f89cb5ad79e8c",
       "title": "IP bağlama ve katalog hata yollarında Response kaynakları açık kalabilir",
@@ -355,15 +507,43 @@
         "B05",
         "B19"
       ],
-      "fixCommit": null,
-      "retestEvidence": []
+      "fixCommit": "40aefa8a6446bd1f16824cc14e290b6307f35440",
+      "retestEvidence": [
+        {
+          "kind": "JVM_ROBOLECTRIC_COMPOSE_AND_CONTROLLED_NETWORK_FIXTURES",
+          "ciUrl": "https://github.com/illetyus/open-source-client-for-nextdns/actions/runs/38063979745",
+          "builtCommit": "9eabdabd1a82bbca29ceef7169066a66f5fd8609",
+          "tests": [
+            {
+              "class": "com.example.data.api.CancellableCallTest",
+              "name": "ipLinkSuccessClosesUnconsumedBody"
+            },
+            {
+              "class": "com.example.data.api.CancellableCallTest",
+              "name": "allCatalogHttpFailurePathsCloseTheirUnconsumedBodies"
+            },
+            {
+              "class": "com.example.data.api.CancellableCallTest",
+              "name": "malformedDiagnosticJsonAlsoClosesBody"
+            },
+            {
+              "class": "com.example.data.api.CancellableCallTest",
+              "name": "exceptionInsideConsumerStillClosesResponse"
+            }
+          ],
+          "retainedSummary": "code-quality-fix-evidence-2026-10-10.json"
+        }
+      ],
+      "correction": "IP bağlama, katalog HTTP hatası ve JSON hata yollarında Response/body kaynakları kapanır.",
+      "deviceRetestStatus": "NOT_RUN",
+      "controlledRegressionResult": "PASS"
     },
     {
       "id": "NDNS-008",
       "severity": "P2",
       "type": "CODE_DEFECT",
-      "status": "OPEN",
-      "verification": "SOURCE_CONFIRMED",
+      "status": "FIXED_JVM_VERIFIED_DEVICE_PENDING",
+      "verification": "SOURCE_FIX_AND_EXECUTED_JVM_REGRESSIONS",
       "runtimeReproduced": false,
       "reviewedCommit": "4abf26a1a556cf42235fbf05c70f89cb5ad79e8c",
       "title": "Senkronizasyon bayrakları iptal ve eşzamanlı güncellemede tutarsızlaşabilir",
@@ -402,15 +582,43 @@
         "B08",
         "B16"
       ],
-      "fixCommit": null,
-      "retestEvidence": []
+      "fixCommit": "40aefa8a6446bd1f16824cc14e290b6307f35440",
+      "retestEvidence": [
+        {
+          "kind": "JVM_ROBOLECTRIC_COMPOSE_AND_CONTROLLED_NETWORK_FIXTURES",
+          "ciUrl": "https://github.com/illetyus/open-source-client-for-nextdns/actions/runs/38063979745",
+          "builtCommit": "9eabdabd1a82bbca29ceef7169066a66f5fd8609",
+          "tests": [
+            {
+              "class": "com.example.data.repository.RepositoryRegressionTest",
+              "name": "cancellingRefreshClearsItsBusyState"
+            },
+            {
+              "class": "com.example.data.repository.RepositoryRegressionTest",
+              "name": "oldRefreshCancellationCannotClearNewRefreshFlag"
+            },
+            {
+              "class": "com.example.data.repository.RepositoryRegressionTest",
+              "name": "differentSectionRefreshesKeepBothFlagsAndResults"
+            },
+            {
+              "class": "com.example.data.repository.RepositoryRegressionTest",
+              "name": "cancellingFullSyncClearsBusyStateWithoutStartingAnalytics"
+            }
+          ],
+          "retainedSummary": "code-quality-fix-evidence-2026-10-10.json"
+        }
+      ],
+      "correction": "Senkronizasyon haritası atomik güncellenir; en güncel istek belirteci ve finally temizliği eski isteğin yeni bayrağı silmesini engeller.",
+      "deviceRetestStatus": "NOT_RUN",
+      "controlledRegressionResult": "PASS"
     },
     {
       "id": "NDNS-009",
       "severity": "P2",
       "type": "CODE_DEFECT",
-      "status": "OPEN",
-      "verification": "SOURCE_CONFIRMED",
+      "status": "FIXED_JVM_VERIFIED_DEVICE_PENDING",
+      "verification": "SOURCE_FIX_AND_EXECUTED_JVM_REGRESSIONS",
       "runtimeReproduced": false,
       "reviewedCommit": "4abf26a1a556cf42235fbf05c70f89cb5ad79e8c",
       "title": "Günlük cihaz menüsünde Tüm cihazlar etiketi çevrilmiyor",
@@ -456,15 +664,31 @@
         "B12",
         "B17"
       ],
-      "fixCommit": null,
-      "retestEvidence": []
+      "fixCommit": "40aefa8a6446bd1f16824cc14e290b6307f35440",
+      "retestEvidence": [
+        {
+          "kind": "JVM_ROBOLECTRIC_COMPOSE_AND_CONTROLLED_NETWORK_FIXTURES",
+          "ciUrl": "https://github.com/illetyus/open-source-client-for-nextdns/actions/runs/38063979745",
+          "builtCommit": "9eabdabd1a82bbca29ceef7169066a66f5fd8609",
+          "tests": [
+            {
+              "class": "com.example.ui.screens.DiagnosticAndDeviceMenuTest",
+              "name": "allDevicesMenuIsLocalizedWhileRealDeviceNamesRemainUnchanged"
+            }
+          ],
+          "retainedSummary": "code-quality-fix-evidence-2026-10-10.json"
+        }
+      ],
+      "correction": "Tüm cihazlar seçimi null ile temsil edilir; beş dilde menü ve başlık çevrilir, gerçek cihaz adları korunur.",
+      "deviceRetestStatus": "NOT_RUN",
+      "controlledRegressionResult": "PASS"
     },
     {
       "id": "NDNS-010",
       "severity": "P2",
       "type": "CODE_DEFECT",
-      "status": "OPEN",
-      "verification": "SOURCE_CONFIRMED",
+      "status": "FIXED_JVM_VERIFIED_DEVICE_PENDING",
+      "verification": "SOURCE_FIX_AND_EXECUTED_JVM_REGRESSIONS",
       "runtimeReproduced": false,
       "reviewedCommit": "4abf26a1a556cf42235fbf05c70f89cb5ad79e8c",
       "title": "Bozuk export URL veya çıktı açma hatası kontrolsüz istisna oluşturabilir",
@@ -511,8 +735,52 @@
         "B16",
         "B19"
       ],
-      "fixCommit": null,
-      "retestEvidence": []
+      "fixCommit": "40aefa8a6446bd1f16824cc14e290b6307f35440",
+      "retestEvidence": [
+        {
+          "kind": "JVM_ROBOLECTRIC_COMPOSE_AND_CONTROLLED_NETWORK_FIXTURES",
+          "ciUrl": "https://github.com/illetyus/open-source-client-for-nextdns/actions/runs/38063979745",
+          "builtCommit": "9eabdabd1a82bbca29ceef7169066a66f5fd8609",
+          "tests": [
+            {
+              "class": "com.example.data.repository.RepositoryRegressionTest",
+              "name": "malformedExportLinkReturnsFailureInsteadOfThrowing"
+            },
+            {
+              "class": "com.example.data.repository.RepositoryRegressionTest",
+              "name": "validExportUsesNoApiKeyAndOutputWriteFailureReturnsFailure"
+            },
+            {
+              "class": "com.example.data.repository.RepositoryRegressionTest",
+              "name": "providerFailureIsReportedByViewModelWithoutSuccess"
+            },
+            {
+              "class": "com.example.data.repository.ExportDocumentTest",
+              "name": "deniedProviderReturnsFailureWithoutWriting"
+            },
+            {
+              "class": "com.example.data.repository.ExportDocumentTest",
+              "name": "nullProviderStreamReturnsFailure"
+            },
+            {
+              "class": "com.example.data.repository.ExportDocumentTest",
+              "name": "closeFailurePreventsSuccess"
+            },
+            {
+              "class": "com.example.data.repository.ExportDocumentTest",
+              "name": "cancellationPropagatesAndClosesProviderStream"
+            },
+            {
+              "class": "com.example.data.repository.ExportDocumentTest",
+              "name": "successIncludesProviderCloseAndExpectedBytes"
+            }
+          ],
+          "retainedSummary": "code-quality-fix-evidence-2026-10-10.json"
+        }
+      ],
+      "correction": "URL, belge sağlayıcısı açma/yazma/kapama işlemleri yönetilen Result sınırına alınır; iptal yeniden fırlatılır, kapama hatası başarı sayılmaz.",
+      "deviceRetestStatus": "NOT_RUN",
+      "controlledRegressionResult": "PASS"
     }
   ],
   "qualityObservations": [
@@ -520,9 +788,10 @@
       "id": "Q-001",
       "severity": "P2",
       "type": "TEST_COVERAGE_GAP",
-      "status": "OPEN",
+      "status": "TARGETED_REGRESSIONS_VERIFIED_DEVICE_PENDING",
       "title": "Repository oturum/mutasyon yollarının hedefli regresyon kanıtı eksik",
-      "detail": "JVM toplam LINE %20.73, BRANCH %10.28; NextDnsRepository sınıfı LINE %7.06. Coroutine/Compose üretilmiş kodu oranları etkiler; API 35 native güvenlik testleri bu JVM raporuna dahil değildir. Kritik bug yolları için mevcut testler başarı kanıtı vermez. Rastgele bir genel yüzde hedefi yerine yukarıdaki kapanış senaryoları gereklidir."
+      "detail": "JVM toplam LINE %20.73, BRANCH %10.28; NextDnsRepository sınıfı LINE %7.06. Coroutine/Compose üretilmiş kodu oranları etkiler; API 35 native güvenlik testleri bu JVM raporuna dahil değildir. Kritik bug yolları için mevcut testler başarı kanıtı vermez. Rastgele bir genel yüzde hedefi yerine yukarıdaki kapanış senaryoları gereklidir.",
+      "followUp": "37 hedefli regresyon ve 104 toplam JVM testi geçti; CI doğrulayıcı eksik/atlanmış/başarısız vakayı reddeder. Cihaz kabulü ve bütün uygulamanın test kapsamı ayrı kalır."
     },
     {
       "id": "Q-002",
@@ -530,7 +799,8 @@
       "type": "MAINTAINABILITY",
       "status": "OPEN",
       "title": "Repository çok sayıda sorumluluğu ve statik API bağımlılığını topluyor",
-      "detail": "2456 satırlık repository ağ, cache, profil, SSE, analytics ve sunum formatlamasını birlikte yönetir. Test edilebilir API/clock/session bağımlılıkları ve küçük saf mapper sınırları bakım işidir; önceki fazları baştan geliştirme gerekçesi değildir."
+      "detail": "2456 satırlık repository ağ, cache, profil, SSE, analytics ve sunum formatlamasını birlikte yönetir. Test edilebilir API/clock/session bağımlılıkları ve küçük saf mapper sınırları bakım işidir; önceki fazları baştan geliştirme gerekçesi değildir.",
+      "followUp": "API, diagnostic ve ağ istemcisi enjeksiyonu ile küçük kaynak/yaşam döngüsü/sunum yardımcıları eklendi. Repository sorumluluklarının ayrıştırılması bakım gözlemi olarak açık kalır."
     },
     {
       "id": "Q-003",
@@ -541,6 +811,12 @@
       "detail": "GitHub branch protection API main için 404 Branch not protected verdi; etkin branch rules yanıtı boş listedir. Normal PR/CI izlendiği doğrulandı; zorunlu review/check kuralı platform tarafından dayatılmıyor. Bu inceleme depo yönetim ayarlarını değiştirmez."
     }
   ],
-  "meaning": "SOURCE_CONFIRMED is a source inspection finding, not an executed Android or BrowserStack reproduction.",
-  "closureRule": "OPEN becomes VERIFIED_FIXED only with fix commit and retained regression/retest evidence; then rerun affected BrowserStack cases on the new candidate."
+  "meaning": "runtimeReproduced retains the original audit state. controlledRegressionResult records executed JVM fixtures; Android/BrowserStack acceptance remains NOT_RUN.",
+  "closureRule": "FIXED_JVM_VERIFIED_DEVICE_PENDING requires a fix commit and retained executed regressions. Device closure requires the affected B cases on the new signed candidate.",
+  "openCodeSeverityCounts": {
+    "P1": 0,
+    "P2": 0
+  },
+  "fixedAwaitingDevice": 10,
+  "fixEvidence": "code-quality-fix-evidence-2026-10-10.json"
 }

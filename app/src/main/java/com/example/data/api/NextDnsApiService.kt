@@ -759,7 +759,7 @@ interface NextDnsApiService {
     @Query("cursor") cursor: String? = null
   ): Response<NextDnsApiResponse<List<AnalyticsReasonItem>>>
 
-  
+
   @GET("profiles/{profileId}/analytics/companies")
   suspend fun getAnalyticsCompanies(
     @Header("X-Api-Key") apiKey: String,
@@ -945,7 +945,7 @@ object NextDnsNetworkClient {
       .create(NextDnsTestService::class.java)
   }
 
-  fun fetchTestConnectionDirect(profileId: String? = null): NextDnsTestResponse? {
+  suspend fun fetchTestConnectionDirect(profileId: String? = null, callFactory: okhttp3.Call.Factory = client): NextDnsTestResponse? {
     return try {
       val testUrl = if (!profileId.isNullOrBlank()) {
         val rand = java.util.UUID.randomUUID().toString().replace("-", "").take(12)
@@ -958,162 +958,182 @@ object NextDnsNetworkClient {
         .header("Accept", "application/json")
         .header("User-Agent", "Mozilla/5.0 (Linux; Android 14) OpenSourceClientForNextDNS/1.0")
         .build()
-      val response = client.newCall(request).execute()
-      val bodyStr = response.body?.string() ?: return null
-      val json = org.json.JSONObject(bodyStr)
-      NextDnsTestResponse(
-        status = json.optString("status").takeIf { it.isNotBlank() },
-        protocol = json.optString("protocol").takeIf { it.isNotBlank() },
-        profile = json.optString("profile").takeIf { it.isNotBlank() },
-        client = json.optString("client").takeIf { it.isNotBlank() },
-        srcIP = json.optString("srcIP").takeIf { it.isNotBlank() },
-        resolver = json.optString("resolver").takeIf { it.isNotBlank() },
-        server = json.optString("server").takeIf { it.isNotBlank() },
-        anycast = if (json.has("anycast")) json.optBoolean("anycast") else null
-      )
+      callFactory.newCall(request).withCancellableResponse { response ->
+        if (!response.isSuccessful) return@withCancellableResponse null
+        val bodyStr = response.body?.string() ?: return@withCancellableResponse null
+        val json = org.json.JSONObject(bodyStr)
+        NextDnsTestResponse(
+          status = json.optString("status").takeIf { it.isNotBlank() },
+          protocol = json.optString("protocol").takeIf { it.isNotBlank() },
+          profile = json.optString("profile").takeIf { it.isNotBlank() },
+          client = json.optString("client").takeIf { it.isNotBlank() },
+          srcIP = json.optString("srcIP").takeIf { it.isNotBlank() },
+          resolver = json.optString("resolver").takeIf { it.isNotBlank() },
+          server = json.optString("server").takeIf { it.isNotBlank() },
+          anycast = if (json.has("anycast")) json.optBoolean("anycast") else null
+        )
+      }
+    } catch (cancel: kotlinx.coroutines.CancellationException) {
+      throw cancel
     } catch (_: Exception) {
       null
     }
   }
 
-  fun linkIpAddress(profileId: String): Boolean {
+  suspend fun linkIpAddress(profileId: String, callFactory: okhttp3.Call.Factory = client): Boolean {
     return try {
       val request = Request.Builder()
         .url("https://link-ip.nextdns.io/$profileId")
         .header("Accept", "*/*")
         .build()
-      val resp = client.newCall(request).execute()
-      resp.isSuccessful
+      callFactory.newCall(request).withCancellableResponse { it.isSuccessful }
+    } catch (cancel: kotlinx.coroutines.CancellationException) {
+      throw cancel
     } catch (_: Exception) {
       false
     }
   }
 
-  fun fetchAvailableBlocklistsDirect(): List<BlocklistDto>? {
+  suspend fun fetchAvailableBlocklistsDirect(callFactory: okhttp3.Call.Factory = client): List<BlocklistDto>? {
     return try {
       val request = Request.Builder()
         .url("https://api.nextdns.io/privacy/blocklists")
         .header("Accept", "application/json")
         .header("User-Agent", "NextDNS-Android/1.0")
         .build()
-      val response = client.newCall(request).execute()
-      if (!response.isSuccessful) return null
-      val bodyStr = response.body?.string() ?: return null
-      val json = org.json.JSONObject(bodyStr)
-      val arr = json.optJSONArray("data") ?: return null
-      val list = mutableListOf<BlocklistDto>()
-      for (i in 0 until arr.length()) {
-        val obj = arr.getJSONObject(i)
-        list.add(
-          BlocklistDto(
-            id = obj.getString("id"),
-            name = obj.optString("name").takeIf { it.isNotBlank() && it != "null" },
-            description = obj.optString("description").takeIf { it.isNotBlank() && it != "null" },
-            entries = if (obj.has("entries") && !obj.isNull("entries")) obj.getLong("entries") else null,
-            website = obj.optString("website").takeIf { it.isNotBlank() && it != "null" },
-            updatedOn = obj.optString("updatedOn").takeIf { it.isNotBlank() && it != "null" }
+      callFactory.newCall(request).withCancellableResponse { response ->
+        if (!response.isSuccessful) return@withCancellableResponse null
+        val bodyStr = response.body?.string() ?: return@withCancellableResponse null
+        val json = org.json.JSONObject(bodyStr)
+        val arr = json.optJSONArray("data") ?: return@withCancellableResponse null
+        val list = mutableListOf<BlocklistDto>()
+        for (i in 0 until arr.length()) {
+          val obj = arr.getJSONObject(i)
+          list.add(
+            BlocklistDto(
+              id = obj.getString("id"),
+              name = obj.optString("name").takeIf { it.isNotBlank() && it != "null" },
+              description = obj.optString("description").takeIf { it.isNotBlank() && it != "null" },
+              entries = if (obj.has("entries") && !obj.isNull("entries")) obj.getLong("entries") else null,
+              website = obj.optString("website").takeIf { it.isNotBlank() && it != "null" },
+              updatedOn = obj.optString("updatedOn").takeIf { it.isNotBlank() && it != "null" }
+            )
           )
-        )
+        }
+        list
       }
-      list
+    } catch (cancel: kotlinx.coroutines.CancellationException) {
+      throw cancel
     } catch (_: Exception) {
       null
     }
   }
 
-  fun fetchAvailableNativesDirect(): List<NativeTrackingDto>? {
+  suspend fun fetchAvailableNativesDirect(callFactory: okhttp3.Call.Factory = client): List<NativeTrackingDto>? {
     return try {
       val request = Request.Builder()
         .url("https://api.nextdns.io/privacy/natives")
         .header("Accept", "application/json")
         .build()
-      val response = client.newCall(request).execute()
-      if (!response.isSuccessful) return null
-      val bodyStr = response.body?.string() ?: return null
-      val json = org.json.JSONObject(bodyStr)
-      val arr = json.optJSONArray("data") ?: return null
-      val list = mutableListOf<NativeTrackingDto>()
-      for (i in 0 until arr.length()) {
-        val obj = arr.getJSONObject(i)
-        list.add(NativeTrackingDto(id = obj.getString("id")))
+      callFactory.newCall(request).withCancellableResponse { response ->
+        if (!response.isSuccessful) return@withCancellableResponse null
+        val bodyStr = response.body?.string() ?: return@withCancellableResponse null
+        val json = org.json.JSONObject(bodyStr)
+        val arr = json.optJSONArray("data") ?: return@withCancellableResponse null
+        val list = mutableListOf<NativeTrackingDto>()
+        for (i in 0 until arr.length()) {
+          val obj = arr.getJSONObject(i)
+          list.add(NativeTrackingDto(id = obj.getString("id")))
+        }
+        list
       }
-      list
+    } catch (cancel: kotlinx.coroutines.CancellationException) {
+      throw cancel
     } catch (_: Exception) {
       null
     }
   }
 
-  fun fetchAvailableParentalServicesDirect(): List<ParentalServiceCatalogDto>? {
+  suspend fun fetchAvailableParentalServicesDirect(callFactory: okhttp3.Call.Factory = client): List<ParentalServiceCatalogDto>? {
     return try {
       val request = Request.Builder()
         .url("https://api.nextdns.io/parentalControl/services")
         .header("Accept", "application/json")
         .build()
-      val response = client.newCall(request).execute()
-      if (!response.isSuccessful) return null
-      val bodyStr = response.body?.string() ?: return null
-      val json = org.json.JSONObject(bodyStr)
-      val arr = json.optJSONArray("data") ?: return null
-      val list = mutableListOf<ParentalServiceCatalogDto>()
-      for (i in 0 until arr.length()) {
-        val obj = arr.getJSONObject(i)
-        list.add(
-          ParentalServiceCatalogDto(
-            id = obj.getString("id"),
-            website = obj.optString("website").takeIf { it.isNotBlank() && it != "null" }
+      callFactory.newCall(request).withCancellableResponse { response ->
+        if (!response.isSuccessful) return@withCancellableResponse null
+        val bodyStr = response.body?.string() ?: return@withCancellableResponse null
+        val json = org.json.JSONObject(bodyStr)
+        val arr = json.optJSONArray("data") ?: return@withCancellableResponse null
+        val list = mutableListOf<ParentalServiceCatalogDto>()
+        for (i in 0 until arr.length()) {
+          val obj = arr.getJSONObject(i)
+          list.add(
+            ParentalServiceCatalogDto(
+              id = obj.getString("id"),
+              website = obj.optString("website").takeIf { it.isNotBlank() && it != "null" }
+            )
           )
-        )
+        }
+        list
       }
-      list
+    } catch (cancel: kotlinx.coroutines.CancellationException) {
+      throw cancel
     } catch (_: Exception) {
       null
     }
   }
 
-  fun fetchAvailableParentalCategoriesDirect(): List<ParentalCategoryDto>? {
+  suspend fun fetchAvailableParentalCategoriesDirect(callFactory: okhttp3.Call.Factory = client): List<ParentalCategoryDto>? {
     return try {
       val request = Request.Builder()
         .url("https://api.nextdns.io/parentalControl/categories")
         .header("Accept", "application/json")
         .build()
-      val response = client.newCall(request).execute()
-      if (!response.isSuccessful) return null
-      val bodyStr = response.body?.string() ?: return null
-      val json = org.json.JSONObject(bodyStr)
-      val arr = json.optJSONArray("data") ?: return null
-      val list = mutableListOf<ParentalCategoryDto>()
-      for (i in 0 until arr.length()) {
-        val obj = arr.getJSONObject(i)
-        list.add(ParentalCategoryDto(id = obj.getString("id")))
+      callFactory.newCall(request).withCancellableResponse { response ->
+        if (!response.isSuccessful) return@withCancellableResponse null
+        val bodyStr = response.body?.string() ?: return@withCancellableResponse null
+        val json = org.json.JSONObject(bodyStr)
+        val arr = json.optJSONArray("data") ?: return@withCancellableResponse null
+        val list = mutableListOf<ParentalCategoryDto>()
+        for (i in 0 until arr.length()) {
+          val obj = arr.getJSONObject(i)
+          list.add(ParentalCategoryDto(id = obj.getString("id")))
+        }
+        list
       }
-      list
+    } catch (cancel: kotlinx.coroutines.CancellationException) {
+      throw cancel
     } catch (_: Exception) {
       null
     }
   }
 
-  fun fetchAvailableTldsDirect(): List<SecurityTldCatalogDto>? {
+  suspend fun fetchAvailableTldsDirect(callFactory: okhttp3.Call.Factory = client): List<SecurityTldCatalogDto>? {
     return try {
       val request = Request.Builder()
         .url("https://api.nextdns.io/security/tlds")
         .header("Accept", "application/json")
         .build()
-      val response = client.newCall(request).execute()
-      if (!response.isSuccessful) return null
-      val bodyStr = response.body?.string() ?: return null
-      val json = org.json.JSONObject(bodyStr)
-      val arr = json.optJSONArray("data") ?: return null
-      val list = mutableListOf<SecurityTldCatalogDto>()
-      for (i in 0 until arr.length()) {
-        val obj = arr.getJSONObject(i)
-        list.add(
-          SecurityTldCatalogDto(
-            id = obj.getString("id"),
-            spamhaus = if (obj.has("spamhaus")) obj.optInt("spamhaus", 0) else 0
+      callFactory.newCall(request).withCancellableResponse { response ->
+        if (!response.isSuccessful) return@withCancellableResponse null
+        val bodyStr = response.body?.string() ?: return@withCancellableResponse null
+        val json = org.json.JSONObject(bodyStr)
+        val arr = json.optJSONArray("data") ?: return@withCancellableResponse null
+        val list = mutableListOf<SecurityTldCatalogDto>()
+        for (i in 0 until arr.length()) {
+          val obj = arr.getJSONObject(i)
+          list.add(
+            SecurityTldCatalogDto(
+              id = obj.getString("id"),
+              spamhaus = if (obj.has("spamhaus")) obj.optInt("spamhaus", 0) else 0
+            )
           )
-        )
+        }
+        list
       }
-      list
+    } catch (cancel: kotlinx.coroutines.CancellationException) {
+      throw cancel
     } catch (_: Exception) {
       null
     }

@@ -33,8 +33,10 @@ import androidx.compose.ui.text.style.LineBreak
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.lifecycle.compose.LocalLifecycleOwner
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.isActive
+import com.example.data.model.DiagnosticConnectionState
+import com.example.data.model.diagnosticConnectionState
 import com.example.data.model.DiagnosticTestResult
 import com.example.data.model.NextDnsProfile
 import com.example.ui.components.*
@@ -61,15 +63,10 @@ fun SetupScreen(
   val profileId = profile.id
   val setup = profileSetup
 
-  // Live polling: initial check on profile change and periodic refresh while on screen
-  LaunchedEffect(activeProfile?.id) {
-    viewModel.runDiagnostic(showToast = false)
-  }
-
-  LaunchedEffect(Unit) {
-    while (isActive) {
-      delay(15_000L) // 15 seconds live polling
-      viewModel.runDiagnostic(showToast = false)
+  val lifecycleOwner = LocalLifecycleOwner.current
+  LaunchedEffect(lifecycleOwner, activeProfile?.id) {
+    lifecycleOwner.lifecycle.pollDiagnostics {
+      viewModel.refreshDiagnostic()
     }
   }
 
@@ -153,10 +150,12 @@ internal fun ConnectionStatusBanner(
   onOpenDnsSettings: () -> Unit,
   modifier: Modifier = Modifier
 ) {
-  val isTesting = testResult.isTesting || isDiagnosticRunning
-  val rawStatus = testResult.status.lowercase().trim()
-  val isUsingNextDns = rawStatus == "ok" || rawStatus == "using-nextdns"
-  val isOffline = rawStatus == "error" || (testResult.errorMessage != null && !isUsingNextDns)
+  val state = diagnosticConnectionState(activeProfile?.id, testResult, isDiagnosticRunning)
+  val isTesting = state == DiagnosticConnectionState.TESTING
+  val isUsingNextDns = state == DiagnosticConnectionState.MATCHED_PROFILE
+  val isOffline = state == DiagnosticConnectionState.ERROR
+  val unverifiedProfile = state == DiagnosticConnectionState.UNVERIFIED_PROFILE
+  val noSelectedProfile = state == DiagnosticConnectionState.NO_SELECTED_PROFILE
 
   val borderColor = when {
     isTesting -> MaterialTheme.colorScheme.primary.copy(alpha = 0.5f)
@@ -175,6 +174,8 @@ internal fun ConnectionStatusBanner(
   val title = when {
     isTesting -> AppStrings.get(R.string.ui_5ed3c5cf66)
     isUsingNextDns -> AppStrings.get(R.string.ui_934b24bdc9)
+    unverifiedProfile -> AppStrings.get(R.string.diagnostic_unverified_title)
+    noSelectedProfile -> AppStrings.get(R.string.diagnostic_detected_title)
     isOffline -> AppStrings.get(R.string.ui_97c1211397)
     else -> AppStrings.get(R.string.ui_48016c5791)
   }
@@ -182,6 +183,8 @@ internal fun ConnectionStatusBanner(
   val subtitle = when {
     isTesting -> AppStrings.get(R.string.ui_40f866a700)
     isUsingNextDns -> AppStrings.get(R.string.ui_ebbbefad7b)
+    unverifiedProfile -> AppStrings.get(R.string.diagnostic_unverified_subtitle)
+    noSelectedProfile -> AppStrings.get(R.string.diagnostic_unselected_subtitle)
     isOffline -> AppStrings.get(R.string.ui_19b9ff3444)
     !testResult.resolver.isNullOrBlank() -> AppStrings.get(R.string.current_resolver, testResult.resolver ?: AppStrings.get(R.string.unavailable))
     else -> AppStrings.get(R.string.ui_38cde25084)
